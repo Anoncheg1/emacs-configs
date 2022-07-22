@@ -4,25 +4,29 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ansi-color-faces-vector
-   [default default default italic underline success warning error])
+    [default default default italic underline success warning error])
  '(auto-compression-mode nil)
  '(auto-encryption-mode nil)
  '(custom-enabled-themes '(wombat manoj-dark))
+ '(delete-selection-mode t)
  '(diary-show-holidays-flag nil)
+ '(display-time-mode t)
  '(global-eldoc-mode -1)
  '(inhibit-startup-screen t)
  '(menu-bar-mode nil)
  '(mouse-wheel-mode nil)
- '(org-agenda-files '("~/todo.org"))
+ '(org-agenda-files '("/mnt/sda6/share/todo.org"))
  '(org-hide-leading-stars t)
+ '(org-image-actual-width '(300))
  '(org-src-preserve-indentation t)
  '(org-startup-folded t)
  '(package-selected-packages
-   '(ob-http company-restclient ## vlf hydra markdown-mode flycheck ggtags projectile))
+    '(magit company-jedi jedi ob-http company-restclient ## vlf hydra markdown-mode ggtags projectile))
+ '(scroll-lock-mode nil)
  '(size-indication-mode t)
  '(speedbar-show-unknown-files t)
  '(tool-bar-mode nil)
-  )
+ '(truncate-lines t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -56,8 +60,9 @@
  ;; (let ((name-and-pos '())
  ;;       (symbol-names '()))
 ;; ----------- BASIC CONFIGURATION --------------
+;; -- window title
 (setq-default frame-title-format '(
-				   ""
+				    ""
 				   (:eval (cond (buffer-read-only "%%  ")
 						((buffer-modified-p) "*  ")))
 				   'frame-list
@@ -82,8 +87,12 @@
   ;;             "%b  (" invocation-name "@" system-name ")")))
 
 
-;; window width
-(setq initial-frame-alist '( (width . 125)))
+;; --- window size ---
+(add-to-list 'default-frame-alist '(height . 35))
+(add-to-list 'default-frame-alist '(width . 130))
+;; (add-to-list 'default-frame-alist '(left   . 0))
+;; (add-to-list 'default-frame-alist '(top    . 0))
+
 ;; --- PATHS ---
 ;; backups dir
 (setq backup-directory-alist '(("." . "~/.MyEmacsBackups")))
@@ -178,17 +187,27 @@
 ;; --- GLOBAL HOOKS --
 (add-to-list 'completion-styles 'initials t)
 ;; delete white spaces at save
-(add-hook 'before-save-hook (lambda () (delete-trailing-whitespace)))
+(add-hook 'before-save-hook (lambda ()
+			      (delete-trailing-whitespace)
+			      ))
+
+;; (add-hook 'lisp-mode-hook
+;;       '(lambda ()
+;;          (add-hook 'before-save-hook
+;;                    (lambda ()
+;;                      (lisp-mode-untabify nil t))))) ;; untabify (point-min) (point-max)
 
 ;; --- GLOBAL KEY BINDINGS ---
 ;; (setq lisp-body-indent 0)
 ;; backspace
-(keyboard-translate ?\C-h  ?\C-?)
+;; (keyboard-translate ?\C-h  ?\C-?) ;; do not work in emacsclient
+(define-key (current-global-map) (kbd "C-h") 'backward-delete-char-untabify)
+
 
 ;; (global-set-key (kbd "M-z") 'previous-line) ; not working
 ;; (global-set-key (kbd "C-z") 'next-line) ; not working
 
-(defun my/keymap ()
+;; (defun my/keymap ()
     ;; -> C-f
     ;; <- C-l
     ;; ^ C-k
@@ -198,14 +217,13 @@
     (keyboard-translate ?\C-k  ?\C-p) ;; up
     (define-key key-translation-map (kbd "M-k") (kbd "M-p")) ;; up paragraph
     (keyboard-translate ?\C-p  ?\C-k) ;; kill line
-    ;; ;; (local-set-key (kbd "C-i") 'previous-line)
-    ;; (local-set-key (kbd "C-k") 'next-line)
-    (local-set-key (kbd "M-l") 'backward-word)
-    )
+;; (local-set-key (kbd "M-l") 'backward-word)
+    (define-key key-translation-map (kbd "M-l") (kbd "M-b")) ;; backward-word
+;;     )
 
-(add-hook 'text-mode-hook 'my/keymap )
+;; (add-hook 'text-mode-hook 'my/keymap )
 
-(add-hook 'prog-mode-hook 'my/keymap )
+;; (add-hook 'prog-mode-hook 'my/keymap )
 
 
 ;; ;; (keyboard-translate ?\C-n  ?\C-k)
@@ -237,8 +255,9 @@
   (end-of-line)
   (open-line arg)
   (forward-line 1)
-  (when newline-and-indent
-    (indent-according-to-mode)))
+  ;; (when newline-and-indent
+  ;;   (indent-according-to-mode))
+  )
 
 (global-set-key (kbd "C-o") 'open-next-line)
 
@@ -249,8 +268,9 @@
   (interactive "p")
   (beginning-of-line)
   (open-line arg)
-  (when newline-and-indent
-    (indent-according-to-mode)))
+  ;; (when newline-and-indent
+  ;;   (indent-according-to-mode))
+  )
 
 (global-set-key (kbd "M-o") 'open-previous-line)
 
@@ -290,12 +310,13 @@
 (global-set-key [(meta n)] 'forward-paragraph)
 ;; continue comment at next line
 (global-set-key (kbd "<M-return>") 'default-indent-new-line )
+(global-set-key (kbd "C-x C-o") 'other-window)
 ;; scroll M-v to C-z
 ;; (global-set-key (kbd "C-z") 'scroll-down-command)
 
 ;; (setq scroll-step 10) ;; keyboard scroll one line at a time
 
-(global-set-key (kbd "C-x w") 'other-window)
+;; (global-set-key (kbd "C-;") 'other-window)
 
 
 ;; -------- PACKAGE CNFIGURATION -----------
@@ -306,19 +327,25 @@
 ;; -------- ORG ------------
 
 (with-eval-after-load 'org
-;;   (define-key org-mode-map [(control meta tab)] 'org-insert-structure-template)
-
-
+  ;;   (define-key org-mode-map [(control meta tab)] 'org-insert-structure-template)
   ;; org initial folded - overview is not working
   ;; allow <s TAB in org-mode
   (require 'org-tempo)
   ;; -- org source code inline blocks
   ;; http-ob - REST API client
   (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (python . t)
-     (http . t)))
+    'org-babel-load-languages
+    '((emacs-lisp . t)
+       (python . t)
+       ;; (http . t)
+       ))
+  (with-eval-after-load 'ob-http
+    (org-babel-do-load-languages
+      'org-babel-load-languages
+      '((emacs-lisp . t)
+	 ;; (python . t)
+	 (http . t)))
+    )
   ;; soruce code block evaluate
   (setq org-confirm-babel-evaluate nil)
 
@@ -338,7 +365,7 @@
   ;; (setq org-ellipsis "⤵")
   (setq org-ellipsis " <")
 
- )
+  )
 
 (add-hook 'org-mode-hook (lambda ()
 			   ;; dont show all tree
@@ -491,8 +518,8 @@
 
 ;; -- Emacs-Lisp mode --
 (add-hook 'emacs-lisp-mode-hook (lambda ()
-				    (local-set-key (kbd "<backtab>") 'indent-for-tab-command)
-				    (setq lisp-indent-offset 4)
+				  (local-set-key (kbd "<backtab>") 'indent-for-tab-command)
+				  (setq lisp-indent-offset 2)
 				  ))
 
 
@@ -508,49 +535,185 @@
 ;; (setq-default ispell-program-name "aspell")
 
 ;; --------- Python -----------------
-(require 'jedi-core)
-;; ;; (require 'epc)
-;; ;; (require 'company)
-(require 'company-jedi)
 
-;; ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
-;; pylint
-;;
+(defun my/python-mode-hook ()
+  (local-set-key (kbd "<M-left>") 'python-indent-shift-left )
+  (local-set-key (kbd "<M-right>") 'python-indent-shift-right )
+  ;; numbers
+  (display-line-numbers-mode)
+  ;; indentation
+  (setq python-indent-offset 4)
+  ;; errors checking
+  (flymake-mode)
+)
+
+(add-hook 'python-mode-hook 'my/python-mode-hook)
+
+
+;; --- python company-jedi ---
+
+(add-hook 'python-mode-hook 'jedi:setup)
+(add-hook 'python-mode-hook 'company-mode)
 
 (with-eval-after-load 'jedi-core
-  ;;standard-jedi-settings
-  ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
-  (setq jedi:environment-root "jedi")
-  (setq jedi:server-command (jedi:-env-server-command))
+  (setq jedi:environment-virtualenv (list (expand-file-name "/home/u/.local/lib/python3.10/site-packages")))
 
-  (add-hook 'python-mode-hook 'jedi:setup)
   (setq jedi:complete-on-dot t)
   (setq jedi:use-shortcuts t)
   ;; my
   (setq jedi:get-in-function-call-timeout 0
-	jedi:get-in-function-call-delay   0
-	jedi:goto-definition-config    '((nil definition nil))
-	)
-)
+    jedi:get-in-function-call-delay   0.2
+    jedi:goto-definition-config    '((nil definition nil))
+    )
+  ;; (add-to-list 'company-backends 'company-jedi)
+  (add-to-list 'company-backends '(company-jedi company-files))
+  )
 
-(with-eval-after-load 'company-jedi
-  (defun my/python-mode-hook-c ()
-    (add-to-list 'company-backends 'company-jedi)
+(global-company-mode t)
+
+(with-eval-after-load 'company-mode
+  (setq
+    company-idle-delay                0.4
+    ;; delete-selection-mode             t
+    company-minimum-prefix-length     1
+    company-dabbrev-downcase          nil
+    company-dabbrev-other-buffers     t
+    company-echo-delay                0
+    company-show-numbers              t
+    company-dabbrev-code-everywhere   t
+    company-dabbrev-code-ignore-case  t
+    company-selection-wrap-around     t
+    company-tooltip-align-annotations t
+    ;; selection-coding-system           'utf-8
+    company-auto-complete-chars       '(32 40 41 119 46 34 36 47 124 33)
+    ;; company-backends '((company-yasnippet company-files company-semantic company-css company-capf))
+    )
+  ;; (define-key (company-active-map) (kbd "C-h") 'backward-delete-char-untabify)
+  ;; (define-key (current-global-map) (kbd "C-h") 'backward-delete-char-untabify)
+  ;; (fill-keymap company-active-map
+  ;;   ;; "C-l" 'company-complete-common
+  ;;   ;; "C-k" 'company-complete-selection
+  ;;   ;; (kbd "TAB") 'yas-expand
+  ;;   (kbd "C-h") 'backward-delete-char-untabify)
+  ;; (define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
   )
-  (add-hook 'python-mode-hook 'my/python-mode-hook-c)
-  (add-hook 'python-mode-hook 'company-mode)
-  )
-;; -- Python hooks
-(defun my/python-mode-hook ()
-  (add-to-list 'company-backends 'company-jedi)
-  (local-set-key (kbd "<M-left>") 'python-indent-shift-left )
-  (local-set-key (kbd "<M-right>") 'python-indent-shift-right )
-  (display-line-numbers-mode)
-  ;; indentation
-  (setq python-indent-offset 4)
-)
+
+(add-hook 'company-mode-hook
+  (lambda ()
+    (define-key company-active-map "\C-h" 'backward-delete-char-untabify)
+    ))
+
+
+;; --- python flycheck ---
+
+;; (progn
+;;                     (global-company-mode t)
+;;                     (setq company-idle-delay                -1
+;;                           delete-selection-mode             t
+;;                           company-minimum-prefix-length     1
+;;                           company-dabbrev-downcase          nil
+;;                           company-dabbrev-other-buffers     t
+;;                           company-echo-delay                0
+;;                           company-show-numbers              t
+;;                           company-dabbrev-code-everywhere   t
+;;                           company-dabbrev-code-ignore-case  t
+;;                           company-selection-wrap-around     t
+;;                           company-tooltip-align-annotations t
+;;                           selection-coding-system           'utf-8
+;;                           company-auto-complete-chars       '(32 40 41 119 46 34 36 47 124 33)
+;;                           company-backends '((company-yasnippet company-files company-semantic company-css company-capf
+;;                                 company-etags company-keywords company-nxml company-dabbrev-code company-dabbrev))))
+
+
+;; -- python anaconda-mode --
+;; (require 'cask)
+;; (require 'anaconda-mode)
+;; (require 'company-anaconda)
+
+;; (eval-after-load "company"
+;;  '(add-to-list 'company-backends 'company-anaconda))
+
+;; (add-hook 'python-mode-hook 'company-mode)
+;; (add-hook 'python-mode-hook 'anaconda-mode)
+
+
+;; (require 'company)
+;; (require 'epc)
+;; (require 'jedi-core)
+;; (require 'company-jedi)
+;; (require 'jedi)
+;; ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
+;; pylint
+;;
+
+;; (setq jedi:server-command '("/home/u/.emacs.d/elpa/jedi-core-0.2.8/jediepcserver.py"))
+;; (setq jedi:server-script '("/home/u/.emacs.d/elpa/jedi-core-0.2.8/jediepcserver.py"))
+;; (defvar jedi:source-dir
+;; (setq jedi:server-args '("--sys-path" project-base))
+
+;; (autoload 'jedi:setup "jedi" nil t)
+;;   (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
+;; (setq jedi:environment-root "jedi")
+;; (setq jedi:server-command (jedi:-env-server-command))
+
+;; (with-eval-after-load 'jedi-core
+;;   ;;standard-jedi-settings
+;;   ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
+;;   ;; (setq jedi:environment-root "jedi")
+;;   ;; (setq jedi:server-command (jedi:-env-server-command))
+
+;;   ;; (setq jedi:python-environment-default-root-name "/usr/lib/python3.10/site-packages/")
+
+;;   (add-hook 'python-mode-hook 'jedi:setup)
+;;   (setq jedi:complete-on-dot t)
+;;   (setq jedi:use-shortcuts t)
+;;   ;; my
+;;   (setq jedi:get-in-function-call-timeout 0
+;; 	jedi:get-in-function-call-delay   0
+;; 	jedi:goto-definition-config    '((nil definition nil))
+;; 	)
+;; )
+
+;; (add-to-list 'company-backends 'company-jedi)
+;; (add-hook 'python-mode-hook 'company-mode)
+
+
+
+
+ ;;  (add-hook 'python-mode-hook 'jedi:setup)
+
+ ;; (add-to-list 'company-backends 'company-jedi)
+  ;; (add-hook 'python-mode-hook 'config/enable-company-jedi)
+
+;; (add-hook 'python-mode-hook 'jedi:ac-setup)
+
+;; ;; (with-eval-after-load 'company-jedi
+;; ;;   (defun my/python-mode-hook-c ()
+;; ;;     (add-to-list 'company-backends 'company-jedi)
+;; ;;   )
+;; ;;   (add-hook 'python-mode-hook 'my/python-mode-hook-c)
+
+;; ;;   )
+;; ;; -- Python hooks
+;; (defun my/python-mode-hook ()
+;;   (add-to-list 'company-backends 'company-jedi)
+;;   (local-set-key (kbd "<M-left>") 'python-indent-shift-left )
+;;   (local-set-key (kbd "<M-right>") 'python-indent-shift-right )
+;;   (display-line-numbers-mode)
+;;   ;; indentation
+;;   (setq python-indent-offset 4)
+;; )
 ;; (add-hook 'python-mode-hook 'display-line-numbers-mode)
-(add-hook 'python-mode-hook 'my/python-mode-hook)
+;; (add-hook 'python-mode-hook 'my/python-mode-hook)
+;; (add-hook 'python-mode-hook 'company-mode)
+
+
+
+;; (defun my/python-mode-hook ()
+;;   (add-to-list 'company-backends 'company-jedi))
+
+;; (add-hook 'python-mode-hook 'my/python-mode-hook)
+
 ;; ---TODO
 ;; (global-set-key (kbd "<tab>") (lambda () (interactive) ('indent-region) ('indent-for-tab-command)) )
   ;; (add-hook 'company-mode
@@ -752,7 +915,8 @@
 	    (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
 	      (ide)
 	      ))
-)
+  )
+;; -- RTAGS
 ;; (require 'rtags)
 ;; (with-eval-after-load 'rtags
 ;;   (setq rtags-completions-enabled t
@@ -765,6 +929,11 @@
 ;; )
 
 ;; ---- Buffer Cycling -----
+(global-set-key [C-tab] 'buffer-menu)
+
+;; -- old
+;; (global-set-key [C-tab] 'ctrltab)
+
 ;; (defun ctrltab ()
 ;;   "List buffers and give it focus"
 ;;   (interactive)
@@ -781,8 +950,6 @@
 ;;     (delete-other-windows)
 ;;     (forward-line)))
 
-;; (global-set-key [C-tab] 'ctrltab)
-(global-set-key [C-tab] 'buffer-menu)
 
 
 ;; (global-set-key (kbd "<C-iso-lefttab>") 'my-switch-buffer)
