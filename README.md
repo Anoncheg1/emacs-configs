@@ -1,6 +1,11 @@
 # emacs-configs
+<<<<<<< HEAD
 This repository contains emacs configuration files.
 For working with: Org-mode, org-agenda, Python, company-mode, semantic, ggtags
+=======
+This repository contains emacs configuration files. 
+For working with: Org-mode, org-agenda, Python, Semantic and GGTAGS
+>>>>>>> refs/remotes/origin/main
 
 Keys rebinding - it is between console and JIKL:
 - C-f - left
