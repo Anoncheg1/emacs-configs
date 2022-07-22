@@ -208,17 +208,19 @@
 ;; (global-set-key (kbd "C-z") 'next-line) ; not working
 
 ;; (defun my/keymap ()
-    ;; -> C-f
-    ;; <- C-l
-    ;; ^ C-k
-    ;; _ C-n
-    (keyboard-translate ?\C-l  ?\C-b) ;; left
-    (keyboard-translate ?\C-b  ?\C-l) ;; left
-    (keyboard-translate ?\C-k  ?\C-p) ;; up
-    (define-key key-translation-map (kbd "M-k") (kbd "M-p")) ;; up paragraph
-    (keyboard-translate ?\C-p  ?\C-k) ;; kill line
-;; (local-set-key (kbd "M-l") 'backward-word)
-    (define-key key-translation-map (kbd "M-l") (kbd "M-b")) ;; backward-word
+;; -> C-f
+;; <- C-l
+;; ^ C-k
+;; _ C-n
+(define-key key-translation-map (kbd "C-l") (kbd "C-b")) ;; left
+(define-key key-translation-map (kbd "C-b") (kbd "C-l"))
+(define-key key-translation-map (kbd "C-k") (kbd "C-p")) ;; up
+(define-key key-translation-map (kbd "C-p") (kbd "C-k"))
+(define-key key-translation-map (kbd "M-k") (kbd "M-p")) ;; up paragraph
+(define-key key-translation-map (kbd "M-p") (kbd "M-k"))
+(define-key key-translation-map (kbd "M-k") (kbd "M-p"))  ;; kill line
+(define-key key-translation-map (kbd "M-l") (kbd "M-b")) ;; backward-word
+(define-key key-translation-map (kbd "M-b") (kbd "M-l"))
 ;;     )
 
 ;; (add-hook 'text-mode-hook 'my/keymap )

@@ -1,13 +1,8 @@
 # emacs-configs
-<<<<<<< HEAD
 This repository contains emacs configuration files.
-For working with: Org-mode, org-agenda, Python, company-mode, semantic, ggtags
-=======
-This repository contains emacs configuration files. 
-For working with: Org-mode, org-agenda, Python, Semantic and GGTAGS
->>>>>>> refs/remotes/origin/main
+For: Org-mode, org-agenda, Python, company-mode, semantic, ggtags
 
-Keys rebinding - it is between console and JIKL:
+Key remappings - it is between console and JIKL:
 - C-f - left
 - C-l - right
 - C-k - up
@@ -19,3 +14,10 @@ Python IDE:
 
 C IDE:
 - autocompletion and navigation with semantic and ggtags (GNU GLOBAL dependency)
+
+Additional key bindings:
+- C-h") 'backward-delete-char-untabify
+- M-h") 'backward-kill-word
+- M-;") 'comment-line
+- C-u") 'backward-kill-line
+- C/M-o 'open-next-line/'open-previous-line
