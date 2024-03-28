@@ -139,19 +139,19 @@ alias ed="emacsclient -c -a emacs --eval \"(call-interactively 'my/agenda-split)
 
 # Screenshots
 ## config-with-outline
-![config-with-outline](https://codeberg.org/Anoncheg1/emacs-configs/blob/main/config-with-outline.png)
+![config-with-outline](https://codeberg.org/Anoncheg/emacs-configs/raw/branch/main/config-with-outline.png)
 ## Org mode
-![org-mode](https://codeberg.org/Anoncheg1/emacs-configs/blob/main/org-mode.png)
+![org-mode](https://codeberg.org/Anoncheg/emacs-configs/raw/branch/main/org-mode.png)
 ## Org-Agenda and Diary - jobs scheduling
-![org-agenda](https://codeberg.org/Anoncheg1/emacs-configs/blob/main/org-agenda_and_diary.jpg)
+![org-agenda](https://codeberg.org/Anoncheg/emacs-configs/raw/branch/main/org-agenda_and_diary.jpg)
 ## Notmuch - email client
-![notmuch](https://codeberg.org/Anoncheg1/emacs-configs/blob/main/NotMuch.png)
+![notmuch](https://codeberg.org/Anoncheg/emacs-configs/raw/branch/main/NotMuch.png)
 ## Password Masking with hidepw
-![hidepw](https://codeberg.org/Anoncheg1/emacs-configs/blob/main/hide_password.png)
+![hidepw](https://codeberg.org/Anoncheg/emacs-configs/raw/branch/main/hide_password.png)
 ## Python mini-IDE
-![python](https://codeberg.org/Anoncheg1/emacs-configs/blob/main/python-ide.png)
+![python](https://codeberg.org/Anoncheg/emacs-configs/raw/branch/main/python-ide.png)
 ## Dired
-![dired-hist](https://codeberg.org/Anoncheg1/public-share/blob/main/dired-hist-my.png)
+![dired-hist](https://codeberg.org/Anoncheg/public-share/raw/branch/main/dired-hist-my.png)
 # Questions and answers
 [With table of contents: QUESTIONS.md](QUESTIONS.md)
 
