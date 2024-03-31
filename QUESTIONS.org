@@ -1200,8 +1200,8 @@ When we split window we wait that something will appear at the left or
  default left and upper window will be selected after split.
 
 To select right window or bottom window after split-window:
-: (global-set-key "\C-x2" (lambda () (interactive)(split-window-vertically) (other-window 1)))
-: (global-set-key "\C-x3" (lambda () (interactive)(split-window-horizontally) (other-window 1)))
+# (global-set-key "\C-x3" (lambda () (interactive)(select-window (split-window-horizontally))))
+# (global-set-key "\C-x2" (lambda () (interactive)(select-window (split-window-vertically))))
 * How to create a blog from a single file?
 1) write a single Org with one header per page or part of page
 2) for every header:  C-c C-x p (org-set-property) EXPORT_FILE_NAME - to location and name of a file

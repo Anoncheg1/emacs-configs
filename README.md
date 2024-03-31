@@ -69,6 +69,7 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - Dired: renaming single file will suggest same file if no other windows opened.
 - Dired: use region selection as marks at once
 - Abort minibuffer command if C-q pressed anywhere. By default minibuffer require separate quit.
+- C-x 2, C-x 3. other window?
 
 TODO:
 - in Org source block when you insert new line and do Undo - all source block is highlighted in highlight-changes-mode.
