@@ -1133,35 +1133,6 @@ In this code we add company-abbrev to list of company-backends that
 
 (define-key global-map (kbd "C-c z") #'my/copy-current-line-position-to-clipboard)
 #+end_src
-* How to make tab-bar-mode behave like tabs in browsers and show buffer-menu?
-Solution with external tab-bar-buffers package:
-: M-x package-install RET tab-bar-buffers
-Add to ~/.emacs :
-#+begin_src elisp :results output :exports both
-(tab-bar-buffers-mode t)
-(tab-bar-mode t)
-(global-set-key (kbd "C-M-a") #'tab-previous) ; shadow beginning-of-defun
-(global-set-key (kbd "C-M-e") #'tab-next) ; shadow end-of-defun
-#+end_src
-
-But tab-bar-buffers have bugs for now.
-
-Alternative is to use tabs per window and show buffers with same mode.
-This may be even better solution:
-#+begin_src elisp :results output :exports both
-(global-tab-line-mode t)
-(setopt tab-line-tabs-function #'tab-line-tabs-mode-buffers)
-(global-set-key (kbd "C-M-a") #'tab-line-switch-to-prev-tab) ; shadow beginning-of-defun
-(global-set-key (kbd "C-M-e") #'tab-line-switch-to-next-tab) ; shadow end-of-defun
-#+end_src
-
-C-M-a/e used in some modes like c-mode, you should unset it.
-#+begin_src elisp :results output :exports both
-(add-hook 'c-mode-common-hook (lambda ()
-  (local-unset-key (kbd "C-M-a")) ; used for tabs ; beginning-of-defun
-  (local-unset-key (kbd "C-M-e"))
-)
-#+end_src
 * How to edit multiple position or multiple cursors?
 Package multiple-cursors.
 
@@ -1200,8 +1171,93 @@ When we split window we wait that something will appear at the left or
  default left and upper window will be selected after split.
 
 To select right window or bottom window after split-window:
-# (global-set-key "\C-x3" (lambda () (interactive)(select-window (split-window-horizontally))))
-# (global-set-key "\C-x2" (lambda () (interactive)(select-window (split-window-vertically))))
+#+begin_src elisp :results output :exports both
+(defun my/split-window-horizontally()
+  (interactive)
+  (select-window (split-window-horizontally)))
+(defun my/split-window-vertically()
+  (interactive)
+  (select-window (split-window-vertically)))
+(global-set-key "\C-x3" #'my/split-window-horizontally)
+(global-set-key "\C-x2" #'my/split-window-vertically)
+#+end_src
+
+* GUI: Selecting Buffers, tab-bar-mode, like tabs in browser
+It is a problem in any GUI - how to switch between opened tasks.
+
+Default approaches:
+- C-<f10>		buffer-menu-open - for X only
+- C-x C-b		list-buffers - open list at the bottom but don't select window
+- C-x b		switch-to-buffer - switch to recent buffer
+- C-u C-x C-b		list-buffers - filter buffers visiting files
+- M-x buffer-menu	open in current window
+- C-x LEFT/RIGHT	previous-buffer/next-buffer
+
+Disadvantage of this approaches is that you can not guess about count
+ of buffers before interactions and there is two/three interactions
+ required:
+1) open list
+2) select/search item.
+3) open buffer
+
+To solve this there are built-in minor modes (works in console too):
+- tab-bar-mode - tabs in all frames (global).
+- tab-line-mode - tabs per window (local and global).
+
+** tab-bar
+** tab-line-mode
+Tabs per window. May show buffers with same mode.
+#+begin_src elisp :results output :exports both
+(global-tab-line-mode t)
+(setopt tab-line-tabs-function #'tab-line-tabs-mode-buffers)
+(global-set-key (kbd "C-M-a") #'tab-line-switch-to-prev-tab) ; shadow beginning-of-defun
+(global-set-key (kbd "C-M-e") #'tab-line-switch-to-next-tab) ; shadow end-of-defun
+#+end_src
+
+C-M-a/e is used in some modes like c-mode, you should unset it.
+#+begin_src elisp :results output :exports both
+(add-hook 'c-mode-common-hook (lambda ()
+  (local-unset-key (kbd "C-M-a")) ; used for tabs ; beginning-of-defun
+  (local-unset-key (kbd "C-M-e"))))
+#+end_src
+
+** Solution with external tab-bar-buffers package:
+: M-x package-install RET tab-bar-buffers
+Add to ~/.emacs :
+#+begin_src elisp :results output :exports both
+(tab-bar-buffers-mode t)
+(tab-bar-mode t)
+(global-set-key (kbd "C-M-a") #'tab-previous) ; shadow beginning-of-defun
+(global-set-key (kbd "C-M-e") #'tab-next) ; shadow end-of-defun
+#+end_src
+
+But tab-bar-buffers have bugs for now.
+* How to kill all buffers?
+In this solution we define exceptions, lowercase them, after that we
+ get (buffer-list) and filter with our exceptions, system, alive and
+ current buffer. Finally, kill left buffers.
+#+begin_src elisp :results output :exports both
+(defvar my/kill-buffer-exceptions
+  (mapcar #'downcase '("Messages" "emacs-file" "scratch")))
+(defun my/kill-buffer-testfn (key lcar)
+  (string-match-p (regexp-quote key) lcar))
+
+(defun my/kill-other-buffers ()
+    "Kill all other buffers."
+    (interactive)
+    (mapc 'kill-buffer
+          (delq (current-buffer) ; filter current buffer
+                ;; filter alive and not system
+                (seq-filter (lambda (b) (and (buffer-live-p b) ; filter alive
+                                             (/= (aref (buffer-name b) 0) ?\s) ; filter system
+                                             ;; filter exceptions
+                                             (not (seq-contains-p my/kill-buffer-exceptions
+                                                             (downcase (buffer-name b))
+                                                             #'my/kill-buffer-testfn))))
+                            (seq-uniq (buffer-list))))))
+
+(global-set-key (kbd "C-!") #'my/kill-other-buffers)
+#+end_src
 * How to create a blog from a single file?
 1) write a single Org with one header per page or part of page
 2) for every header:  C-c C-x p (org-set-property) EXPORT_FILE_NAME - to location and name of a file
