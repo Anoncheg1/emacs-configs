@@ -1237,12 +1237,15 @@ In this solution we define exceptions, lowercase them, after that we
  get (buffer-list) and filter with our exceptions, system, alive and
  current buffer. Finally, kill left buffers.
 
+We don't kill buffer if its name contains any of 'my/kill-buffer-exceptions'.
+
 If buffer-menu is opened (current-buffer) still point to previous
  buffer, to prevent killing buffer-menu we filter buffer of
  selected-window also.
 #+begin_src elisp :results output :exports both
 (defvar my/kill-buffer-exceptions
-  (mapcar #'downcase '("Messages" "emacs-file" "scratch")))
+  (mapcar #'downcase '("Messages" "emacs-file" "scratch"))
+  "Any part buffer name.")
 (defun my/kill-buffer-testfn (key lcar)
   (string-match-p (regexp-quote key) lcar))
 
