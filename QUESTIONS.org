@@ -1259,7 +1259,7 @@ If buffer-menu is opened (current-buffer) still point to previous
                                              (not (seq-contains-p my/kill-buffer-exceptions
                                                              (downcase (buffer-name b))
                                                              #'my/kill-buffer-testfn))))
-                            (seq-uniq (buffer-list))))))
+                            (seq-uniq (buffer-list)))))))
 
 (global-set-key (kbd "C-x !") #'my/kill-other-buffers)
 #+end_src
