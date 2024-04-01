@@ -1205,20 +1205,21 @@ To open file at right window in Dired we can set
   (interactive)
   (let
       ((display-buffer-base-action
-        '((
+        (list '(
            ;; display-buffer--maybe-same-window  ;FIXME: why isn't this redundant?
            display-buffer-reuse-window ; pop up bottom window
            display-buffer-in-previous-window ;; IF RIGHT WINDOW EXIST
            display-buffer-in-side-window ;; right side window - MAINLY USED
            display-buffer--maybe-pop-up-frame-or-window ;; create window
            ;; ;; If all else fails, pop up a new frame.
-           display-buffer-pop-up-frame
-           )
-          (window-width . 0.8) ; 80 percent
+           display-buffer-pop-up-frame )
+          '(window-width . 0.8) ; 80 percent
           (if (window-in-direction 'right)
-              '(previous-window . (window-in-direction 'right)))
-          (side . right))))
+              (cons 'previous-window (window-in-direction 'right)))
+          '(side . right))))
 (apply #'dired-find-file-other-window args)))
+
+(define-key dired-mode-map "\M-o" #'my/dired-find-file-other-window)
 #+end_src
 * GUI: Selecting Buffers, tab-bar-mode, like tabs in browser
 It is a problem in any GUI - how to switch between opened tasks.
