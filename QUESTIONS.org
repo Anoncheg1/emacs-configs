@@ -1236,6 +1236,10 @@ But tab-bar-buffers have bugs for now.
 In this solution we define exceptions, lowercase them, after that we
  get (buffer-list) and filter with our exceptions, system, alive and
  current buffer. Finally, kill left buffers.
+
+If buffer-menu is opened (current-buffer) still point to previous
+ buffer, to prevent killing buffer-menu we filter buffer of
+ selected-window also.
 #+begin_src elisp :results output :exports both
 (defvar my/kill-buffer-exceptions
   (mapcar #'downcase '("Messages" "emacs-file" "scratch")))
@@ -1246,6 +1250,7 @@ In this solution we define exceptions, lowercase them, after that we
     "Kill all other buffers."
     (interactive)
     (mapc 'kill-buffer
+          (delq (window-buffer (selected-window)) ; filter buffer-menu in current window
           (delq (current-buffer) ; filter current buffer
                 ;; filter alive and not system
                 (seq-filter (lambda (b) (and (buffer-live-p b) ; filter alive
@@ -1256,7 +1261,7 @@ In this solution we define exceptions, lowercase them, after that we
                                                              #'my/kill-buffer-testfn))))
                             (seq-uniq (buffer-list))))))
 
-(global-set-key (kbd "C-!") #'my/kill-other-buffers)
+(global-set-key (kbd "C-x !") #'my/kill-other-buffers)
 #+end_src
 * How to create a blog from a single file?
 1) write a single Org with one header per page or part of page
