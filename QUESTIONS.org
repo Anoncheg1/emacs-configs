@@ -1182,6 +1182,47 @@ To select right window or bottom window after split-window:
 (global-set-key "\C-x2" #'my/split-window-vertically)
 #+end_src
 
+"\C-x3" may be used to split windows before calling C-x C-j
+ dired-jump. We can simplify this workflow by compose this two action
+ in one C-u C-x C-j this way:
+#+begin_src elisp :results output :exports both
+(defun my/dired-jump (args)
+  "Open Dired at left side, or just open Dired."
+  (interactive "P")
+  (if  args
+      (split-window-horizontally))
+  (dired-jump))
+(global-set-key (kbd "C-x C-j") #'my/dired-jump)
+#+end_src
+
+To open file at right window in Dired we can set
+ display-buffer-base-action variable to function
+ display-buffer-in-previous-window with right window as a parameter.
+#+begin_src elisp :results output :exports both
+(defun my/dired-find-file-other-window(&rest args)
+  "Use window at right or create a new one."
+  (interactive)
+  (let
+      ((display-buffer-base-action
+        (if (window-in-direction 'right)
+            '((display-buffer-in-previous-window)
+              (previous-window . (window-in-direction 'right)))
+            ;;else
+        '((
+           ;; display-buffer--maybe-same-window  ;FIXME: why isn't this redundant?
+           display-buffer-reuse-window ; pop up bottom window
+           display-buffer-in-previous-window ;; just optimization
+           display-buffer-in-side-window ;; right side window - MAINLY USED
+           display-buffer--maybe-pop-up-frame-or-window ;; create window
+           ;; ;; If all else fails, pop up a new frame.
+           display-buffer-pop-up-frame
+           )
+          (window-width . 0.8) ; 80 percent
+          (side . right)))))
+(apply #'dired-find-file-other-window args)))
+
+(define-key dired-mode-map "\M-o" #'my/dired-find-file-other-window)
+#+end_src
 * GUI: Selecting Buffers, tab-bar-mode, like tabs in browser
 It is a problem in any GUI - how to switch between opened tasks.
 
