@@ -1271,7 +1271,7 @@ Add to ~/.emacs :
 #+end_src
 
 But tab-bar-buffers have bugs for now.
-* How to kill all buffers?
+* How to kill all buffers and duplicate frames?
 In this solution we define exceptions, lowercase them, after that we
  get (buffer-list) and filter with our exceptions, system, alive and
  current buffer. Finally, kill left buffers.
@@ -1282,15 +1282,15 @@ If buffer-menu is opened (current-buffer) still point to previous
  buffer, to prevent killing buffer-menu we filter buffer of
  selected-window also.
 #+begin_src elisp :results output :exports both
+;; ------------------------ kill other buffers
 (defvar my/kill-buffer-exceptions
   (mapcar #'downcase '("Messages" "emacs-file" "scratch"))
-  "Any part buffer name.")
+  "Any part of buffer name.")
 (defun my/kill-buffer-testfn (key lcar)
   (string-match-p (regexp-quote key) lcar))
 
 (defun my/kill-other-buffers ()
     "Kill all other buffers."
-    (interactive)
     (mapc 'kill-buffer
           (delq (window-buffer (selected-window)) ; filter buffer-menu in current window
           (delq (current-buffer) ; filter current buffer
@@ -1299,9 +1299,34 @@ If buffer-menu is opened (current-buffer) still point to previous
                                              (/= (aref (buffer-name b) 0) ?\s) ; filter system
                                              ;; filter exceptions
                                              (not (seq-contains-p my/kill-buffer-exceptions
-                                                             (downcase (buffer-name b))
+                                                                  (downcase (buffer-name b))
                                                              #'my/kill-buffer-testfn))))
                             (seq-uniq (buffer-list)))))))
+
+;; ------------------------ kill other frames
+(defun my/member-frame(frame frames)
+  "Compare list of windows of FRAME with every frame in FRAMES."
+  (seq-contains-p
+   ;; sequence
+   (mapcar (lambda (x) (mapcar #'window-buffer (window-list x))) frames)
+   ;; element
+   (mapcar #'window-buffer (window-list frame))))
+
+(defun my/drop-frame-duplicates ()
+  "Compare window list by `my/member-frame' function and kill others."
+    (let ((duplicates '())
+          (unique-items '()))
+      (dolist (item (frame-list-z-order))
+        (if (my/member-frame item unique-items)
+            (push item duplicates)
+          (push item unique-items)))
+      (mapc #'delete-frame duplicates)))
+
+;; -------------------------- all together
+(defun my/kill-other-buffers-and-frame-duplicates ()
+  (interactive)
+  (my/kill-other-buffers)
+  (my/drop-frame-duplicates))
 
 (global-set-key (kbd "C-x !") #'my/kill-other-buffers)
 #+end_src
