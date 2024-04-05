@@ -1328,7 +1328,7 @@ If buffer-menu is opened (current-buffer) still point to previous
   (my/kill-other-buffers)
   (my/drop-frame-duplicates))
 
-(global-set-key (kbd "C-x !") #'my/kill-other-buffers)
+(global-set-key (kbd "C-x !") #'my/kill-other-buffers-and-frame-duplicates)
 #+end_src
 * How to create a blog from a single file?
 1) write a single Org with one header per page or part of page
