@@ -98,14 +98,16 @@ ed() { emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselec
 alias ekill="killall -9 emacs ; sleep 2; emacs --daemon"
 ediff() { emacsclient -c -a emacs --eval "(ediff-files \"$1\" \"$2\" )" ; }
 e() {
+    # ;; (find-file used with --create-frame because without it
+    # ;; if you close buffer with that file frame will be closed too.
     if [[ -z "$@" ]] ; then
-        emacsclient --create-frame ~/tmp/emacs-file$(date -I).org &
+        emacsclient --create-frame --eval "(find-file \"~/tmp/emacs-file$(date -I).org\")" &
     elif [[ -d "$@" ]] ; then # if file exist and is a directory
         emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$@"\"))"
     elif [[ -n "$DISPLAY" ]] ; then # if under X
     # # elif [ -e "$@" ] ; then # if file exist
         if [[ -z "$(ps aux | grep emacsclient | grep create-frame)" ]] ; then
-            emacsclient --alternate-editor=emacs --create-frame $@ &
+            emacsclient --alternate-editor=emacs --create-frame --eval "(find-file \"$@\")" &
         else
             emacsclient --alternate-editor=emacs $@ &
         fi
