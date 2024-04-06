@@ -98,14 +98,23 @@ ed() { emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselec
 alias ekill="killall -9 emacs ; sleep 2; emacs --daemon"
 ediff() { emacsclient -c -a emacs --eval "(ediff-files \"$1\" \"$2\" )" ; }
 e() {
-    if [ -z "$@" ] ; then
-        emacsclient --create-frame "/home/u/tmp/emacs-file$(date -I).org" &
+    if [[ -z "$@" ]] ; then
+        emacsclient --create-frame ~/tmp/emacs-file$(date -I).org &
+    elif [[ -d "$@" ]] ; then # if file exist and is a directory
+        emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$@"\"))"
+    elif [[ -n "$DISPLAY" ]] ; then # if under X
+    # # elif [ -e "$@" ] ; then # if file exist
+        if [[ -z "$(ps aux | grep emacsclient | grep create-frame)" ]] ; then
+            emacsclient --alternate-editor=emacs --create-frame $@ &
+        else
+            emacsclient --alternate-editor=emacs $@ &
+        fi
     else
-        emacsclient --create-frame --alternate-editor=emacs "$@" &
+        emacsclient -c -a emacs "$@"
     fi
 }
 alias econsole="emacs -nw"
-alias emin="emacs -q --load /home/u/.emacs.minimal"
+alias emin="emacs -q --load ~/.emacs.minimal"
 # --------- email ------------------
 alias en="emacs --eval \"(notmuch)\""
 ```
