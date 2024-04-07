@@ -1023,6 +1023,59 @@ By default mark require you to select region or use mark and unmark separate com
 
 (define-key dired-mode-map (kbd "m") #'my/dired-toggle-marks)
 #+end_src
+* Dired: what if I forgot to use flag and mark files for deletion?
+Here is a solution to switch between marks and deletion flags in Dired.
+
+We bind C-u d (dired-flag-file-deletion) - to our command that convert marks to tags and reverse.
+
+Here is how it works:
+1) We count marks (new function for that)
+2) If marks exist we convert them deletion flags
+3) otherwise we convert deletion flags with marks (with our function)
+#+begin_src elisp :results output :exports code :eval no
+(defun my/dired-count-files (&optional delflag)
+  "Count files and return count.
+If DELFLAG is nil search for files with `dired-marker-char',
+otherwise deletion flag `dired-del-marker'."
+  (let* ((dired-marker-char (if (null delflag)
+                                dired-marker-char
+                              ;; else
+                              dired-del-marker))
+         (regexp (dired-marker-regexp))
+         (count 0))
+    (if (save-excursion (goto-char (point-min))
+                        (re-search-forward regexp nil t))
+        (dired-map-over-marks (setq count (1+ count)) nil))
+    count))
+
+(defun my/dired-map-over-flags ( func )
+  "Call FUNC with point on each line of file with flag.
+Deletion flag `dired-del-marker' is used."
+  (let* ((dired-marker-char dired-del-marker)
+         (regexp (dired-marker-regexp)))
+    (if (save-excursion (goto-char (point-min))
+                        (re-search-forward regexp nil t))
+        (dired-map-over-marks (funcall func) nil))))
+
+(defun my/dired-flag-file-deletion(arg &optional interactive)
+  "Invert marks with called with C-u and interactively."
+  (interactive (list current-prefix-arg t))
+  (let ((cf (my/dired-count-files))
+        (dired-marker-char-saved dired-marker-char))
+    (if (and arg interactive)
+        (if (> cf 0) ; marked exist
+            ;; convert all marks to flags (simple variant):
+            (progn
+              (dired-map-over-marks (dired-flag-file-deletion nil) nil)
+              (message (format "%s" cf))) ; print marked for Deletion count
+          ;; else - no marked -> toggle flags to marks
+          (my/dired-map-over-flags (lambda() (let ((dired-marker-char dired-marker-char-saved))
+                                                 (dired-mark  nil)))))
+      ;; else - normal dired-do-flagged-delete
+      (dired-flag-file-deletion arg interactive))))
+
+(keymap-set dired-mode-map "<remap> <dired-flag-file-deletion>" #'my/dired-flag-file-deletion)
+#+end_src
 * Org Babel: Why alias is not working?
 shell execuded in noninteractive mode
 use this header:
@@ -1271,6 +1324,33 @@ Add to ~/.emacs :
 #+end_src
 
 But tab-bar-buffers have bugs for now.
+* GUI: How to switch to recent buffer and ignore system buffers like *Buffer List*?
+You can switch to recent buffer with keys:
+- C-x <left>/<right>		previous-buffer/next-buffer
+- C-x b switch-to-buffer RET
+
+From documentation we knew, how to switch to recent buffer.
+: (switch-to-buffer (other-buffer (current-buffer) t))
+
+But all this methods is long or don't ignore system buffers, how to fix it?
+
+Here we define ignore list, get buffer-list and filter system and our ignore list. The first entry in buffer-list is a recent buffer.
+#+begin_src elisp :results output :exports code :eval no
+(defun my/other-buffer (&optional arg)
+  "Switch to other buffer, ie `other-buffer' without system buffers."
+  (interactive)
+  (let ((ignored-system-buffers '("*Messages*" "*Buffer List*")))
+    (switch-to-buffer
+     (seq-find (lambda (b)
+                 (and
+                  (/= (aref (buffer-name b) 0) ?\s)
+                  (buffer-live-p b)
+                  (not (member (buffer-name b)
+                               ignored-system-buffers))))
+               (cdr (buffer-list))))))
+
+(global-set-key (kbd "C-x C-b") #'my/other-buffer) ; shadow `downcase-region'
+#+end_src
 * How to kill all buffers and duplicate frames?
 In this solution we define exceptions, lowercase them, after that we
  get (buffer-list) and filter with our exceptions, system, alive and
