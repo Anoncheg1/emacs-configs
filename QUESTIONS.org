@@ -1341,7 +1341,7 @@ Here we define ignore list, get buffer-list and filter system and our ignore lis
   (interactive)
   (let ((ignored-system-buffers '("*Messages*" "*Buffer List*")))
     (switch-to-buffer
-     (seq-find (lambda (b)
+     (seq-find (lambda (b) ; get first good one
                  (and
                   (/= (aref (buffer-name b) 0) ?\s)
                   (buffer-live-p b)
@@ -1434,4 +1434,32 @@ Advice that allow to use EXPORT_FILE_NAME per subtree to set export location for
     (apply orig-fun async subtreep visible-only body-only ext-plist)))
 
 (advice-add 'org-html-export-to-html :around #'my/org-html-export-to-html-all-subtrees)
+#+end_src
+* How to fix vertico in Dired mode to properly handle path?
+Here we redefine vertico-insert function and and make proper clearing
+ of minubuffer and If current mode is Dired we fix candidate string
+ with expand-file-name function.
+
+#+begin_src elisp :results none :exports code :eval no
+(defun vertico-insert (&optional exit-flag)
+  "Insert current candidate in minibuffer."
+  (interactive)
+  (when (> vertico--total 0)
+    (let ((vertico--index (max 0 vertico--index)))
+      (if exit-flag ; - RET
+          (insert (prog1
+                      (vertico--candidate) ; return value
+                    (delete-minibuffer-contents)))
+        ;; else - TAB - completion
+        ;; concat vartiant and fix // double + reset pointer position after
+          (let ((efn (concat (vertico--candidate) (buffer-substring (point) (point-max))))
+                (pd (- (point-max) (point)))) ; text lenght after pointer
+            ;; (print pd)
+            (delete-minibuffer-contents)
+            (if (with-current-buffer (other-buffer (current-buffer) t) (derived-mode-p 'dired-mode))
+                (insert (expand-file-name efn))
+              ;; else
+              (insert efn))
+            (if (> pd 0) ; if we renaming preserve pointer after variant
+                (goto-char (- (+ (minibuffer-prompt-end) (length (vertico--candidate))) 1 ))))))))
 #+end_src
