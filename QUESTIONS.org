@@ -1456,7 +1456,10 @@ Here we redefine vertico-insert function and and make proper clearing
                 (pd (- (point-max) (point)))) ; text lenght after pointer
             ;; (print pd)
             (delete-minibuffer-contents)
-            (if (with-current-buffer (other-buffer (current-buffer) t) (derived-mode-p 'dired-mode))
+            ;; (print (minibuffer-prompt))
+            (if (and (with-current-buffer (other-buffer (current-buffer) t) (derived-mode-p 'dired-mode))
+                     (or (string-match "^Rename " (minibuffer-prompt))
+                         (string-match "^Find file: " (minibuffer-prompt))))
                 (insert (expand-file-name efn))
               ;; else
               (insert efn))
