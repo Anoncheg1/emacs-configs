@@ -1484,6 +1484,11 @@ en-email() {
 }
 * How to create link to certain place in file and open it from bash fast?
 We create two functions 1) create link in clipboard
+
+There is built-in ability to open file at line number:
+: emacsclient +4:3 FILE
+at line 4, column 3.
+
 #+begin_src elisp :results none :exports code :eval no
 (defun my/copy-link-to-clipboard ()
   "Copy to clipboard:
