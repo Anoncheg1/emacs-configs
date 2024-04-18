@@ -1351,6 +1351,16 @@ Here we define ignore list, get buffer-list and filter system and our ignore lis
 
 (global-set-key (kbd "C-x C-b") #'my/other-buffer) ; shadow `downcase-region'
 #+end_src
+* GUI: How to open file in frame with same major mode files?
+This is required if you group buffers in frames by buffer.
+#+begin_src elisp :results output :exports both
+(defun my/find-file-frame(filename)
+  "Open file in frame with the same mode buffer.
+Used with `tab-line-mode' with (setopt tab-line-tabs-function
+'tab-line-tabs-mode-buffers)."
+    (find-file-noselect filename)
+    (switch-to-buffer-other-frame filename))
+#+end_src
 * How to kill all buffers and duplicate frames?
 In this solution we define exceptions, lowercase them, after that we
  get (buffer-list) and filter with our exceptions, system, alive and
@@ -1526,3 +1536,4 @@ And function 2) that will be called from bash to open that link:
 
 Here is example of ~/.bash_aliases file with alias with inserted link from clipboard created pointing to org file:
 : alias iaa='emacsclient --alternate-editor=emacs --create-frame --eval "(my/open-link \"file:~/nix::<<config_kernel_gentoo>>\")"'
+* How to kill Python Babel when execute source block in Org mode?
