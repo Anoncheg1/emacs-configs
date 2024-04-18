@@ -1372,14 +1372,26 @@ Here we define ignore list, get buffer-list and filter system and our ignore lis
 (global-set-key (kbd "C-x C-b") #'my/other-buffer) ; shadow `downcase-region'
 #+end_src
 * GUI: How to open file in frame with the same major mode files?
-This is required if you group buffers in frames by a major-mode.
+This solution works if tab-line mode activated in every frame.
+For more general solution there is rewriting required with with-current-buffer and derived-mode-p.
 #+begin_src elisp :results output :exports both
-(defun my/find-file-frame(filename)
-  "Open file in frame with the same mode buffer.
-Used with `tab-line-mode' with (setopt tab-line-tabs-function
-'tab-line-tabs-mode-buffers)."
-    (find-file-noselect filename)
-    (switch-to-buffer-other-frame filename))
+(defun my/find-file-frame (filename)
+  "Open file in frame with the same mode buffer. If no frame was
+found the new one will be created. Used with `tab-line-mode'
+with (setopt tab-line-tabs-function 'tab-line-tabs-mode-buffers).
+Steps: 1) create buffer. 2) found buffer in frame with tab-line-mode.
+3) raise frame."
+  (let* ((b (find-file-noselect filename))
+        (f (cdr
+            (seq-find (lambda (x) (seq-contains-p (car x) b))
+                      (mapcar  (lambda (x) (select-frame x)
+                                 (cons (funcall tab-line-tabs-function) x)) (frame-list-z-order))))))
+    (if f
+        (progn
+          (raise-frame f)
+          (switch-to-buffer b))
+      ;; else
+      (switch-to-buffer-other-frame b))))
 #+end_src
 * How to kill all buffers and duplicate frames?
 In this solution we define exceptions, lowercase them, after that we
