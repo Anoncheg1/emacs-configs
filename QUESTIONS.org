@@ -1373,8 +1373,7 @@ Here we define ignore list, get buffer-list and filter system and our ignore lis
 #+end_src
 * GUI: How to open file in frame with the same major mode files?
 This solution works if tab-line mode activated in every frame.
-For more general solution there is rewriting required with with-current-buffer and derived-mode-p.
-#+begin_src elisp :results output :exports both
+#+begin_src elisp :results none :exports code :eval no
 (defun my/find-file-frame (filename)
   "Open file in frame with the same mode buffer. If no frame was
 found the new one will be created. Used with `tab-line-mode'
@@ -1392,6 +1391,34 @@ Steps: 1) create buffer. 2) found buffer in frame with tab-line-mode.
           (switch-to-buffer b))
       ;; else
       (switch-to-buffer-other-frame b))))
+#+end_src
+
+More general approach based on major mode of opened buffer per frame
+ and don't require tab-line-mode:
+#+begin_src elisp :results none :exports code :eval no
+(defun my/find-file-frame (filename)
+  "Open file in frame with the same mode buffer. If no frame was
+found the new one will be created. Used with `tab-line-mode'
+with (setopt tab-line-tabs-function 'tab-line-tabs-mode-buffers).
+Steps: 1) create buffer. 2) found frame with same major mode.
+3) select buffer in that frame and raise it."
+  (let* ((b (find-file-noselect filename))
+         ;; ((mode . frame) ...)
+         (mf (mapcar (lambda (x) (with-current-buffer (car x) (cons major-mode (cdr x))))
+                     (seq-filter (lambda (x) (car x)) ; filter nil
+                                 ;; ((buffer . frame)...)
+                                 (mapcar  (lambda (x)  (cons (window-buffer (frame-root-window x)) x))
+                                          (frame-list-z-order)))))
+         (f (cdr (with-current-buffer b
+             (seq-find (lambda (x) (derived-mode-p (car x))) mf)))))
+    (if f
+        (progn
+          (select-frame f)
+          (switch-to-buffer b)
+          (raise-frame f))
+      ;; else
+      (switch-to-buffer-other-frame b))
+    ))
 #+end_src
 * How to kill all buffers and duplicate frames?
 In this solution we define exceptions, lowercase them, after that we
