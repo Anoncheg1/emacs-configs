@@ -1352,7 +1352,7 @@ Here we define ignore list, get buffer-list and filter system and our ignore lis
 (global-set-key (kbd "C-x C-b") #'my/other-buffer) ; shadow `downcase-region'
 #+end_src
 * GUI: How to open file in frame with same major mode files?
-This is required if you group buffers in frames by buffer.
+This is required if you group buffers in frames by a major-mode.
 #+begin_src elisp :results output :exports both
 (defun my/find-file-frame(filename)
   "Open file in frame with the same mode buffer.
