@@ -702,6 +702,36 @@ We add advice after buffer of zoom creation and before call of
 (advice-add 'zone-call :around #'my/zone-call-scalefix)
 #+end_src
 
+* How to open file with emacs daemon from bash?
+to use:
+: $ e /path/to/file
+
+Add to ~/.bash_aliases or ~/.bashrc:
+#+begin_src elisp :results output :exports both
+e() {
+    # ;; start a server if is not running
+    if [ -z "$ed" ] ; then
+        emacs --daemon
+    fi
+    # ;; (find-file used with --create-frame because without it
+    # ;; if you close buffer with that file frame will be closed too.
+    if [[ -z "$@" ]] ; then # no file was given
+        emacsclient --create-frame --eval "(find-file \"~/tmp/emacs-file$(date -I).org\")" &
+    elif [[ -d "$@" ]] ; then # if file exist and is a directory
+        emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$@"\"))"
+    elif [[ -n "$DISPLAY" ]] ; then # if under X
+    # # elif [ -e "$@" ] ; then # if file exist
+        if [[ -z "$(ps aux | grep emacsclient | grep create-frame)" ]] ; then
+            emacsclient --alternate-editor=emacs --create-frame --eval "(find-file \"$@\")" > /dev/null &
+        else # if frame already exist
+            emacsclient --alternate-editor=emacs --eval "(my/find-file-frame \"$@\")" &
+        fi
+    else # under console
+        emacsclient -c -a emacs "$@"
+    fi
+}
+#+end_src
+
 * Dired: how to open as a file manager
 : emacsclient -c -a emacs --eval "(dired \"$@\")"
 
@@ -710,23 +740,13 @@ We add advice after buffer of zoom creation and before call of
 ed() {
     if [ -z "$@" ] ; then
         emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$(pwd)"\"))"
-        # emacsclient -d ":0" -a emacs $(pwd) # first start problem
     else
         emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$@"\"))" ;
-        # emacsclient -c -a emacs --eval "(dired \"$@\")"
-        # emacsclient -d ":0" -a emacs "$@" # first start problem
-    fi
-}
-e() {
-    if [ -z "$@" ] ; then
-        emacsclient --create-frame ~/tmp/emacs-file$(date -I).org &
-    elif [ -d "$@" ] ; then # if file exist and is a directory
-        emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$@"\"))" ;
-    elif [ -e "$@" ] ; then # if file exist
-        emacsclient --create-frame --alternate-editor=emacs "$@" &
     fi
 }
 #+end_src
+
+see [[How to open file with emacs daemon from bash?]]
 * Dired: open with default app, human readable size
 human readable:
 : M-x custom-group dired -> Dired Listing Switches = -alh
