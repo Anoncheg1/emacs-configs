@@ -1,145 +1,172 @@
 
 # Table of Contents
 
-1.  [Guide for this config](#org49d1c64)
-    1.  [Notes](#orgf299a64)
-2.  [Automatic Variables](#org6842cd6)
-3.  [Package Management](#org359fbfe)
-    1.  [MELPA](#org20ada4e)
-    2.  [GitHub packages](#orgabc10d0)
-4.  [LIST OF EXTERNAL FILES](#orgd0728b9)
-5.  [Paths and file extensions](#org640291f)
-6.  [Backup](#org358fa76)
-    1.  [Single or Numbered Backups.](#orgf9e0d6f)
-    2.  [Auto save files](#org716ae7e)
-        1.  [fix not visible message about #file# exist](#orgcb3db5e)
-        2.  [fix reciver-this-file to recover old files (old, not used)](#org65ba2f5)
-7.  [Global Hooks](#orgc054483)
-    1.  [delete white spaces at save](#org84dfc2f)
-    2.  [emacsclient file1 file2: open each file in separate window](#orgf82d8d0)
-    3.  [ipynb](#org86963d2)
-    4.  [copy current file path and line number to clipboard](#org4f38bf8)
-8.  [GUI](#orga6e6830)
-    1.  [common](#orgd04175a)
-    2.  [Scrolling](#org224cf33)
-    3.  [Indentation](#orgf7ba101)
-    4.  [filling text, line wrapping](#org8cd57d3)
-    5.  [Make tabs visiable](#orgaaeb69a)
-    6.  [Time](#org043210e)
-    7.  [window title](#orgc4eb612)
-    8.  [window size](#org6d3278e)
-    9.  [theme switching](#org4df7215)
-    10. [zone screensaver FOR FUN](#org85e8a70)
-        1.  [activation](#org599f199)
-        2.  [fix speed](#org697213a)
-        3.  [fix text scale or zoom](#orgdef3f41)
-9.  [Functions](#org3efe240)
-10. [Key Bindings](#orgfbf3ba2)
-    1.  [minor-mode experiment](#org50e8074)
-    2.  [backspace](#orgcaf7697)
-    3.  [fix for M-x: previous command, next command](#org5f93b65)
-    4.  [navigation](#orga134043)
-        1.  [main](#orge28d9c8)
-        2.  [parenthesis: lists and sexp](#org2afb04c)
-    5.  [toggle windows split for 2 windows](#org8d61539)
-    6.  [comments keys binding](#org7e568ea)
-    7.  [other](#org55a85d7)
-    8.  [keyboard layout](#org8a66ae1)
-    9.  [TAB - global binding](#org8534b5b)
-    10. [disable highlight changes mode](#orgc2304cb)
-    11. [when selecting text you can move without Control, only C-g stops selection mode](#org142d064)
-    12. [expand-region - one key for selecting everything (experiment)](#org68b2de9)
-    13. [C-a C-e M-a - move to the begining of the line](#org89291e4)
-    14. [dictd - english dictionary](#org7b64447)
-    15. [fix: C-q call C-q for minibuffer also](#orgc50d2ec)
-11. [Global Modes](#orge9e34bc)
-    1.  [multiple-cursor](#org8cc9077)
-    2.  [other](#org689f247)
-12. [Buffers, Windows, Buffer menu, tab-bar, tab-list [rooted]](#orgdf372ba)
-    1.  [keys](#org6ced2b0)
-    2.  [tab-bar-mode for buffers](#org62b67b9)
-    3.  [tab-line](#org36ee154)
-13. [Tree-sitter (disabled now)](#org30028e8)
-14. [Proxy configuration](#orgc7015cc)
-15. [Per Mode Configurations](#org545a6db)
-    1.  [firstly-search](#org0ab88f4)
-    2.  [Dired [rooted (consider disable trashing, omit, thumbnails)]](#org55238c6)
-        1.  [ls arguments and sorting](#org514ae62)
-        2.  [tweeks: suggest path, buffer kill, trash, hl-line](#org424ac74)
-        3.  [tweeks: always delete and copy recursively, confirm y-n](#org935f6e1)
-        4.  [omit "." files with dired-omit-mode](#org13d548d)
-        5.  [keys rebindings](#orgce538dc)
-        6.  [Use Xfce4 thumbnails 128x128](#org629f65b)
-        7.  [wdired mode: allow to change permissions in C-x C-q](#org442bd80)
-        8.  [default external applications for file extensions](#orgdf0a85b)
-        9.  [additional modes: hist, navigation, icons](#orgf09868c)
-        10. [fixes](#orge513963)
-        11. [add current path to modeline](#org3a71523)
-        12. [close image with C-q](#orgdfddf81)
-        13. [fix open several selected files](#orgcbe9426)
-    3.  [Bookmarks](#org6d894b5)
-    4.  [company](#org252dda8)
-    5.  [Emacs-Lisp mode](#orga8e042d)
-    6.  [Outline minor mode for Elisp [rooted]](#orgda2f773)
-    7.  [ORG](#orgb92fe8e)
-        1.  [fix fill-paragraph](#org88aca9f)
-        2.  [hook for key rebinding](#orgb8f0a7d)
-        3.  [hook executed per buffer](#orgf1cf32d)
-        4.  [redisplay inline images on source code block evaluation](#org6a82896)
-        5.  [fix issue with headline](#org150cc78)
-        6.  [with-eval-after-load 'org](#org61cb996)
-16. [org source code inline blocks](#org759c7a3)
-        1.  [timeout for org-babel- \* -evaluate-external-process](#org6decaa4)
-        2.  [fix for inline images with transparent background](#org10792f1)
-    1.  [skeletons(templates) for abbrev TAB completion for ORG and Diary modes](#orgb180fa4)
-    2.  [flycheck-aspell for English](#org823f68b)
-    3.  [canedarn and diary](#orgefe0b97)
-    4.  [org-agenda](#orgd948165)
-    5.  [appt - my appt X notification system:](#org1d8e802)
-    6.  [all programming modes](#org227f5e6)
-    7.  [Python Mode](#org32ef560)
-        1.  [python-mode-hook](#orgcec728f)
-        2.  [python company-jedi](#org62936dc)
-        3.  [python flycheck (old)](#org2c7f087)
-        4.  [python anaconda-mode (old)](#orgf24b940)
-        5.  [TODO](#org13fdd76)
-        6.  [WORKED - eglot experiment (old)](#org5a25e50)
-        7.  [DONT WORKED](#org49c7089)
-    8.  [cc mode: C/C++](#org4efd7f8)
-        1.  [semantic](#org886ec2f)
-        2.  [hook](#orgfd2f8fa)
-        3.  [Org execute source block](#org26b4904)
-    9.  [HTML (testing)](#org479f2cc)
-    10. [artistic](#org5846de3)
-        1.  [minor mode short-keys](#org8c5445b)
-        2.  [active artistic mode and minor mode for short keybindings](#orge9582a7)
-        3.  [artist-mode-hook](#org6c0a7c9)
-    11. [multitran for ORG (translater)](#org6531195)
-    12. [email](#org4b18ff8)
-        1.  [notmuch](#orgc9a3854)
-        2.  [editor org-mode integration](#org14e8880)
-        3.  [sendmail smtpmail (working, disabled)](#orgbbab682)
-        4.  [smtpmail-multi](#org6b4f9d3)
-    13. [hidepw](#orgb5ccb0f)
-    14. [YAML - yaml-mode](#org55f6222)
-    15. [Markdown](#org47e575e)
-    16. [pinyin-isearch](#orge729625)
-    17. [RTAGS (old)](#orgec66999)
-    18. [Project Management (old)](#orge2cdee0)
-17. [buffer-list (old)](#orge733cc2)
-18. [Spell checking flyspell and ispell (old)](#org66ea32b)
-19. [available keys](#orgd428e2b)
-20. [test proxy:](#org7bce780)
-21. [gui and new version dependent configurations](#org0e90dc0)
-22. [test Org navigation](#org1b12633)
-23. [jupyter export test](#orgff71ed2)
-24. [Local Variables](#org8aa10fd)
+1.  [Guide for this config](#org401986f)
+    1.  [Notes](#org38d8ada)
+2.  [Automatic Variables](#orgb613aec)
+3.  [enable commands (automatc added)](#org9e16332)
+4.  [Package Management](#org3c6bc53)
+    1.  [MELPA](#org4319386)
+    2.  [GitHub packages](#org66eb787)
+5.  [LIST OF EXTERNAL FILES](#orge93dd51)
+6.  [Paths and file extensions, loading process](#org421a6f0)
+7.  [Backup](#org80ae0b2)
+    1.  [Single or Numbered Backups.](#orgef6646c)
+    2.  [Auto save files](#org83890ca)
+        1.  [fix not visible message about #file# exist](#org127c3ae)
+        2.  [fix reciver-this-file to recover old files (old, not used)](#orgf791d2f)
+8.  [Called externally with: emacs\*eval "()"](#org023ebca)
+    1.  [canedarn and diary](#org208c9e9)
+    2.  [open link](#org37a690e)
+    3.  [find file in right frame](#org4074229)
+9.  [Global Hooks](#orgdc24a08)
+    1.  [delete white spaces at save](#orgb6827b8)
+    2.  [emacsclient file1 file2: open each file in separate window](#org4cd49f8)
+    3.  [ipynb](#org97473db)
+    4.  [copy current file path and line number to clipboard](#org2eaa55a)
+10. [GUI](#orgedc0ca0)
+    1.  [common](#org7500e81)
+    2.  [Scrolling](#org92a36f9)
+    3.  [Indentation](#orgc7c2e58)
+    4.  [filling text, line wrapping](#orgd69af6d)
+    5.  [Make tabs visiable](#org2c0b48e)
+    6.  [Time](#org210f82b)
+    7.  [window title](#orge417310)
+    8.  [window size](#org8b83ee1)
+    9.  [theme switching - day and night [rooted]](#orgd8fd3c6)
+    10. [add current path to modeline](#org0baefaf)
+    11. [transparecy (old, not working)](#orgf87f85a)
+11. [Functions](#org65d035e)
+12. [Key Bindings](#org67c23af)
+    1.  [backspace](#org47e31fd)
+    2.  [minibuffer M-x: previous command, next command](#orge131ac0)
+    3.  [navigation](#orgf7cd0aa)
+        1.  [main](#orgf1d8ca3)
+        2.  [parenthesis: lists and sexp](#orge30796d)
+    4.  [toggle windows split for 2 windows](#org029a2c9)
+    5.  [comments keys binding](#org433402b)
+    6.  [New Line](#org7971302)
+    7.  [WINDOWS](#org84913fa)
+        1.  [navigate:](#orgdf22ec1)
+        2.  [split windows](#org21bc843)
+        3.  [other window](#org3d93c65)
+    8.  [keyboard layout](#orgf77908e)
+    9.  [copy and cute word](#org6b46195)
+    10. [TAB - global binding](#org08b9cd6)
+    11. [disable highlight changes mode](#org0a93981)
+    12. [C-a C-e M-a - move to the begining of the line](#org550db4c)
+    13. [fix: C-q call C-q for minibuffer also](#org5232375)
+    14. [start open shell](#org3b9f186)
+    15. [open config](#org00d08e0)
+    16. [close all,other buffers, kill all buffers and frames](#orgb9afff7)
+    17. [minor-mode experiment](#org7a9ff08)
+13. [Global Modes](#org68b7552)
+    1.  [multiple-cursor](#org18d7270)
+    2.  [dumb-jump - navigation for not loaded Elisp and without TAGs](#org792b41b)
+    3.  [completion - vertico, marginalia](#orge605438)
+        1.  [experiment with completion](#org7602985)
+        2.  [load and configure vertico and marginalia](#orgf053195)
+        3.  [vertico fix Dired path selection](#org095387c)
+        4.  [vertico up-directory M-h and Enter select and enter](#org790aaeb)
+        5.  [vertico go to home](#org081cc39)
+    4.  [zone screensaver FOR FUN](#org31fdc32)
+        1.  [activation](#orgb499497)
+        2.  [fix disable rats that corrupt Emacs](#org3c114a9)
+        3.  [fix speed](#org90a5f42)
+        4.  [fix text scale or zoom](#orge822e1f)
+    5.  [expand-region - one key for selecting everything (experiment)](#orgb194fd8)
+    6.  [when selecting text you can move without Control, only C-g stops selection mode](#orgd8a71f3)
+    7.  [dictd - english dictionary - C-c d](#orgc53af44)
+    8.  [other](#org8a2f5d7)
+14. [Buffers, Windows, Buffer menu, tab-bar, tab-list [rooted]](#orgbc14f4f)
+    1.  [keys](#orgaff03d2)
+        1.  [buffer menu](#org707568d)
+        2.  [other-buffer](#org4f8df1b)
+        3.  [next/previous line](#org7a1c0c2)
+        4.  [messages (rooted)](#org5f54d9f)
+    2.  [tab-bar-mode for buffers](#orga0fd110)
+    3.  [tab-line](#org204e4da)
+15. [Tree-sitter (disabled now)](#orge03fbae)
+16. [Proxy configuration](#org0037a95)
+17. [gui and new version dependent configurations](#orga7ca2d6)
+18. [Per Mode Configurations](#orgdcf48b3)
+    1.  [Outline minor mode for Elisp [rooted]](#orgb41ba06)
+    2.  [firstly-search](#orge7377a0)
+        1.  [loading](#orgc307080)
+        2.  [keys rebinding](#org7359344)
+        3.  [experiment](#org24e49b7)
+    3.  [Dired [rooted (consider disable trashing, omit, thumbnails)]](#org14e7a64)
+        1.  [ls arguments and sorting](#org521ae3e)
+        2.  [Tweeks: suggest path, buffer kill, trash, hl-line](#org84137d1)
+        3.  [Tweeks: always delete and copy recursively, confirm y-n](#org9df5ad3)
+        4.  [Omit "." files with dired-omit-mode](#org5625384)
+        5.  [Keys rebindings](#org50a78d7)
+        6.  [Use Xfce4 thumbnails 128x128](#orgecddaea)
+        7.  [wdired mode: allow to change permissions in C-x C-q](#org81a9d15)
+        8.  [Default external applications for file extensions](#org809e44e)
+        9.  [Additional modes: hist, navigation, icons](#orga7d0a55)
+        10. [Side window at right](#org932fea5)
+        11. [Renaming single file - sugget the same name](#org11d0a5c)
+        12. [Copy full file path (not used)](#org9afc9e7)
+        13. [Toggle mark with single key (selection region support)](#org66318a1)
+        14. [Selection of region instead of marks](#org7444b8b)
+        15. [Close image with C-q](#orgbae6b4a)
+        16. [Delete marked too.](#org712e2df)
+    4.  [Bookmarks](#org709eeb1)
+    5.  [complete](#org1049f61)
+    6.  [company](#org7cf9b94)
+    7.  [ORG](#org5749d8c)
+        1.  [fix fill-paragraph](#org4d95ec9)
+        2.  [keys rebinding](#orgd1edecc)
+        3.  [hook executed per buffer](#orgd28328e)
+        4.  [redisplay inline images on source code block evaluation](#orga5adfc7)
+        5.  [fix issue with headline](#orgd6f245d)
+        6.  [configuration](#org80b8453)
+19. [org source code inline blocks](#orgd8f6f98)
+        1.  [timeout for org-babel- \* -evaluate-external-process](#org6618bb3)
+        2.  [fix for inline images with transparent background](#orgbf9e4cc)
+        3.  [fix Allow to export subtree to different files (HTML)](#orgfd202c2)
+    1.  [skeletons(templates) for abbrev TAB completion for ORG and Diary modes](#org3d3e6e0)
+    2.  [flycheck-aspell for English](#org44d7d3b)
+    3.  [org-agenda](#orgf4cdb3b)
+    4.  [appt - my appt X notification system:](#org4c46f82)
+    5.  [Programming modes](#org18f7c2c)
+        1.  [all programming modes](#org1f83e55)
+        2.  [Emacs-Lisp](#orgfe56178)
+        3.  [Python](#org7f8ef7d)
+        4.  [cc mode: C/C++](#org50c6301)
+        5.  [Perl](#org628047f)
+        6.  [Bash, sh-mode](#org64daf40)
+        7.  [HTML (testing)](#orge41fd5d)
+    6.  [artistic](#org173365a)
+        1.  [minor mode short-keys](#orgdfb8b69)
+        2.  [active artistic mode and minor mode for short keybindings](#orgc86cabb)
+        3.  [artist-mode-hook](#org970fbbf)
+    7.  [multitran for ORG (translater)](#orgc78e631)
+    8.  [email](#org00efcaa)
+        1.  [notmuch](#org9e940a3)
+        2.  [editor org-mode integration](#org8f95e78)
+        3.  [sendmail smtpmail (working, disabled)](#org792370d)
+        4.  [smtpmail-multi](#org48efff4)
+    9.  [hidepw](#org9ccc72e)
+    10. [YAML - yaml-mode](#orgc43c0ef)
+    11. [Markdown](#org77a0e4b)
+    12. [pinyin-isearch](#orgf72c525)
+    13. [RTAGS (old)](#org4e7b9e8)
+    14. [Project Management (old)](#org35e88b2)
+20. [buffer-list (old)](#org9095fdf)
+21. [Spell checking flyspell and ispell (old)](#org5800462)
+22. [available keys](#org8fc6e2e)
+23. [test Org navigation](#orgfa2a619)
+24. [jupyter export test](#org38d15ab)
+25. [test](#org7a61fa4)
+26. [Local Variables for first opening](#orga4d0075)
 
-;-**- eval: (outline-minor-mode 1); lexical-binding: t -**-
+;-**- mode: elisp-byte-code; eval: (outline-minor-mode 1); lexical-binding: t -**-
 \#+end\_src
 
 
-<a id="org49d1c64"></a>
+<a id="org401986f"></a>
 
 # Guide for this config
 
@@ -147,13 +174,13 @@
     
     ;; ##### First opening guide: ##########
     ;; #
-    ;; # C-c @ C-t	PREPARE	outline-hide-body
-    ;; # C-c @ C-s	SHOW LINE	outline-show-subtree
+    ;; # C-c @ C-t  PREPARE         outline-hide-body
+    ;; # C-c @ C-s  SHOW LINE       outline-show-subtree
     ;; #
     ;; #####################################
 
 
-<a id="orgf299a64"></a>
+<a id="org38d8ada"></a>
 
 ## Notes
 
@@ -162,7 +189,7 @@
     ;; GNU Emacs 29.2
 
 
-<a id="org6842cd6"></a>
+<a id="orgb613aec"></a>
 
 # Automatic Variables
 
@@ -173,15 +200,14 @@
      ;; Your init file should contain only one such instance.
      ;; If there is more than one, they won't work right.
      '(ansi-color-faces-vector
-       [default default default italic underline success warning error])
+    [default default default italic underline success warning error])
      '(auto-compression-mode nil)
      '(auto-encryption-mode nil)
      '(c-default-style
-       '((c-mode . "stroustrup")
-         (java-mode . "java")
-         (awk-mode . "awk")
-         (other . "gnu")))
-     '(company-backends `(company-files company-dabbrev))
+    '((c-mode . "stroustrup")
+    (java-mode . "java")
+    (awk-mode . "awk")
+    (other . "gnu")))
      '(custom-enabled-themes '(wombat manoj-dark))
      '(delete-selection-mode t)
      '(diary-show-holidays-flag nil)
@@ -191,14 +217,6 @@
      '(inhibit-startup-screen t)
      '(menu-bar-mode nil)
      '(mouse-wheel-mode nil)
-     '(notmuch-saved-searches
-       '((:name "inbox" :query "tag:inbox" :key "i")
-         (:name "spam" :query "tag:spam")
-         (:name "unread" :query "tag:unread" :key "u")
-         (:name "flagged" :query "tag:flagged" :key "f")
-         (:name "sent" :query "tag:sent" :key "t")
-         (:name "drafts" :query "tag:draft" :key "d")
-         (:name "all mail" :query "*" :key "a")))
      '(org-agenda-files '("~/.emacs.d/todo.org"))
      '(org-hide-leading-stars t)
      '(org-image-actual-width '(300))
@@ -207,7 +225,7 @@
      '(org-src-preserve-indentation t)
      '(org-startup-folded t)
      '(package-selected-packages
-       '(multiple-cursors tab-bar-buffers diredc dirvish elpher command-log-mode pinyin-search package-lint idle-highlight-mode csv-mode free-keys expand-region flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck dash flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
+    '(rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc dirvish elpher command-log-mode pinyin-search package-lint idle-highlight-mode csv-mode free-keys expand-region flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
      '(size-indication-mode t)
      '(speedbar-show-unknown-files t))
     (custom-set-faces
@@ -221,7 +239,16 @@
      '(whitespace-trailing ((t (:extend t :background "dark red")))))
 
 
-<a id="org359fbfe"></a>
+<a id="org9e16332"></a>
+
+# enable commands (automatc added)
+
+    
+    (put 'scroll-left 'disabled nil)
+    ;; (put 'erase-buffer 'disabled nil)
+
+
+<a id="org3c6bc53"></a>
 
 # Package Management
 
@@ -229,7 +256,7 @@
     (setopt load-prefer-newer t)
 
 
-<a id="org20ada4e"></a>
+<a id="org4319386"></a>
 
 ## MELPA
 
@@ -242,7 +269,7 @@
     (package-initialize)
 
 
-<a id="orgabc10d0"></a>
+<a id="org66eb787"></a>
 
 ## GitHub packages
 
@@ -252,7 +279,7 @@
     ;; (require 'iflipb)
 
 
-<a id="orgd0728b9"></a>
+<a id="orge93dd51"></a>
 
 # LIST OF EXTERNAL FILES
 
@@ -265,15 +292,16 @@
     ;; .tramp_history - file
 
 
-<a id="org640291f"></a>
+<a id="org421a6f0"></a>
 
-# Paths and file extensions
+# Paths and file extensions, loading process
 
     
     ;; must not have subfolders
     (add-to-list 'load-path "~/.emacs.d/contrib/lisp/emacs-jedi")
     (add-to-list 'load-path "~/.emacs.d/contrib/lisp/package-build")
     (add-to-list 'load-path "~/.emacs.d/contrib/lisp")
+    (add-to-list 'load-path "~/sources/telega.el")
     ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ob-yaml.el")
     ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ob-yamlmy.el")
     ;; conf-mode for /etc
@@ -282,6 +310,8 @@
     (add-to-list 'auto-mode-alist '("\\.jpg\\'" . image-mode))
     (add-to-list 'auto-mode-alist '("\\.png\\'" . image-mode))
     (add-to-list 'auto-mode-alist '("\\.gif\\'" . image-mode))
+    ;; ;; dont ask for unsafe local variables in knewn files
+    ;; (setq inhibit-local-variables-regexps
     ;; info
     ;; (add-to-list 'Info-directory-list "/usr/local/info")
     ;; (add-hook 'Info-mode-hook '(lambda ()
@@ -296,14 +326,14 @@
     ;;                     ("\\.gif\\'" . image-mode))))
 
 
-<a id="org358fa76"></a>
+<a id="org80ae0b2"></a>
 
 # Backup
 
     
 
 
-<a id="orgf9e0d6f"></a>
+<a id="orgef6646c"></a>
 
 ## Single or Numbered Backups.
 
@@ -316,14 +346,14 @@
     (setopt kept-new-versions 6)
 
 
-<a id="org716ae7e"></a>
+<a id="org83890ca"></a>
 
 ## Auto save files
 
     
 
 
-<a id="orgcb3db5e"></a>
+<a id="org127c3ae"></a>
 
 ### fix not visible message about #file# exist
 
@@ -350,7 +380,7 @@
     (advice-add 'server-execute :after #'my/hook-fix-auto-save-was-found)
 
 
-<a id="org65ba2f5"></a>
+<a id="orgf791d2f"></a>
 
 ### fix reciver-this-file to recover old files (old, not used)
 
@@ -415,7 +445,111 @@
     ;; 	  (t (user-error "Recover-file canceled")))))
 
 
-<a id="orgc054483"></a>
+<a id="org023ebca"></a>
+
+# Called externally with: emacs\*eval "()"
+
+    
+
+
+<a id="org208c9e9"></a>
+
+## canedarn and diary
+
+    
+    (defun my/agenda-split()
+      "called with (call-interactively 'my/agenda-split)"
+      (interactive)
+      (org-agenda nil "a")
+      (delete-other-windows)
+      (split-window-right)
+      (other-window 1)
+      (org-cycle-agenda-files)
+      (other-window 1)
+      (split-window-below)
+      (other-window 1)
+      ;; (switch-to-buffer "diary")
+      ;; (diary-show
+      (other-window 1)
+      (other-window 1)
+      )
+    
+    ;; disable holidays
+    ;; (diary-show-holidays-flag nil)
+    ;; # Monday is the first day of the week
+    (setq calendar-week-start-day 1)
+    ;; sort diary entries
+    (add-hook 'diary-list-entries-hook 'diary-sort-entries t)
+
+
+<a id="org37a690e"></a>
+
+## open link
+
+    
+    ;; usage in ~/.bash_aliases: alias iaa='emacsclient*alternate-editor=emacs*create-frame*eval "(my/open-link \"file:~/nix::<<config_kernel_gentoo>>\")"'
+    (defun my/open-link(arg)
+      "Open org link, generated by `my/copy-link-to-clipboard'."
+      (let
+          ((display-buffer-base-action
+            (list '(
+               display-buffer-reuse-window ; pop up bottom window
+               display-buffer--maybe-pop-up-frame-or-window ;; create window
+               ;; If all else fails, pop up a new frame.
+               display-buffer-pop-up-frame ))))
+        (org-link-open-from-string arg)))
+
+
+<a id="org4074229"></a>
+
+## find file in right frame
+
+    
+    ;; (defun my/find-file-frame (filename)
+    ;;   "Open file in frame with the same mode buffer. If no frame was
+    ;; found the new one will be created. Used with `tab-line-mode'
+    ;; with (setopt tab-line-tabs-function 'tab-line-tabs-mode-buffers).
+    ;; Steps: 1) create buffer. 2) found buffer in frame with tab-line-mode.
+    ;; 3) raise frame."
+    ;;   (let* ((b (find-file-noselect filename))
+    ;;         (f (cdr
+    ;;             (seq-find (lambda (x) (seq-contains-p (car x) b))
+    ;;                       (mapcar  (lambda (x) (select-frame x)
+    ;;                                  (cons (funcall tab-line-tabs-function) x)) (frame-list-z-order))))))
+    ;;     (if f
+    ;;         (progn
+    ;;           (raise-frame f)
+    ;;           (switch-to-buffer b))
+    ;;       ;; else
+    ;;       (switch-to-buffer-other-frame b))))
+    (defun my/find-file-frame (filename)
+      "Open file in frame with the same mode buffer. If no frame was
+    found the new one will be created. Used with `tab-line-mode'
+    with (setopt tab-line-tabs-function 'tab-line-tabs-mode-buffers).
+    Steps: 1) create buffer. 2) found frame with same major mode.
+    3) select buffer in that frame and raise it."
+      (raise-frame (selected-frame)) ; fix bug of cmd*eval
+      (let* ((b (find-file-noselect filename))
+             ;; ((mode . frame) ...)
+             (mf (mapcar (lambda (x) (with-current-buffer (car x) (cons major-mode (cdr x))))
+                         (seq-filter (lambda (x) (car x)) ; filter nil
+                                     ;; ((buffer . frame)...)
+                                     (mapcar  (lambda (x)  (cons (window-buffer (frame-root-window x)) x))
+                                              (frame-list-z-order)))))
+             (f (cdr (with-current-buffer b
+                 (seq-find (lambda (x) (derived-mode-p (car x))) mf)))))
+        (if f
+            (progn
+              (select-frame f)
+              (switch-to-buffer b)
+              (raise-frame f))
+          ;; else
+          (switch-to-buffer-other-frame b))
+        ))
+    ;; (my/find-file-frame "a.org")
+
+
+<a id="orgdc24a08"></a>
 
 # Global Hooks
 
@@ -430,7 +564,7 @@
     ;; (setq display-buffer-base-action '(display-buffer-in-tab))
 
 
-<a id="org84dfc2f"></a>
+<a id="orgb6827b8"></a>
 
 ## delete white spaces at save
 
@@ -445,7 +579,7 @@
                                    )))
 
 
-<a id="orgf82d8d0"></a>
+<a id="org4cd49f8"></a>
 
 ## emacsclient file1 file2: open each file in separate window
 
@@ -472,7 +606,7 @@
     (add-hook 'server-visit-hook 'server-visit-hook-custom-find)
 
 
-<a id="org86963d2"></a>
+<a id="org97473db"></a>
 
 ## ipynb
 
@@ -520,30 +654,37 @@
                    (insert "\n\n")))))))))
 
 
-<a id="org4f38bf8"></a>
+<a id="org2eaa55a"></a>
 
 ## copy current file path and line number to clipboard
 
     
-    (defun my/copy-current-line-position-to-clipboard ()
-      "Copy current line in file to clipboard as '</path/to/file>:<line-number>'."
+    (defun my/copy-link-to-clipboard ()
+      "Copy to clipboard:
+    - for org mode files: link generated by `org-store-link'
+    - for other files '</path/to/file>:<line-number>'."
       (interactive)
-      (let ((path-with-line-number
-             (concat (buffer-file-name) "::" (number-to-string (line-number-at-pos)))))
-        (kill-new path-with-line-number)
-        (message (concat path-with-line-number "\t- copied to clipboard"))))
+      (let ((link))
+      (if (derived-mode-p 'org-mode)
+          (setq link (substring-no-properties (org-store-link nil)))
+        ;; else - not Org file
+        (setq link
+            (concat "file:" (buffer-file-name) "::" (number-to-string (line-number-at-pos)))))
+      (kill-new link)
+      (message (concat link "\t- copied to clipboard"))))
+    
     ;; shadow `append-next-kill'
-    (define-key global-map (kbd "C-M-w") #'my/copy-current-line-position-to-clipboard)
+    (define-key global-map (kbd "C-M-w") #'my/copy-link-to-clipboard)
 
 
-<a id="orga6e6830"></a>
+<a id="orgedc0ca0"></a>
 
 # GUI
 
     
 
 
-<a id="orgd04175a"></a>
+<a id="org7500e81"></a>
 
 ## common
 
@@ -576,7 +717,7 @@
     (setq echo-keystrokes 0.2)
 
 
-<a id="org224cf33"></a>
+<a id="org92a36f9"></a>
 
 ## Scrolling
 
@@ -594,7 +735,7 @@
      )
 
 
-<a id="orgf7ba101"></a>
+<a id="orgc7c2e58"></a>
 
 ## Indentation
 
@@ -615,7 +756,7 @@
     (setopt backward-delete-char-untabify-method 'hungry)
 
 
-<a id="org8cd57d3"></a>
+<a id="orgd69af6d"></a>
 
 ## filling text, line wrapping
 
@@ -635,7 +776,7 @@
     ;; (add-hook 'text-mode-hook  'visual-line-mode)
 
 
-<a id="orgaaeb69a"></a>
+<a id="org2c0b48e"></a>
 
 ## Make tabs visiable
 
@@ -650,7 +791,7 @@
     (global-whitespace-mode)
 
 
-<a id="org043210e"></a>
+<a id="org210f82b"></a>
 
 ## Time
 
@@ -659,7 +800,7 @@
     (setopt display-time-mode t)
 
 
-<a id="orgc4eb612"></a>
+<a id="orge417310"></a>
 
 ## window title
 
@@ -704,7 +845,7 @@
       ;;             "%b  (" invocation-name "@" system-name ")")))
 
 
-<a id="org6d3278e"></a>
+<a id="org8b83ee1"></a>
 
 ## window size
 
@@ -715,9 +856,9 @@
     ;; (add-to-list 'default-frame-alist '(top    . 0))
 
 
-<a id="org4df7215"></a>
+<a id="orgd8fd3c6"></a>
 
-## theme switching
+## theme switching - day and night [rooted]
 
     
     (defun my/load-theme (themes)
@@ -728,90 +869,48 @@
             (reverse themes))
       (setq custom-enabled-themes themes))
     
-    ;; enable themes
-    (global-set-key (kbd "C-=") (lambda () (interactive)
-                                  (my/load-theme '(wombat manoj-dark))))
-    ;; disable themes
-    (global-set-key (kbd "C--") (lambda () (interactive) ; shadow `negative-argument'
-                                  (my/load-theme nil)))
+    
+    ;; enable themes - darker
+    (global-set-key (kbd "M-_") (lambda () (interactive)
+                                  (my/load-theme '(manoj-dark wombat))))
+    
+    ;; enable themes - middle
+    (global-set-key (kbd "M-)") (lambda () (interactive) ; shadow `insert-parentheses'
+                                  (my/load-theme '(wombat manoj-dark)))) ; modus-operandi - for root
+    ;; disable themes - white
+    (global-set-key (kbd "M-(") (lambda () (interactive) ; shadow `move-past-close-and-reindent'
+                                  (my/load-theme nil))) ; ; modus-vivendi - for root
 
 
-<a id="org85e8a70"></a>
+<a id="org0baefaf"></a>
 
-## zone screensaver FOR FUN
+## add current path to modeline
 
     
+    (setq global-mode-string
+          (cond ((consp global-mode-string)
+                 (add-to-list 'global-mode-string 'default-directory 'APPEND))
+                ((not global-mode-string)
+                 (list 'default-directory))
+                ((stringp global-mode-string)
+                 (list global-mode-string 'default-directory))))
 
 
-<a id="org599f199"></a>
+<a id="orgf87f85a"></a>
 
-### activation
-
-    
-    (defvar my/zone-current-program nil)
-    (require 'zone)
-    (zone-when-idle 120)
-
-
-<a id="org697213a"></a>
-
-### fix speed
+## transparecy (old, not working)
 
     
+    ;; ;; Set frame transparency
+    ;; (defvar efs/frame-transparency '(90 . 90))
+    ;; (set-frame-parameter (selected-frame) 'alpha efs/frame-transparency)
+    ;; (add-to-list 'default-frame-alist `(alpha . ,efs/frame-transparency))
     
-    (defvar my/zone-crazy '("zone-pgm-putz-with-case"
-                            "zone-pgm-whack-chars"))
-    
-    (defvar my/zone-hungry '("zone-pgm-dissolve"
-                             "zone-pgm-jitter"))
-    
-    (defvar my/zone-demanding '("zone-pgm-rotate"
-                                "zone-pgm-random-life"
-                                "zone-pgm-drip"
-                                "zone-pgm-rotate-LR-lockstep"
-                                "zone-pgm-rotate-RL-variable"
-                                "zone-pgm-paragraph-spaz"))
-    
-    (defun my/zone-call (func-call program &optional timeout)
-      " Get current zone program"
-      (setq my/zone-current-program (symbol-name program))
-      (apply func-call program timeout))
-    
-    (advice-add 'zone-call :around #'my/zone-call)
-    
-    (defun my/zone-sit-for-advice (func-call seconds &optional nodisp obsolete)
-      "Slow down zone according to previously fetched program name."
-      (cond
-       ((member my/zone-current-program my/zone-crazy)
-        (setq seconds (* seconds 250))) ; 250 times slower
-       ((member my/zone-current-program my/zone-hungry)
-        (setq seconds (* seconds 25))) ; 25 times slower
-       ((member my/zone-current-program my/zone-demanding)
-        (setq seconds (* seconds 10))) ; 10 times slower
-       (t (setq seconds (* seconds 5))) ; 5 times slower for others
-       )
-      (apply func-call seconds nodisp obsolete))
-    
-    (advice-add 'sit-for :around #'my/zone-sit-for-advice)
+    ;; ;; ;; (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+    ;; ;; ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 
-<a id="orgdef3f41"></a>
-
-### fix text scale or zoom
-
-    
-    (defun my/zone-call-scalefix (func-call program &optional timeout)
-    "We add advice after buffer of zoom creation and before call of
-     program. We switch to buffer before current, get zoom from it and
-     adjust zoom in zone buffer."
-      (let ((v (with-current-buffer (buffer-name (car (car (window-prev-buffers))))
-          text-scale-mode-amount)))
-        (text-scale-increase v))
-      (apply func-call program timeout))
-    (advice-add 'zone-call :around #'my/zone-call-scalefix)
-
-
-<a id="org3efe240"></a>
+<a id="org65d035e"></a>
 
 # Functions
 
@@ -840,77 +939,84 @@
     	  (set-window-buffer (next-window) next-win-buffer)
     	  (select-window first-win)
     	  (if this-win-2nd (other-window 1))))))
+    
+    (defun my/add-to-list ()
+      (interactive)
+      (add-to-list 'load-path default-directory)
+      (message "now load file with M-x load-library"))
+    
+    (defun my/exec-language (exec-file-command)
+      "Execute current buffer content in terminal with EXEC-FILE-COMMAND.
+    First it save content to temporary file.
+    If we in Org src with C-c ' we create tmp file, write buffer and execute,
+    else just execute current file
+    EXEC-FILE-COMMAND for example may be: \"PYTHONPATH=. python\"."
+      (let ((langnamestr (car (split-string (symbol-name major-mode) "-")))
+            fnv fn)
+        (shell-command (concat "xdotool search emacs_" langnamestr " windowclose")) ;; alala is window name that we use to close and open again
+        (setq fnv (org-babel-temp-file langnamestr))
+        (if (string-prefix-p "*Org Src" (buffer-name) t)
+            (let ((body (buffer-substring-no-properties (point-min) (point-max))))
+              (with-temp-file fnv (insert body))))
+        (setq fn (if (string-prefix-p "*Org Src" (buffer-name) t)
+                     fnv
+                   (buffer-file-name)))
+        (with-temp-buffer
+                      (setq-local default-directory (buffer-local-value 'default-directory (get-buffer "*Messages*")))
+                      (message default-directory)
+                      ;; "xfce4-terminal*initial-title \"emacs_python\" -e \"bash -c 'PYTHONPATH=. python " fn " ; bash ;'\""
+                      (print (list "fnfile" fn))
+                      (shell-command (concat "xfce4-terminal*title \"emacs_" langnamestr "\" -e \"bash -c '" exec-file-command " " fn " ; bash ;'\""))
+              )))
 
 
-<a id="orgfbf3ba2"></a>
+<a id="org67c23af"></a>
 
 # Key Bindings
 
     
 
 
-<a id="org50e8074"></a>
-
-## minor-mode experiment
-
-    
-    ;; call key: (funcall (global-key-binding "TAB"))
-    
-    ;; (define-minor-mode modal-navigation
-    ;;                              ""
-    ;;                              :lighter "modal"
-    ;;                              :keymap (let ((map (make-sparse-keymap)))
-    ;;                                        (define-key map (kbd "l") (kbd "C-l")) ;; left
-    ;;                                        (define-key map (kbd "k") (kbd "C-k")) ;; up
-    ;;                                        (define-key map (kbd "f") (kbd "C-f")) ;; righ
-    ;;                                        (define-key map (kbd "n") (kbd "C-n")) ;; down
-    ;;                                        (define-key map (kbd "a") (kbd "C-a")) ;; beg of line
-    ;;                                        (define-key map (kbd "e") (kbd "C-e")) ;; end of line
-    ;;                                        map))
-    
-    ;; (defun my/enable-mn(arg)
-    ;;   (interactive "P")
-    ;;    (modal-navigation)
-    ;;    )
-    
-    ;; (defun my/disable-mn(arg)
-    ;;   (interactive "P")
-    ;;    (modal-navigation -1)
-    ;;    )
-    
-    ;; (key-chord-define-global "jj"     'my/enable-mn)
-    ;; (global-set-key (kbd ";")     'my/disable-mn)
-
-
-<a id="orgcaf7697"></a>
+<a id="org47e31fd"></a>
 
 ## backspace
 
     
     ;; (keyboard-translate ?\C-h  ?\C-?) ;; do not work in emacsclient, required for M-x
     ;; backward-delete-char-untabify
-    (define-key (current-global-map) (kbd "C-h") 'delete-backward-char)
+    (global-set-key "\C-h" 'delete-backward-char)
     ;; backspace at search
     (define-key isearch-mode-map "\C-h" #'isearch-delete-char) ; delete character during search C-s
+    
+    (global-set-key (kbd "M-h") #'backward-kill-word)  ; redefine mark-paragraph and org-mark-element
+    ;; (global-set-key (kbd "M-h") 'backward-kill-word)  ; redefine mark-paragraph
+    
+    (defun my/cut-line-to-begining()
+      "Kill line to begining of the line to kill ring.
+    C-u behaviour."
+      (interactive)
+      (kill-region (line-beginning-position) (point)))
+    
+    (global-set-key (kbd "C-M-h") 'my/cut-line-to-begining) ; shadow `mark-defun'
 
 
-<a id="org5f93b65"></a>
+<a id="orge131ac0"></a>
 
-## fix for M-x: previous command, next command
+## minibuffer M-x: previous command, next command
 
     
     (define-key minibuffer-local-map (kbd "C-p") 'previous-line-or-history-element) ;; C-k
     (define-key minibuffer-local-map (kbd "C-n") 'next-line-or-history-element) ;; C-n
 
 
-<a id="orga134043"></a>
+<a id="orgf7cd0aa"></a>
 
 ## navigation
 
     
 
 
-<a id="orge28d9c8"></a>
+<a id="orgf1d8ca3"></a>
 
 ### main
 
@@ -934,7 +1040,7 @@
     ;; (define-key key-translation-map (kbd "M-a") (kbd "C-a"))
 
 
-<a id="org2afb04c"></a>
+<a id="orge30796d"></a>
 
 ### parenthesis: lists and sexp
 
@@ -962,7 +1068,7 @@
     ;;                                                  (call-interactively 'backward-sexp)))
 
 
-<a id="org8d61539"></a>
+<a id="org029a2c9"></a>
 
 ## toggle windows split for 2 windows
 
@@ -970,7 +1076,7 @@
     (global-set-key (kbd "C-x |") 'my/toggle-window-split)
 
 
-<a id="org7e568ea"></a>
+<a id="org433402b"></a>
 
 ## comments keys binding
 
@@ -979,17 +1085,88 @@
     (global-set-key (kbd "C-x C-;") 'comment-dwim)
 
 
-<a id="org55a85d7"></a>
+<a id="org7971302"></a>
 
-## other
+## New Line
 
+    
+    ;; Behave like vi's O command
+    (defun my/open-previous-line (arg)
+      "Open a new line before the current one.
+         See also `newline-and-indent'."
+      (interactive "p")
+      (beginning-of-line)
+      (open-line arg)
+      (delete-trailing-whitespace)
+      ;; (when newline-and-indent
+      ;;   (indent-according-to-mode))
+      )
+    
+    (defun my/open-next-line (arg)
+      "Move to the next line and then opens a line."
+      (interactive "p")
+      (end-of-line)
+      (open-line arg)
+      (forward-line 1)
+      (indent-according-to-mode))
+    
+    ;; FROM:
+    ;; By default: C without indentation, M with indentation
+    ;; C-o open-line - new line + stay at the same - no indentation -> custom
+    ;; org:
+    ;; C-o org-open-line - new line + stay at the same - no indent -> custom
+    ;; C-M-o split-line - new line + stay at the same - indentation line (useful for YAML)
+    ;; M-m back-to-indentation -> default-indent-new-line
+    ;; C-m  = RET newline - new line at indentaion and indent all paragraph -> electric-newline-and-maybe-indent
+    ;; org: C-m -> org-return-and-maybe-indent -> custom (fix for src block)
+    ;; RET	org-return - new line and indent
+    ;; C-j electric-newline-and-maybe-indent - new line no indentation -> open-line
+    ;; org:
+    ;; C-j org-return-and-maybe-indent -> org-open-line
+    ;; M-j default-indent-new-line - new line with indentation and respect comment -> custom
+    ;; C-M-j default-indent-new-line
+    ;; org: M-RET org-meta-return - open new heading or new line in table
+    ;; TO: ->
+    ;; Basic rule: C without indentation, M with indentation (as already used in Emacs)
+    ;; - C-o open previous line
+    ;; - C-j open line split, without indentation and stay at current
+    ;; - M-j open line (split, with indentation) and stay at current
+    ;; - C-m open next line split, without indentation and go there
+    ;; - M-m open next line (split, with indentation) and go there
+    ;; - C-M-m don't split make new fresh line and go there
+    (defun my/new-line-stay-indent ()
+      "Open new line with correct indentation, stay at the same line.
+    M-j"
+      (interactive)
+      (let ((p (point))) ; save current point
+        ;; create line
+        (if comment-start
+            (funcall comment-line-break-function)
+          ;; else - not comment
+          (insert-and-inherit ?\n)
+          (indent-to-left-margin))
+        ;; got back to saved point
+        (goto-char (1- p))))
+    
+    
+    (global-set-key "\C-o" #'my/open-previous-line)
+    (global-set-key "\C-j" 'open-line)
+    (global-set-key "\M-j" 'my/new-line-stay-indent)
+    (global-set-key "\C-m" 'electric-newline-and-maybe-indent)
+    (global-set-key "\M-m" 'default-indent-new-line) ;; hides `back-to-indentation'
+    (global-set-key (kbd "M-RET") 'my/open-next-line) ; C-M-m
+    ;; C-m don't need rebinding
+    
+    ;; (global-set-key (kbd "C-M-o") #'open-next-line) ;; hides split-line
+    
+    ;; continue comment at next line
+    (global-set-key (kbd "<M-return>") 'default-indent-new-line )
     
     ;; backward kill line (not used)
     (defun backward-kill-line (arg)
       "Kill ARG lines backward."
       (interactive "p")
-      (kill-line (- 1 arg))
-    )
+      (kill-line (- 1 arg)))
     
     ;;   C-u
     ;; (global-set-key (kbd "C-u") 'backward-kill-line)  ;; like in console ; shade C-u keychain
@@ -999,32 +1176,7 @@
     ;; (global-set-key (kbd "C-@") 'pop-to-mark-command) ;; cause problem with C-spc
     
     
-    ;; Behave like vi's o command
-    (defun open-next-line (arg)
-      "Move to the next line and then opens a line.
-        See also `newline-and-indent'."
-      (interactive "p")
-      (end-of-line)
-      (open-line arg)
-      (forward-line 1)
-      ;; (when newline-and-indent
-      ;;   (indent-according-to-mode))
-      )
     
-    (global-set-key (kbd "C-M-o") #'open-next-line) ;; hides split-line
-    
-    ;; Behave like vi's O command
-    (defun open-previous-line (arg)
-      "Open a new line before the current one.
-         See also `newline-and-indent'."
-      (interactive "p")
-      (beginning-of-line)
-      (open-line arg)
-      ;; (when newline-and-indent
-      ;;   (indent-according-to-mode))
-      )
-    
-    (global-set-key (kbd "M-o") #'open-previous-line)
     
     ;; Autoindent open-*-lines
     ;; (defvar newline-and-indent t
@@ -1039,27 +1191,27 @@
     ;;       (kill-word (- arg))
     ;;   )
     
-    (defun my/backward-kill-word (arg)
-      "indent if nothing at left"
-      (interactive "p")
-      (if (looking-back "^\\s-*" 80)
+    ;; (defun my/backward-kill-word (arg)
+    ;;   "indent if nothing at left"
+    ;;   (interactive "p")
+    ;;   (if (looking-back "^\\s-*" 80)
     
-          (call-interactively 'indent-rigidly-left-to-tab-stop)
-        (kill-word (- arg))
-        )
-      )
+    ;;       (call-interactively 'indent-rigidly-left-to-tab-stop)
+    ;;     (kill-word (- arg))))
+
+
+<a id="org84913fa"></a>
+
+## WINDOWS
+
     
+
+
+<a id="orgdf22ec1"></a>
+
+### navigate:
+
     
-    (global-set-key (kbd "M-h") 'my/backward-kill-word)  ;; redefine mark-paragraph
-    ;; (global-set-key (kbd "M-h") 'backward-kill-word)  ;; redefine mark-paragraph
-    ;; (global-set-key (kbd "C-M-h") (lambda()
-    ;;                                         (interactive)
-    ;;                                         (delete-region (point) (progn (forward-word -1) (point)))))  ;; delete without saving
-    
-    ;; continue comment at next line
-    (global-set-key (kbd "<M-return>") 'default-indent-new-line )
-    
-    ;; CONTROL WINDOWS:
     ;; (global-set-key (kbd "C-x C-o") 'other-window)
     ;; (global-set-key "[M-left]" 'windmove-left)          ; move to left window
     ;; (global-set-key "[M-right]" 'windmove-right)        ; move to right window
@@ -1076,10 +1228,42 @@
     
     ;; (setq scroll-step 10) ;; keyboard scroll one line at a time
     
-    ;; (global-set-key (kbd "C-;") 'other-window)
+    (global-set-key "\M-o" 'other-window)
+    
+    ;; (global-set-key (kbd "M-c") 'yank)
 
 
-<a id="org8a66ae1"></a>
+<a id="org21bc843"></a>
+
+### split windows
+
+    
+    (defun my/split-window-horizontally()
+      (interactive)
+      (select-window (split-window-horizontally)))
+    (defun my/split-window-vertically()
+      (interactive)
+      (select-window (split-window-vertically)))
+    (global-set-key "\C-x3" #'my/split-window-horizontally)
+    (global-set-key "\C-x2" #'my/split-window-vertically)
+
+
+<a id="org3d93c65"></a>
+
+### other window
+
+    
+    (defun my/other-window-or-split ()
+      (interactive)
+      (when (one-window-p)
+        (my/split-window-horizontally) )
+      (other-window 1) )
+    
+    (global-set-key "\M-o"    #'my/other-window-or-split)
+    (global-set-key "\M-k"    #'delete-other-windows)
+
+
+<a id="orgf77908e"></a>
 
 ## keyboard layout
 
@@ -1098,26 +1282,33 @@
       )
     
     (global-set-key (kbd "C-\\") 'toggle-xkb-layout)
+
+
+<a id="org6b46195"></a>
+
+## copy and cute word
+
+    
+    (defun my/word-copy ()
+      "Copy word at point."
+      (interactive)
+      (kill-new (thing-at-point 'symbol))
+      ;; (message (thing-at-point 'symbol "word")) ;; reveal hidden passwords with hidepw
+      (message "copied"))
+    
+    (global-set-key (kbd "C-c M-w") 'my/word-copy)
     
     
-    (global-set-key (kbd "C-c M-w")
-                    (lambda ()
-                      "copy word at point"
-                      (interactive)
-                      (kill-new (thing-at-point 'symbol))
-                      ;; (message (thing-at-point 'symbol "word")) ;; reveal hidden passwords with hidepw
-                      (message "copied")
-                      ))
-    (defun my/cut-word ()
+    (defun my/word-cut ()
       "Cut word at point."
       (interactive)
       (let ((wb (bounds-of-thing-at-point 'symbol)))
         (if wb (kill-region (car wb) (cdr wb)))
         ))
-    (global-set-key (kbd "C-c C-w") 'my/cut-word) ; hides org-refile
+    (global-set-key (kbd "C-c C-w") 'my/word-cut) ; hides org-refile
 
 
-<a id="org8534b5b"></a>
+<a id="org08b9cd6"></a>
 
 ## TAB - global binding
 
@@ -1168,81 +1359,544 @@
               )))))
     
     (defun my/indent-or-complete (arg)
-      "TAB key"
+      "TAB key
+    1) if region selection - indent
+    2) if character at the middle of the line - indent
+    3) if at the begining of the line: try expand-abbrev
+    4) company
+    5) completion-at-point"
       (interactive "P")
       ;; (indent-for-tab-command arg) ;; cycle line
-      (if (bound-and-true-p myselect-mode) ;; if region selected or (use-region-p)
-          (progn (message "ok region")
-                 (if arg
-                     (apply-command-to-region 'indent-according-to-mode) ;; fix indentation in region
-                   ;; else
-                   (my/indent-python) ;; indent as first line
-                   )
-                 )
-      (if (or (looking-back "\\." 1) (looking-at "\\_>")) ;; if character before cursor is last one of a word or dot (.)
-          (progn
-            (message "ok1")
-            (if (not (expand-abbrev)) ;; try abbrev first
-                (if (not (completion-at-point))
-                    (progn
-                      (message "ok2")
-                      (company-complete-common)
-                      )
-                  )
-              )
-            )
-        ;; else
-        (message "ok3")
-        ;; - at the middle of the line:
-        (execute-extended-command nil "indent-for-tab-command" nil) ; cycle line
-        ;; (command-execute 'indent-for-tab-command) ; cycly with tab for python org-src blocks did not working with this!
-        ))
-    )
+      (cond ((bound-and-true-p myselect-mode) ;; if region selected or (use-region-p)
+             (message "ok1 region")
+             (if arg
+                 (apply-command-to-region 'indent-according-to-mode) ;; fix indentation in region
+               ;; else
+               (my/indent-python) ;; indent as first line
+               ))
+            ;; - org and at the header
+            ((and (derived-mode-p 'org-mode) (org-match-line org-outline-regexp)
+                  (message "org header"))
+                  (call-interactively 'org-cycle))
+            ;; 2)
+            ((not (or (looking-back "\\." 1) (looking-at "\\_>"))) ;; if character before cursor is last one of a word or dot (.)
+             ;; - at the middle of the line:
+             (message "ok2 middle of line")
+             (execute-extended-command nil "indent-for-tab-command" nil) ; cycle line
+             ;; (command-execute 'indent-for-tab-command) ; cycly with tab for python org-src blocks did not working with this!
+             )
+            ;; 3) else - at the begining of the line
+            ((and (message "ok3 begining") (expand-abbrev))) ;; try abbrev first
+            ;; 4) if company mode enabled
+            ((and (message "ok4 lets try company")
+                  company-mode
+                  (company-complete)))
+            ((and (message "ok5") (not (completion-at-point)))
+             (message "failedc")
+             )))
     
     ;; - Tab - indent region as first line
     ;; - C-u Tab - fix indentation in region - apply indentation to every line
     (global-set-key (kbd "TAB") #'my/indent-or-complete)
 
 
-<a id="orgc2304cb"></a>
+<a id="org0a93981"></a>
 
 ## disable highlight changes mode
 
     
-    (global-set-key (kbd "C-c C-h") 'highlight-changes-mode)          ; move to lower window
+    (global-set-key (kbd "C-c h") 'highlight-changes-mode)          ; move to lower window
 
 
-<a id="org142d064"></a>
+<a id="org550db4c"></a>
 
-## when selecting text you can move without Control, only C-g stops selection mode
+## C-a C-e M-a - move to the begining of the line
 
     
-    (define-minor-mode myselect-mode
-                                 ""
-                                 :lighter "selmy"
-                                 :keymap (let ((map (make-sparse-keymap)))
-                                           (define-key map (kbd "l") (kbd "C-l")) ;; left
-                                           (define-key map (kbd "k") (kbd "C-k")) ;; up
-                                           (define-key map (kbd "f") (kbd "C-f")) ;; righ
-                                           (define-key map (kbd "n") (kbd "C-n")) ;; down
-                                           (define-key map (kbd "a") (kbd "C-a")) ;; beg of line
-                                           (define-key map (kbd "e") (kbd "C-e")) ;; end of line
-                                           map))
+    (defun my/begining-of-the-line()
+      "First we got to indentation, second press to actual begining."
+      (interactive)
+      (let ((p (point)))
+        (call-interactively 'back-to-indentation)
+        (if (eq (point) p)
+            (call-interactively 'move-beginning-of-line))))
     
-    (defun my/select-mode(arg)
-      "TODO: C-u C-SPC problem"
-      (interactive "P")
-      (if (null arg)
-          (myselect-mode))
-      (call-interactively 'set-mark-command arg)
+    (defun my/remapcame ()
+    ;; C-a should be close range, M-a long range
+      (local-set-key (kbd "C-a") 'my/begining-of-the-line)
+      (local-set-key (kbd "M-a") 'move-beginning-of-line)
+      ;; (local-set-key (kbd "C-a") )
+      (local-set-key (kbd "C-e") 'move-end-of-line)
+      (local-set-key (kbd "M-e") 'move-end-of-line)
+      ;; was at C-m
+      ;; (local-set-key (kbd "M-m") 'backward-sentence)
+    
+    
       )
     
-    (global-set-key (kbd "C-SPC") 'my/select-mode)
+    (add-hook 'emacs-lisp-mode-hook 'my/remapcame)
+    (add-hook 'python-mode-hook 'my/remapcame)
+    (add-hook 'python-ts-mode-hook 'my/remapcame)
+
+
+<a id="org5232375"></a>
+
+## fix: C-q call C-q for minibuffer also
+
     
-    (add-hook 'deactivate-mark-hook (lambda () (myselect-mode -1)))
+    (defun my/keyboard-quit-with-minubuffer()
+      "Abort minibuffer when in normal buffer or in isearch-mode."
+      (interactive)
+      (when isearch-mode
+        (isearch-abort))
+      (if (switch-to-minibuffer)
+            (minibuffer-keyboard-quit))
+      ;; (let ((cw (selected-window)))
+      ;;   (when (call-interactively 'switch-to-minibuffer)
+      ;;       (minibuffer-keyboard-quit)
+      ;;       (select-window cw)))
+      (keyboard-quit))
+    
+    (global-set-key "\C-g" #'my/keyboard-quit-with-minubuffer)
+    (define-key isearch-mode-map "\C-g" #'my/keyboard-quit-with-minubuffer)
 
 
-<a id="org68b2de9"></a>
+<a id="org3b9f186"></a>
+
+## start open shell
+
+    
+    (global-set-key (kbd "M-!") (lambda () (interactive) (call-process-shell-command "xfce4-terminal -e tmux&" nil 0)))
+
+
+<a id="org00d08e0"></a>
+
+## open config
+
+    
+    (defun my/open-config ()
+      (interactive)
+      (find-file-read-only "~/.emacs"))
+    (global-set-key (kbd "C-~") #'my/open-config)
+
+
+<a id="orgb9afff7"></a>
+
+## close all,other buffers, kill all buffers and frames
+
+    
+
+\*-----------------&#x2013;&#x2014; kill other buffers
+
+    
+    (defvar my/kill-buffer-exceptions
+      (mapcar #'downcase '("Messages" "emacs-file" "scratch"))
+      "Any part of buffer name.")
+    (defun my/kill-buffer-testfn (key lcar)
+      (string-match-p (regexp-quote key) lcar))
+    
+    (defun my/kill-other-buffers (&optional test)
+        "Kill all other buffers. If TEST is true just print victims.
+    Bug: Can drop frame if emacs was started with emacsclient*create-frame"
+    
+        (let* (;; if current window is buffer-menu with selected buffers
+               (exception-buffers (if (derived-mode-p 'Buffer-menu-mode)
+                                      (Buffer-menu-marked-buffers)
+                                    ;; else
+                                    nil))
+               ;; get buffers to kill
+               (buffers (delq (window-buffer (selected-window)) ; filter buffer-menu in current window
+                             (delq (current-buffer) ; filter current buffer
+                                   ;; filter alive and not system
+                                   (seq-filter (lambda (b) (and (buffer-live-p b) ; filter alive
+                                                                ; first character of name should be not space
+                                                                (/= (aref (buffer-name b) 0) ?\s)
+                                                                ;; don't kill selected buffers
+                                                                (print (list exception-buffers b))
+                                                                (not (seq-contains-p exception-buffers b))
+                                                                ;; filter exceptions
+                                                                (not (seq-contains-p my/kill-buffer-exceptions
+                                                                                     (downcase (buffer-name b))
+                                                                                     #'my/kill-buffer-testfn))))
+                                               (seq-uniq (buffer-list)))))))
+          (if test
+              (print buffers)
+              ;; else
+          (mapc 'kill-buffer buffers)))) ; kill left buffers
+
+\*-----------------&#x2013;&#x2014; kill other frames
+
+    
+    (defun my/member-frame(frame frames)
+      "Compare showed buffers of FRAME with every frame in FRAMES."
+      (seq-contains-p
+       ;; sequence
+       (mapcar (lambda (x) (mapcar #'window-buffer (window-list x))) frames)
+       ;; element
+       (mapcar #'window-buffer (window-list frame))))
+    
+    (defun my/drop-frame-duplicates ()
+      "Compare window list by `my/member-frame' function and kill others.
+    Function `frame-list-z-order' used as a source of frames."
+        (let ((duplicates '())
+              (unique-items '()))
+          (dolist (item (frame-list-z-order))
+            (if (my/member-frame item unique-items)
+                (push item duplicates)
+              (push item unique-items)))
+          (mapc #'delete-frame duplicates)))
+
+\*-------------------&#x2013;&#x2014; all together
+
+    
+    (defun my/kill-other-buffers-and-frame-duplicates (arg)
+      "C-u for test, don't kill actually."
+      (interactive "P")
+      (my/drop-frame-duplicates) ; drop duplicates
+      (my/kill-other-buffers arg) ; drop other buffers
+      (my/drop-frame-duplicates) ; drop duplicates - because buffers changed
+      ;; Hack to trigger all window hooks (I need force-mode-line-update for myself)
+      (let ((sw (selected-window)))
+        (select-window (minibuffer-window))
+        (select-window sw)))
+    
+    (global-set-key (kbd "C-x !") #'my/kill-other-buffers-and-frame-duplicates)
+
+
+<a id="org7a9ff08"></a>
+
+## minor-mode experiment
+
+    
+    ;; call key: (funcall (global-key-binding "TAB"))
+    
+    ;; (define-minor-mode modal-navigation
+    ;;                              ""
+    ;;                              :lighter "modal"
+    ;;                              :keymap (let ((map (make-sparse-keymap)))
+    ;;                                        (define-key map (kbd "l") (kbd "C-l")) ;; left
+    ;;                                        (define-key map (kbd "k") (kbd "C-k")) ;; up
+    ;;                                        (define-key map (kbd "f") (kbd "C-f")) ;; righ
+    ;;                                        (define-key map (kbd "n") (kbd "C-n")) ;; down
+    ;;                                        (define-key map (kbd "a") (kbd "C-a")) ;; beg of line
+    ;;                                        (define-key map (kbd "e") (kbd "C-e")) ;; end of line
+    ;;                                        map))
+    
+    ;; (defun my/enable-mn(arg)
+    ;;   (interactive "P")
+    ;;    (modal-navigation)
+    ;;    )
+    
+    ;; (defun my/disable-mn(arg)
+    ;;   (interactive "P")
+    ;;    (modal-navigation -1)
+    ;;    )
+    
+    ;; (key-chord-define-global "jj"     'my/enable-mn)
+    ;; (global-set-key (kbd ";")     'my/disable-mn)
+
+
+<a id="org68b7552"></a>
+
+# Global Modes
+
+    
+
+
+<a id="org18d7270"></a>
+
+## multiple-cursor
+
+    
+    (require 'multiple-cursors)
+    (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+    
+    (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+    (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+    (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+
+
+<a id="org792b41b"></a>
+
+## dumb-jump - navigation for not loaded Elisp and without TAGs
+
+    
+    ;; (require 'dumb-jump)
+    ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+    ;; (setq xref-show-definitions-function #'xref-show-definitions-completing-read)
+    ;; (setq dumb-jump-force-searcher 'grep)
+    ;; (setq dumb-jump-debug t)
+
+
+<a id="orge605438"></a>
+
+## completion - vertico, marginalia
+
+    
+
+
+<a id="org7602985"></a>
+
+### experiment with completion
+
+    
+    ;; (defun my/up-directory (path)
+    ;;   "Move up a directory in PATH without affecting the kill buffer.
+    ;; Taken, shamelessly, from: https://www.reddit.com/r/emacs/comments/re31i6/how_to_go_up_one_directory_when_using_findfile_cx/
+    ;; https://gist.degruchy.org"
+    ;;   (interactive "p")
+    ;;   (if (string-match-p "/." (minibuffer-contents))
+    ;;       (let ((end (point)))
+    ;; 	(re-search-backward "/.")
+    ;; 	(forward-char)
+    ;; 	(delete-region (point) end))))
+    
+    ;; (define-key minibuffer-local-filename-completion-map
+    ;;   (kbd "M-h") 'my/up-directory)
+    
+    
+    ;; ;; "/u/bar"
+    ;; ;; ( completion-in-region 20963 20967
+    ;; ;;  '(("foo/" 1) ("barfoo" 2) ("foobaz" 3) ("foobar2" 4))) ; show list of possible completions
+    ;; ;; (semantic-analyze-notc-completion-at-point-function semantic-analyze-nolongprefix-completion-at-point-function semantic-analyze-completion-at-point-function)
+    ;; (setq completion-at-point-functions '(semantic-analyze-completion-at-point-function)) ;'(semantic-analyze-completion-at-point-function semantic-analyze-notc-completion-at-point-function semantic-analyze-nolongprefix-completion-at-point-function tags-completion-at-point-function)
+    ;; ;; (define-key minibuffer-local-completion-map (kbd "C-o")
+    ;; ;;             (lambda ()(interactive) (completion-in-region (minibuffer--completion-prompt-end) (point-max)
+    ;; ;;                         minibuffer-completion-table
+    ;; ;;                         minibuffer-completion-predicate)))
+    ;; ;; (define-key minibuffer-local-completion-map (kbd "C-o")
+    ;; ;;             (lambda ()(interactive) (print (list minibuffer-completion-table
+    ;; ;;                         minibuffer-completion-predicate)))) ; (read-file-name-internal file-exists-p)
+    
+    ;; (define-key minibuffer-local-completion-map (kbd "C-o")
+    ;;             (lambda ()(interactive) (print (completion-table-with-quoting #'completion-file-name-table
+    ;;                                  #'substitute-in-file-name
+    ;;                                  #'completion--sifn-requote))))
+    
+    ;; (defun make-my-alist ()
+    ;;   '(("//foobar1" 1) ("barfoo" 2) ("foobaz" 3) ("foobar2" 4)))
+    
+    ;; ; string ustring completion point      unquote requote
+    ;; (completion--twq-try "/u//" ; string
+    ;;                      (funcall #'substitute-in-file-name string) ; ustring
+    ;;                      "/usr/" ; completion
+    ;;                      1 ; point
+    ;;                      substitute-in-file-name ; unquote
+    ;;                      completion--sifn-requote) ; requote
+    
+    ;; (completion--twq-try "/uaturing_Skold_American_Vampire_Official_Musi_ce9j5CiA.mp4" ;string
+    ;; "/uaturing_Skold_American_Vampire_Official_Musi_ce9j5CiA.mp4" ;ustring
+    ;; "/usr/aturing_Skold_American_Vampire_Official_Musi_ce9j5CiA.mp4" ; completion
+    ;; 5 ; point
+    ;; 'substitute-in-file-name ;unquote
+    ;; 'completion--sifn-requote ; requote
+    ;; )
+    
+    
+    
+    
+    
+    ;; (defun my/completion--embedded-envvar-table (orig-fun &rest args)
+    ;; (print "-------------------")
+    ;; (print args)
+    ;; (print "---out:")
+    ;; (print (apply orig-fun args))
+    ;;   )
+    
+    
+    ;; ;; (completion--embedded-envvar-table "/u/" 'file-exists-p '(boundaries . "/Screenshot_2024-04-01_18-25-21.png"))
+    ;; (advice-add 'completion--embedded-envvar-table :around #'my/completion--embedded-envvar-table )
+    
+    
+    ;; 1) read-file-name-default
+    ;; 2) (completing-read prompt 'read-file-name-internal pred mustmatch insdef 'file-name-history default-filename)))
+    ;; 3) completing-read-default
+    
+    ;; (print (completion-table-with-quoting "//u" #'substitute-in-file-name #'completion--sifn-requote)))
+    ;; ;; (completion-file-name-table "/u" minibuffer-completion-predicate 'metadata)
+    ;; (defun my/semantic-analyze-completion-at-point-function (orig-fun &rest args)
+    ;;   (print (apply orig-fun args))
+    ;; )
+    ;; (advice-add 'semantic-analyze-completion-at-point-function :override #'my/semantic-analyze-completion-at-point-function )
+    
+    ;; (defun my/completion--twq-try (&rest args)
+    ;;   (print args)
+    ;; )
+    ;; (advice-add 'completion--twq-try :before #'my/completion--twq-try )
+    
+    ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Basic-Completion.html
+
+
+<a id="orgf053195"></a>
+
+### load and configure vertico and marginalia
+
+    
+    (require 'vertico)
+    (vertico-mode t)
+    (setopt vertico-count 5)
+    (setopt vertico-scroll-margin 0)
+    (setopt vertico-resize nil)
+    (setopt vertico-cycle t)
+    ;; (keymap-set vertico-map "<remap> <exit-minibuffer>" 'my-other-kill-line)
+    ;; (define-key vertico-map (kbd "vertico-insert") #'vertico-next)
+    
+    (require 'marginalia)
+    (marginalia-mode 1)
+
+
+<a id="org095387c"></a>
+
+### vertico fix Dired path selection
+
+    
+    ;; (defun vertico-exit (&optional arg)
+    ;;   "Exit minibuffer with current candidate or input if prefix ARG is given."
+    ;;   (interactive "P")
+    ;;   (when (and (not arg) (>= vertico--index 0))
+    ;;     (vertico-insert t))
+    ;;   (when (vertico--match-p (minibuffer-contents-no-properties))
+    ;;     (exit-minibuffer)))
+    
+    (defun vertico-insert (&optional exit-flag)
+      "Insert current candidate in minibuffer."
+      (interactive)
+      (when (> vertico--total 0)
+        (let ((vertico--index (max 0 vertico--index)))
+          (if exit-flag ; - RET
+              (insert (prog1
+                          (vertico--candidate) ; return value
+                        (delete-minibuffer-contents)))
+            ;; else - TAB - completion
+            ;; concat vartiant and fix // double + reset pointer position after
+              (let ((efn (concat (vertico--candidate) (buffer-substring (point) (point-max))))
+                    (pd (- (point-max) (point)))) ; text lenght after pointer
+                ;; (print pd)
+                (delete-minibuffer-contents)
+                ;; (print (minibuffer-prompt))
+                (if (and (with-current-buffer (other-buffer (current-buffer) t) (derived-mode-p 'dired-mode))
+                         (or (string-match "^Rename " (minibuffer-prompt))
+                             (string-match "^Find file: " (minibuffer-prompt))))
+                    (insert (expand-file-name efn))
+                  ;; else
+                  (insert efn))
+                (if (> pd 0) ; if we renaming preserve pointer after variant
+                    (goto-char (- (+ (minibuffer-prompt-end) (length (vertico--candidate))) 1 ))))))))
+    ;; Enter /u......... -> /u/usr/........
+    ;; C-m   /u......... -> /u/usr/........
+
+
+<a id="org790aaeb"></a>
+
+### vertico up-directory M-h and Enter select and enter
+
+    
+    (require 'vertico-directory)
+    ;; - Enter select and enter
+    (keymap-set vertico-map "RET" #'vertico-directory-enter)
+    ;; - up directory
+    (defun my/delete-backward ()
+      (interactive)
+      (if (eq 'file (vertico--metadata-get 'category))
+          (vertico-directory-up)
+      ;; else
+      (call-interactively #'backward-kill-word)))
+    
+    (keymap-set vertico-map "M-h" 'my/delete-backward)
+
+
+<a id="org081cc39"></a>
+
+### vertico go to home
+
+
+<a id="org31fdc32"></a>
+
+## zone screensaver FOR FUN
+
+    
+
+
+<a id="orgb499497"></a>
+
+### activation
+
+    
+    (defvar my/zone-current-program nil)
+    (require 'zone)
+    (zone-when-idle 120)
+
+
+<a id="org3c114a9"></a>
+
+### fix disable rats that corrupt Emacs
+
+    
+    (setq zone-programs (remove 'zone-pgm-rat-race zone-programs))
+    (setq zone-programs (remove 'zone-pgm-jitter zone-programs))
+    ;; Error running timer ‘zone’: (wrong-type-argument frame-live-p #<dead frame *zone* • 0x558dc90ae248>)
+    (setq zone-programs (remove 'zone-pgm-rotate zone-programs))
+
+
+<a id="org90a5f42"></a>
+
+### fix speed
+
+    
+    
+    (defvar my/zone-crazy '("zone-pgm-putz-with-case"
+                            "zone-pgm-whack-chars"
+                            "zone-pgm-random-life"))
+    
+    (defvar my/zone-hungry '("zone-pgm-dissolve"
+                             "zone-pgm-jitter"))
+    
+    (defvar my/zone-demanding '("zone-pgm-rotate"
+                                "zone-pgm-drip"
+                                "zone-pgm-rotate-LR-lockstep"
+                                "zone-pgm-rotate-RL-variable"
+                                "zone-pgm-paragraph-spaz"))
+    
+    (defun my/zone-call (func-call program &optional timeout)
+      " Get current zone program"
+      (setq my/zone-current-program (symbol-name program))
+      (apply func-call program timeout))
+    
+    (advice-add 'zone-call :around #'my/zone-call)
+    
+    (defun my/zone-sit-for-advice (func-call seconds &optional nodisp obsolete)
+      "Slow down zone according to previously fetched program name."
+      (cond
+       ((member my/zone-current-program my/zone-crazy)
+        (setq seconds (* seconds 250))) ; 250 times slower
+       ((member my/zone-current-program my/zone-hungry)
+        (setq seconds (* seconds 25))) ; 50 times slower
+       ((member my/zone-current-program my/zone-demanding)
+        (setq seconds (* seconds 10))) ; 10 times slower
+       (t (setq seconds (* seconds 5))) ; 5 times slower for others
+       )
+      (apply func-call seconds nodisp obsolete))
+    
+    (advice-add 'sit-for :around #'my/zone-sit-for-advice)
+
+
+<a id="orge822e1f"></a>
+
+### fix text scale or zoom
+
+    
+    (defun my/zone-call-scalefix (func-call program &optional timeout)
+    "We add advice after buffer of zoom creation and before call of
+     program. We switch to buffer before current, get zoom from it and
+     adjust zoom in zone buffer."
+      (let ((v (with-current-buffer (buffer-name (car (car (window-prev-buffers))))
+          text-scale-mode-amount)))
+        (text-scale-increase v))
+      (apply func-call program timeout))
+    (advice-add 'zone-call :around #'my/zone-call-scalefix)
+
+
+<a id="orgb194fd8"></a>
 
 ## expand-region - one key for selecting everything (experiment)
 
@@ -1280,86 +1934,62 @@
     (add-hook 'org-mode-hook 'er/add-text-mode-expansions)
 
 
-<a id="org89291e4"></a>
+<a id="orgd8a71f3"></a>
 
-## C-a C-e M-a - move to the begining of the line
+## when selecting text you can move without Control, only C-g stops selection mode
 
     
-    (defun my/remapcame ()
-      ;; C-a should be close range, M-a long range
-      (local-set-key (kbd "C-a") (lambda () (interactive)
-                                   (let ((p (point)))
-                                     (call-interactively 'back-to-indentation)
-                                     (if (eq (point) p)
-                                         (call-interactively 'move-beginning-of-line)))))
-      (local-set-key (kbd "M-a") 'move-beginning-of-line)
-      ;; (local-set-key (kbd "C-a") )
-      (local-set-key (kbd "C-e") 'move-end-of-line)
-      (local-set-key (kbd "M-e") 'move-end-of-line)
-      ;; was at C-m
-      (local-set-key (kbd "M-m") 'backward-sentence)
+    ;; (require 'multiple-cursors)
+    (defun my/select-space-key ()
+      "SPC pressed during selection."
+      (interactive)
+      (if (and (region-active-p) myselect-mode)
+          (let ((cl (count-lines (region-beginning) (region-end))))
+            (goto-char (region-beginning))
+            ;; (deactivate-mark)
+            (myselect-mode -1)
+            (when (functionp 'mc/mark-next-like-this)
+                (mc/mark-lines (1- cl) 'forwards)
+                (mc/maybe-multiple-cursors-mode)))))
     
+    (define-minor-mode myselect-mode
+                                 ""
+                                 :lighter "selmy"
+                                 :interactive nil
+                                 :keymap (let ((map (make-sparse-keymap)))
+                                           (define-key map (kbd "l") (kbd "C-l")) ;; left
+                                           (define-key map (kbd "k") (kbd "C-k")) ;; up
+                                           (define-key map (kbd "f") (kbd "C-f")) ;; righ
+                                           (define-key map (kbd "n") (kbd "C-n")) ;; down
+                                           (define-key map (kbd "a") (kbd "C-a")) ;; beg of line
+                                           (define-key map (kbd "e") (kbd "C-e")) ;; end of line
+                                           (define-key map (kbd "SPC") #'my/select-space-key)
+                                           map))
     
-      )
+    (defun my/select-mode(arg)
+      "TODO: C-u C-SPC problem"
+      (interactive "P")
+      (if (null arg)
+          (myselect-mode))
+      (call-interactively 'set-mark-command arg))
     
-    (add-hook 'emacs-lisp-mode-hook 'my/remapcame)
-    (add-hook 'python-mode-hook 'my/remapcame)
-    (add-hook 'python-ts-mode-hook 'my/remapcame)
+    (global-set-key (kbd "C-SPC") 'my/select-mode)
+    
+    (add-hook 'deactivate-mark-hook (lambda () (myselect-mode -1)))
 
 
-<a id="org7b64447"></a>
+<a id="orgc53af44"></a>
 
-## dictd - english dictionary
+## dictd - english dictionary - C-c d
 
     
     ;; - require: emerge app-dicts/dictd-wn app-dicts/dictd-vera app-text/dictd
     ;; - rc-update add dictd
+    ;; USES TCP localhost:2628 PORT
     (global-set-key (kbd "C-c d") #'dictionary-lookup-definition)
 
 
-<a id="orgc50d2ec"></a>
-
-## fix: C-q call C-q for minibuffer also
-
-    
-    (defun my/keyboard-quit-with-minubuffer()
-      "Abort minibuffer when in normal buffer or in isearch-mode."
-      (interactive)
-      (when isearch-mode
-        (isearch-abort))
-      (if (switch-to-minibuffer)
-            (minibuffer-keyboard-quit))
-      ;; (let ((cw (selected-window)))
-      ;;   (when (call-interactively 'switch-to-minibuffer)
-      ;;       (minibuffer-keyboard-quit)
-      ;;       (select-window cw)))
-      (keyboard-quit))
-    
-    (global-set-key "\C-g" #'my/keyboard-quit-with-minubuffer)
-    (define-key isearch-mode-map "\C-g" #'my/keyboard-quit-with-minubuffer)
-
-
-<a id="orge9e34bc"></a>
-
-# Global Modes
-
-    
-
-
-<a id="org8cc9077"></a>
-
-## multiple-cursor
-
-    
-    (require 'multiple-cursors)
-    (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-    
-    (global-set-key (kbd "C->") 'mc/mark-next-like-this)
-    (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-    (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
-
-
-<a id="org689f247"></a>
+<a id="org8a2f5d7"></a>
 
 ## other
 
@@ -1378,31 +2008,91 @@
     ;; ;; C-c C-v modern
     ;;  (cua-mode t)
     (setopt global-highlight-changes-mode t)
-    (require 'company)
-    (setopt global-company-mode nil)
+    
+    ;; M-? jump to first occurance
+    (setopt xref-auto-jump-to-first-xref t)
 
 
-<a id="orgdf372ba"></a>
+<a id="orgbc14f4f"></a>
 
 # Buffers, Windows, Buffer menu, tab-bar, tab-list [rooted]
 
     
 
 
-<a id="org6ced2b0"></a>
+<a id="orgaff03d2"></a>
 
 ## keys
 
     
-    (global-set-key (kbd "M-z") #'buffer-menu) ; shadow `zap-to-char'
+
+
+<a id="org707568d"></a>
+
+### buffer menu
+
+    
+    (global-set-key (kbd "C-x c") #'buffer-menu) ; rooted
+    (global-set-key (kbd "C-S-z") #'buffer-menu) ; (not rooted)
+
+
+<a id="org4f8df1b"></a>
+
+### other-buffer
+
+    
+    (defun my/other-buffer (&optional arg)
+      "Switch to other buffer, ie `other-buffer' without system buffers."
+      (interactive)
+      (let ((ignored-system-buffers '("*Messages*" "*Buffer List*")))
+        (switch-to-buffer
+         (seq-find (lambda (b) ; get first good one
+                     (and
+                      (/= (aref (buffer-name b) 0) ?\s)
+                      (buffer-live-p b)
+                      (not (member (buffer-name b)
+                                   ignored-system-buffers))))
+                   (cdr (buffer-list))))))
+    
+    ;; (defun my/other-buffer ()
+    ;;   "alternative implementation."
+    ;;   (interactive)
+    ;;   (progn (call-interactively 'buffer-menu)
+    ;;          (call-interactively 'next-line)
+    ;;          (call-interactively 'Buffer-menu-this-window)))
+    
+    ;; (global-set-key "\C-o" #'other-window) ; shadow 'open-line
+    (global-set-key (kbd "C-c C-z") #'my/other-buffer)
+    (with-eval-after-load 'org
+      (define-key org-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `org-add-note'
+    (with-eval-after-load 'sh-script
+      (define-key sh-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `sh-show-shell'
+    (with-eval-after-load 'python
+      (define-key python-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `python-shell-switch-to-shell'
+
+
+<a id="org7a1c0c2"></a>
+
+### next/previous line
+
+    
+    (global-set-key  (kbd "C-z") #'next-line) ; rooted
+    (global-set-key (kbd "M-z") #'previous-line) ; shadow `zap-to-char' rooted
+    
     ;; (global-set-key (kbd "C-M-a") #'previous-buffer) ; shadow beginning-of-defun
     ;; (global-set-key (kbd "C-M-e") #'next-buffer) ; shadow end-of-defun
+
+
+<a id="org5f54d9f"></a>
+
+### messages (rooted)
+
     
     (defun my/show-message-log () (interactive) (switch-to-buffer "*Messages*") (end-of-buffer))
     (global-set-key (kbd "C-M-z") #'my/show-message-log)
 
 
-<a id="org62b67b9"></a>
+<a id="orga0fd110"></a>
 
 ## tab-bar-mode for buffers
 
@@ -1416,21 +2106,24 @@
     ;; (setq display-buffer-alist '((".*" display-buffer-same-window)))
 
 
-<a id="org36ee154"></a>
+<a id="org204e4da"></a>
 
 ## tab-line
 
     
     (global-tab-line-mode t)
     (setopt tab-line-close-button-show nil)
-    (setopt tab-line-tab-name-truncated-max 15)
+    (setopt tab-line-switch-cycling t)
+    (setopt tab-line-tabs-function #'tab-line-tabs-mode-buffers)
+    (setopt tab-line-tab-name-function #'tab-line-tab-name-truncated-buffer)
+    ;; (setopt tab-line-tab-name-truncated-max 20)
     
     ;; reqired for dired-hist-tl
-    (global-set-key (kbd "C-M-a") #'tab-line-switch-to-prev-tab) ; shadow beginning-of-defun
-    (global-set-key (kbd "C-M-e") #'tab-line-switch-to-next-tab) ; shadow end-of-defun
+    ;; (global-set-key (kbd "C-M-a") #'tab-line-switch-to-prev-tab) ; shadow beginning-of-defun
+    ;; (global-set-key (kbd "C-M-e") #'tab-line-switch-to-next-tab) ; shadow end-of-defun
 
 
-<a id="org30028e8"></a>
+<a id="orge03fbae"></a>
 
 # Tree-sitter (disabled now)
 
@@ -1439,506 +2132,59 @@
     ;; (add-to-list 'major-mode-remap-alist '(bash-mode . bash-ts-mode))
 
 
-<a id="orgc7015cc"></a>
+<a id="org0037a95"></a>
 
 # Proxy configuration
 
+\#+begin\_src elisp
+
+(setq url-gateway-method 'socks)
+(setq socks-password "")
+(setq socks-server '("Default server" "127.0.0.1" 9050 5)) ;; M-x customize socks
+;; (url-proxy-services
+;; test proxy:
+(require 'url)
+(require 'url-vars)
+(defun my/testproxy ()
+  (let (
+        ;; (url-mime-accept-string "application/xml")
+        (url-request-extra-headers
+         '(("User-Agent" . "curl/8.7.1")
+           ("Accept" . "**/**"))))
+  (display-buffer (url-retrieve-synchronously "<http://ipinfo.io/ip>"))))
+;; (my/testproxy)
+;; (with-current-buffer
+
+;; (goto-char (point-min))
+;; (re-search-forward "^$")
+;; (delete-region (point) (point-min))
+;; (buffer-string))
+;; )
+
+;; #+end\_src
+
+
+<a id="orga7ca2d6"></a>
+
+# gui and new version dependent configurations
+
     
-    (setq url-gateway-method 'socks)
-    (setq socks-password "")
-    (setq socks-server '("Default server" "127.0.0.1" 9050 5)) ;; M-x customize socks
+    ;; ;; gui
+    (tool-bar-mode     -1) ;; отключаем tool-bar
+    (scroll-bar-mode   -1) ;; отключаем полосу прокрутки
+    ;; ;; path for info
+    ;; (require 'info)
+    ;; (add-to-list 'Info-directory-list "/usr/local/src/elisp")
 
 
-<a id="org545a6db"></a>
+<a id="orgdcf48b3"></a>
 
 # Per Mode Configurations
 
     
 
 
-<a id="org0ab88f4"></a>
-
-## firstly-search
-
-    
-    (require 'firstly-search-dired)
-    (require 'firstly-search-package)
-    (require 'firstly-search-buffermenu)
-    (require 'firstly-search-bookmarks)
-    (add-hook 'dired-mode-hook #'firstly-search-dired-mode)
-    (add-hook 'package-menu-mode-hook #'firstly-search-package-mode)
-    (add-hook 'Buffer-menu-mode-hook #'firstly-search-buffermenu-mode)
-    (add-hook 'bookmark-bmenu-mode-hook #'firstly-search-bookmarks-mode)
-    ;; unbind for dired-mode-map
-    (keymap-unset firstly-search-dired-mode-map "M-o") ; for `my/dired-find-file-other-window'
-    ;; (keymap-unset firstly-search-dired-mode-map "RET") ; for `dired-hist-tl-dired-find-file'
-
-
-<a id="org55238c6"></a>
-
-## Dired [rooted (consider disable trashing, omit, thumbnails)]
-
-    
-
-
-<a id="org514ae62"></a>
-
-### ls arguments and sorting
-
-    
-    ;; Arguments for insert-directory-program, by default it is "ls"
-    ;; -a - all
-    ;; -A - no . and ..
-    ;; -G - no groups - don’t print group names
-    ;; -1 - list one file per line - breaks dired-sort-toggle-or-edit
-    ;; -v - sort by version
-    ;; -r - reverse sort order
-    ;; -t - sort by time
-    (setopt dired-listing-switches "-Al -aGht*group-directories-first*dired")
-    
-    ;; sorting
-    (defun xah-dired-sort (&optional par)
-      "Sort dired dir listing in different ways.
-    ePrompt for a choice.  URL
-    `http://ergoemacs.org/emacs/dired_sort.html'
-    `https://wilkesley.org/~ian/xah/emacs/dired_sort.html'
-     Version 2015-07-30"
-      (interactive)
-      (let (-sort-by -arg)
-        (if (not par)
-            (setq -sort-by (ido-completing-read "Sort by:" '( "size" "date" "name" "dir" "default")))
-          ;; else
-          (setq -sort-by par))
-        (cond
-         ((equal -sort-by "name") (setq -arg "-Al*si*time-style long-iso "))
-         ((equal -sort-by "date") (setq -arg "-Al*si*time-style long-iso -t"))
-         ((equal -sort-by "size") (setq -arg "-Al*si*time-style long-iso -S"))
-         ((equal -sort-by "dir") (setq -arg "-Al*si*time-style long-iso*group-directories-first"))
-         ((equal -sort-by "default") (setq -arg dired-listing-switches))
-         (t (error "logic error 09535" )))
-        (dired-sort-other -arg )))
-    
-    (define-key dired-mode-map (kbd "C-c s") #'xah-dired-sort)
-    (define-key dired-mode-map (kbd "C-c n") (lambda () (interactive) (xah-dired-sort "name") ))
-    (define-key dired-mode-map (kbd "C-c d") (lambda () (interactive) (xah-dired-sort "default") ))
-    ;; (defun my/xah-dired-sort-size ()
-    ;;   (interactive
-    ;;   (dired-sort-other -arg ))
-    
-    ;; (define-key dired-mode-map (kbd "C-c s") )
-    ;; (dired-sort-other -arg )
-
-
-<a id="org424ac74"></a>
-
-### tweeks: suggest path, buffer kill, trash, hl-line
-
-    
-    ;; Do not open new buffer when you navigate in Dired mode.
-    (setopt dired-kill-when-opening-new-dired-buffer nil)
-    ;; Suggest target path when copy files if there is two windows M-x split-window-* -
-    (setopt dired-dwim-target 'dired-dwim-target-next)
-    ;; trash
-    (setopt delete-by-moving-to-trash t)
-    ;; highlight current line
-    (add-hook 'dired-mode-hook #'hl-line-mode)
-
-
-<a id="org935f6e1"></a>
-
-### tweeks: always delete and copy recursively, confirm y-n
-
-    
-    (setopt dired-recursive-copies 'always)
-    (setopt dired-recursive-deletes 'always)
-    (setopt dired-deletion-confirmer 'y-or-n-p)
-
-
-<a id="org13d548d"></a>
-
-### omit "." files with dired-omit-mode
-
-    
-    (require 'dired-x)
-    (setopt dired-omit-files (concat dired-omit-files "\\|^\\.+")) ; omit files started with dot "."
-    
-    ;; fix remember state
-    (defvar my/dired-omit-flag t
-         "Non-nil means Omit mode is enabled by default.")
-    
-    (defun my/dired-omit-switch ()
-      "This function is a small enhancement for `dired-omit-mode', which will
-       \"remember\" omit state across Dired buffers."
-         (interactive)
-         (setq my/dired-omit-flag (not my/dired-omit-flag)) ; invert state
-         (dired-omit-mode (if my/dired-omit-flag
-                              my/dired-omit-flag
-                            ;; else - negative arg to disable mode
-                            -1 )))
-    
-    (defun my/dired-omit-hook ()
-      "Active Omit only if flag is set."
-      (if my/dired-omit-flag (dired-omit-mode)))
-    
-    (add-hook 'dired-mode-hook #'my/dired-omit-hook)
-    
-    (define-key dired-mode-map "\C-\M-h" #'my/dired-omit-switch) ; to switch on/off
-
-
-<a id="orgce538dc"></a>
-
-### keys rebindings
-
-    
-    (defun my/dired-unmark-one-line()
-      "BACKSPACE - dired-unmark-backward with universal argument."
-      (interactive)
-      (dired-unmark (- 1) t))
-    (define-key dired-mode-map "\C-h" #'my/dired-unmark-one-line)
-    (define-key dired-mode-map "\M-h" #'my/dired-unmark-one-line)
-    ;; just copy text
-    (define-key dired-mode-map "\M-w" #'kill-ring-save)
-    (define-key dired-mode-map (kbd "C-M-w") #'dired-copy-filename-as-kill)
-    (define-key dired-mode-map (kbd "M-<return>") #'browse-url-of-dired-file)
-    (define-key dired-mode-map (kbd "M-RET") #'browse-url-of-dired-file)
-    (define-key dired-mode-map (kbd "S-<return>") #'browse-url-of-dired-file)
-    (define-key dired-mode-map (kbd "S-RET") #'browse-url-of-dired-file)
-    (define-key dired-mode-map (kbd "<backspace>") #'dired-up-directory)
-    (define-key dired-mode-map (kbd "DEL") #'dired-up-directory)
-    (define-key dired-mode-map (kbd "<delete>") #'dired-up-directory)
-    
-    ;; rebind ^ up
-    (define-key dired-mode-map "\C-j" #'dired-up-directory) ;; shadow #'universal-argument
-
-
-<a id="org629f65b"></a>
-
-### Use Xfce4 thumbnails 128x128
-
-    
-    (require 'image-dired)
-    (setopt image-dired-dir "/home/user/.cache/thumbnails/normal/")
-    (setopt image-dired-thumbnail-storage 'standard)
-    
-    ;; rebind showing thumbnails
-    (defun my/thumbnails()
-      (interactive)
-      (image-dired-show-all-from-dir (dired-current-directory)))
-    
-    (define-key dired-mode-map (kbd "C-,") #'my/thumbnails)
-
-
-<a id="org442bd80"></a>
-
-### wdired mode: allow to change permissions in C-x C-q
-
-    
-    ;; (require 'wdired)
-    ;; (setopt wdired-allow-to-change-permissions t)
-
-
-<a id="orgdf0a85b"></a>
-
-### default external applications for file extensions
-
-    
-    (require 'dired-aux)
-    ;; for & and !
-    ;; (add-to-list 'dired-guess-shell-alist-user '("\\.flac$" "mpv"))
-    ;; dired-guess-shell-alist-user is empty by default
-    (setopt dired-guess-shell-alist-user
-          '(("\\.\\(flac\\|mp3\\)$" "mpv")
-            ("\\.pdf$" "mupdf")
-            ("\\.png$" "mupdf")
-            ("\\.jpg$" "mupdf")
-            ("\\.html$" "firef")
-            ))
-
-
-<a id="orgf09868c"></a>
-
-### additional modes: hist, navigation, icons
-
-    
-
-1.  hist: back, forward
-
-        
-        ;; (require 'dired-hist)
-        ;; (define-key dired-mode-map (kbd "C-M-q") #'dired-hist-go-back)
-        ;; (define-key dired-mode-map (kbd "C-M-r") #'dired-hist-go-forward) ; shadow `isearch-repeat-backward'
-        ;; (define-key dired-mode-map (kbd "C-c '") #'dired-hist-debug-activate)
-        ;; (add-hook 'dired-mode-hook #'dired-hist-mode)
-
-2.  hist: alternative based on tab-line mode
-
-        
-        (require 'dired-hist-tl)
-        (add-hook 'dired-mode-hook #'dired-hist-tl-dired-mode-hook)
-        ;; (define-key dired-mode-map (kbd "RET") #'dired-hist-tl-dired-find-file)
-        ;; (define-key dired-mode-map (kbd "C-m") #'dired-hist-tl-dired-find-file)
-        (define-key firstly-search-dired-mode-map (kbd "C-m") #'dired-hist-tl-dired-find-file)
-        ;; (define-key firstly-search-dired-mode-map (kbd "C-m") #'dired-hist-tl-dired-find-file)
-        (define-key firstly-search-dired-mode-map (kbd "C-j") #'dired-hist-tl-dired-up-directory)
-
-3.  icons
-
-        
-        ;; (require 'dired-icon)
-        ;; (add-hook 'dired-mode-hook 'dired-icon-mode)
-
-
-<a id="orge513963"></a>
-
-### fixes
-
-    
-
-1.  rename fix
-
-        
-        (defun my/dired-dwim-target-directory-advice()
-          (advice-remove 'dired-dwim-target-directory #'my/dired-dwim-target-directory-advice)
-          (car (dired-get-marked-files nil nil)))
-        
-        (defun my/dired-do-rename (orig-fun &rest args)
-          "Dired fix for renaming a single file, it suggests the same
-         name instead of only a current directory."
-          (if (and (null (cdr (dired-get-marked-files nil args))) ; one file selected
-                   (eq (length (window-list)) 1)) ; one window opened
-              (progn
-                (advice-add 'dired-dwim-target-directory :override #'my/dired-dwim-target-directory-advice)
-                (apply orig-fun args))
-            ;; else - many files selected
-            (apply orig-fun args)
-          ))
-        (advice-add 'dired-do-rename :around #'my/dired-do-rename )
-
-2.  open other window fix
-
-        
-        (defun my/dired-find-file-other-window(&rest args)
-          (interactive)
-          (let ((display-buffer-base-action '((display-buffer--maybe-same-window
-                                               display-buffer-in-previous-window
-                                               display-buffer-use-some-window
-                                               display-buffer-in-direction)
-                                              (nil)
-                                              (window-width . 0.8) ; 80 percent
-                                              (direction . right))))
-            (apply #'dired-find-file-other-window args)))
-        
-        (define-key dired-mode-map "\M-o" #'my/dired-find-file-other-window)
-
-3.  copy full file path (not used)
-
-        
-        
-        ;; (defun my/dired-copy-filename-as-kill (&optional arg)
-        ;;   "replacement without 'no-dir"
-        ;;   (interactive "P")
-        ;;   (let* ((files
-        ;;           (or (ensure-list (dired-get-subdir))
-        ;;               (if arg
-        ;;                   (cond ((zerop (prefix-numeric-value arg))
-        ;;                          (dired-get-marked-files))
-        ;;                         ((consp arg)
-        ;;                          (dired-get-marked-files t))
-        ;;                         (t
-        ;;                          (dired-get-marked-files
-        ;;                           'no-dir (prefix-numeric-value arg))))
-        ;;                 ;; else - default
-        ;;                 (dired-get-marked-files )))) ; 'no-dir
-        ;;          (string
-        ;;           (if (length= files 1)
-        ;;               (car files)
-        ;;             (mapconcat (lambda (file)
-        ;;                          (if (string-match-p "[ \"']" file)
-        ;;                              (format "%S" file)
-        ;;                            file))
-        ;;                        files
-        ;;                        " "))))
-        ;;     (unless (string= string "")
-        ;;       (if (eq last-command 'kill-region)
-        ;;           (kill-append string nil)
-        ;;         (kill-new string))
-        ;;       (message "%s" string))))
-        
-        
-        ;; (defun dired-copy-filename-as-kill-advice (orig-fun &rest args)
-        ;;   (apply #'my/dired-copy-filename-as-kill args)
-        ;;   )
-        ;; (advice-add 'dired-copy-filename-as-kill :around #'dired-copy-filename-as-kill-advice)
-
-4.  SELECTED not marked!
-
-        
-        ;; kill-region
-        (defun my/dired-on-select (arg body-sel body-marked)
-          ;; (print (list body-sel))
-          ;; (print (list body-marked))
-          (if mark-active
-              (progn
-                (save-excursion
-                  (dired-unmark-all-marks))
-                (dired-mark arg)
-                (eval body-sel)
-                ;; (my/kill-list (dired-get-marked-files))
-                (save-excursion
-                  (dired-unmark-all-marks))
-                )
-            ;; else
-            (eval body-marked)
-            ;; (my/kill-list (dired-map-over-marks (dired-get-filename) nil))
-            )
-          )
-        
-        (defun my/kill-list (l)
-          "required for copy-filename-as-kill"
-          (apply 'print "wtf" (eval (list l)))
-          (let ((string (string-join l "\n")))
-                  (if (eq last-command 'kill-region)
-                      (kill-append string nil)
-                    (kill-new string))
-                  (print string)))
-        
-        (defun my/dired-copy-filename-as-kill (arg &optional interactive)
-          (interactive (list current-prefix-arg t))
-          (my/dired-on-select nil
-                              ;; '(my/kill-list (dired-get-marked-files))
-                              '(my/kill-list (dired-map-over-marks (dired-get-filename) nil))
-                              '(my/kill-list (dired-get-marked-files))
-                              ))
-        
-        
-        
-        ;; (defun my/dired-copy-filename-as-kill (beg end &optional region)
-        ;;   (interactive (list (mark) (point) 'region))
-        ;;   (if mark-active
-        ;;       (let ((begn (if (< beg end) beg end))
-        ;;             (count-of-lines 0))
-        ;;         (setq end (if (< beg end) end beg))
-        ;;         (save-excursion
-        ;;           (goto-char begn)
-        ;;           (beginning-of-line)
-        ;;           (while (<= (point) end)
-        ;;             (setq count-of-lines (1+ count-of-lines))
-        ;;             (forward-line)
-        ;;             )
-        ;;           ;; (print count-of-lines)
-        ;;           (goto-char begn)
-        ;;           (dired-unmark-all-marks)
-        ;;           (dired-mark count-of-lines)
-        ;;           (my/kill-list (dired-get-marked-files))
-        ;;           )
-        ;;         )
-        ;;     ;; else - marked or current
-        ;;     (my/kill-list (dired-map-over-marks (dired-get-filename) nil))))
-        
-        (define-key dired-mode-map (kbd "C-c n") #'my/dired-copy-filename-as-kill)
-        ;; (global-set-key (kbd "C-c n") 'my/browse-url-of-dired-files)
-        
-        ;; (defun dired-get-filenames-selected (&optional localp no-error-if-not-filep)
-        ;;   ;; `copy-region-as-kill'
-        
-        ;; )
-
-
-<a id="org3a71523"></a>
-
-### add current path to modeline
-
-    
-    (setq global-mode-string
-          (cond ((consp global-mode-string)
-                 (add-to-list 'global-mode-string 'default-directory 'APPEND))
-                ((not global-mode-string)
-                 (list 'default-directory))
-                ((stringp global-mode-string)
-                 (list global-mode-string 'default-directory))))
-
-
-<a id="orgdfddf81"></a>
-
-### close image with C-q
-
-    
-    (define-key image-mode-map "\C-q" #'quit-window)
-
-
-<a id="orgcbe9426"></a>
-
-### fix open several selected files
-
-    
-    ;; browse-url-of-dired-file
-
-
-<a id="org6d894b5"></a>
-
-## Bookmarks
-
-    
-    (define-key (current-global-map) (kbd "C-x y") #'list-bookmarks)
-    (add-hook 'bookmark-bmenu-mode-hook #'hl-line-mode)
-
-
-<a id="org252dda8"></a>
-
-## company
-
-    
-    (require 'company)
-    
-    (add-hook 'company-mode-hook
-              (lambda ()
-                (define-key company-active-map "\C-h" 'delete-backward-char)
-        (define-key company-active-map "\C-h" 'backward-delete-char-untabify)
-        (setq
-         company-idle-delay                1
-         company-echo-delay                1
-         ;; delete-selection-mode             t
-         company-minimum-prefix-length     3
-         company-dabbrev-downcase          nil
-         company-dabbrev-other-buffers     t
-    
-         ;; company-show-numbers              t ; obsolate
-         company-show-quick-access         t
-         company-dabbrev-code-everywhere   t
-         company-dabbrev-code-ignore-case  t
-         company-selection-wrap-around     t
-         company-tooltip-align-annotations t
-         ;; selection-coding-system           'utf-8
-         ;; company-auto-complete-chars       '(32 40 41 119 46 34 36 47 124 33) ; obsolate
-         company-insertion-triggers '(32 40 41 119 46 34 36 47 124 33)
-         company-backends '((company-yasnippet company-files company-semantic company-css company-capf))
-         )
-        ))
-    
-    (add-hook 'org-mode-hook (lambda ()
-                               (setq company-backends
-                                     '(company-math-symbols-unicode
-                                       company-capf company-keywords
-                                       company-files company-abbrev
-                                       company-dabbrev))))
-
-
-<a id="orga8e042d"></a>
-
-## Emacs-Lisp mode
-
-    
-    (defun my/syntax-table-elisp()
-      "forward-word, backward-word, backward-kill-word, kill-word."
-      ;; make forward-word, backward-word, backward-kill-word, kill-word
-      (modify-syntax-entry ?\- "w"))
-    
-    ;; hook executed per buffer
-    (add-hook 'emacs-lisp-mode-hook  (lambda ()
-                                            (my/syntax-table-elisp)))
-
-
-<a id="orgda2f773"></a>
+<a id="orgb41ba06"></a>
 
 ## Outline minor mode for Elisp [rooted]
 
@@ -1963,10 +2209,17 @@
       "compare full line at cursor position with outline template for
     header. [rooted]"
       (interactive)
-      (if (string-match outline-regexp (buffer-substring (line-beginning-position) (line-end-position)))
+      (if (and (and (boundp 'outline-minor-mode) outline-minor-mode) ; if outline is active
+               ;; and regex match line
+               (string-match outline-regexp (buffer-substring (line-beginning-position) (line-end-position))))
           (outline-toggle-children)
+        ;; else
         (if (fboundp 'my/indent-or-complete)
-            (call-interactively 'my/indent-or-complete)
+            (progn
+              (print "here")
+              (call-interactively 'my/indent-or-complete))
+          ; else
+          (print "here2")
           (call-interactively 'indent-for-tab-command))
         ))
     
@@ -2003,14 +2256,807 @@
     (add-hook 'outline-minor-mode-hook 'my/outline-mode-hook)
 
 
-<a id="orgb92fe8e"></a>
+<a id="orge7377a0"></a>
+
+## firstly-search
+
+    
+
+
+<a id="orgc307080"></a>
+
+### loading
+
+    
+    (require 'firstly-search-dired)
+    (require 'firstly-search-package)
+    (require 'firstly-search-buffermenu)
+    (require 'firstly-search-bookmarks)
+    (add-hook 'dired-mode-hook #'firstly-search-dired-mode)
+    (add-hook 'package-menu-mode-hook #'firstly-search-package-mode)
+    (add-hook 'Buffer-menu-mode-hook #'firstly-search-buffermenu-mode)
+    (add-hook 'bookmark-bmenu-mode-hook #'firstly-search-bookmarks-mode)
+    ;; unbind for dired-mode-map
+
+
+<a id="org7359344"></a>
+
+### keys rebinding
+
+    
+    (keymap-unset firstly-search-dired-mode-map "M-o") ; for `my/dired-find-file-other-window'
+    
+    ;; - rebind M-p to my delete-other-windows
+    (keymap-unset firstly-search-dired-mode-map "M-k") ; for `delete-other-windows'
+    (define-key firstly-search-dired-mode-map (kbd "M-P") #'dired-do-kill-lines)
+    
+    ;; (keymap-unset firstly-search-dired-mode-map "RET") ; for `dired-hist-tl-dired-find-file'
+
+
+<a id="org24e49b7"></a>
+
+### experiment
+
+    
+    ;; (defun firstly-search-fun-match-text-property (search-fun properties)
+    ;;   "Return the function to search inside text that has the specified PROPERTIES.
+    ;; The function will limit the search for matches only inside text
+    ;; which has at least one of the text PROPERTIES wich in form of
+    ;; list ((property . value) ...).  The argument SEARCH-FUN provides
+    ;; the function to search text, and defaults to the value of
+    ;; `isearch-search-fun-default' when nil.
+    ;; Closely bound with `search-within-boundaries' behaviour."
+    ;;   (setq properties (ensure-list properties))
+    ;;   (apply-partially
+    ;;    #'search-within-boundaries
+    ;;    search-fun ; SEARCH-FUN
+    ;;    (lambda (pos) ; GET-FUN - check if point is on property
+    ;;      (let ((pos (if isearch-forward pos (max (1- pos) (point-min))))) ;; if backward pos = pos - 1
+    ;;        (seq-some (lambda (property)
+    ;;                    ;; equal to value. predicate for every property.
+    ;;                    ;; (print (equal (get-text-property pos (car property)) (cdr property) ))
+    ;;                    (equal (get-text-property pos (car property)) (cdr property) )
+    ;;                    )
+    ;;                  properties)))
+    ;;    (lambda (pos) ; NEXT-FUN - search for the next property.
+    ;;      (let ((pos-list (if isearch-forward
+    ;;                          (mapcar
+    ;;                           (lambda (property)
+    ;;                             (firstly-search--next-single-property-change-by-value property pos)) ; try to convert named function to closure with environment
+    ;;                           properties)
+    ;;                        ;; else backard
+    ;;                        (mapcar
+    ;;                         (lambda (property) ; should behave like previous-single-property-change
+    ;;                           (if pos
+    ;;                               (firstly-search--previous-single-property-change-by-value property pos)))
+    ;;                         ;; (lambda (property)
+    ;;                         ;;          (previous-single-property-change
+    ;;                         ;;           pos (car property)))
+    ;;                         properties)))) ; property-change
+    ;;        (setq pos-list (delq nil pos-list)) ; remove nil
+    ;;        ;; (print (list pos-list pos-list))
+    ;;        (when pos-list (if isearch-forward
+    ;;                           (seq-min pos-list) ; smallest
+    ;;                         (seq-max pos-list)))))))
+
+
+<a id="org14e7a64"></a>
+
+## Dired [rooted (consider disable trashing, omit, thumbnails)]
+
+    
+
+
+<a id="org521ae3e"></a>
+
+### ls arguments and sorting
+
+    
+    ;; Arguments for insert-directory-program, by default it is "ls"
+    ;; -a - all
+    ;; -A - no . and ..
+    ;; -G - no groups - don’t print group names
+    ;; -1 - list one file per line - breaks dired-sort-toggle-or-edit
+    ;; -v - sort by version
+    ;; -r - reverse sort order
+    ;; -t - sort by time
+    ;; (setopt dired-listing-switches "-Al -aGht1v*group-directories-first")
+    (setopt dired-listing-switches "-AlthG") ;; *group-directories-first
+    
+    ;; sorting
+    (defun xah-dired-sort (&optional par)
+      "Sort dired dir listing in different ways.
+    ePrompt for a choice.  URL
+    `http://ergoemacs.org/emacs/dired_sort.html'
+    `https://wilkesley.org/~ian/xah/emacs/dired_sort.html'
+     Version 2015-07-30"
+      (interactive)
+      (let (-sort-by -arg)
+        (if (not par)
+            (setq -sort-by (ido-completing-read "Sort by:" '( "size" "date" "name" "dir" "default")))
+          ;; else
+          (setq -sort-by par))
+        (cond
+         ((equal -sort-by "name") (setq -arg "-Al")) ;*si*time-style long-iso
+         ((equal -sort-by "date") (setq -arg "-Al -t")) ;*si*time-style long-iso
+         ((equal -sort-by "size") (setq -arg "-Al -S")) ;*si*time-style long-iso
+         ((equal -sort-by "dir") (setq -arg "-Al")) ;*si*time-style long-iso*group-directories-first
+         ((equal -sort-by "default") (setq -arg dired-listing-switches))
+         (t (error "logic error 09535" )))
+        (dired-sort-other -arg )))
+    
+    (define-key dired-mode-map (kbd "C-c s") #'xah-dired-sort)
+    (define-key dired-mode-map (kbd "C-c n") (lambda () (interactive) (xah-dired-sort "name") ))
+    (define-key dired-mode-map (kbd "C-c d") (lambda () (interactive) (xah-dired-sort "default") ))
+    ;; (defun my/xah-dired-sort-size ()
+    ;;   (interactive
+    ;;   (dired-sort-other -arg ))
+    
+    ;; (define-key dired-mode-map (kbd "C-c s") )
+    ;; (dired-sort-other -arg )
+
+
+<a id="org84137d1"></a>
+
+### Tweeks: suggest path, buffer kill, trash, hl-line
+
+    
+    ;; Do not open new buffer when you navigate in Dired mode.
+    (setopt dired-kill-when-opening-new-dired-buffer nil)
+    ;; Suggest target path when copy files if there is two windows M-x split-window-* -
+    (setopt dired-dwim-target 'dired-dwim-target-next)
+    ;; trash
+    (setopt delete-by-moving-to-trash t)
+    ;; highlight current line
+    (add-hook 'dired-mode-hook #'hl-line-mode)
+
+
+<a id="org9df5ad3"></a>
+
+### Tweeks: always delete and copy recursively, confirm y-n
+
+    
+    (setopt dired-recursive-copies 'always)
+    (setopt dired-recursive-deletes 'always)
+    (setopt dired-deletion-confirmer 'y-or-n-p)
+
+
+<a id="org5625384"></a>
+
+### Omit "." files with dired-omit-mode
+
+    
+    (require 'dired-x)
+    (setopt dired-omit-files (concat dired-omit-files "\\|^\\.+")) ; omit files started with dot "."
+    
+    ;; fix remember state
+    (defvar my/dired-omit-flag t
+         "Non-nil means Omit mode is enabled by default.")
+    
+    (defun my/dired-omit-switch ()
+      "This function is a small enhancement for `dired-omit-mode', which will
+       \"remember\" omit state across Dired buffers."
+         (interactive)
+         (setq my/dired-omit-flag (not my/dired-omit-flag)) ; invert state
+         (dired-omit-mode (if my/dired-omit-flag
+                              my/dired-omit-flag
+                            ;; else - negative arg to disable mode
+                            -1 )))
+    
+    (defun my/dired-omit-hook ()
+      "Active Omit only if flag is set."
+      (if my/dired-omit-flag (dired-omit-mode)))
+    
+    (add-hook 'dired-mode-hook #'my/dired-omit-hook)
+    
+    (define-key dired-mode-map "\C-\M-h" #'my/dired-omit-switch) ; to switch on/off
+
+
+<a id="org50a78d7"></a>
+
+### Keys rebindings
+
+    
+    (defun my/dired-unmark-one-line()
+      "BACKSPACE - dired-unmark-backward with universal argument."
+      (interactive)
+      (dired-unmark (- 1) t))
+    (define-key dired-mode-map "\C-h" #'my/dired-unmark-one-line)
+    (define-key dired-mode-map "\M-h" #'my/dired-unmark-one-line)
+    ;; just copy text
+    (define-key dired-mode-map "\M-w" #'kill-ring-save)
+    (define-key dired-mode-map (kbd "C-M-w") #'dired-copy-filename-as-kill)
+    (define-key dired-mode-map (kbd "M-<return>") #'browse-url-of-dired-file)
+    (define-key dired-mode-map (kbd "M-RET") #'browse-url-of-dired-file)
+    (define-key dired-mode-map (kbd "S-<return>") #'browse-url-of-dired-file)
+    (define-key dired-mode-map (kbd "S-RET") #'browse-url-of-dired-file)
+    (define-key dired-mode-map (kbd "<backspace>") #'dired-up-directory)
+    (define-key dired-mode-map (kbd "DEL") #'dired-up-directory)
+    (define-key dired-mode-map (kbd "<delete>") #'dired-up-directory)
+    
+    ;; rebind ^ up
+    (define-key dired-mode-map "\C-j" #'dired-up-directory) ;; shadow #'universal-argument
+    ;; open shell
+    (define-key dired-mode-map (kbd "M-!") (lambda () (interactive) (call-process-shell-command "xfce4-terminal -e tmux&" nil 0)))
+    ;; C-u C-x C-j
+    (defun my/dired-jump (args)
+      "Open Dired at left side, or just open Dired."
+      (interactive "P")
+      (if  args
+          (split-window-horizontally))
+      (if (derived-mode-p 'dired-mode)
+          (dired "~")
+        ;; else
+        (dired-jump)))
+    (global-set-key (kbd "C-x C-j") #'my/dired-jump)
+
+
+<a id="orgecddaea"></a>
+
+### Use Xfce4 thumbnails 128x128
+
+    
+    (require 'image-dired)
+    (setopt image-dired-dir "/home/user/.cache/thumbnails/normal/")
+    (setopt image-dired-thumbnail-storage 'standard)
+    
+    ;; rebind showing thumbnails
+    (defun my/thumbnails()
+      "Show thumbnails of current directory."
+      (interactive)
+      (image-dired-show-all-from-dir (dired-current-directory)))
+    
+    (define-key dired-mode-map (kbd "C-,") #'my/thumbnails)
+
+
+<a id="org81a9d15"></a>
+
+### wdired mode: allow to change permissions in C-x C-q
+
+    
+    ;; (require 'wdired)
+    ;; (setopt wdired-allow-to-change-permissions t)
+
+
+<a id="org809e44e"></a>
+
+### Default external applications for file extensions
+
+    
+    (require 'dired-aux)
+    ;; for & and !
+    ;; (add-to-list 'dired-guess-shell-alist-user '("\\.flac$" "mpv"))
+    ;; dired-guess-shell-alist-user is empty by default
+    (setopt dired-guess-shell-alist-user
+          '(("\\.\\(flac\\|mp3\\|mp4\\)$" "mpv *")
+            ("\\.pdf$" "mupdf")
+            ("\\.png$" "mupdf")
+            ("\\.jpg$" "mupdf")
+            ("\\.html$" "./firef")
+            ))
+
+
+<a id="orga7d0a55"></a>
+
+### Additional modes: hist, navigation, icons
+
+    
+
+1.  hist: back, forward
+
+        
+        ;; (require 'dired-hist)
+        ;; (define-key dired-mode-map (kbd "C-M-q") #'dired-hist-go-back)
+        ;; (define-key dired-mode-map (kbd "C-M-r") #'dired-hist-go-forward) ; shadow `isearch-repeat-backward'
+        ;; (define-key dired-mode-map (kbd "C-c '") #'dired-hist-debug-activate)
+        ;; (add-hook 'dired-mode-hook #'dired-hist-mode)
+
+2.  hist: alternative based on tab-line mode
+
+        
+        (require 'dired-hist-tl)
+        ;; (add-hook 'dired-mode-hook #'dired-hist-tl-dired-mode-hook)
+        (add-hook 'dired-mode-hook #'dired-hist-tl-dired-mode-hook)
+        ;; (define-key dired-mode-map (kbd "RET") #'dired-hist-tl-dired-find-file)
+        ;; (define-key dired-mode-map (kbd "C-m") #'dired-hist-tl-dired-find-file)
+        (define-key firstly-search-dired-mode-map (kbd "C-m") #'dired-hist-tl-dired-find-file)
+        ;; (define-key firstly-search-dired-mode-map (kbd "C-m") #'dired-hist-tl-dired-find-file)
+        (define-key firstly-search-dired-mode-map (kbd "C-j") #'dired-hist-tl-dired-up-directory)
+        
+        ;; (global-set-key (kbd "C-M-a") #'tab-line-switch-to-prev-tab)
+        ;; (global-set-key (kbd "C-M-e") #'tab-line-switch-to-next-tab)
+        (global-set-key (kbd "C-M-a") #'dired-hist-tl-tab-line-switch-to-prev-tab) ; shadow beginning-of-defun
+        (global-set-key (kbd "C-M-e") #'dired-hist-tl-tab-line-switch-to-next-tab) ; shadow end-of-defun
+        ;; (advice-add 'tab-line-switch-to-prev-tab :override #'dired-hist-tl-tab-line-switch-to-prev-tab)
+        ;; (advice-add 'tab-line-switch-to-next-tab :override #'dired-hist-tl-tab-line-switch-to-next-tab)
+
+3.  icons
+
+        
+        ;; (require 'dired-icon)
+        ;; (add-hook 'dired-mode-hook 'dired-icon-mode)
+
+
+<a id="org932fea5"></a>
+
+### Side window at right
+
+    
+
+1.  Open other side window M-o
+
+        
+        (require 'window)
+        (defun my/dired-find-file-other-window(&rest args)
+          "Use window at right or create a new one."
+          (interactive)
+          (let
+              ((display-buffer-base-action
+                (list '(
+                   ;; display-buffer--maybe-same-window  ;FIXME: why isn't this redundant?
+                   display-buffer-reuse-window ; pop up bottom window
+                   display-buffer-in-previous-window ;; IF RIGHT WINDOW EXIST
+                   display-buffer-in-side-window ;; right side window - MAINLY USED
+                   display-buffer--maybe-pop-up-frame-or-window ;; create window
+                   ;; ;; If all else fails, pop up a new frame.
+                   display-buffer-pop-up-frame )
+                  '(window-width . 0.8) ; 80 percent
+                  (if (window-in-direction 'right)
+                      (cons 'previous-window (window-in-direction 'right)))
+                  '(side . right))))
+        (apply #'dired-find-file-other-window args)))
+        
+        (define-key dired-mode-map (kbd "C-O") #'my/dired-find-file-other-window)
+
+2.  Toggle other side window
+
+        
+        ;; in dired: if no side: C-{ - open side window with file
+        ;;           if side exist: close - toggle
+        ;; in side: close -toggle
+        ;; tools: (and (eq (window-main-window) (selected-window))
+        ;;            (derived-mode-p 'dired-mode)) - check if we on dired
+        ;; (not (eq (window-main-window) (selected-window))) - check if we on side
+        ;; (window-with-parameter 'window-side nil frame)  - if side exist
+        
+        (defun my/window-toggle-side-windows(&optional frame)
+          (interactive)
+          ;; (call-interactively 'window-toggle-side-windows frame)
+          ;; in dired
+          (let ((sw (selected-window)))
+            (if (and (eq sw (window-main-window) )
+                     (derived-mode-p 'dired-mode) ;; check if we on dired
+                     )
+                ;; in dired :if side exist
+                (if (window-with-parameter 'window-side nil frame) ;; if side exist
+                    (call-interactively #'window-toggle-side-windows)
+                  ;; else in dired :if no side exist
+                  (call-interactively #'my/dired-find-file-other-window)
+                  (select-window sw)
+                  (scroll-right)) ;; don't scroll'
+              ;; else in side: close -toggle
+              (if (not (eq sw (window-main-window)))
+                  (call-interactively #'window-toggle-side-windows)
+                ))))
+        
+        (global-set-key (kbd "M-'") #'my/window-toggle-side-windows)
+
+3.  Update side window when up and down move of cursor
+
+        
+        (defun my/update-side-window (&rest r)
+          (let ((sw (selected-window)))
+            (when (and (eq (window-main-window) sw)
+                     (derived-mode-p 'dired-mode) ; check if we on dired
+                     (window-with-parameter 'window-side nil)) ; if side exist
+                (call-interactively #'my/dired-find-file-other-window)
+                (select-window sw))))
+        (advice-add 'dired-next-line :after #'my/update-side-window)
+        (advice-add 'dired-previous-line :after #'my/update-side-window)
+
+
+<a id="org11d0a5c"></a>
+
+### Renaming single file - sugget the same name
+
+    
+    (defun my/dired-dwim-target-directory-advice()
+      (advice-remove 'dired-dwim-target-directory #'my/dired-dwim-target-directory-advice)
+      (car (dired-get-marked-files nil nil)))
+    
+    (defun my/dired-do-rename (orig-fun &rest args)
+      "Dired fix for renaming a single file, it suggests the same
+     name instead of only a current directory."
+      (if (and (null (cdr (dired-get-marked-files nil args))) ; one file selected
+               (eq (length (window-list)) 1)) ; one window opened
+          (progn
+            (advice-add 'dired-dwim-target-directory :override #'my/dired-dwim-target-directory-advice)
+            (apply orig-fun args))
+        ;; else - many files selected
+        (apply orig-fun args)
+      ))
+    (advice-add 'dired-do-rename :around #'my/dired-do-rename )
+
+
+<a id="org9afc9e7"></a>
+
+### Copy full file path (not used)
+
+    
+    
+    ;; (defun my/dired-copy-filename-as-kill (&optional arg)
+    ;;   "replacement without 'no-dir"
+    ;;   (interactive "P")
+    ;;   (let* ((files
+    ;;           (or (ensure-list (dired-get-subdir))
+    ;;               (if arg
+    ;;                   (cond ((zerop (prefix-numeric-value arg))
+    ;;                          (dired-get-marked-files))
+    ;;                         ((consp arg)
+    ;;                          (dired-get-marked-files t))
+    ;;                         (t
+    ;;                          (dired-get-marked-files
+    ;;                           'no-dir (prefix-numeric-value arg))))
+    ;;                 ;; else - default
+    ;;                 (dired-get-marked-files )))) ; 'no-dir
+    ;;          (string
+    ;;           (if (length= files 1)
+    ;;               (car files)
+    ;;             (mapconcat (lambda (file)
+    ;;                          (if (string-match-p "[ \"']" file)
+    ;;                              (format "%S" file)
+    ;;                            file))
+    ;;                        files
+    ;;                        " "))))
+    ;;     (unless (string= string "")
+    ;;       (if (eq last-command 'kill-region)
+    ;;           (kill-append string nil)
+    ;;         (kill-new string))
+    ;;       (message "%s" string))))
+    
+    
+    ;; (defun dired-copy-filename-as-kill-advice (orig-fun &rest args)
+    ;;   (apply #'my/dired-copy-filename-as-kill args)
+    ;;   )
+    ;; (advice-add 'dired-copy-filename-as-kill :around #'dired-copy-filename-as-kill-advice)
+
+
+<a id="org66318a1"></a>
+
+### Toggle mark with single key (selection region support)
+
+    
+    (defun my/dired-toggle-marks ()
+      "Just toggle mark, line or region"
+      (interactive)
+      (if (region-active-p)
+          (dired-toggle-marks)
+        ;; else - select line and toggle mark
+        (save-excursion
+          (set-mark (line-beginning-position))
+          (end-of-line)
+          (dired-toggle-marks))
+        (forward-line) (dired-move-to-filename) ; forward line
+        ))
+    
+    ;; (define-key dired-mode-map (kbd "m") #'my/dired-toggle-marks)
+    (define-key firstly-search-dired-mode-map (kbd "C-;") #'my/dired-toggle-marks)
+
+
+<a id="org7444b8b"></a>
+
+### Selection of region instead of marks
+
+    
+
+1.  text: Description of problem
+
+        
+        ;; in Dired some commands use direct search by
+        ;; `dired-marker-regexp' (dired-marker-regexp) and others by proxy
+        ;; function `dired-get-marked-files'.
+
+2.  rebind C-M-w and M-W
+
+        
+        ;; tools:
+        ;; (dired-mark arg) - Mark the file at point in the Dired buffer.
+        ;; (dired-map-over-marks BODY ARG - Eval BODY with point on each marked line.
+        ;; dired-unmark-all-marks
+        
+        ;; kill-region
+        (defun my/dired-on-select (body-sel body-marked body-single)
+          "execute code on selected files or on marked.
+        body-sel - executed after marking files, for sequene of files,
+        body-marked functions - for marked
+        body-single - no marks, no preparation, for current line."
+          (if mark-active
+              (progn
+                ;; 1) unmark
+                (save-excursion
+                  (dired-unmark-all-marks))
+                ;; 2) mark - don't mark if one line selected
+                (call-interactively 'dired-mark)
+                ;; 3) evaluate
+                (if (dired-get-marked-files)
+                  ;; else
+                  (funcall (or body-sel ignore))
+                  )
+                )
+            ;; else on marked
+            (if (not (eq (length (dired-get-marked-files)) 1))
+                (funcall (or body-marked ignore))
+              ;; else - single - at cursor
+              (funcall (or body-single ignore))
+              )))
+        
+        (defun my/kill-list ()
+          "for `my/dired-copy-filename-as-kill'."
+          (let ((string (string-join (dired-get-marked-files) "\n")))
+                  (if (eq last-command 'kill-region)
+                      (kill-append string nil)
+                    (kill-new string))
+                  ;; (print string)
+                  ))
+        
+        (defun my/dired-copy-filename-as-kill (arg &optional interactive)
+          "Replacement for `dired-copy-filename-as-kill' to copy selected
+        file nemes."
+          (interactive (list current-prefix-arg t))
+          ;; arg ;; arg is C-u
+          (my/dired-on-select
+                              ;; for selected
+                              #'my/kill-list  ; same: (dired-map-over-marks (dired-get-filename) nil)
+                              ;; for marked or one line
+                              #'my/kill-list
+                              ;; for single
+                              #'my/kill-list
+                              ))
+        
+        (defun my/call-external (arg &optional interactive)
+          (interactive (list current-prefix-arg t))
+          (my/dired-on-select
+                              ;; for selected
+                              (lambda () (execute-extended-command nil "dired-do-async-shell-command" nil))
+                              ;; for marked
+                              (lambda () (execute-extended-command nil "dired-do-async-shell-command" nil))
+                              ;; for single
+                              (lambda () (dired-map-over-marks (browse-url-of-dired-file) nil))
+                              ))
+        
+        
+        (define-key firstly-search-dired-mode-map (kbd "C-M-w") #'my/dired-copy-filename-as-kill)
+        (define-key firstly-search-dired-mode-map (kbd "M-W") #'my/call-external)
+        
+        
+        ;; (defun my/dired-copy-filename-as-kill (beg end &optional region)
+        ;;   (interactive (list (mark) (point) 'region))
+        ;;   (if mark-active
+        ;;       (let ((begn (if (< beg end) beg end))
+        ;;             (count-of-lines 0))
+        ;;         (setq end (if (< beg end) end beg))
+        ;;         (save-excursion
+        ;;           (goto-char begn)
+        ;;           (beginning-of-line)
+        ;;           (while (<= (point) end)
+        ;;             (setq count-of-lines (1+ count-of-lines))
+        ;;             (forward-line)
+        ;;             )
+        ;;           ;; (print count-of-lines)
+        ;;           (goto-char begn)
+        ;;           (dired-unmark-all-marks)
+        ;;           (dired-mark count-of-lines)
+        ;;           (my/kill-list (dired-get-marked-files))
+        ;;           )
+        ;;         )
+        ;;     ;; else - marked or current
+        ;;     (my/kill-list (dired-map-over-marks (dired-get-filename) nil))))
+
+3.  kill likes M-k (M-p)
+
+        
+        (require 'dired-x)
+        
+        (defun my/kill-marked-lines (&optional fmt init-count)
+          (save-excursion
+                (goto-char (point-min))
+                (let ((count (or init-count  0))
+                      (regexp (dired-marker-regexp))
+                      (inhibit-read-only t))
+                  (while (and (not (eobp))
+                              (re-search-forward regexp nil t))
+                    (setq count (1+ count))
+                    (delete-region (line-beginning-position)
+                                   (progn (forward-line 1) (point))))
+                  (unless (equal "" fmt)
+                    (message (or fmt "Killed %d line%s.") count (dired-plural-s count)))
+                  count)))
+        ;; dired-do-kill-lines
+        (require 'dired-aux)
+        (defun dired-do-kill-lines (&optional arg fmt init-count)
+          "Returns count of killed lines, also used in `dired-omit-expunge'."
+          (interactive "P")
+          (if (and arg (dired-get-subdir))
+                   (dired-kill-subdir))
+          (if (and (null arg) fmt (null init-count)) ; dired-omit-expunge bug fix
+              (my/kill-marked-lines fmt init-count) ; return
+            ;; else
+            (my/dired-on-select
+               (lambda () (my/kill-marked-lines fmt init-count)) ; selected
+               (lambda () (my/kill-marked-lines fmt init-count)) ; marked
+               (lambda () (let ((count-lines-before ; no select no marks - one line
+                                  (count-lines (line-beginning-position) (point-max))))
+                             (dired-kill-line arg)
+                             ;; return count-lines = before - after + init-count
+                             (+
+                              (- count-lines-before
+                                 (count-lines (line-beginning-position) (point-max)))
+                              (or init-count 0)))))))
+        
+        
+        ;; (dired-kill-line arg)
+        ;; (advice-add 'dired-do-kill-lines :override #'my/dired-do-kill-lines )
+
+4.  add advice that will work for all Dired commands
+
+        
+        ;; used for `dired-copy-filename-as-kill', `dired-do-async-shell-command',
+        ;; and many others
+        ;; (dired-do-async-shell-command)
+        
+        (defun my/dired-get-marked-files (func-call &rest args)
+          "Mark selected."
+          (if (region-active-p)
+              (save-excursion
+                ;; unmark
+                (dired-unmark-all-marks)
+                ;; mark
+                (let ((beg (region-beginning))
+                      (end (region-end)))
+                  (dired-mark-files-in-region
+                   (progn (goto-char beg) (line-beginning-position))
+                   (progn (goto-char end)
+                          (if (if (eq dired-mark-region 'line)
+                                  (not (bolp))
+                                (get-text-property (1- (point)) 'dired-filename))
+                              (line-end-position)
+                            (line-beginning-position)))))))
+          (apply func-call args))
+        
+        (advice-add 'dired-get-marked-files :around #'my/dired-get-marked-files)
+
+
+<a id="orgbae6b4a"></a>
+
+### Close image with C-q
+
+    
+    (define-key image-mode-map "\C-q" #'quit-window)
+
+
+<a id="org712e2df"></a>
+
+### Delete marked too.
+
+    
+    (defun my/dired-count-files (&optional delflag)
+      "Count files and return count.
+    If DELFLAG is nil search for files with `dired-marker-char',
+    otherwise deletion flag `dired-del-marker'."
+      (let* ((dired-marker-char (if (null delflag)
+                                    dired-marker-char
+                                  ;; else
+                                  dired-del-marker))
+             (regexp (dired-marker-regexp))
+             (count 0))
+        (if (save-excursion (goto-char (point-min))
+                            (re-search-forward regexp nil t))
+            (dired-map-over-marks (setq count (1+ count)) nil))
+        count))
+    
+    (defun my/dired-map-over-flags ( func )
+      "Call FUNC with point on each line of file with flag.
+    Deletion flag `dired-del-marker' is used."
+      (let* ((dired-marker-char dired-del-marker)
+             (regexp (dired-marker-regexp)))
+        (if (save-excursion (goto-char (point-min))
+                            (re-search-forward regexp nil t))
+            (dired-map-over-marks (funcall func) nil))))
+    
+    (defun my/dired-flag-file-deletion(arg &optional interactive)
+      "Invert marks with called with C-u and interactively."
+      (interactive (list current-prefix-arg t))
+      (let ((cf (my/dired-count-files))
+            (dired-marker-char-saved dired-marker-char))
+        (if (and arg interactive)
+            (if (> cf 0) ; marked exist
+                ;; convert all marks to flags (simple variant):
+                (progn
+                  (dired-map-over-marks (dired-flag-file-deletion nil) nil)
+                  (message (format "%s" cf))) ; print marked for Deletion count
+              ;; else - no marked -> toggle flags to marks
+              (my/dired-map-over-flags (lambda() (let ((dired-marker-char dired-marker-char-saved))
+                                                     (dired-mark  nil)))))
+          ;; else - normal dired-do-flagged-delete
+          (dired-flag-file-deletion arg interactive))))
+    
+    (keymap-set dired-mode-map "<remap> <dired-flag-file-deletion>" #'my/dired-flag-file-deletion)
+
+
+<a id="org709eeb1"></a>
+
+## Bookmarks
+
+    
+    (define-key (current-global-map) (kbd "C-x y") #'list-bookmarks)
+    (defun my/bookmark-set ()
+      "Set and save bookmark."
+      (interactive)
+      (call-interactively 'bookmark-set)
+      (bookmark-save))
+    (define-key (current-global-map) (kbd "C-x Y") #'my/bookmark-set)
+    (add-hook 'bookmark-bmenu-mode-hook #'hl-line-mode)
+
+
+<a id="org1049f61"></a>
+
+## complete
+
+    
+    (setq completions-max-height 10)
+
+
+<a id="org7cf9b94"></a>
+
+## company
+
+    
+    (require 'company)
+    ;; (require 'company)
+    ;; (setopt global-company-mode nil)
+    
+    (add-hook 'company-mode-hook
+              (lambda ()
+                (define-key company-active-map "\C-h" 'delete-backward-char)
+                (define-key company-active-map "\C-h" 'backward-delete-char-untabify)
+                (setq
+                 company-idle-delay                1
+                 company-echo-delay                1
+                 ;; delete-selection-mode             t
+                 company-minimum-prefix-length     3
+                 company-dabbrev-downcase          nil
+                 company-dabbrev-other-buffers     t
+    
+                 ;; company-show-numbers              t ; obsolate
+                 company-show-quick-access         t
+                 company-dabbrev-code-everywhere   t
+                 company-dabbrev-code-ignore-case  t
+                 company-selection-wrap-around     t
+                 company-tooltip-align-annotations t
+                 ;; selection-coding-system           'utf-8
+                 ;; company-auto-complete-chars       '(32 40 41 119 46 34 36 47 124 33) ; obsolate
+                 company-insertion-triggers '(32 40 41 119 46 34 36 47 124 33))
+                 ;; company-backends '((company-yasnippet company-files company-semantic company-css company-capf))
+                 (cond ((derived-mode-p 'org-mode)
+                        (setq-local company-backends
+                                '(company-math-symbols-unicode
+                                   company-keywords
+                                   company-files company-abbrev
+                                   company-dabbrev)))
+                       )
+                 ))
+    
+    (add-hook 'org-mode-hook #'company-mode) ; company-capf
+
+
+<a id="org5749d8c"></a>
 
 ## ORG
 
     
 
 
-<a id="org88aca9f"></a>
+<a id="org4d95ec9"></a>
 
 ### fix fill-paragraph
 
@@ -2069,9 +3115,9 @@
       (call-interactively 'move-beginning-of-line))
 
 
-<a id="orgb8f0a7d"></a>
+<a id="orgd1edecc"></a>
 
-### hook for key rebinding
+### keys rebinding
 
     
     ;; We bind org-forward-sentence and org-backward-sentence to
@@ -2171,21 +3217,23 @@
           ;; )
         )
       )
-    
-    (defun my/org-tab ()
-      "Expand abbrevs with TAB key and don't break org-cycle.
-       company-complete do not return result."
-      (interactive )
-      (let ((element (org-element-at-point)))
-        (pcase (org-element-type element)
-          (`src-block (call-interactively 'my/indent-or-complete))
-          ;; (`src-block (funcall 'indent-for-tab-command))
-          (`table (call-interactively 'org-cycle))
-          (`table-row (call-interactively 'org-cycle))
-          (_ (call-interactively 'my/org-tab-text))
-          )
-        )
-      )
+    ;; to tiest:
+    ;; (let ((element (org-element-at-point)))
+    ;;   (print (org-element-type element)))
+    ;; (defun my/org-tab ()
+    ;;   "Expand abbrevs with TAB key and don't break org-cycle.
+    ;;    company-complete do not return result."
+    ;;   (interactive )
+    ;;   (let ((element (org-element-at-point)))
+    ;;     (pcase (org-element-type element)
+    ;;       (`src-block (call-interactively 'my/indent-or-complete))
+    ;;       ;; (`src-block (funcall 'indent-for-tab-command))
+    ;;       (`table (call-interactively 'org-cycle))
+    ;;       (`table-row (call-interactively 'org-cycle))
+    ;;       (_ (call-interactively 'my/org-tab-text))
+    ;;       )
+    ;;     )
+    ;;   )
     
     
     (defun my/org-backward-paragraph ()
@@ -2240,13 +3288,8 @@
            (org-overview) ;; hide others
            (org-reveal '(4)))) ;; reveal current place appropriate)
     
-    
     (add-hook 'org-mode-hook (lambda ()
-    ;; fix C-u C-SPC set-mark-command to fight sparce trees
-                               (advice-add 'org-fold-show-context :after (lambda (&rest args) (org-reveal '(4)) )) ;; org-mark-jump-unhide
     
-    			   ;; do not indent for <s TAB
-    			   (setq org-adapt-indentation nil)
     			   ;; - - -  org keybindinds - - - -
     			   ;; (define-key org-mode-map [(control tab)] 'org-insert-structure-template)
     			   ;; new line
@@ -2257,20 +3300,31 @@
     			   ;; - - replace arrows
                                ;; (define-key org-mode-map [(control meta f)] 'org-shiftmetaright)
     			   ;; (define-key org-mode-map [(control meta l)] 'org-shiftmetaleft)
+                               ;; - - change indentation of list elements
+                               ;; by default:
+                               ;; - C-c C-f		org-forward-heading-same-level
+                               ;; - C-c C-b		org-backward-heading-same-level
+                               ;; - org-shiftmetaright - change indentation to right
+                               ;; - org-shiftmetaleft - change indentation to left
+                               ;; - org-shiftleft - cycle list marks to left
+                               ;; - org-shiftright - cycle list marks to righ
+                               ;; we need: 1) cycling with a single key 2) change indentation with two directions
                                (local-set-key (kbd "C-c C-f") 'org-shiftmetaright) ; shadow org-forward-heading-same-level
     			   (local-set-key (kbd "C-c C-b") 'org-shiftmetaleft) ; shadow org-backward-heading-same-level
+                               (define-key org-mode-map (kbd "C-;") 'org-shiftright)
+                               (define-key org-mode-map (kbd "C-:") 'org-shiftleft)
+                               ;; (define-key org-mode-map (kbd "C-c l") 'org-shiftleft)
+                               ;; (define-key org-mode-map (kbd "C-c f") 'org-shiftright) ; shadow org-forward-heading-same-level
+    			   ;; (local-set-key [(control meta k)] 'org-backward-element)
+    			   ;; (local-set-key [(control meta n)] 'org-forward-element)
     
-                               (define-key org-mode-map (kbd "C-c l") 'org-shiftleft)
-                               (define-key org-mode-map (kbd "C-c f") 'org-shiftright) ; shadow org-forward-heading-same-level
-    			   (local-set-key [(control meta k)] 'org-backward-element)
-    			   (local-set-key [(control meta n)] 'org-forward-element)
                                ;; begin of line:
                                ;; (define-key key-translation-map (kbd "M-a") (kbd "M-m"))
                                ;; (define-key key-translation-map (kbd "M-m") (kbd "M-a"))
-                               (define-key org-mode-map (kbd "M-h") 'my/backward-kill-word)
+                               (local-set-key (kbd "M-h") 'my/backward-kill-word)
                                ;; (define-key org-mode-map (kbd "M-h") 'backward-kill-word) ; redefine org-mark-element
     
-                               (define-key org-mode-map (kbd "C-c 1") 'org-babel-mark-block)
+                               (local-set-key(kbd "C-c SPC") 'org-babel-mark-block)
     
                                ;; - - - C-e should be short and M-e should be long
                                (local-set-key (kbd "M-e") 'move-end-of-line)
@@ -2293,19 +3347,70 @@
                                ;; do not indent src block:
                                (setq org-edit-src-content-indentation 0)
                                ;; (custom-set-variables '(company-backends `( company-files company-dabbrev )))
-                               (setq company-backends '( company-capf company-keywords company-files company-dabbrev ))
-                               (local-set-key (kbd "TAB") 'my/org-tab)
+                               ;; (setq company-backends '( company-capf company-keywords company-files company-dabbrev ))
+                               ;; (setq company-backends '(  company-files company-dabbrev )) ; company-keywords company-capf
+                               ;; (setq company-backends '(company-math-symbols-unicode company-keywords company-files company-abbrev company-dabbrev))
+                               (local-set-key (kbd "TAB") 'my/indent-or-complete)
                                ;; (local-set-key (kbd "TAB") 'indent-for-tab-command)
     
                                ;; - - hide other
                                (local-set-key (kbd "C-c C-e") 'my/org-fold-hide-other) ;; hides org-export-dispatch
                                (local-set-key (kbd "C-c e") 'org-export-dispatch)
                                ;; - - fix horizontal windows split for C-c '
-                               (local-set-key (kbd "C-c '") (lambda () (interactive) (call-interactively 'org-edit-special)
-                                                              (call-interactively 'my/toggle-window-split)) )
+                               (local-set-key (kbd "C-c '") (lambda () (interactive)
+                                                              (let
+                                                                  ((display-buffer-base-action
+                                                                    (list '(
+                                                                            ;; display-buffer--maybe-same-window  ;FIXME: why isn't this redundant?
+                                                                            display-buffer-reuse-window ; pop up bottom window
+                                                                            display-buffer-in-previous-window ;; IF RIGHT WINDOW EXIST
+                                                                            display-buffer-in-side-window ;; right side window - MAINLY USED
+                                                                            display-buffer--maybe-pop-up-frame-or-window ;; create window
+                                                                            ;; ;; If all else fails, pop up a new frame.
+                                                                            display-buffer-pop-up-frame )
+                                                                           '(window-width . 0.6) ; 80 percent
+                                                                           (if (window-in-direction 'right)
+                                                                               (cons 'previous-window (window-in-direction 'right)))
+                                                                           '(side . right))))
+                                                                (call-interactively 'org-edit-special))
+                                                              ) )
+                               (local-set-key (kbd "C-c C-o") (lambda () (interactive)
+                                                                "not working properly."
+                                                              (let
+                                                                  ((display-buffer-base-action
+                                                                    (list '(
     
+                                                                            ;; display-buffer-in-previous-window ;; IF RIGHT WINDOW EXIST
+                                                                            ;; If all else fails, use same window
+                                                                            display-buffer-use-some-window
+                                                                            ;; display-buffer-same-window
+                                                                            )
+                                                                           '(inhibit-same-window . nil)
+                                                                           '((inhibit-switch-frame . nil))
+                                                                           )))
+                                                                (call-interactively 'org-open-at-point))
+                                                              ) )
+                               ;; - - - - NEW LINE:
+    
+                               ;; C-o org-open-line - new line + stay at the same - no indent -> custom
+                               (local-set-key "\C-o" 'my/open-previous-line)
+                               ;; C-j org-return-and-maybe-indent -> org-open-line
+                               (local-set-key "\C-j" 'org-open-line)
+                               (local-set-key "\M-j" 'my/new-line-stay-indent)
                                ;; - - fix new line in src-block, just to prevous
-                               (local-set-key (kbd "C-m") (lambda () (interactive) (newline) (indent-relative) ) )
+                               ;; (local-set-key "\C-m" (lambda () (interactive) (newline) (indent-relative) ) )
+                               (local-set-key "\C-m" 'electric-newline-and-maybe-indent)
+                               (local-set-key "\M-m" (lambda () (interactive) (if (org-babel-get-src-block-info)
+                                                                                  (progn
+                                                                                    (newline) (indent-relative))
+                                                                                  ;; else
+                                                                                (org-meta-return))))
+                               (local-set-key (kbd "M-RET") 'my/open-next-line) ; shadow `org-meta-return'
+    
+    
+    
+    
+    
     
                                ;; - - - -
                                ;; (setq show-paren-style 'parenthesis) ; highlight brackets
@@ -2376,7 +3481,7 @@
                                ))
 
 
-<a id="orgf1cf32d"></a>
+<a id="orgd28328e"></a>
 
 ### hook executed per buffer
 
@@ -2432,7 +3537,7 @@
                                ;; - - my/org-sort-key - for sort headings by TODO and then by priority
                                (require 'cl-lib)
     			   ;; (require 'cl)
-    			   (require 'dash)
+    			   ;; (require 'dash)
     
     			   (defun todo-to-int (todo)
     			     (first (-non-nil
@@ -2471,7 +3576,7 @@
     			   ))
 
 
-<a id="org6a82896"></a>
+<a id="orga5adfc7"></a>
 
 ### redisplay inline images on source code block evaluation
 
@@ -2480,7 +3585,7 @@
     (add-hook 'org-ctrl-c-ctrl-c-hook 'org-redisplay-inline-images)
 
 
-<a id="org150cc78"></a>
+<a id="orgd6f245d"></a>
 
 ### fix issue with headline
 
@@ -2495,12 +3600,18 @@
     ;; )
 
 
-<a id="org61cb996"></a>
+<a id="org80b8453"></a>
 
-### with-eval-after-load 'org
+### configuration
 
     
     (with-eval-after-load 'org
+      ;; fix C-u C-SPC set-mark-command to fight sparce trees
+      (advice-add 'org-fold-show-context :after (lambda (&rest args) (org-reveal '(4)) )) ;; org-mark-jump-unhide
+    
+      ;; do not indent test after header
+      (setopt org-adapt-indentation nil)
+    
       ;; font size
       ;; (set-face-attribute 'default nil :height 120)
       (set-face-attribute 'org-level-1 nil :height 1.50)
@@ -2513,68 +3624,62 @@
       ;; (require 'org-tempo)
 
 
-<a id="org759c7a3"></a>
+<a id="orgd8f6f98"></a>
 
 # org source code inline blocks
 
     
-    ;; (defun org-babel-execute:html (body params) body)
-    ;; http-ob - REST API client
-    (org-babel-do-load-languages
-      'org-babel-load-languages
-      '(
-        (emacs-lisp . t)
-        (python . t)
-        (lua . t)  ;; require lua-mode
-        (yaml . t) ;; llhotka/ob-yaml
-        (http . t) ;; require ob-http
-        (shell . t)
-        (sql . t)
-        (sqlite . t)
-        (julia . t) ;; require julia-mode
-        ;; (ditta . t) ;; require ob-ditta
-        ))
+      ;; (defun org-babel-execute:html (body params) body)
+      ;; http-ob - REST API client
+      (org-babel-do-load-languages
+        'org-babel-load-languages
+        '(
+          (emacs-lisp . t)
+          (python . t)
+          (perl . t)
+          (lua . t)  ;; require lua-mode
+          (yaml . t) ;; llhotka/ob-yaml
+          (http . t) ;; require ob-http
+          (shell . t)
+          (sql . t)
+          (sqlite . t)
+          (julia . t) ;; require julia-mode
+          ;; (ditta . t) ;; require ob-ditta
+          ))
     
-    ;; (with-eval-after-load 'ob-http
-    ;;   (org-babel-do-load-languages
-    ;;     'org-babel-load-languages
-    ;;     '((emacs-lisp . t)
-    ;; 	 ;; (python . t)
-    ;; 	 (http . t)))
-    ;;   )
-    ;; soruce code block evaluate
-    (setopt org-confirm-babel-evaluate nil)
+      ;; (with-eval-after-load 'ob-http
+      ;;   (org-babel-do-load-languages
+      ;;     'org-babel-load-languages
+      ;;     '((emacs-lisp . t)
+      ;; 	 ;; (python . t)
+      ;; 	 (http . t)))
+      ;;   )
+      ;; soruce code block evaluate
+      (setopt org-confirm-babel-evaluate nil)
     
-    ;; Set frame transparency
-    (defvar efs/frame-transparency '(90 . 90))
-    (set-frame-parameter (selected-frame) 'alpha efs/frame-transparency)
-    (add-to-list 'default-frame-alist `(alpha . ,efs/frame-transparency))
     
-    ;; (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
-    ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+      ;; highlight current line
+      ;; (global-hl-line-mode +1)
+      ;; size of current file
+      (size-indication-mode +1)
+      ;; replace for ... hiddent content
     
-    ;; highlight current line
-    ;; (global-hl-line-mode +1)
-    ;; size of current file
-    (size-indication-mode +1)
-    ;; replace for ... hiddent content
+      ;; (setq org-ellipsis "⤵")
+      (setq org-ellipsis " <")
     
-    ;; (setq org-ellipsis "⤵")
-    (setq org-ellipsis " <")
+      ;; export - Disabling underscore-to-subscript _ and ^ ‘a_b’ is left as it is
+      (setq org-export-with-sub-superscripts nil)
     
-    ;; export - Disabling underscore-to-subscript _ and ^ ‘a_b’ is left as it is
-    (setq org-export-with-sub-superscripts nil)
-    
-    ;; export - do not evaluate source blocks at export
-    ;; (setq org-babel-default-header-args
-    ;;     (cons '(:eval . "never-export")
-    ;;           (assq-delete-all :eval org-babel-default-header-args)))
-    (setf (alist-get :eval org-babel-default-header-args)
-           "never-export")
+      ;; export - do not evaluate source blocks at export
+      ;; (setq org-babel-default-header-args
+      ;;     (cons '(:eval . "never-export")
+      ;;           (assq-delete-all :eval org-babel-default-header-args)))
+      (setf (alist-get :eval org-babel-default-header-args)
+             "never-export")
     ) ;; end
 
 
-<a id="org6decaa4"></a>
+<a id="org6618bb3"></a>
 
 ### timeout for org-babel- \* -evaluate-external-process
 
@@ -2624,7 +3729,7 @@
     ;; org-babel-execute:python
 
 
-<a id="org10792f1"></a>
+<a id="orgbf9e4cc"></a>
 
 ### fix for inline images with transparent background
 
@@ -2652,49 +3757,98 @@
     (setopt org-inline-image-background "#ffffff")
 
 
-<a id="orgb180fa4"></a>
+<a id="orgfd202c2"></a>
+
+### fix Allow to export subtree to different files (HTML)
+
+    
+    ;; (defun my/org-html-export-to-html-all-subtrees (orig-fun &optional async subtreep visible-only body-only ext-plist)
+    ;;   "Apply export to HTML for every subtree when called for buffer."
+    ;;   (if (null subtreep)
+    ;;       (save-excursion
+    ;;         (while (let ((p (point)))
+    ;;                  (org-forward-heading-same-level nil)
+    ;;                  (not (eq (point) p)))
+    ;;           ;; subtree only: ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST
+    ;;           (org-html-export-to-html async t visible-only body-only ext-plist)))
+    ;;     ;; else
+    ;;     (apply orig-fun async subtreep visible-only body-only ext-plist)))
+    
+    ;; (advice-add 'org-html-export-to-html :around #'my/org-html-export-to-html-all-subtrees)
+
+
+<a id="org3d3e6e0"></a>
 
 ## skeletons(templates) for abbrev TAB completion for ORG and Diary modes
 
     
     (define-skeleton example
-      "Define skeleton template."
+      "Template example."
       "" "greetings!"
       )
     (define-skeleton org-src-sqlite
-      "org-tempo replacement"
+      "Allow to input name."
       ""
-      "#+name: "
-      "#+begin_src sqlite :db /tmp/test-sqlite.db :colnames yes :exports both"
-      "\n\n"
+      "#+name: " _ "\n"
+      "#+begin_src sqlite :db /tmp/test-sqlite.db :colnames yes :exports both\n"
+      "\n"
       "#+end_src"
       )
-    (define-skeleton org-src
-      "org-tempo replacement"
+    (define-skeleton org-src-shallow
+      "Allow to input language."
       ""
-      "#+begin_src " _
-      "\n\n"
+      "#+begin_src " _ "\n"
+      "\n"
       "#+end_src"
       )
-    (define-skeleton org-src-result
-      "org-tempo replacement"
+    (define-skeleton org-src-with-output
+      "Allow to input language."
       ""
       "#+begin_src " _ " :results output :exports both"
       "\n\n"
       "#+end_src"
       )
-    (define-skeleton org-src-elisp
-      "org-tempo replacement"
+    (define-skeleton org-src-elisp-shallow
+      "no exec"
+      ""
+      "#+begin_src elisp :results none :exports code :eval no"
+      "\n\n"
+      "#+end_src")
+    
+    (define-skeleton org-src-elisp-no-exec
+      "exec"
+      ""
+      "#+begin_src elisp :results none :exports code :eval no"
+      "\n\n"
+      "#+end_src")
+    
+    (define-skeleton org-src-elisp-no-exec
+      "exec"
+      ""
+      "#+begin_src elisp :results none :exports code :eval no"
+      "\n\n"
+      "#+end_src")
+    
+    (define-skeleton org-src-elisp-with-output
+      "exec"
       ""
       "#+begin_src elisp :results output :exports both"
       "\n\n"
       "#+end_src")
+    
     
     (define-skeleton org-src-python
       "org-tempo replacement"
       ""
       "#+begin_src python :results output :exports both :session s1"
       "\n\n"
+      "#+end_src")
+    
+    (define-skeleton org-src-python-no-exec
+      "Tangle C-c C-v C-t org-babel-tangle."
+      ""
+      "#+begin_src python :tangle /tmp/out.py :results none :exports code :eval no\n"
+      "\n"
       "#+end_src")
     
     (define-skeleton org-src-python-img
@@ -2725,6 +3879,18 @@
       "df['column_name'] = df.acidity.str.extract('(?P<digit>([-+])?\d+(.\d+)?)')['column_name'].astype(float)""\n"
       "pd2org(df.describe())""\n"
       "#+end_src")
+    (define-skeleton org-src-perl-exec
+      "normal"
+      ""
+      "#+begin_src perl :results output :exports both\n"
+      "\n"
+      "#+end_src")
+    (define-skeleton org-src-perl-no-exec
+      "Tangle C-c C-v C-t org-babel-tangle."
+      ""
+      "#+begin_src perl :tangle /tmp/a.pl :results none :exports code :eval no\n"
+      "\n"
+      "#+end_src")
     (define-skeleton org-src-mastodon
       "2m"
       ""
@@ -2742,14 +3908,12 @@
     (define-skeleton org-src-julia
       "julia"
       ""
-      "#+begin_src julia :results output :exports both :session s1"
-      "\n\n"
+      "#+begin_src julia :results output :exports both :session s1\n"
       "#+end_src")
     (define-skeleton org-src-yaml
       "julia"
       ""
-      "#+begin_src yaml :results output pp"
-      "\n\n"
+      "#+begin_src yaml :results output pp\n"
       "#+end_src")
     (define-skeleton diary-warntime
       "warntime for appt, diary"
@@ -2777,29 +3941,35 @@
       "# delete\n"
       "\n"
       "cat <<EOF | post\n"
+      "#dailyreport\n"
       "😶\n"
       "EOF\n"
       "#+end_src")
     (define-skeleton org-src-shell
       ""
       ""
-      "#+begin_src bash :results output"
-      "\n"
+      "#+begin_src bash :results output\n"
+      "#+end_src")
+    (define-skeleton org-src-shell-no-exec
+      ""
+      ""
+      "#+begin_src bash :eval no :exports code :results none\n"
       "#+end_src")
     (define-skeleton org-src-text
       ""
       ""
-      "#+begin_src text"
-      "\n"
+      "#+begin_src text\n"
       "#+end_src")
-    
+    (define-skeleton org-src-artist
+      ""
+      ""
+      "#+begin_src artist\n"
+      "#+end_src")
     (define-skeleton org-src-shell-curl
       ""
       ""
-      "#+begin_src bash :shebang #!/bin/bash :results output :session s1"
-      "\n"
-      "alias curl=\"proxychains -f /home/user/proxychains.conf curl 2>/dev/null\""
-      "\n"
+      "#+begin_src bash :shebang #!/bin/bash :results output :session s1\n"
+      "alias curl=\"proxychains -f /home/user/proxychains.conf curl 2>/dev/null\"\n"
       "#+end_src")
     ;; - now for chinese characters I use input method chinese-py-punct that have chinese-punct inside
     ;; (define-skeleton chinese-dot
@@ -2816,33 +3986,47 @@
     ;; skeleton abbrevs - Abbrev table for Org-mode
     (define-abbrev-table 'org-mode-abbrev-table
       '(
-        ("gree" "" example)
-        ;; 1 for blank
-        ("1" "" org-src)
-        ("1r" "" org-src-result)
+        ("0-1-shallow" "" nil)
+        ("0-2-python" "" nil)
+        ("0-3-shell" "" nil)
+        ("0-4-others" "" nil)
+        ("0-6-lisp" "" nil)
+        ("0-bar-character" "¦" nil)
+        ;; ("gree" "" example)
+        ;; 1 blank, shallow
+        ("1s-shallow" "" org-src-shallow)
+        ("1r-result-shallow" "" org-src-with-output)
     
-        ;; 2 for python
-        ("2" "" org-src-python)
-        ("2i" "" org-src-python-img)
-        ("2tf" "" org-src-python-table-full)
-        ("2t" "" org-src-python-table)
-        ("2m" "" org-src-mastodon)
+        ;; 2 python
+        ("2p-python" "" org-src-python)
+        ("2i-img-python" "" org-src-python-img)
+        ("2tf-table-full-python" "" org-src-python-table-full)
+        ("2ne-noexec-tangle-python" "" org-src-python-no-exec)
     
-        ;; 3 for shell
-        ("3" "" org-src-shell)
-        ("3c" "" org-src-shell-curl)
+        ;; ("2t" "" org-src-python-table)
+        ;; ("2m-mastodon-python" "" org-src-mastodon)
+    
+        ;; 3 shell, bash
+        ("3e-shell" "" org-src-shell)
+        ("3ne-shell" "" org-src-shell-no-exec)
+        ("3c-curl-shell" "" org-src-shell-curl)
     
         ;; 4 for others
-        ("4y" "" org-src-yaml)
-        ("4el" "" org-src-elisp)
-        ("4sql" "" org-src-sqlite)
-        ("4j" "" org-src-julia)
-        ("4m" "" org-src-mastadon2)
-        ("4t" "" org-src-text)
+        ("4y-yaml" "" org-src-yaml)
+        ("4s-sqlit" "" org-src-sqlite)
+        ("4j-julia" "" org-src-julia)
+        ("4m-mastadon" "" org-src-mastadon2)
+        ("4t-text" "" org-src-text)
+        ("4a-artist" "" org-src-artist)
+        ("4pne-perl" "" org-src-perl-no-exec)
+        ("4pe-perl" "" org-src-perl-exec)
     
     
+        ;; 6 lisp
+        ("6ne-lisp" "" org-src-elisp-no-exec)
+        ("6e-lisp" "" org-src-elisp-with-output)
     
-        ("bar" "¦" nil) ; C-x 8 RET 00A6 BROKEN BAR.
+        ("bar-character" "¦" nil) ; C-x 8 RET 00A6 BROKEN BAR.
         ;; - now for chinese characters I use input method chinese-py-punct that have chinese-punct inside
         ;; (".." "" chinese-dot) ;; or use: C-x 8 RET IDEOGRAPHIC FULL STOP
     
@@ -2864,7 +4048,7 @@
     (setq skeleton-end-newline nil)
 
 
-<a id="org823f68b"></a>
+<a id="org44d7d3b"></a>
 
 ## flycheck-aspell for English
 
@@ -2924,37 +4108,7 @@
     (global-set-key (kbd "C-c 3") #'my/ispell-flycheck-ru)
 
 
-<a id="orgefe0b97"></a>
-
-## canedarn and diary
-
-    
-    (defun my/agenda-split()
-      "called with (call-interactively 'my/agenda-split)"
-      (interactive)
-      (org-agenda nil "a")
-      (delete-other-windows)
-      (split-window-right)
-      (other-window 1)
-      (org-cycle-agenda-files)
-      (other-window 1)
-      (split-window-below)
-      (other-window 1)
-      ;; (switch-to-buffer "diary")
-      ;; (diary-show
-      (other-window 1)
-      (other-window 1)
-      )
-    
-    ;; disable holidays
-    ;; (diary-show-holidays-flag nil)
-    ;; # Monday is the first day of the week
-    (setq calendar-week-start-day 1)
-    ;; sort diary entries
-    (add-hook 'diary-list-entries-hook 'diary-sort-entries t)
-
-
-<a id="orgd948165"></a>
+<a id="orgf4cdb3b"></a>
 
 ## org-agenda
 
@@ -3001,7 +4155,7 @@
                                ))
 
 
-<a id="org1d8e802"></a>
+<a id="org4c46f82"></a>
 
 ## appt - my appt X notification system:
 
@@ -3009,7 +4163,7 @@
     ;; notify-send in by first emacs process
     
     (defvar my/duration (* 50 1000)) ; 50 seconds - of-notify-showing
-    (defvar my/repeat 300) ; seconds
+    (defvar my/repeat 20) ; seconds
     
     (setq appt-disp-window-function
       (lambda (min-to-app timenow msg)
@@ -3019,17 +4173,17 @@
         ;; largest of "1 2 3" as number
         (setq val (car ;; get ferst element of a list
     		(last
-    		  (sort (mapcar  'string-to-number (split-string v)) #'>))
-    		)
-          )
+    		  (sort (mapcar  'string-to-number (split-string v)) #'>))))
         ;; do if emacs-pid == val, 5000=5sec
+        ;; (print (type-of  msg))
         (if (eq (emacs-pid) val)
-          (async-shell-command (format "notify-send*expire-time %s -i emacs 'in %s minutes: %s' ;  timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" my/duration min-to-app msg)
-    	) )
-        ) )
+            (async-shell-command (format "notify-send -i emacs 'in %s minutes: %s' ; \
+    timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg)))
+        ))
     
     ;; update diary from for appt with timeout for every 60*5=300sec
-    (run-with-timer 0 my/repeat #'(lambda ()
+    (run-with-timer 0 my/repeat (lambda ()
+                                  ;; (print "asd")
     			   (appt-check t)
     			   ))
     
@@ -3049,9 +4203,16 @@
     (appt-activate t)
 
 
-<a id="org227f5e6"></a>
+<a id="org18f7c2c"></a>
 
-## all programming modes
+## Programming modes
+
+    
+
+
+<a id="org1f83e55"></a>
+
+### all programming modes
 
     
     (require 'idle-highlight-mode)
@@ -3061,580 +4222,612 @@
     (add-hook 'emacs-lisp-mode-hook 'idle-highlight-mode)
 
 
-<a id="org32ef560"></a>
+<a id="orgfe56178"></a>
 
-## Python Mode
+### Emacs-Lisp
+
+    
+    (defun my/syntax-table-elisp()
+      "forward-word, backward-word, backward-kill-word, kill-word."
+      ;; make forward-word, backward-word, backward-kill-word, kill-word
+      (modify-syntax-entry ?\- "w"))
+    
+    (defun my/elisp-keys()
+      (local-set-key (kbd "C-c C-p") #'beginning-of-defun)
+      (local-set-key (kbd "C-c C-n") #'end-of-defun))
+    
+    ;; hook executed per buffer
+    (add-hook 'emacs-lisp-mode-hook 'my/syntax-table-elisp)
+    (add-hook 'emacs-lisp-mode-hook 'my/elisp-keys)
+
+
+<a id="org7f8ef7d"></a>
+
+### Python
 
     
 
+1.  python-mode-hook
 
-<a id="orgcec728f"></a>
-
-### python-mode-hook
-
-    
-    (defun my/python-exec ()
-      " if we in Org src with C-c ' we create tmp file, write buffer and execute,
-    else just execute current file"
-      (interactive)
-    
-      (shell-command "xdotool search emacs_python windowclose") ;; alala is window name that we use to close and open again
-      (setq-local fnv (org-babel-temp-file "python-"))
-      (if (string-prefix-p "*Org Src" (buffer-name) t)
-          (let ((body (buffer-substring-no-properties (point-min) (point-max))))
-            (with-temp-file fnv (insert body)))
-        ;; (write-file fnv)
-        )
-      (setq fn (if (string-prefix-p "*Org Src" (buffer-name) t)
-                   fnv
-                 (buffer-file-name)))
-      (with-temp-buffer
-                    (setq-local default-directory (buffer-local-value 'default-directory (get-buffer "*Messages*")))
-                    (message default-directory)
-                    (shell-command (concat "xfce4-terminal*initial-title \"emacs_python\" -e \"bash -c 'PYTHONPATH=. python " fn " ; bash ;'\""))
+        
+        ;; (defun my/python-exec ()
+        ;;   "If we in Org src with C-c ' we create tmp file, write buffer and execute,
+        ;; else just execute current file"
+        ;;   (interactive)
+        
+        ;;   (shell-command "xdotool search emacs_python windowclose") ;; alala is window name that we use to close and open again
+        ;;   (setq-local fnv (org-babel-temp-file "python-"))
+        ;;   (if (string-prefix-p "*Org Src" (buffer-name) t)
+        ;;       (let ((body (buffer-substring-no-properties (point-min) (point-max))))
+        ;;         (with-temp-file fnv (insert body)))
+        ;;     ;; (write-file fnv)
+        ;;     )
+        ;;   (setq fn (if (string-prefix-p "*Org Src" (buffer-name) t)
+        ;;                fnv
+        ;;              (buffer-file-name)))
+        ;;   (with-temp-buffer
+        ;;                 (setq-local default-directory (buffer-local-value 'default-directory (get-buffer "*Messages*")))
+        ;;                 (message default-directory)
+        ;;                 (shell-command (concat "xfce4-terminal*initial-title \"emacs_python\" -e \"bash -c 'PYTHONPATH=. python " fn " ; bash ;'\""))
+        ;;         )
+        ;; )
+        
+        
+        (defun my/exec-python ()
+          "Execute this command with filename of saved buffer."
+          (interactive)
+          (my/exec-language "PYTHONPATH=. python"))
+        
+        (defun my/python-mode-hook ()
+          (interactive)
+        
+          ;; - - - keybindings
+          (local-set-key (kbd "<M-left>") 'python-indent-shift-left )
+          (local-set-key (kbd "<M-right>") 'python-indent-shift-right )
+          (local-set-key "\C-c\C-c" 'my/exec-python)
+          (local-set-key "\M-p" 'backward-sexp)
+          (local-set-key "\M-n" 'forward-sexp)
+        
+          ;; - - - TAB key
+          ;; (local-set-key (kbd "TAB") 'my/indent-or-complete)
+        
+        
+          ;; - - - Python syntax checking - flymake python specific
+          (require 'flymake-python-pyflakes)
+          ;; (call-interactively 'flymake-python-pyflakes-load)
+          (add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
+          (add-hook 'python-ts-mode-hook 'flymake-python-pyflakes-load)
+        
+          ;; wait 2 sec before syntax check
+          (when (require 'flymake)
+            ;; (set-variable 'flymake-log-level 9) ;; obsolate
+            (setq flymake-no-changes-timeout 0.5)
             )
-    )
-    ;; (with-current-buffer
-    
-    (defun my/python-mode-hook ()
-      (interactive)
-    
-      ;; - - - keybindings
-      (local-set-key (kbd "<M-left>") 'python-indent-shift-left )
-      (local-set-key (kbd "<M-right>") 'python-indent-shift-right )
-      (local-set-key "\C-c\C-c" 'my/python-exec)
-      (local-set-key "\M-p" 'backward-sexp)
-      (local-set-key "\M-n" 'forward-sexp)
-    
-      ;; - - - TAB key
-      ;; (local-set-key (kbd "TAB") 'my/indent-or-complete)
-    
-    
-      ;; - - - Python syntax checking - flymake python specific
-      (require 'flymake-python-pyflakes)
-      ;; (call-interactively 'flymake-python-pyflakes-load)
-      (add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
-      (add-hook 'python-ts-mode-hook 'flymake-python-pyflakes-load)
-    
-      ;; wait 2 sec before syntax check
-      (when (require 'flymake)
-        ;; (set-variable 'flymake-log-level 9) ;; obsolate
-        (setq flymake-no-changes-timeout 0.5)
-        )
-      (setq flymake-python-pyflakes-executable "flake8")
-      (local-set-key "\C-c\C-n" 'flymake-goto-next-error)
-      (flymake-mode)
-    
-      ;; - - -  other modes
-      (eldoc-mode -1)
-      (global-eldoc-mode -1)
-      ;; numbers
-      (display-line-numbers-mode)
-      (column-number-mode) ; charater number of line
-      ;; indentation
-      (setq python-indent-offset 4)
-      ;; errors checking
-    
-      ;; treat underscore _ as part of word
-      (superword-mode nil)
-    )
-    
-    (add-hook 'python-mode-hook 'my/python-mode-hook)
-    (add-hook 'python-ts-mode-hook 'my/python-mode-hook)
-
-
-<a id="org62936dc"></a>
-
-### python company-jedi
-
-    
-    ;;   - jedi==0.17.1*hash=sha512:b86297b2fbb212695469b34288836e3346a33c5c6b83337dbe4ceaaeb2b4185dcb6c888336e24f6da3fe22a39c803af5c34ae5a4ed1d177fde1c1d7fc143bf09
-    ;;   - parso==0.7.1*hash=sha512:19c30d07a8982323ffbeba3fa36c8f504f49991c54df595e47defca1b1ba94ab3f5203485e6459012adfd440cc648dd8cfd44c571f02db7ed8e49f372eb3df3a
-    ;;   - epc==0.0.5*hash=sha512:e2b75850e39bb0f3c16f5b84f55dec675a8fe2b61ff5fd55704ef677317d698865a99fc495247cd753a2c8329729f45bc7f81f42dd4c6d27b31810c0aac831e2
-    ;;   - sexpdata==0.0.3*hash=sha512:419fa731fb0b953c404a71f1b5f88777546405618913b1d2e4abab7a876d285d43cd035addffb9d221571214e00151e908e8ef6b99295dacee8ca3f4c8ba942e
-    ;; - pip install*no-cache-dir*no-binary=:all:*require-hashes*user -r requirements.txt
-    
-    ;; mkdir -p ~/.local/lib/python3.11/site-packages
-    ;; git clone https://github.com/tkf/python-epc.git
-    ;; git checkout v0.0.5
-    ;; cp -r python-epc/epc ~/.local/lib/python3.11/site-packages/
-    ;; git clone https://github.com/jd-boyd/sexpdata.git
-    ;; git checkout v1.0.0
-    ;; cp -r sexpdata ~/.local/lib/python3.11/site-packages/
-    ;; export PATH=$PATH:/home/user/.local/lib/python3.11/site-packages
-    
-    (add-hook 'python-mode-hook 'jedi:setup)
-    (add-hook 'python-mode-hook 'company-mode)
-    (add-hook 'python-ts-mode-hook 'jedi:setup)
-    (add-hook 'python-ts-mode-hook 'company-mode)
-    
-    
-    (with-eval-after-load 'jedi-core
-      ;; (jedi:install-python-jedi-dev-command "python" "--version" ) ;; disable installation
-      ;; (setq jedi:environment-virtualenv (list (expand-file-name "/home/user/.local/lib/python3.10/site-packages")))
-      (setq jedi:environment-virtualenv (list (expand-file-name "/usr/lib/python3.11/site-packages")))
-      ;; this line for ubuntu only:
-      ;; (setq jedi:server-command '("python3" "/home/user/.emacs.d/elpa/jedi-core-0.2.8/jediepcserver.py"))
-    
-      ;; (setq jedi:complete-on-dot t)
-      (setq jedi:use-shortcuts t)
-      ;; ;; my
-      ;; (setq jedi:get-in-function-call-timeout 1
-      ;;   jedi:get-in-function-call-delay   1
-      ;;   jedi:goto-definition-config    '((nil definition nil))
-      ;;   )
-      ;; (add-to-list 'company-backends '(company-jedi company-files))
-    
-      ;; )
-      ;; (local-set-key (kbd "C-q") 'my/ttt)
-      )
-    
-    (defun my/jedicqkey ()
-      (interactive)
-      (if (null (one-window-p))
-          ;; then
-          (delete-other-windows)
-        ;; else
-        (jedi:show-doc))
-      )
-    
-    (add-hook 'jedi-mode-hook (lambda ()
-                                (define-key jedi-mode-map (kbd "C-q") 'my/jedicqkey)
-                                (setq company-backends '(company-jedi company-capf company-keywords company-files company-dabbrev))
-                                ))
-
-
-<a id="org2c7f087"></a>
-
-### python flycheck (old)
-
-    
-    
-    ;; (progn
-    ;;                     (global-company-mode t)
-    ;;                     (setq company-idle-delay                -1
-    ;;                           delete-selection-mode             t
-    ;;                           company-minimum-prefix-length     1
-    ;;                           company-dabbrev-downcase          nil
-    ;;                           company-dabbrev-other-buffers     t
-    ;;                           company-echo-delay                0
-    ;;                           company-show-numbers              t
-    ;;                           company-dabbrev-code-everywhere   t
-    ;;                           company-dabbrev-code-ignore-case  t
-    ;;                           company-selection-wrap-around     t
-    ;;                           company-tooltip-align-annotations t
-    ;;                           selection-coding-system           'utf-8
-    ;;                           company-auto-complete-chars       '(32 40 41 119 46 34 36 47 124 33)
-    ;;                           company-backends '((company-yasnippet company-files company-semantic company-css company-capf
-    ;;                                 company-etags company-keywords company-nxml company-dabbrev-code company-dabbrev))))
-
-
-<a id="orgf24b940"></a>
-
-### python anaconda-mode (old)
-
-    
-    ;; (require 'cask)
-    ;; (require 'anaconda-mode)
-    ;; (require 'company-anaconda)
-    
-    ;; (eval-after-load "company"
-    ;;  '(add-to-list 'company-backends 'company-anaconda))
-    
-    ;; (add-hook 'python-mode-hook 'company-mode)
-    ;; (add-hook 'python-mode-hook 'anaconda-mode)
-    
-    
-    ;; (require 'company)
-    ;; (require 'epc)
-    ;; (require 'jedi-core)
-    ;; (require 'company-jedi)
-    ;; (require 'jedi)
-    ;; ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
-    ;; pylint
-    ;;
-    
-    ;; (setq jedi:server-command '("/home/user/.emacs.d/elpa/jedi-core-0.2.8/jediepcserver.py"))
-    ;; (setq jedi:server-script '("/home/user/.emacs.d/elpa/jedi-core-0.2.8/jediepcserver.py"))
-    ;; (defvar jedi:source-dir
-    ;; (setq jedi:server-args '("--sys-path" project-base))
-    
-    ;; (autoload 'jedi:setup "jedi" nil t)
-    ;;   (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
-    ;; (setq jedi:environment-root "jedi")
-    ;; (setq jedi:server-command (jedi:-env-server-command))
-    
-    ;; (with-eval-after-load 'jedi-core
-    ;;   ;;standard-jedi-settings
-    ;;   ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
-    ;;   ;; (setq jedi:environment-root "jedi")
-    ;;   ;; (setq jedi:server-command (jedi:-env-server-command))
-    
-    ;;   ;; (setq jedi:python-environment-default-root-name "/usr/lib/python3.10/site-packages/")
-    
-    ;;   (add-hook 'python-mode-hook 'jedi:setup)
-    ;;   (setq jedi:complete-on-dot t)
-    ;;   (setq jedi:use-shortcuts t)
-    ;;   ;; my
-    ;;   (setq jedi:get-in-function-call-timeout 0
-    ;; 	jedi:get-in-function-call-delay   0
-    ;; 	jedi:goto-definition-config    '((nil definition nil))
-    ;; 	)
-    ;; )
-    
-    ;; (add-to-list 'company-backends 'company-jedi)
-    ;; (add-hook 'python-mode-hook 'company-mode)
-    
-    
-    
-    
-     ;;  (add-hook 'python-mode-hook 'jedi:setup)
-    
-     ;; (add-to-list 'company-backends 'company-jedi)
-      ;; (add-hook 'python-mode-hook 'config/enable-company-jedi)
-    
-    ;; (add-hook 'python-mode-hook 'jedi:ac-setup)
-    
-    ;; ;; (with-eval-after-load 'company-jedi
-    ;; ;;   (defun my/python-mode-hook-c ()
-    ;; ;;     (add-to-list 'company-backends 'company-jedi)
-    ;; ;;   )
-    ;; ;;   (add-hook 'python-mode-hook 'my/python-mode-hook-c)
-    
-    ;; ;;   )
-    ;; ;; - - Python hooks
-    ;; (defun my/python-mode-hook ()
-    ;;   (add-to-list 'company-backends 'company-jedi)
-    ;;   (local-set-key (kbd "<M-left>") 'python-indent-shift-left )
-    ;;   (local-set-key (kbd "<M-right>") 'python-indent-shift-right )
-    ;;   (display-line-numbers-mode)
-    ;;   ;; indentation
-    ;;   (setq python-indent-offset 4)
-    ;; )
-    ;; (add-hook 'python-mode-hook 'display-line-numbers-mode)
-    ;; (add-hook 'python-mode-hook 'my/python-mode-hook)
-    ;; (add-hook 'python-mode-hook 'company-mode)
-    
-    
-    
-    ;; (defun my/python-mode-hook ()
-    ;;   (add-to-list 'company-backends 'company-jedi))
-    
-    ;; (add-hook 'python-mode-hook 'my/python-mode-hook)
-
-
-<a id="org13fdd76"></a>
-
-### TODO
-
-    
-    ;; (global-set-key (kbd "<tab>") (lambda () (interactive) ('indent-region) ('indent-for-tab-command)) )
-      ;; (add-hook 'company-mode
-      ;;         (lambda () (local-set-key [backtab] 'python-indent-shift-left))
-      ;; )
-    ;; (eval-after-load 'company
-    ;;                     '(define-key company- (kbd "<backtab>") 'python-indent-shift-left))
-    
-      ;; (setq jedi:environment-root "jedi")
-      ;; (setq jedi:server-command (jedi:-env-server-command))
-    
-    ;; (setq jedi:setup-keys t)
-    ;; (add-hook 'python-mode-hook 'auto-complete-mode)
-    
-    
-    ;; (defun config/enable-jedi ()
-    ;;   (add-to-list 'company-backends 'company-jedi))
-    ;; (add-hook 'python-mode-hook 'jedi:setup)
-    ;; (add-hook 'python-mode-hook 'config/enable-jedi)
-    ;; (setq jedi:complete-on-dot t)
-    ;; (setq jedi:use-shortcuts t)
-    
-    
-      ;; (defun config/enable-company-jedi ()
-      ;;   (add-to-list 'company-backends 'company-jedi))
-      ;; (add-hook 'python-mode-hook 'config/enable-company-jedi)
-
-
-<a id="org5a25e50"></a>
-
-### WORKED - eglot experiment (old)
-
-    
-    ;; (require 'eglot)
-    ;; (eval-after-load 'eglod
-    ;;   (add-hook 'python-mode-hook 'eglot-ensure)
-    ;;   ;; (setq eglot-ignored-server-capabilites (quote (:documentHighlightProvider)))
-    ;; )
-    
-    ;; (add-to-list 'eglot-server-programs '( python-mode . ("pyls") ; by default
-    ;;			       ) ; pylsp
-    ;; )
-
-
-<a id="org49c7089"></a>
-
-### DONT WORKED
-
-    
-    ;; (require 'lsp-mode)
-    ;; (add-hook 'python-mode-hook 'lsp)
-    
-    ;; (require 'lsp-mode)
-    
-    ;; (with-eval-after-load "lsp-mode"
-    ;;     (add-to-list 'lsp-disabled-clients 'pyls)
-    ;;     (add-to-list 'lsp-enabled-clients 'jedi))
-    
-    ;;
-    ;; (require 'company) ; autosuggestions and autocompletions
-    ;; (require 'company-jedi) ; company-mode completion back-end for Python JED
-    
-    
-    ;;   (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
-    ;;   (add-hook 'python-mode-hook 'jedi:setup)
-    ;;   (setq jedi:complete-on-dot t)
-    ;;   (setq jedi:use-shortcuts t)
-    ;;   (defun config/enable-company-jedi ()
-    ;;     (add-to-list 'company-backends 'company-jedi))
-    ;;   (add-hook 'python-mode-hook 'config/enable-company-jedi)
-    
-    
-    ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
-    
-    ;; (defun company-jedi-setup ()
-    ;;   (add-to-list 'company-backends 'company-jedi))
-    ;; (add-hook 'python-mode-hook 'company-jedi-setup)
-    
-    ;; (setq jedi:setup-keys t)
-    ;; (setq jedi:complete-on-dot t)
-    ;; (add-hook 'python-mode-hook 'jedi:setup)
-    
-    
-    ;; (global-company-mode t)
-    ;; (setq jedi:complete-on-dot t)
-    ;; (add-hook 'python-mode-hook 'jedi:setup)
-    
-    ;; (setq jedi:get-in-function-call-timeout 0
-    ;;       jedi:get-in-function-call-delay   0
-    ;;       jedi:goto-definition-config       '((nil definition nil)))
-    
-    ;; ;; company
-    ;; (add-to-list 'company-backends 'company-jedi)
-    ;;  ;; Advanced usage.
-    ;; (add-to-list 'company-backends '(company-jedi company-files))
-    
-    
-    ;; (progn
-    ;;                     (global-company-mode t)
-    ;;                     (setq company-idle-delay                -1
-    ;;                           delete-selection-mode             t
-    ;;                           company-minimum-prefix-length     1
-    ;;                           company-dabbrev-downcase          nil
-    ;;                           company-dabbrev-other-buffers     t
-    ;;                           company-echo-delay                0
-    ;;                           company-show-numbers              t
-    ;;                           company-dabbrev-code-everywhere   t
-    ;;                           company-dabbrev-code-ignore-case  t
-    ;;                           company-selection-wrap-around     t
-    ;;                           company-tooltip-align-annotations t
-    ;;                           selection-coding-system           'utf-8
-    ;;                           company-auto-complete-chars       '(32 40 41 119 46 34 36 47 124 33)
-    ;;                           company-backends '((company-yasnippet company-files company-semantic company-css company-capf
-    ;;                                 company-etags company-keywords company-nxml company-dabbrev-code company-dabbrev))))
-    
-    
-    
-    
-    ;; (add-hook 'after-init-hook 'global-company-mode)
-    
-    ;; (setq jedi:setup-keys t)
-    ;; (setq jedi:complete-on-dot t)
-    ;; (add-hook 'python-mode-hook 'jedi:setup)
-    
-    ;; (eval-after-load "company"
-    ;;         '(progn
-    ;;             (unless (member 'company-jedi (car company-backends))
-    ;;                 (setq comp-back (car company-backends))
-    ;;                 (push 'company-jedi comp-back)
-    ;;                 (setq company-backends (list comp-back)))
-    ;;	    ))
-    
-     ;; pythom mode keybindings
-    ;; -(define-key python-mode-map (kbd "M-.") 'jedi:goto-definition)
-    ;; (define-key python-mode-map (kbd "M-,") 'jedi:goto-definition-pop-marker)
-    ;; (define-key python-mode-map (kbd "M-/") 'jedi:show-doc)
-    ;; (define-key python-mode-map (kbd "M-?") 'helm-jedi-related-names)
-    
-    
-    ;; (require 'elpy)
-    ;; (setq elpy-rpc-backend "jedi")
-    ;; (require 'elpy-rpc)
-    ;; (require 'elpy-shell)
-    ;; (require 'elpy-profile)
-    ;; (require 'elpy-refactor)
-    ;; (require 'elpy-django)
-    ;; (elpy-enable)
-    ;; (global-set-key (kbd "C-q") 'elpy-company-backend) ; not working
-    ;; (global-set-key (kbd "C-q") 'company-yasnippet) ;working
-    ;; (setenv "PATH" (concat (expand-file-name "~/.local/bin:") (getenv "PATH")))
-
-
-<a id="org4efd7f8"></a>
-
-## cc mode: C/C++
-
-    
-
-
-<a id="org886ec2f"></a>
-
-### semantic
-
-    
-    ;; (defun my-inhibit-semantic-p ()
-    ;;   (not (equal major-mode 'c-mode-common)))
-    (defun ide()
-      "Semantic and ggtags"
-      ;; red for whitespaces
-      ;; (setq show-trailing-whitespace 1)
-      ;; INDENTATION:
-      (setq c-basic-offset 2)
-      ;; Semantic
-    
-      ;; (with-eval-after-load 'semantic
-      (require 'semantic)
-      ;; (require 'semantic/sb) ;; integration with speedbar
-    
-      (semantic-mode 1)
-      ;; (semantic-decoration-mode 1)
-      ;; (global-semantic-decoration-mode)
-      (semantic-idle-completions-mode 1)
-      ;; Emacs periodically checks to see if the buffer is out of date, and reparses while the user is idle
-      (semantic-idle-scheduler-mode 1)
-      (semantic-add-system-include "/usr/include/boost" 'c++-mode)
-      ;; (setq-local eldoc-documentation-function #'ggtags-eldoc-function)
-      ;; (semantic-add-system-include "~/linux/kernel")
-      ;; (semantic-add-system-include "~/linux/include")
-    
-      ;; shows the function point is currently in at the first line of the current buffer
-      ;; (semantic-stickyfunc-mode 1)
-      ;; (with-eval-after-load 'semantic
-      ;; 	(semantic-decoration-unparsed-include-parse-all-includes)
-      ;; 	)
-    
-      ;; ggtags GNU Global (working)
-      ;; (ggtags-mode 1)
-      ;; (define-key ggtags-mode-map (kbd "M-g s") 'ggtags-find-other-symbol)
-      ;; (define-key ggtags-mode-map (kbd "M-g h") 'ggtags-view-tag-history)
-      ;; (define-key ggtags-mode-map (kbd "M-g r") 'ggtags-find-reference)
-      ;; ;; (define-key ggtags-mode-map (kbd "M-g f") 'ggtags-find-file)
-      ;; (define-key ggtags-mode-map (kbd "M-g f") 'semantic-decoration-include-visit) ;; work better
-      ;; (define-key ggtags-mode-map (kbd "M-g c") 'ggtags-create-tags)
-      ;; (define-key ggtags-mode-map (kbd "M-g u") 'ggtags-update-tags)
-      ;; (define-key ggtags-mode-map (kbd "M-,") 'pop-tag-mark)
-    
-    )
-
-
-<a id="orgfd2f8fa"></a>
-
-### hook
-
-    
-      (defun my/c-mode-hook ()
-        (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'idl-mode-hook )
-          (ide) ;; i disable for now
+          (setq flymake-python-pyflakes-executable "flake8")
+          (local-set-key "\C-c\C-n" 'flymake-goto-next-error)
+          (flymake-mode)
+        
+          ;; - - -  other modes
+          (eldoc-mode -1)
+          (global-eldoc-mode -1)
           ;; numbers
           (display-line-numbers-mode)
           (column-number-mode) ; charater number of line
           ;; indentation
-          ;; (setq c-default-style '((java-mode . "java")
-          ;;                         (awk-mode . "awk")
-          ;;                         (other . "free-group-style")))
-          (local-set-key "\M-." #'semantic-ia-fast-jump)
-          ;; (setq python-indent-offset 4)
-          ;; (setq-default c-basic-offset 4)
-          (local-unset-key (kbd "C-M-a")) ; used for tabs ; beginning-of-defun
-          (local-unset-key (kbd "C-M-e")) ; end-of-defun
+          (setq python-indent-offset 4)
+          ;; errors checking
+        
+          ;; treat underscore _ as part of word
+          (superword-mode nil)
+        )
+        
+        (add-hook 'python-mode-hook 'my/python-mode-hook)
+        (add-hook 'python-ts-mode-hook 'my/python-mode-hook)
+
+2.  python company-jedi
+
+        
+        ;;   - jedi==0.17.1*hash=sha512:b86297b2fbb212695469b34288836e3346a33c5c6b83337dbe4ceaaeb2b4185dcb6c888336e24f6da3fe22a39c803af5c34ae5a4ed1d177fde1c1d7fc143bf09
+        ;;   - parso==0.7.1*hash=sha512:19c30d07a8982323ffbeba3fa36c8f504f49991c54df595e47defca1b1ba94ab3f5203485e6459012adfd440cc648dd8cfd44c571f02db7ed8e49f372eb3df3a
+        ;;   - epc==0.0.5*hash=sha512:e2b75850e39bb0f3c16f5b84f55dec675a8fe2b61ff5fd55704ef677317d698865a99fc495247cd753a2c8329729f45bc7f81f42dd4c6d27b31810c0aac831e2
+        ;;   - sexpdata==0.0.3*hash=sha512:419fa731fb0b953c404a71f1b5f88777546405618913b1d2e4abab7a876d285d43cd035addffb9d221571214e00151e908e8ef6b99295dacee8ca3f4c8ba942e
+        ;; - pip install*no-cache-dir*no-binary=:all:*require-hashes*user -r requirements.txt
+        
+        ;; mkdir -p ~/.local/lib/python3.11/site-packages
+        ;; git clone https://github.com/tkf/python-epc.git
+        ;; git checkout v0.0.5
+        ;; cp -r python-epc/epc ~/.local/lib/python3.11/site-packages/
+        ;; git clone https://github.com/jd-boyd/sexpdata.git
+        ;; git checkout v1.0.0
+        ;; cp -r sexpdata ~/.local/lib/python3.11/site-packages/
+        ;; export PATH=$PATH:/home/user/.local/lib/python3.11/site-packages
+        
+        (add-hook 'python-mode-hook 'jedi:setup)
+        (add-hook 'python-mode-hook 'company-mode)
+        (add-hook 'python-ts-mode-hook 'jedi:setup)
+        (add-hook 'python-ts-mode-hook 'company-mode)
+        
+        
+        (with-eval-after-load 'jedi-core
+          ;; (jedi:install-python-jedi-dev-command "python" "--version" ) ;; disable installation
+          ;; (setq jedi:environment-virtualenv (list (expand-file-name "/home/user/.local/lib/python3.10/site-packages")))
+          (setq jedi:environment-virtualenv (list (expand-file-name "/usr/lib/python3.11/site-packages")))
+          ;; this line for ubuntu only:
+          ;; (setq jedi:server-command '("python3" "/home/user/.emacs.d/elpa/jedi-core-0.2.8/jediepcserver.py"))
+        
+          ;; (setq jedi:complete-on-dot t)
+          (setq jedi:use-shortcuts t)
+          ;; ;; my
+          ;; (setq jedi:get-in-function-call-timeout 1
+          ;;   jedi:get-in-function-call-delay   1
+          ;;   jedi:goto-definition-config    '((nil definition nil))
+          ;;   )
+          ;; (add-to-list 'company-backends '(company-jedi company-files))
+        
+          ;; )
+          ;; (local-set-key (kbd "C-q") 'my/ttt)
           )
-      )
-    
-    (add-hook 'c-mode-common-hook #'my/c-mode-hook)
+        
+        (defun my/jedicqkey ()
+          (interactive)
+          (if (null (one-window-p))
+              ;; then
+              (delete-other-windows)
+            ;; else
+            (jedi:show-doc))
+          )
+        
+        (add-hook 'jedi-mode-hook (lambda ()
+                                    (define-key jedi-mode-map (kbd "C-q") 'my/jedicqkey)
+                                    (setopt company-backends '(company-jedi company-capf company-keywords company-files company-dabbrev))
+                                    ))
+
+3.  python flycheck (old)
+
+        
+        
+        ;; (progn
+        ;;                     (global-company-mode t)
+        ;;                     (setq company-idle-delay                -1
+        ;;                           delete-selection-mode             t
+        ;;                           company-minimum-prefix-length     1
+        ;;                           company-dabbrev-downcase          nil
+        ;;                           company-dabbrev-other-buffers     t
+        ;;                           company-echo-delay                0
+        ;;                           company-show-numbers              t
+        ;;                           company-dabbrev-code-everywhere   t
+        ;;                           company-dabbrev-code-ignore-case  t
+        ;;                           company-selection-wrap-around     t
+        ;;                           company-tooltip-align-annotations t
+        ;;                           selection-coding-system           'utf-8
+        ;;                           company-auto-complete-chars       '(32 40 41 119 46 34 36 47 124 33)
+        ;;                           company-backends '((company-yasnippet company-files company-semantic company-css company-capf
+        ;;                                 company-etags company-keywords company-nxml company-dabbrev-code company-dabbrev))))
+
+4.  python anaconda-mode (old)
+
+        
+        ;; (require 'cask)
+        ;; (require 'anaconda-mode)
+        ;; (require 'company-anaconda)
+        
+        ;; (eval-after-load "company"
+        ;;  '(add-to-list 'company-backends 'company-anaconda))
+        
+        ;; (add-hook 'python-mode-hook 'company-mode)
+        ;; (add-hook 'python-mode-hook 'anaconda-mode)
+        
+        
+        ;; (require 'company)
+        ;; (require 'epc)
+        ;; (require 'jedi-core)
+        ;; (require 'company-jedi)
+        ;; (require 'jedi)
+        ;; ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
+        ;; pylint
+        ;;
+        
+        ;; (setq jedi:server-command '("/home/user/.emacs.d/elpa/jedi-core-0.2.8/jediepcserver.py"))
+        ;; (setq jedi:server-script '("/home/user/.emacs.d/elpa/jedi-core-0.2.8/jediepcserver.py"))
+        ;; (defvar jedi:source-dir
+        ;; (setq jedi:server-args '("--sys-path" project-base))
+        
+        ;; (autoload 'jedi:setup "jedi" nil t)
+        ;;   (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
+        ;; (setq jedi:environment-root "jedi")
+        ;; (setq jedi:server-command (jedi:-env-server-command))
+        
+        ;; (with-eval-after-load 'jedi-core
+        ;;   ;;standard-jedi-settings
+        ;;   ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
+        ;;   ;; (setq jedi:environment-root "jedi")
+        ;;   ;; (setq jedi:server-command (jedi:-env-server-command))
+        
+        ;;   ;; (setq jedi:python-environment-default-root-name "/usr/lib/python3.10/site-packages/")
+        
+        ;;   (add-hook 'python-mode-hook 'jedi:setup)
+        ;;   (setq jedi:complete-on-dot t)
+        ;;   (setq jedi:use-shortcuts t)
+        ;;   ;; my
+        ;;   (setq jedi:get-in-function-call-timeout 0
+        ;; 	jedi:get-in-function-call-delay   0
+        ;; 	jedi:goto-definition-config    '((nil definition nil))
+        ;; 	)
+        ;; )
+        
+        ;; (add-to-list 'company-backends 'company-jedi)
+        ;; (add-hook 'python-mode-hook 'company-mode)
+        
+        
+        
+        
+         ;;  (add-hook 'python-mode-hook 'jedi:setup)
+        
+         ;; (add-to-list 'company-backends 'company-jedi)
+          ;; (add-hook 'python-mode-hook 'config/enable-company-jedi)
+        
+        ;; (add-hook 'python-mode-hook 'jedi:ac-setup)
+        
+        ;; ;; (with-eval-after-load 'company-jedi
+        ;; ;;   (defun my/python-mode-hook-c ()
+        ;; ;;     (add-to-list 'company-backends 'company-jedi)
+        ;; ;;   )
+        ;; ;;   (add-hook 'python-mode-hook 'my/python-mode-hook-c)
+        
+        ;; ;;   )
+        ;; ;; - - Python hooks
+        ;; (defun my/python-mode-hook ()
+        ;;   (add-to-list 'company-backends 'company-jedi)
+        ;;   (local-set-key (kbd "<M-left>") 'python-indent-shift-left )
+        ;;   (local-set-key (kbd "<M-right>") 'python-indent-shift-right )
+        ;;   (display-line-numbers-mode)
+        ;;   ;; indentation
+        ;;   (setq python-indent-offset 4)
+        ;; )
+        ;; (add-hook 'python-mode-hook 'display-line-numbers-mode)
+        ;; (add-hook 'python-mode-hook 'my/python-mode-hook)
+        ;; (add-hook 'python-mode-hook 'company-mode)
+        
+        
+        
+        ;; (defun my/python-mode-hook ()
+        ;;   (add-to-list 'company-backends 'company-jedi))
+        
+        ;; (add-hook 'python-mode-hook 'my/python-mode-hook)
+
+5.  TODO
+
+        
+        ;; (global-set-key (kbd "<tab>") (lambda () (interactive) ('indent-region) ('indent-for-tab-command)) )
+          ;; (add-hook 'company-mode
+          ;;         (lambda () (local-set-key [backtab] 'python-indent-shift-left))
+          ;; )
+        ;; (eval-after-load 'company
+        ;;                     '(define-key company- (kbd "<backtab>") 'python-indent-shift-left))
+        
+          ;; (setq jedi:environment-root "jedi")
+          ;; (setq jedi:server-command (jedi:-env-server-command))
+        
+        ;; (setq jedi:setup-keys t)
+        ;; (add-hook 'python-mode-hook 'auto-complete-mode)
+        
+        
+        ;; (defun config/enable-jedi ()
+        ;;   (add-to-list 'company-backends 'company-jedi))
+        ;; (add-hook 'python-mode-hook 'jedi:setup)
+        ;; (add-hook 'python-mode-hook 'config/enable-jedi)
+        ;; (setq jedi:complete-on-dot t)
+        ;; (setq jedi:use-shortcuts t)
+        
+        
+          ;; (defun config/enable-company-jedi ()
+          ;;   (add-to-list 'company-backends 'company-jedi))
+          ;; (add-hook 'python-mode-hook 'config/enable-company-jedi)
+
+6.  WORKED - eglot experiment (old)
+
+        
+        ;; (require 'eglot)
+        ;; (eval-after-load 'eglod
+        ;;   (add-hook 'python-mode-hook 'eglot-ensure)
+        ;;   ;; (setq eglot-ignored-server-capabilites (quote (:documentHighlightProvider)))
+        ;; )
+        
+        ;; (add-to-list 'eglot-server-programs '( python-mode . ("pyls") ; by default
+        ;;			       ) ; pylsp
+        ;; )
+
+7.  DONT WORKED
+
+        
+        ;; (require 'lsp-mode)
+        ;; (add-hook 'python-mode-hook 'lsp)
+        
+        ;; (require 'lsp-mode)
+        
+        ;; (with-eval-after-load "lsp-mode"
+        ;;     (add-to-list 'lsp-disabled-clients 'pyls)
+        ;;     (add-to-list 'lsp-enabled-clients 'jedi))
+        
+        ;;
+        ;; (require 'company) ; autosuggestions and autocompletions
+        ;; (require 'company-jedi) ; company-mode completion back-end for Python JED
+        
+        
+        ;;   (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
+        ;;   (add-hook 'python-mode-hook 'jedi:setup)
+        ;;   (setq jedi:complete-on-dot t)
+        ;;   (setq jedi:use-shortcuts t)
+        ;;   (defun config/enable-company-jedi ()
+        ;;     (add-to-list 'company-backends 'company-jedi))
+        ;;   (add-hook 'python-mode-hook 'config/enable-company-jedi)
+        
+        
+        ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments/")))
+        
+        ;; (defun company-jedi-setup ()
+        ;;   (add-to-list 'company-backends 'company-jedi))
+        ;; (add-hook 'python-mode-hook 'company-jedi-setup)
+        
+        ;; (setq jedi:setup-keys t)
+        ;; (setq jedi:complete-on-dot t)
+        ;; (add-hook 'python-mode-hook 'jedi:setup)
+        
+        
+        ;; (global-company-mode t)
+        ;; (setq jedi:complete-on-dot t)
+        ;; (add-hook 'python-mode-hook 'jedi:setup)
+        
+        ;; (setq jedi:get-in-function-call-timeout 0
+        ;;       jedi:get-in-function-call-delay   0
+        ;;       jedi:goto-definition-config       '((nil definition nil)))
+        
+        ;; ;; company
+        ;; (add-to-list 'company-backends 'company-jedi)
+        ;;  ;; Advanced usage.
+        ;; (add-to-list 'company-backends '(company-jedi company-files))
+        
+        
+        ;; (progn
+        ;;                     (global-company-mode t)
+        ;;                     (setq company-idle-delay                -1
+        ;;                           delete-selection-mode             t
+        ;;                           company-minimum-prefix-length     1
+        ;;                           company-dabbrev-downcase          nil
+        ;;                           company-dabbrev-other-buffers     t
+        ;;                           company-echo-delay                0
+        ;;                           company-show-numbers              t
+        ;;                           company-dabbrev-code-everywhere   t
+        ;;                           company-dabbrev-code-ignore-case  t
+        ;;                           company-selection-wrap-around     t
+        ;;                           company-tooltip-align-annotations t
+        ;;                           selection-coding-system           'utf-8
+        ;;                           company-auto-complete-chars       '(32 40 41 119 46 34 36 47 124 33)
+        ;;                           company-backends '((company-yasnippet company-files company-semantic company-css company-capf
+        ;;                                 company-etags company-keywords company-nxml company-dabbrev-code company-dabbrev))))
+        
+        
+        
+        
+        ;; (add-hook 'after-init-hook 'global-company-mode)
+        
+        ;; (setq jedi:setup-keys t)
+        ;; (setq jedi:complete-on-dot t)
+        ;; (add-hook 'python-mode-hook 'jedi:setup)
+        
+        ;; (eval-after-load "company"
+        ;;         '(progn
+        ;;             (unless (member 'company-jedi (car company-backends))
+        ;;                 (setq comp-back (car company-backends))
+        ;;                 (push 'company-jedi comp-back)
+        ;;                 (setq company-backends (list comp-back)))
+        ;;	    ))
+        
+         ;; pythom mode keybindings
+        ;; -(define-key python-mode-map (kbd "M-.") 'jedi:goto-definition)
+        ;; (define-key python-mode-map (kbd "M-,") 'jedi:goto-definition-pop-marker)
+        ;; (define-key python-mode-map (kbd "M-/") 'jedi:show-doc)
+        ;; (define-key python-mode-map (kbd "M-?") 'helm-jedi-related-names)
+        
+        
+        ;; (require 'elpy)
+        ;; (setq elpy-rpc-backend "jedi")
+        ;; (require 'elpy-rpc)
+        ;; (require 'elpy-shell)
+        ;; (require 'elpy-profile)
+        ;; (require 'elpy-refactor)
+        ;; (require 'elpy-django)
+        ;; (elpy-enable)
+        ;; (global-set-key (kbd "C-q") 'elpy-company-backend) ; not working
+        ;; (global-set-key (kbd "C-q") 'company-yasnippet) ;working
+        ;; (setenv "PATH" (concat (expand-file-name "~/.local/bin:") (getenv "PATH")))
 
 
-<a id="org26b4904"></a>
+<a id="org50c6301"></a>
 
-### Org execute source block
+### cc mode: C/C++
 
     
-    
-    (setq org-babel-c-compile-command "gcc -o /var/tmp/a.out -xc -")
-    (setq org-babel-c-run-command "sudo -u t /var/tmp/a.out")
-    
-    (defvar my/exit-code)
-    
-    (advice-add 'org-babel--shell-command-on-region :around (lambda (orig-fun &rest args)
-                                                              (setq my/exit-code (apply orig-fun args) )))
-    
-    (defun my/org-babel-c-evaluate (body &optional result-type result-params)
-      (let* (
-             (tmp-code-file (org-babel-temp-file "c-" ".c")) ; file with code
-             (tmp-output-file (org-babel-temp-file "c-")) ; output file
-             (results
-              (pcase result-type
-                (`output
-                 (with-temp-file tmp-output-file
-                   (org-babel-eval org-babel-c-compile-command body)
-                   (if (eq my/exit-code 0)
-                       (insert
-                        (org-babel-eval org-babel-c-run-command "")
-                        )
-                     ;; else - select error window
-                     (select-window (get-buffer-window (get-buffer org-babel-error-buffer-name)) nil)
-                     )
-                   (buffer-string)))
-                (`value ;; not working
-                 (org-babel-eval org-babel-c-compile-command body)))))
-        (when results
-          (org-babel-result-cond result-params
-    	(org-babel-eval-read-file tmp-output-file) ; read file with output
-            (org-babel-import-elisp-from-file tmp-output-file '(16))))))
-    
-    (defun org-babel-execute:c (body params)
-      "Execute a block of Perl code with Babel.
-    This function is called by `org-babel-execute-src-block'."
-      (let* ((result-params (cdr (assq :result-params params)))
-             (result-type (cdr (assq :result-type params)))
-             (full-body (org-babel-expand-body:generic
-                         body params)))
-        (org-babel-reassemble-table
-         (my/org-babel-c-evaluate full-body result-type result-params)
-         (org-babel-pick-name
-          (cdr (assq :colname-names params)) (cdr (assq :colnames params)))
-         (org-babel-pick-name
-          (cdr (assq :rowname-names params)) (cdr (assq :rownames params))))))
+
+1.  semantic
+
+        
+        ;; (defun my-inhibit-semantic-p ()
+        ;;   (not (equal major-mode 'c-mode-common)))
+        (defun ide()
+          "Semantic and ggtags"
+          ;; red for whitespaces
+          ;; (setq show-trailing-whitespace 1)
+          ;; INDENTATION:
+          (setq c-basic-offset 2)
+          ;; Semantic
+        
+          ;; (with-eval-after-load 'semantic
+          (require 'semantic)
+          ;; (require 'semantic/sb) ;; integration with speedbar
+        
+          (semantic-mode 1)
+          ;; (semantic-decoration-mode 1)
+          ;; (global-semantic-decoration-mode)
+          (semantic-idle-completions-mode 1)
+          ;; Emacs periodically checks to see if the buffer is out of date, and reparses while the user is idle
+          (semantic-idle-scheduler-mode 1)
+          (semantic-add-system-include "/usr/include/boost" 'c++-mode)
+          ;; (setq-local eldoc-documentation-function #'ggtags-eldoc-function)
+          ;; (semantic-add-system-include "~/linux/kernel")
+          ;; (semantic-add-system-include "~/linux/include")
+        
+          ;; shows the function point is currently in at the first line of the current buffer
+          ;; (semantic-stickyfunc-mode 1)
+          ;; (with-eval-after-load 'semantic
+          ;; 	(semantic-decoration-unparsed-include-parse-all-includes)
+          ;; 	)
+        
+          ;; ggtags GNU Global (working)
+          ;; (ggtags-mode 1)
+          ;; (define-key ggtags-mode-map (kbd "M-g s") 'ggtags-find-other-symbol)
+          ;; (define-key ggtags-mode-map (kbd "M-g h") 'ggtags-view-tag-history)
+          ;; (define-key ggtags-mode-map (kbd "M-g r") 'ggtags-find-reference)
+          ;; ;; (define-key ggtags-mode-map (kbd "M-g f") 'ggtags-find-file)
+          ;; (define-key ggtags-mode-map (kbd "M-g f") 'semantic-decoration-include-visit) ;; work better
+          ;; (define-key ggtags-mode-map (kbd "M-g c") 'ggtags-create-tags)
+          ;; (define-key ggtags-mode-map (kbd "M-g u") 'ggtags-update-tags)
+          ;; (define-key ggtags-mode-map (kbd "M-,") 'pop-tag-mark)
+        
+        )
+
+2.  hook
+
+        
+          (defun my/c-mode-hook ()
+            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'idl-mode-hook )
+              (ide) ;; i disable for now
+              ;; numbers
+              (display-line-numbers-mode)
+              (column-number-mode) ; charater number of line
+              ;; indentation
+              ;; (setq c-default-style '((java-mode . "java")
+              ;;                         (awk-mode . "awk")
+              ;;                         (other . "free-group-style")))
+              (local-set-key "\M-." #'semantic-ia-fast-jump)
+              ;; (setq python-indent-offset 4)
+              ;; (setq-default c-basic-offset 4)
+              (local-unset-key (kbd "C-M-a")) ; used for tabs ; beginning-of-defun
+              (local-unset-key (kbd "C-M-e")) ; end-of-defun
+              )
+          )
+        
+        (add-hook 'c-mode-common-hook #'my/c-mode-hook)
+
+3.  Org execute source block
+
+        
+        
+        (setq org-babel-c-compile-command "gcc -o /var/tmp/a.out -xc -")
+        (setq org-babel-c-run-command "sudo -u t /var/tmp/a.out")
+        
+        (defvar my/exit-code)
+        
+        (advice-add 'org-babel--shell-command-on-region :around (lambda (orig-fun &rest args)
+                                                                  (setq my/exit-code (apply orig-fun args) )))
+        
+        (defun my/org-babel-c-evaluate (body &optional result-type result-params)
+          (let* (
+                 (tmp-code-file (org-babel-temp-file "c-" ".c")) ; file with code
+                 (tmp-output-file (org-babel-temp-file "c-")) ; output file
+                 (results
+                  (pcase result-type
+                    (`output
+                     (with-temp-file tmp-output-file
+                       (org-babel-eval org-babel-c-compile-command body)
+                       (if (eq my/exit-code 0)
+                           (insert
+                            (org-babel-eval org-babel-c-run-command "")
+                            )
+                         ;; else - select error window
+                         (select-window (get-buffer-window (get-buffer org-babel-error-buffer-name)) nil)
+                         )
+                       (buffer-string)))
+                    (`value ;; not working
+                     (org-babel-eval org-babel-c-compile-command body)))))
+            (when results
+              (org-babel-result-cond result-params
+        	(org-babel-eval-read-file tmp-output-file) ; read file with output
+                (org-babel-import-elisp-from-file tmp-output-file '(16))))))
+        
+        (defun org-babel-execute:c (body params)
+          "Execute a block of Perl code with Babel.
+        This function is called by `org-babel-execute-src-block'."
+          (let* ((result-params (cdr (assq :result-params params)))
+                 (result-type (cdr (assq :result-type params)))
+                 (full-body (org-babel-expand-body:generic
+                             body params)))
+            (org-babel-reassemble-table
+             (my/org-babel-c-evaluate full-body result-type result-params)
+             (org-babel-pick-name
+              (cdr (assq :colname-names params)) (cdr (assq :colnames params)))
+             (org-babel-pick-name
+              (cdr (assq :rowname-names params)) (cdr (assq :rownames params))))))
 
 
-<a id="org479f2cc"></a>
+<a id="org628047f"></a>
 
-## HTML (testing)
+### Perl
+
+    
+    (defun my/exec-perl ()
+      "Execute this command with filename of saved buffer."
+      (interactive)
+      (my/exec-language "PERLLIB=. perl"))
+    
+    (defun my/perl-mode-hook ()
+      (setq flymake-no-changes-timeout 0.5)
+      (local-set-key "\C-c\C-n" 'flymake-goto-next-error)
+      (local-set-key "\C-c\C-c" 'my/exec-perl))
+    
+    (add-hook 'perl-mode-hook 'flymake-mode)
+    (add-hook 'perl-mode-hook 'my/perl-mode-hook)
+
+
+<a id="org64daf40"></a>
+
+### Bash, sh-mode
+
+    
+    (defun my/exec-bash ()
+      "Execute this command with filename of saved buffer."
+      (interactive)
+      (my/exec-language "bash"))
+    
+    (defun my/sh-mode-hook ()
+      (setq flymake-no-changes-timeout 0.5)
+      (local-set-key "\C-c\C-n" 'flymake-goto-next-error)
+      (local-set-key "\C-c\C-c" 'my/exec-bash))
+    
+    (add-hook 'sh-mode-hook 'flymake-mode)
+    (add-hook 'sh-mode-hook 'my/sh-mode-hook)
+
+
+<a id="orge41fd5d"></a>
+
+### HTML (testing)
 
     
     (add-hook 'html-mode-hook
               (lambda ()
-                (message "asd") ;; test
+                ;; (message "asd") ;; test
                 ;; Default indentation is usually 2 spaces, changing to 4.
                 (set (make-local-variable 'sgml-basic-offset) 4)))
 
 
-<a id="org5846de3"></a>
+<a id="org173365a"></a>
 
 ## artistic
 
     
 
 
-<a id="org8c5445b"></a>
+<a id="orgdfb8b69"></a>
 
 ### minor mode short-keys
 
@@ -3653,34 +4846,34 @@
       (call-interactively 'artist-key-set-point)
       )
     
-    (define-minor-mode my/short-keys
-                                 "Rebind keys in artistic mode"
-                                 :lighter "modal"
-                                 :keymap (let ((map (make-sparse-keymap)))
-                                           (define-key map (kbd "o") (lambda () (interactive) (my/art-active 'artist-select-op-ellipse) ))
-                                           (define-key map (kbd "r") (lambda () (interactive) (my/art-active 'artist-select-op-rectangle)))
-                                           (define-key map (kbd "p") (lambda () (interactive) (my/art-active 'artist-select-op-poly-line)))
-                                           (define-key map (kbd "P") (lambda () (interactive) (my/art-active 'artist-select-op-straight-poly-line)))
-                                           (define-key map (kbd "l") (lambda () (interactive) (my/art-active 'artist-select-op-line)))
-                                           (define-key map (kbd "C-w") (lambda () (interactive) (my/art-active 'artist-select-op-cut-rectangle)))
-                                           (define-key map (kbd "M-w") (lambda () (interactive) (my/art-active 'artist-select-op-copy-rectangle)))
-                                           (define-key map (kbd "C-y") (lambda () (interactive) (my/art-active 'artist-select-op-paste)))
-                                           ;; Keys bindings for directions:
-                                           ;; q w e
-                                           ;; a   d
-                                           ;; z x c
-                                           (define-key map (kbd "w") 'picture-movement-up)
-                                           (define-key map (kbd "q") 'picture-movement-nw)
-                                           (define-key map (kbd "a") 'picture-movement-left)
-                                           (define-key map (kbd "z") 'picture-movement-sw)
-                                           (define-key map (kbd "x") 'picture-movement-down)
-                                           (define-key map (kbd "c") 'picture-movement-se)
-                                           (define-key map (kbd "d") 'picture-movement-right)
-                                           (define-key map (kbd "e") 'picture-movement-ne)
+    ;; (define-minor-mode my/short-keys
+    ;;                              "Rebind keys in artistic mode"
+    ;;                              :lighter "modal"
+    ;;                              :keymap (let ((map (make-sparse-keymap)))
+    ;;                                        (define-key map (kbd "o") (lambda () (interactive) (my/art-active 'artist-select-op-ellipse) ))
+    ;;                                        (define-key map (kbd "r") (lambda () (interactive) (my/art-active 'artist-select-op-rectangle)))
+    ;;                                        (define-key map (kbd "p") (lambda () (interactive) (my/art-active 'artist-select-op-poly-line)))
+    ;;                                        (define-key map (kbd "P") (lambda () (interactive) (my/art-active 'artist-select-op-straight-poly-line)))
+    ;;                                        (define-key map (kbd "l") (lambda () (interactive) (my/art-active 'artist-select-op-line)))
+    ;;                                        (define-key map (kbd "C-w") (lambda () (interactive) (my/art-active 'artist-select-op-cut-rectangle)))
+    ;;                                        (define-key map (kbd "M-w") (lambda () (interactive) (my/art-active 'artist-select-op-copy-rectangle)))
+    ;;                                        (define-key map (kbd "C-y") (lambda () (interactive) (my/art-active 'artist-select-op-paste)))
+    ;;                                        ;; Keys bindings for directions:
+    ;;                                        ;; q w e
+    ;;                                        ;; a   d
+    ;;                                        ;; z x c
+    ;;                                        (define-key map (kbd "w") 'picture-movement-up)
+    ;;                                        (define-key map (kbd "q") 'picture-movement-nw)
+    ;;                                        (define-key map (kbd "a") 'picture-movement-left)
+    ;;                                        (define-key map (kbd "z") 'picture-movement-sw)
+    ;;                                        (define-key map (kbd "x") 'picture-movement-down)
+    ;;                                        (define-key map (kbd "c") 'picture-movement-se)
+    ;;                                        (define-key map (kbd "d") 'picture-movement-right)
+    ;;                                        (define-key map (kbd "e") 'picture-movement-ne)
     
-                                           (define-key map (kbd "C-g") (lambda () (interactive) (if artist-key-is-drawing (artist-key-set-point-common 0) (keyboard-quit) )))
+    ;;                                        (define-key map (kbd "C-g") (lambda () (interactive) (if artist-key-is-drawing (artist-key-set-point-common 0) (keyboard-quit) )))
     
-                                           map))
+    ;;                                        map))
     ;; (if (null my/short-keys) ;; this allow to enable and disable mode with one command (minor-mode)
     ;;       ;; Turn mode off
     ;;       (my/short-keys -1)
@@ -3688,7 +4881,7 @@
     ;;     )
 
 
-<a id="orge9582a7"></a>
+<a id="orgc86cabb"></a>
 
 ### active artistic mode and minor mode for short keybindings
 
@@ -3700,7 +4893,7 @@
     (global-set-key (kbd "C-x C-a") 'artist-mode) ;; and artist-mode
 
 
-<a id="org6c0a7c9"></a>
+<a id="org970fbbf"></a>
 
 ### artist-mode-hook
 
@@ -3730,7 +4923,7 @@
     (add-hook 'artist-mode-hook 'my/artist-mode-hook)
 
 
-<a id="org6531195"></a>
+<a id="orgc78e631"></a>
 
 ## multitran for ORG (translater)
 
@@ -3778,18 +4971,19 @@
     ;; (defconst multitran-url "https://89.108.112.70")
 
 
-<a id="org4b18ff8"></a>
+<a id="org00efcaa"></a>
 
 ## email
 
     
 
 
-<a id="orgc9a3854"></a>
+<a id="org9e940a3"></a>
 
 ### notmuch
 
     
+    (require 'notmuch)
 
 1.  basic
 
@@ -3800,28 +4994,47 @@
         (setq notmuch-search-oldest-first nil)
         
         ;; Drafts
-        (setq notmuch-draft-folder "Drafts")  ;; default: drafts
-        (setq notmuch-draft-tags '("+draft" "-inbox")) ;; when saved
+        (setopt notmuch-draft-folder "Drafts")  ;; default: drafts
+        (setopt notmuch-draft-tags '("+draft" "-inbox")) ;; when saved
         
-        ;; default Emacs message composer for C-x m compose-mail (optional)
+        
         (require 'notmuch)
-        (setq mail-user-agent 'notmuch-user-agent) ;; report-emacs-bug, compose-mail, notmuch-user-agent: message-user-agent
-        ;; fix Fcc - save sent message folder from sent->Sent
-        (setq notmuch-fcc-dirs
-          '(
-              (".*" . "Sent")))
-        ;; mark sent message +sent tag - Send messages are saved to Save folder and must be retagged to be shown in notmuch-emacs in sent.
-        (defun my/notmuch-sent-hook ()
-          (shell-command "sudo -u email notmuch tag -unread -inbox +sent* tag:inbox and from:user@mail.com"))
-        (add-hook 'notmuch-search-hook 'my/notmuch-sent-hook)
         
         (setq notmuch-show-indent-messages-width 4)
         (setq notmuch-show-all-multipart/alternative-parts t)
         (setq notmuch-show-indent-multipart t)
 
-2.  gnus-w3m fixes
+2.  keys
 
         
+        (defun my/notmuch-tag-jump(reverse)
+          (interactive "P")
+          (notmuch-tag-jump reverse)
+          (next-line))
+        
+        
+        (defun my/notmuch-keys()
+          (keymap-set notmuch-search-mode-map "<remap> <notmuch-tag-jump>" #'my/notmuch-tag-jump)
+          ;; (local-set-key "<remap> <notmuch-tag-jump>" #'my/notmuch-tag-jump)
+        )
+        
+        ;; hook executed per buffer
+        (add-hook 'notmuch-search-mode-hook 'my/notmuch-keys)
+
+3.  fast keys
+
+        
+        (setopt notmuch-saved-searches
+           '((:name "inbox" :query "tag:inbox" :key "i")
+             (:name "spam" :query "tag:spam" :key "s")
+             (:name "unread" :query "tag:unread" :key "u")
+             (:name "flagged" :query "tag:flagged" :key "f")
+             (:name "sent" :query "tag:sent" :key "t")
+             (:name "drafts" :query "tag:draft" :key "d")
+             (:name "all mail" :query "*" :key "a")))
+
+4.  gnus-w3m fixes
+
         
         
         (with-eval-after-load 'notmuch
@@ -4002,8 +5215,23 @@
         
         ;;   )
 
+5.  send messages
 
-<a id="org14e8880"></a>
+        
+        ;; default Emacs message composer for C-x m compose-mail that will call `mail-user-agent'
+        (require 'notmuch-mua)
+        (setq mail-user-agent 'notmuch-user-agent) ;; report-emacs-bug, compose-mail, notmuch-user-agent: message-user-agent
+        ;; fix Fcc - save sent message folder from sent->Sent
+        (setq notmuch-fcc-dirs
+          '(
+              (".*" . "Sent")))
+        ;; mark sent message +sent tag - Send messages are saved to Save folder and must be retagged to be shown in notmuch-emacs in sent.
+        ;; (defun my/notmuch-sent-hook ()
+        ;;   (shell-command "sudo -u email notmuch tag -unread -inbox +sent* tag:inbox and from:user@mail.com"))
+        ;; (add-hook 'notmuch-search-hook 'my/notmuch-sent-hook)
+
+
+<a id="org8f95e78"></a>
 
 ### editor org-mode integration
 
@@ -4013,7 +5241,7 @@
     ;; (add-hook 'mail-mode-hook 'turn-on-orgstruct)  ;; not working
 
 
-<a id="orgbbab682"></a>
+<a id="org792370d"></a>
 
 ### sendmail smtpmail (working, disabled)
 
@@ -4033,30 +5261,42 @@
     ;; (setq send-mail-function 'smtpmail-send-it)
 
 
-<a id="org6b4f9d3"></a>
+<a id="org48efff4"></a>
 
 ### smtpmail-multi
 
     
-     (setq smtpmail-multi-accounts
-       '(
-          (mail . ("user@mail.com" "mail.mail.com" 587 "user@mail.com" nil nil nil nil))
-          ;; (gmail-main . ("firmin.martin@gmail.com" "smtp.gmail.com" 587 "firmin.martin@gmail.com" nil nil nil nil))
-          ))
+    (require 'smtpmail-multi)
+    (setopt smtpmail-multi-accounts
+            '(
+              (mail . ("user@mail.com" "mail.mail.com" 587 "user@mail.com" starttls nil nil nil))
+              ;; (vitaliydata . ("vitaliydata@hotmail.com" "smtp-mail.outlook.com" 587 "vitaliydata@hotmail.com" starttls nil nil nil))
+              ;; (vitsmallboy . ("vitsmallboy@hotmail.com" "smtp-mail.outlook.com" 587 "vitsmallboy@hotmail.com" starttls nil nil nil))
+              ;; (gmail-main . ("firmin.martin@gmail.com" "smtp.gmail.com" 587 "firmin.martin@gmail.com" nil nil nil nil))
+              ))
     
-    (setq smtpmail-multi-associations
+    (setopt smtpmail-multi-associations
       '(
-         ("user@mail.com" mail)
-         ;; ("firmin.martin@gmail.com" gmail-main)
-         ))
+        ("user@mail.com" mail)
+        ;; ("vitaliydata@hotmail.com" vitaliydata)
+        ;; ("vitsmallboy@hotmail.com" vitsmallboy)
+        ;; ("firmin.martin@gmail.com" gmail-main)
+        ))
     
-    (setq smtpmail-multi-default-account 'mail)
-    (setq message-send-mail-function 'smtpmail-multi-send-it)
-    (setq smtpmail-debug-info t)
+    (setopt smtpmail-multi-default-account 'mail)
+    ;; (setopt smtpmail-multi-default-account 'vitsmallboy)
+    ;; (setopt smtpmail-multi-default-account 'vitaliydata)
+    
+    (setopt message-send-mail-function 'smtpmail-multi-send-it)
+    (setopt smtpmail-debug-info t)
     (setq smtpmail-debug-verbose t)
+    
+    ;; (setopt user-mail-address "vitaliydata@hotmail.com")
+    (setopt user-mail-address "user@mail.com")
+    ;; (setopt user-mail-address "vitsmallboy@hotmail.com")
 
 
-<a id="orgb5ccb0f"></a>
+<a id="org9ccc72e"></a>
 
 ## hidepw
 
@@ -4072,7 +5312,7 @@
       )
 
 
-<a id="org55f6222"></a>
+<a id="orgc43c0ef"></a>
 
 ## YAML - yaml-mode
 
@@ -4094,17 +5334,19 @@
     ;;   ))
 
 
-<a id="org47e575e"></a>
+<a id="org77a0e4b"></a>
 
 ## Markdown
 
     
+    ;; (defun my/markdown-mode-hook()
+    ;;   (toggle-truncate-lines nil))
     (add-hook 'markdown-mode-hook (lambda ()
                                     ;; wrap lines visually becouse they are long
                                     (toggle-truncate-lines nil)))
 
 
-<a id="orge729625"></a>
+<a id="orgf72c525"></a>
 
 ## pinyin-isearch
 
@@ -4113,7 +5355,7 @@
     (pinyin-isearch-activate-submodes)
 
 
-<a id="orgec66999"></a>
+<a id="org4e7b9e8"></a>
 
 ## RTAGS (old)
 
@@ -4130,7 +5372,7 @@
     ;; )
 
 
-<a id="orge2cdee0"></a>
+<a id="org35e88b2"></a>
 
 ## Project Management (old)
 
@@ -4144,7 +5386,7 @@
     ;; )
 
 
-<a id="orge733cc2"></a>
+<a id="org9095fdf"></a>
 
 # buffer-list (old)
 
@@ -4228,7 +5470,7 @@
     ;; (add-hook 'python-mode-hook 'my-python-hooks)
 
 
-<a id="org66ea32b"></a>
+<a id="org5800462"></a>
 
 # Spell checking flyspell and ispell (old)
 
@@ -4242,7 +5484,7 @@
     ;; (setq-default ispell-program-name "aspell")
 
 
-<a id="orgd428e2b"></a>
+<a id="org8fc6e2e"></a>
 
 # available keys
 
@@ -4252,36 +5494,7 @@
     ;; C-.
 
 
-<a id="org7bce780"></a>
-
-# test proxy:
-
-\#+begin\_src elisp
-
-;; (with-current-buffer
-;;   (url-retrieve-synchronously "<http://ipinfo.io/ip>")
-;;   (goto-char (point-min))
-;;   (re-search-forward "^$")
-;;   (delete-region (point) (point-min))
-;;   (buffer-string))
-
-;; #+end\_src
-
-
-<a id="org0e90dc0"></a>
-
-# gui and new version dependent configurations
-
-    
-    ;; ;; gui
-    (tool-bar-mode     -1) ;; отключаем tool-bar
-    (scroll-bar-mode   -1) ;; отключаем полосу прокрутки
-    ;; ;; path for info
-    ;; (require 'info)
-    ;; (add-to-list 'Info-directory-list "/usr/local/src/elisp")
-
-
-<a id="org1b12633"></a>
+<a id="orgfa2a619"></a>
 
 # test Org navigation
 
@@ -4305,12 +5518,21 @@
     ;;              '("b" sbr-org-backward-heading-or-item))
 
 
-<a id="orgff71ed2"></a>
+<a id="org38d15ab"></a>
 
 # jupyter export test
 
     
-    (require 'ox-ipynb)
+    (require 'ox-ipynb) ; todo
+
+
+<a id="org7a61fa4"></a>
+
+# test
+
+    
+    
+    
     ;; (require 'fuzzy-autoloads)
     ;; (require 'package-build)
     ;; (require 'package-recipe-mode)
@@ -4328,13 +5550,13 @@
     ;; (advice-add 'isearch-edit-string :after #'pinyin-isearch--fix-edit-advice)
     ;; (make-local-variable 'current-language-environment)
     ;; (put 'set-goal-column 'disabled nil)
-    (setq subword-mode t)
-    (put 'erase-buffer 'disabled nil)
+    ;; (setq subword-mode t)
+    ;;
 
 
-<a id="org8aa10fd"></a>
+<a id="orga4d0075"></a>
 
-# Local Variables
+# Local Variables for first opening
 
 \#+begin\_src elisp
 

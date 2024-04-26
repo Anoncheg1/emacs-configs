@@ -4,7 +4,7 @@
 
 [Raw original: .emacs](.emacs)
 # emacs-configs
-This repository contains emacs configuration file, a single one actually.
+A single emacs configuration file.
 
 Favorite modes (built-in): Org, org-agenda, Python, CC mode, Semantic, Dired + Bookmarks, VC.
 
@@ -22,17 +22,30 @@ I use single ```.emacs``` with outline-mode. I don't generation from .org.
 ## Navigation
 This is between console and JIKL:
 - C-f - right
-- C-l - left
-- C-k - up
+- C-l - left (old C-b)
+- C-k - up (old C-p)
 - C-n - down
 
-## Additional key bindings:
+## new line
+Basic rule: C without indentation, M with indentation (as already used in Emacs)
+- C-o open previous line
+- C-j open line split, without indentation and stay at current
+- M-j open line (split, with indentation) and stay at current
+- C-m open next line split, without indentation and go there
+- M-m open next line (split, with indentation) and go there
+- C-M-m don't split make new fresh line and go there
+
+
+M-o 'other-winndow - as soon as it is free, it is popular approach.
+## Detele backward (C-u in console)
 - C-h 'delete-backward-char
 - M-h 'backward-kill-word
+- C-M-h 'backward-kill-sentence (shadow mark-defun)
+
+## Additional key bindings:
 - M-; 'comment-line
-- C/M-o 'open-next-line/'open-previous-line
-- M-z 'beffer-menu
-- C-M-q 'bookmarks
+- C-S-z and C-x c 'beffer-menu
+- C-x y 'bookmarks
 
 I changed behavior of C-a/e and M-a/e in Org mode.
 - C-a - move to the begining of the current element at the line. (For example: to the begining of the URL.)

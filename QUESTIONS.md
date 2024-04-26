@@ -1,64 +1,84 @@
 
 # Table of Contents
 
-1.  [How to use C-h as backspace as it works in console?](#orgb4548b3)
-2.  [How to remove space character after Abbrev completion?](#orgaf8fc5b)
-3.  [How to bind TAB key to Expansion function in org-mode and don't break org-cycle?](#org912f1f6)
-4.  [How to disable hiding of [[] [ links ] ] in Org mode? This is agains markdown principles.](#org16b0772)
-5.  [How to use regex template for isearch with C-M-s command, e.g. search in Org headers?](#orgd4d758c)
-6.  [How to set timeout on Org-mode code block execution by C-c C-c?](#org3ddecbb)
-7.  [How to go to the first item in Org-mode list and fix org-backward-paragraph?](#orge57618d)
-8.  [How to highlight something and unhighlight and save it?](#orge138a22)
-9.  [How to jump to Org-mode src-block's result and key to open session in window](#orgd584419)
-10. [How to fixed recover autosaved #file# that is older: show message and own my/recover-this file.](#org3efcda6)
-11. [How to indent region line by line](#org3d89c0e)
-12. [How to indent region as first line](#orgc8aadc1)
-13. [For keys: Tab and C-u Tab, how to bind different commands?](#org2a1532e)
-14. [How to prevent changing of window title for specific files?](#org0c55816)
-15. [How to open https links in Org mode with shell command for external browser?](#org541aceb)
-16. [How to emulate M-x or call indent-for-tab-command repeatedly?](#org9c3631d)
-17. [How to change current directory "default-directory" to directory of emacs's start or directory of other buffer?](#org54d2c47)
-18. [How in Org-mode to hide other headers and leave current open without hiding text and headers in opened?](#orgd6b06c1)
-19. [How to see full tree when using C-u C-SPC on Org mode?](#org343ab59)
-20. [How to prevent evaluation of Org source blocks during export](#org92d5132)
-21. [Can I call Org source block during call of another source block and save result in session?](#org654ca3c)
-22. [(partial) Org: How to prevent returning to begining of #+begin\_src after C-m C-/ and C-m, org-return?](#org810d5a0)
-23. [How to search for Chinese pinyin and ignore tones?](#orgbf07c93)
-24. [How to make fuzzy search](#org382bb3c)
-25. [How to prevent fill-paragraph in Org mode to indent source block according to language](#org5f73039)
-26. [In source block in Org mode < > breaks matched parentheses](#org4d8f340)
-27. [\`fill-paragraph' and \`org-fill-paragraph' don't work in Org-mode list.](#org6099087)
-28. [Themes: How to activate theme per mode or buffer or per file?](#org63608e9)
-29. [Themes: how to switch theme, for example for day and night.](#orgd9d2d0d)
-30. [Zone (fun screensaver): how to make it slower and less CPU hungry?](#org91eaa00)
-31. [Zone (fun screensaver): how to teach zone to respect text zooming?](#org4260ee6)
-32. [Dired: how to open as a file manager](#org73d270a)
-33. [Dired: open with default app, human readable size](#orge052457)
-34. [Dired: move to trash first](#org4934432)
-35. [Dired: fix ^ to something better](#org9f83f3b)
-36. [Dired: use Xfce4 thumbnails](#org1d5e21c)
-37. [Dired: open from bash](#orgd22be4a)
-38. [Dired: hide "." dot files and remember your choose](#org1a20ace)
-39. [Dired: open files with external applications](#org9465cac)
-    1.  [solution](#org267f9bf)
-    2.  [Advanced solutions](#org709f325)
-40. [Dired: why renaming a same file suggest directory instead of same file name?](#org991f714)
-41. [Dired: how to tweek opening file with "o" key #'dired-find-file-other-window?](#org0e2b925)
-42. [Dired: how to add current path to mode line?](#org2b042b0)
-43. [Org Babel: Why alias is not working?](#org6e0856c)
-44. [Org Babel: why :file dont save file to current directory?](#org25a89a0)
-45. [How emacs behavior differ when run under root?](#org4dbd2ce)
-46. [Abort minibuffer everywhere if C-g pressed.](#org1496c27)
-47. [How to use TAB for templates, and don't install Yasnippet and others?](#org21e007a)
-    1.  [links](#orgc667d76)
-48. [How to copy current file and current line to clipboard?](#org1450373)
-49. [How to make tab-bar-mode behave like tabs in browsers and show buffer-menu?](#org5aeccb0)
-50. [How to edit multiple position or multiple cursors?](#orgd0ef7ce)
-    1.  [Obsolate example of rectangular edition. limited to rectangle.](#orgac4927f)
-51. [GUI: How to reduce delay for minibuffer when F1 or C-x is pressed?](#org971ca40)
+1.  [How to use C-h as backspace as it works in console?](#orgaecf11c)
+2.  [How to remove space character after Abbrev completion?](#org98f36cb)
+3.  [How to bind TAB key to Expansion function in org-mode and don't break org-cycle?](#org8d7a236)
+4.  [How to disable hiding of [[] [ links ] ] in Org mode? This is agains markdown principles.](#org6aeb478)
+5.  [How to use regex template for isearch with C-M-s command, e.g. search in Org headers?](#org5c2ecb7)
+6.  [How to set timeout on Org-mode code block execution by C-c C-c?](#orgcd5d1d8)
+7.  [How to go to the first item in Org-mode list and fix org-backward-paragraph?](#org5dd3d98)
+8.  [How to highlight something and unhighlight and save it?](#org7c42cf3)
+9.  [How to jump to Org-mode src-block's result and key to open session in window](#org3d5ca6f)
+10. [How to fixed recover autosaved #file# that is older: show message and own my/recover-this file.](#orgbbf306e)
+11. [How to indent region line by line](#orgd9cf702)
+12. [How to indent region as first line](#orgc461125)
+13. [For keys: Tab and C-u Tab, how to bind different commands?](#org8d58507)
+14. [How to prevent changing of window title for specific files?](#org19e2b58)
+15. [How to open https links in Org mode with shell command for external browser?](#orgd751584)
+16. [How to emulate M-x or call interactive repeatedly/programmably?](#org1718e40)
+17. [How to change current directory "default-directory" to directory of emacs's start or directory of other buffer?](#org16a1092)
+18. [How in Org-mode to hide other headers and leave current open without hiding text and headers in opened?](#orgc4ff5b6)
+19. [How to see full tree when using C-u C-SPC on Org mode?](#org624cae3)
+20. [How to prevent evaluation of Org source blocks during export](#orgc9893c6)
+21. [Can I call Org source block during call of another source block and save result in session?](#org98d6e2f)
+22. [(partial) Org: How to prevent returning to begining of #+begin\_src after C-m C-/ and C-m, org-return?](#orgc719746)
+23. [How to search for Chinese pinyin and ignore tones?](#org3d6b7de)
+24. [How to make fuzzy search](#org2a0a906)
+25. [How to prevent fill-paragraph in Org mode to indent source block according to language](#org15a8f94)
+26. [In source block in Org mode < > breaks matched parentheses](#orgc90b95c)
+27. [\`fill-paragraph' and \`org-fill-paragraph' don't work in Org-mode list.](#org2037568)
+28. [Themes: How to activate theme per mode or buffer or per file?](#org8b3946a)
+29. [Themes: how to switch theme, for example for day and night.](#orgf13fab2)
+30. [Zone (fun screensaver): how to make it slower and less CPU hungry?](#org9a4b0f1)
+31. [Zone (fun screensaver): how to teach zone to respect text zooming?](#org2e78194)
+32. [How to open file with emacs daemon from bash?](#orgabdbca5)
+33. [Dired: how to open as a file manager](#org3809f1d)
+34. [Dired: open with default app, human readable size](#orgce701f6)
+35. [Dired: don't delete files, move to trash first](#org86b86aa)
+36. [Dired: bind ^ to something better and show thumbnails with image-dired](#orge067839)
+37. [Dired: use Xfce4 thumbnails](#org92d527a)
+38. [Dired: hide "." dot files and remember your choose](#org5ec141c)
+39. [Dired: open files with external applications](#org712fe3a)
+    1.  [solution](#org8b4d37f)
+    2.  [Advanced solutions](#org20ccf4a)
+40. [Dired: why renaming a same file suggest directory instead of same file name?](#org3c4bb06)
+41. [Dired: Side window: opening file with "o" key #'dired-find-file-other-window?](#orgf25c002)
+42. [Dired: Side window: toggle side window](#orgaefeeeb)
+43. [Dired: Side window: update side window when the cursor move in the main window](#orgf3edd8f)
+44. [Dired: how to add current path to mode line?](#orgafba06d)
+45. [Dired: how to use region selection instead of marks?](#orgcfe488b)
+46. [Dired: toggle mark - a single key for all marks](#org391c4e9)
+47. [Dired: what if I forgot to use flag and mark files for deletion?](#orge17bd9a)
+48. [Org Babel: Why alias is not working?](#orgfbbbf30)
+49. [Org Babel: why :file dont save file to current directory?](#orgcded434)
+50. [Org Babel: How to C-c ' open buffer always at right?](#org1b9b6e0)
+51. [How emacs behavior differ when run under root?](#org54e459f)
+52. [How to use TAB for templates, and don't install Yasnippet and others?](#org1b66dca)
+    1.  [links](#org02f9e69)
+53. [How to copy current file and current line to clipboard?](#orgdc2c0c0)
+54. [How to edit multiple position or multiple cursors?](#orgd2090ec)
+    1.  [Obsolate example of rectangular edition. limited to rectangle.](#org8460e0c)
+55. [GUI: How to reduce delay for minibuffer when F1 or C-x is pressed?](#org0a83a3e)
+56. [GUI: Why splitting window with C-x 3, C-x 2 works strage?](#orgecb1fbe)
+57. [GUI: Selecting Buffers, tab-bar-mode, like tabs in browser](#orgca32e46)
+    1.  [tab-bar](#orgdd0e62b)
+    2.  [tab-line-mode](#org0aad836)
+    3.  [Solution with external tab-bar-buffers package:](#orga76cecc)
+58. [GUI: How to switch to recent buffer and ignore system buffers like **Buffer List**?](#org57f411e)
+59. [GUI: How to open file in frame with the same major mode files?](#orga24e3a0)
+60. [GUT: Abort minibuffer everywhere if C-g pressed.](#orgdd8318c)
+61. [How to kill all buffers and duplicate frames?](#org5c069b1)
+62. [How to create a blog from a single file?](#org245dcd0)
+63. [How to fix vertico in Dired mode to properly handle path?](#org1958a6e)
+64. [How to enable ELisp mode in any buffer, or "There is no ElDoc support in this buffer."?](#orgebbe53d)
+65. [How to start notmuch with different .notmuch-config for different emails boxes?](#org9161e3a)
+66. [How to create link to certain place in file and open it from bash fast?](#org0159cb4)
+67. [How to kill Python Babel when execute source block in Org mode?](#orgc03a5e9)
+68. [ELisp: how to load new package for easy navigation?](#org13d0c3a)
 
 
-<a id="orgb4548b3"></a>
+<a id="orgaecf11c"></a>
 
 # How to use C-h as backspace as it works in console?
 
@@ -68,8 +88,12 @@ backspace at search
 
     (define-key isearch-mode-map "\C-h" #'isearch-delete-char) ; delete character during search C-s
 
+and for M-h word:
 
-<a id="orgaf8fc5b"></a>
+    (global-set-key (kbd "M-h") #'backward-kill-word)  ; redefine mark-paragraph
+
+
+<a id="org98f36cb"></a>
 
 # How to remove space character after Abbrev completion?
 
@@ -89,7 +113,7 @@ To prevent new line after insertion use:
     (setq skeleton-end-newline nil)
 
 
-<a id="org912f1f6"></a>
+<a id="org8d7a236"></a>
 
 # How to bind TAB key to Expansion function in org-mode and don't break org-cycle?
 
@@ -146,7 +170,7 @@ Here is full code:
                                (local-set-key (kbd "TAB") 'my/org-tab)))
 
 
-<a id="org16b0772"></a>
+<a id="org6aeb478"></a>
 
 # How to disable hiding of [[] [ links ] ] in Org mode? This is agains markdown principles.
 
@@ -157,7 +181,7 @@ or
     M-x customize-variable org-link-descriptive
 
 
-<a id="orgd4d758c"></a>
+<a id="org5c2ecb7"></a>
 
 # How to use regex template for isearch with C-M-s command, e.g. search in Org headers?
 
@@ -181,7 +205,7 @@ org-goto is default search in Org headers but it have many disadvantages, here i
     )
 
 
-<a id="org3ddecbb"></a>
+<a id="orgcd5d1d8"></a>
 
 # How to set timeout on Org-mode code block execution by C-c C-c?
 
@@ -216,7 +240,7 @@ We can fix it by adding our code before every code blocks that will be executed:
     (advice-add 'org-babel-execute:python :around #'my/f-call)
 
 
-<a id="orge57618d"></a>
+<a id="org5dd3d98"></a>
 
 # How to go to the first item in Org-mode list and fix org-backward-paragraph?
 
@@ -267,7 +291,7 @@ Fix for org-backward-paragraph to skip lists
                                )
 
 
-<a id="orge138a22"></a>
+<a id="org7c42cf3"></a>
 
 # How to highlight something and unhighlight and save it?
 
@@ -282,7 +306,7 @@ How to save and automatically load highlighted text?
 doc <https://www.gnu.org/software/emacs/manual/html_node/emacs/Highlight-Interactively.html>
 
 
-<a id="orgd584419"></a>
+<a id="org3d5ca6f"></a>
 
 # How to jump to Org-mode src-block's result and key to open session in window
 
@@ -302,7 +326,7 @@ doc <https://www.gnu.org/software/emacs/manual/html_node/emacs/Highlight-Interac
     ))
 
 
-<a id="org3efcda6"></a>
+<a id="orgbbf306e"></a>
 
 # How to fixed recover autosaved #file# that is older: show message and own my/recover-this file.
 
@@ -392,7 +416,7 @@ To be able to recover, we need to rewrite recover-this-file function, also we ad
     	  (t (user-error "Recover-file canceled")))))
 
 
-<a id="org3d89c0e"></a>
+<a id="orgd9cf702"></a>
 
 # How to indent region line by line
 
@@ -418,7 +442,7 @@ We can bound this to TAB key and detect if region is active:
     (global-set-key (kbd "TAB") #'my/indent-or-complete)
 
 
-<a id="orgc8aadc1"></a>
+<a id="orgc461125"></a>
 
 # How to indent region as first line
 
@@ -440,7 +464,7 @@ We can bound this to TAB key and detect if region is active:
       ))
 
 
-<a id="org2a1532e"></a>
+<a id="org8d58507"></a>
 
 # For keys: Tab and C-u Tab, how to bind different commands?
 
@@ -456,7 +480,7 @@ We can bound this to TAB key and detect if region is active:
         ...
 
 
-<a id="org0c55816"></a>
+<a id="org19e2b58"></a>
 
 # How to prevent changing of window title for specific files?
 
@@ -480,7 +504,7 @@ For dynamic title use frame-title-format variable:
           )
 
 
-<a id="org541aceb"></a>
+<a id="orgd751584"></a>
 
 # How to open https links in Org mode with shell command for external browser?
 
@@ -510,9 +534,9 @@ Firefox can not open url from command line, that is why I just copy link to buff
                                ))
 
 
-<a id="org9c3631d"></a>
+<a id="org1718e40"></a>
 
-# How to emulate M-x or call indent-for-tab-command repeatedly?
+# How to emulate M-x or call interactive repeatedly/programmably?
 
 if you M-x debug-on-entry RET execute-extended-command which is M-x. You fill find
  out, that it uses some record between calls.
@@ -522,7 +546,7 @@ The way to emulate it properly is to use followind call:
     (execute-extended-command nil "indent-for-tab-command" nil)
 
 
-<a id="org54d2c47"></a>
+<a id="org16a1092"></a>
 
 # How to change current directory "default-directory" to directory of emacs's start or directory of other buffer?
 
@@ -534,7 +558,7 @@ to change directory to emacs's start temporarely:
            ...)
 
 
-<a id="orgd6b06c1"></a>
+<a id="orgc4ff5b6"></a>
 
 # How in Org-mode to hide other headers and leave current open without hiding text and headers in opened?
 
@@ -580,7 +604,7 @@ For outline mode:
                                    (local-set-key (kbd "C-c e") 'my/outline-hide-other)))
 
 
-<a id="org343ab59"></a>
+<a id="org624cae3"></a>
 
 # How to see full tree when using C-u C-SPC on Org mode?
 
@@ -597,7 +621,7 @@ I use
 hook for any functions that trying to show context.
 
 
-<a id="org92d5132"></a>
+<a id="orgc9893c6"></a>
 
 # How to prevent evaluation of Org source blocks during export
 
@@ -621,7 +645,7 @@ prevent evaluation if Org source blocks during export:
              "never-export")
 
 
-<a id="org654ca3c"></a>
+<a id="org98d6e2f"></a>
 
 # Can I call Org source block during call of another source block and save result in session?
 
@@ -633,7 +657,7 @@ Just press C-c C-c on this block and "aaa" block will be executed
  automatically. (x values is not used)
 
 
-<a id="org810d5a0"></a>
+<a id="orgc719746"></a>
 
 # (partial) Org: How to prevent returning to begining of #+begin\_src after C-m C-/ and C-m, org-return?
 
@@ -649,7 +673,7 @@ Here we create new line and use simple (indent-relative) to previous line withou
          (local-set-key (kbd "C-m") (lambda () (interactive) (newline) (indent-relative) ) )))
 
 
-<a id="orgbf07c93"></a>
+<a id="org3d6b7de"></a>
 
 # How to search for Chinese pinyin and ignore tones?
 
@@ -660,7 +684,7 @@ It replaces isearch-search-fun-function with our function that replace
  search string with regex that ignore tones.
 
 
-<a id="org382bb3c"></a>
+<a id="org2a0a906"></a>
 
 # How to make fuzzy search
 
@@ -686,7 +710,7 @@ There is fzf command line utility and integration with Emacs <https://github.com
 and there is implementation in pure Emacs: <https://www.masteringemacs.org/article/fuzzy-finding-emacs-instead-of-fzf>
 
 
-<a id="org5f73039"></a>
+<a id="org15a8f94"></a>
 
 # How to prevent fill-paragraph in Org mode to indent source block according to language
 
@@ -710,7 +734,7 @@ For example:
         (call-interactively 'fill-paragraph)))
 
 
-<a id="org4d8f340"></a>
+<a id="orgc90b95c"></a>
 
 # In source block in Org mode < > breaks matched parentheses
 
@@ -721,7 +745,7 @@ Solution is to disable them in org-mode-syntax-table:
                                (modify-syntax-entry ?< "." org-mode-syntax-table)))
 
 
-<a id="org6099087"></a>
+<a id="org2037568"></a>
 
 # \`fill-paragraph' and \`org-fill-paragraph' don't work in Org-mode list.
 
@@ -775,7 +799,7 @@ Solution 2:
       (org-fill-paragraph))
 
 
-<a id="org63608e9"></a>
+<a id="org8b3946a"></a>
 
 # Themes: How to activate theme per mode or buffer or per file?
 
@@ -793,7 +817,7 @@ Solution: Check current buffer major-mode at opening new file event and with tim
 You can not actiavate mode on buffer change, hook \`buffer-list-update-hook' will recurse itself.
 
 
-<a id="orgd9d2d0d"></a>
+<a id="orgf13fab2"></a>
 
 # Themes: how to switch theme, for example for day and night.
 
@@ -816,7 +840,7 @@ Simplies way is to bind switching to keys. In following code we
                                   (my/load-theme nil)))
 
 
-<a id="org91eaa00"></a>
+<a id="org9a4b0f1"></a>
 
 # Zone (fun screensaver): how to make it slower and less CPU hungry?
 
@@ -870,7 +894,7 @@ advanced
     (advice-add 'zone-call :around #'my/zone-call)
 
 
-<a id="org4260ee6"></a>
+<a id="org2e78194"></a>
 
 # Zone (fun screensaver): how to teach zone to respect text zooming?
 
@@ -886,7 +910,41 @@ We add advice after buffer of zoom creation and before call of
     (advice-add 'zone-call :around #'my/zone-call-scalefix)
 
 
-<a id="org73d270a"></a>
+<a id="orgabdbca5"></a>
+
+# How to open file with emacs daemon from bash?
+
+to use:
+
+    $ e /path/to/file
+
+Add to ~/.bash\_aliases or ~/.bashrc:
+
+    e() {
+        # ;; start a server if is not running
+        if [ -z "$ed" ] ; then
+            emacs --daemon
+        fi
+        # ;; (find-file used with --create-frame because without it
+        # ;; if you close buffer with that file frame will be closed too.
+        if [[ -z "$@" ]] ; then # no file was given
+            emacsclient --create-frame --eval "(find-file \"~/tmp/emacs-file$(date -I).org\")" &
+        elif [[ -d "$@" ]] ; then # if file exist and is a directory
+            emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$@"\"))"
+        elif [[ -n "$DISPLAY" ]] ; then # if under X
+        # # elif [ -e "$@" ] ; then # if file exist
+            if [[ -z "$(ps aux | grep emacsclient | grep create-frame)" ]] ; then
+                emacsclient --alternate-editor=emacs --create-frame --eval "(find-file \"$@\")" > /dev/null &
+            else # if frame already exist
+                emacsclient --alternate-editor=emacs --eval "(my/find-file-frame \"$@\")" &
+            fi
+        else # under console
+            emacsclient -c -a emacs "$@"
+        fi
+    }
+
+
+<a id="org3809f1d"></a>
 
 # Dired: how to open as a file manager
 
@@ -897,25 +955,15 @@ We add advice after buffer of zoom creation and before call of
     ed() {
         if [ -z "$@" ] ; then
             emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$(pwd)"\"))"
-            # emacsclient -d ":0" -a emacs $(pwd) # first start problem
         else
             emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$@"\"))" ;
-            # emacsclient -c -a emacs --eval "(dired \"$@\")"
-            # emacsclient -d ":0" -a emacs "$@" # first start problem
-        fi
-    }
-    e() {
-        if [ -z "$@" ] ; then
-            emacsclient --create-frame ~/tmp/emacs-file$(date -I).org &
-        elif [ -d "$@" ] ; then # if file exist and is a directory
-            emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$@"\"))" ;
-        elif [ -e "$@" ] ; then # if file exist
-            emacsclient --create-frame --alternate-editor=emacs "$@" &
         fi
     }
 
+see [32](#orgabdbca5)
 
-<a id="orge052457"></a>
+
+<a id="orgce701f6"></a>
 
 # Dired: open with default app, human readable size
 
@@ -928,24 +976,27 @@ open with default app
     W key
 
 
-<a id="org4934432"></a>
+<a id="org86b86aa"></a>
 
-# Dired: move to trash first
+# Dired: don't delete files, move to trash first
 
     (setopt delete-by-moving-to-trash t)
 
 
-<a id="org9f83f3b"></a>
+<a id="orge067839"></a>
 
-# Dired: fix ^ to something better
+# Dired: bind ^ to something better and show thumbnails with image-dired
 
-    (define-key dired-mode-map "\C-h" #'dired-up-directory)
     (defun my/thumbnails()
+      "Show thumbnails of current directory."
       (interactive)
       (image-dired-show-all-from-dir (dired-current-directory)))
+    
+    (define-key dired-mode-map "\C-j" #'dired-up-directory)
+    (define-key dired-mode-map (kbd "C-,") #'my/thumbnails)
 
 
-<a id="org1d5e21c"></a>
+<a id="org92d527a"></a>
 
 # Dired: use Xfce4 thumbnails
 
@@ -953,20 +1004,7 @@ open with default app
     (setopt image-dired-thumbnail-storage 'standard)
 
 
-<a id="orgd22be4a"></a>
-
-# Dired: open from bash
-
-Add line to ~/.bash\_aliases:
-
-    ed() { emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$(pwd)"\"))" ;}
-
-Enter in termial:
-
-    $ ed
-
-
-<a id="org1a20ace"></a>
+<a id="org5ec141c"></a>
 
 # Dired: hide "." dot files and remember your choose
 
@@ -1003,7 +1041,7 @@ Dired don't remember your choose by default, to fix that:
     (define-key dired-mode-map "\C-\M-h" #'my/dired-omit-switch) ; to switch on/off
 
 
-<a id="org9465cac"></a>
+<a id="org712fe3a"></a>
 
 # Dired: open files with external applications
 
@@ -1015,7 +1053,7 @@ keys
 -   !	dired-do-shell-command (dired-aux)
 
 
-<a id="org267f9bf"></a>
+<a id="org8b4d37f"></a>
 
 ## solution
 
@@ -1028,7 +1066,7 @@ to open with ! and &:
     (add-to-list 'dired-guess-shell-alist-user '("\\.flac$" "mpv"))
 
 
-<a id="org709f325"></a>
+<a id="org20ccf4a"></a>
 
 ## Advanced solutions
 
@@ -1037,7 +1075,7 @@ to open with ! and &:
 -   <https://stackoverflow.com/questions/2284319/opening-files-with-default-windows-application-from-within-emacs>
 
 
-<a id="org991f714"></a>
+<a id="org3c4bb06"></a>
 
 # Dired: why renaming a same file suggest directory instead of same file name?
 
@@ -1061,9 +1099,9 @@ Beacause C-x C-q allow you to edit any file you see.
     (advice-add 'dired-do-rename :around #'my/dired-do-rename )
 
 
-<a id="org0e2b925"></a>
+<a id="orgf25c002"></a>
 
-# Dired: how to tweek opening file with "o" key #'dired-find-file-other-window?
+# Dired: Side window: opening file with "o" key #'dired-find-file-other-window?
 
 Executeion path: dired-find-file-other-window ->
  find-file-other-window -> (find-file-noselect ;
@@ -1074,26 +1112,112 @@ So all we need is configure #'display-buffer function. <https://www.gnu.org/soft
 This function uses display-buffer-base-action variable with high priority. That
  is why we should set this variable local and unset after.
 
+"display-buffer" calls "actions" with buffer to display and "alist"
+ until one of the functions returns non-nil.
+
 Use default display-buffer-fallback-action as base for your config.
 
     ;; -- -- -- open other window fix
     (defun my/dired-find-file-other-window(&rest args)
+      "Side window at right."
       (interactive)
-      (let ((display-buffer-base-action '((display-buffer--maybe-same-window
-                                           display-buffer-in-previous-window
-                                           display-buffer-use-some-window
-                                           display-buffer-in-direction)
-                                          (nil)
-                                          (window-width . 0.8) ; 80 percent
-                                          (direction . right))))
+      (let
+          ((display-buffer-base-action
+            '((
+               ;; display-buffer--maybe-same-window  ;FIXME: why isn't this redundant?
+               display-buffer-reuse-window
+               display-buffer-in-previous-window ;; just optimization
+               display-buffer-in-side-window ;; right side window - MAINLY USED
+               display-buffer--maybe-pop-up-frame-or-window ;; create window
+               ;; ;; If all else fails, pop up a new frame.
+               display-buffer-pop-up-frame
+               )
+              (window-width . 0.8) ; 80 percent
+              (side . right))))
         (apply #'dired-find-file-other-window args)))
     
     (define-key firstly-search-dired-mode-map (kbd "M-o") #'my/dired-find-file-other-window)
     ;; or
     (define-key dired-mode-map (kbd "o") #'my/dired-find-file-other-window)
 
+"Must know" terms about windows:
 
-<a id="org2b042b0"></a>
+-   **window tree** - Windows on the same frame
+-   **root window** - The root node of a window tree.
+-   **live window** -  leaf nodes, showed windows.
+-   **selected window** - one of leaf nodes that is active.
+-   **internal window** - organizing the relationships between live windows
+-   **minibuffer window** - not part of its frame’s window tree, but is sibling window of the frame’s root window
+-   **Window Parameters** - associated additional information with window.
+-   **window-point/pos** - saved state of (point) in window, by default used by **window-in-direction** as reference.
+-   **reference position** - used as a source to decide a target in direction.
+-   **main-window** - used to distinguish window from windows marked as window-side/slot, returned by
+    (window-main-window). is either a “normal” live window or specifies the area containing all the normal
+    windows.
+-   **display-start or just start** - buffer position that specifies where in the buffer display should start to display text at screen.
+
+
+<a id="orgaefeeeb"></a>
+
+# Dired: Side window: toggle side window
+
+There is a key for that
+
+-   C-x w s	window-toggle-side-windows
+
+How to open side window and toggle with the a single key?
+
+    ;; in dired: if no side: C-{ - open side window with file
+    ;;           if side exist: close - toggle
+    ;; in side: close -toggle
+    ;; tools: (and (eq (window-main-window) (selected-window))
+    ;;            (derived-mode-p 'dired-mode)) - check if we on dired
+    ;; (not (eq (window-main-window) (selected-window))) - check if we on side
+    ;; (window-with-parameter 'window-side nil frame)  - if side exist
+    
+    
+    (defun my/window-toggle-side-windows(&optional frame)
+      (interactive)
+      ;; (call-interactively 'window-toggle-side-windows frame)
+      ;; in dired
+      (let ((sw (selected-window)))
+        (if (and (eq sw (window-main-window) )
+                 (derived-mode-p 'dired-mode) ;; check if we on dired
+                 )
+            ;; in dired :if side exist
+            (if (window-with-parameter 'window-side nil frame) ;; if side exist
+                (call-interactively #'window-toggle-side-windows)
+              ;; else in dired :if no side exist
+              (call-interactively #'my/dired-find-file-other-window)
+              (select-window sw)
+              )
+          ;; else in side: close -toggle
+          (if (not (eq sw (window-main-window)))
+              (call-interactively #'window-toggle-side-windows)))))
+    
+    (global-set-key (kbd "C-'") #'my/window-toggle-side-windows)
+
+
+<a id="orgf3edd8f"></a>
+
+# Dired: Side window: update side window when the cursor move in the main window
+
+When you opened side window and switched back to Dired, how to see for ex. images when moving through lines?
+
+We add advice function before commands **dired-next-line** and **dired-previous-lines** that just update side window.
+
+    (defun my/update-side-window (&rest r)
+      (let ((sw (selected-window)))
+        (when (and (eq (window-main-window) sw)
+                 (derived-mode-p 'dired-mode) ; check if we on dired
+                 (window-with-parameter 'window-side nil)) ; if side exist
+            (call-interactively #'my/dired-find-file-other-window)
+            (select-window sw))))
+    (advice-add 'dired-next-line :after #'my/update-side-window)
+    (advice-add 'dired-previous-line :after #'my/update-side-window)
+
+
+<a id="orgafba06d"></a>
 
 # Dired: how to add current path to mode line?
 
@@ -1110,7 +1234,153 @@ This code adds default-directory to global-mode-string variable as a
                  (list global-mode-string 'default-directory))))
 
 
-<a id="org6e0856c"></a>
+<a id="orgcfe488b"></a>
+
+# Dired: how to use region selection instead of marks?
+
+Did you notice that in Dired you are forced to use marks and can not just select files as usual?
+
+In this solution we mark "selected" files that is in region when Dired functions request names of marked files.
+
+    (defun my/dired-get-marked-files (func-call &rest args)
+      "Mark selected."
+      (if (region-active-p)
+          (save-excursion
+            ;; unmark
+            (dired-unmark-all-marks)
+            ;; mark
+            (let ((beg (region-beginning))
+                  (end (region-end)))
+              (dired-mark-files-in-region
+               (progn (goto-char beg) (line-beginning-position))
+               (progn (goto-char end)
+                      (if (if (eq dired-mark-region 'line)
+                              (not (bolp))
+                            (get-text-property (1- (point)) 'dired-filename))
+                          (line-end-position)
+                        (line-beginning-position)))))))
+      (apply func-call args))
+    (advice-add 'dired-get-marked-files :around #'my/dired-get-marked-files)
+
+If you want function that behave differently for selected, marked and just at cursor:
+
+    (defun my/dired-on-select (arg body-sel body-marked body-single)
+      "execute code on selected files or on marked"
+      (if mark-active
+          (progn
+            ;; 1) unmark
+            (save-excursion
+              (dired-unmark-all-marks))
+            ;; 2) mark
+            (call-interactively 'dired-mark)
+            ;; 3) evaluate
+            (if (eq (length (dired-get-marked-files)) 1)
+                (eval body-single) ; single selected
+              ;; else
+              (eval body-sel))
+            ;; (save-excursion
+            ;;   (dired-unmark-all-marks))
+            )
+        ;; else on marked
+        (if (not (eq (length (dired-get-marked-files)) 1))
+            (eval body-marked)
+          ;; else - single - at cursor
+          (eval body-single)
+          )))
+    
+    (defun my/call-external (arg &optional interactive)
+      (interactive (list current-prefix-arg t))
+      (my/dired-on-select nil
+                          ;; for selected
+                          '(execute-extended-command nil "dired-do-async-shell-command" nil)
+                          ;; for marked
+                          '(execute-extended-command nil "dired-do-async-shell-command" nil)
+                          ;; for single
+                          '(dired-map-over-marks (browse-url-of-dired-file) nil)
+                          ))
+
+
+<a id="org391c4e9"></a>
+
+# Dired: toggle mark - a single key for all marks
+
+By default mark require you to select region or use mark and unmark separate commands. This is solvation:
+
+    (defun my/dired-toggle-marks ()
+      "Just toggle mark, line or region"
+      (interactive)
+      (if (region-active-p)
+          (dired-toggle-marks)
+        ;; else - select line and toggle mark
+        (save-excursion
+          (set-mark (line-beginning-position))
+          (end-of-line)
+          (dired-toggle-marks))
+        (forward-line) (dired-move-to-filename) ; forward line
+        ))
+    
+    (define-key dired-mode-map (kbd "m") #'my/dired-toggle-marks)
+
+
+<a id="orge17bd9a"></a>
+
+# Dired: what if I forgot to use flag and mark files for deletion?
+
+Here is a solution to switch between marks and deletion flags in Dired.
+
+We bind C-u d (dired-flag-file-deletion) - to our command that convert marks to tags and reverse.
+
+Here is how it works:
+
+1.  We count marks (new function for that)
+2.  If marks exist we convert them deletion flags
+3.  otherwise we convert deletion flags with marks (with our function)
+
+    (defun my/dired-count-files (&optional delflag)
+      "Count files and return count.
+    If DELFLAG is nil search for files with `dired-marker-char',
+    otherwise deletion flag `dired-del-marker'."
+      (let* ((dired-marker-char (if (null delflag)
+                                    dired-marker-char
+                                  ;; else
+                                  dired-del-marker))
+             (regexp (dired-marker-regexp))
+             (count 0))
+        (if (save-excursion (goto-char (point-min))
+                            (re-search-forward regexp nil t))
+            (dired-map-over-marks (setq count (1+ count)) nil))
+        count))
+    
+    (defun my/dired-map-over-flags ( func )
+      "Call FUNC with point on each line of file with flag.
+    Deletion flag `dired-del-marker' is used."
+      (let* ((dired-marker-char dired-del-marker)
+             (regexp (dired-marker-regexp)))
+        (if (save-excursion (goto-char (point-min))
+                            (re-search-forward regexp nil t))
+            (dired-map-over-marks (funcall func) nil))))
+    
+    (defun my/dired-flag-file-deletion(arg &optional interactive)
+      "Invert marks with called with C-u and interactively."
+      (interactive (list current-prefix-arg t))
+      (let ((cf (my/dired-count-files))
+            (dired-marker-char-saved dired-marker-char))
+        (if (and arg interactive)
+            (if (> cf 0) ; marked exist
+                ;; convert all marks to flags (simple variant):
+                (progn
+                  (dired-map-over-marks (dired-flag-file-deletion nil) nil)
+                  (message (format "%s" cf))) ; print marked for Deletion count
+              ;; else - no marked -> toggle flags to marks
+              (my/dired-map-over-flags (lambda() (let ((dired-marker-char dired-marker-char-saved))
+                                                     (dired-mark  nil)))))
+          ;; else - normal dired-do-flagged-delete
+          (dired-flag-file-deletion arg interactive))))
+    
+    (keymap-set dired-mode-map "<remap> <dired-flag-file-deletion>" #'my/dired-flag-file-deletion)
+
+
+<a id="orgfbbbf30"></a>
 
 # Org Babel: Why alias is not working?
 
@@ -1120,14 +1390,23 @@ use this header:
     :shebang #!/bin/bash -i :session s1
 
 
-<a id="org25a89a0"></a>
+<a id="orgcded434"></a>
 
 # Org Babel: why :file dont save file to current directory?
 
 because session was started in another dire
 
 
-<a id="org4dbd2ce"></a>
+<a id="org1b9b6e0"></a>
+
+# Org Babel: How to C-c ' open buffer always at right?
+
+You need to set display-buffer parameters, because this functions is always called under the hood.
+
+See: [56](#orgecb1fbe)
+
+
+<a id="org54e459f"></a>
 
 # How emacs behavior differ when run under root?
 
@@ -1142,27 +1421,7 @@ C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
     vice versa), in both graphical user interface and terminal.
 
 
-<a id="org1496c27"></a>
-
-# Abort minibuffer everywhere if C-g pressed.
-
-Did you notice, that C-g in normal buffer don't abort minibuffer? It
- is because they require separate abortion. Here is fix for that:
-
-    (defun my/keyboard-quit-with-minubuffer()
-      "Abort minibuffer when in normal buffer or in isearch-mode."
-      (interactive)
-      (when isearch-mode
-        (isearch-abort))
-      (if (switch-to-minibuffer)
-            (minibuffer-keyboard-quit))
-      (keyboard-quit))
-    
-    (global-set-key "\C-g" #'my/keyboard-quit-with-minubuffer)
-    (define-key isearch-mode-map "\C-g" #'my/keyboard-quit-with-minubuffer)
-
-
-<a id="org21e007a"></a>
+<a id="org1b66dca"></a>
 
 # How to use TAB for templates, and don't install Yasnippet and others?
 
@@ -1226,7 +1485,7 @@ In this code we add company-abbrev to list of company-backends that
                                        company-dabbrev))))
 
 
-<a id="orgc667d76"></a>
+<a id="org02f9e69"></a>
 
 ## links
 
@@ -1235,7 +1494,7 @@ In this code we add company-abbrev to list of company-backends that
 -   abbrevs <https://www.gnu.org/software/emacs/manual/html_node/emacs/Abbrevs.html#Abbrevs>
 
 
-<a id="org1450373"></a>
+<a id="orgdc2c0c0"></a>
 
 # How to copy current file and current line to clipboard?
 
@@ -1250,40 +1509,7 @@ In this code we add company-abbrev to list of company-backends that
     (define-key global-map (kbd "C-c z") #'my/copy-current-line-position-to-clipboard)
 
 
-<a id="org5aeccb0"></a>
-
-# How to make tab-bar-mode behave like tabs in browsers and show buffer-menu?
-
-Solution with external tab-bar-buffers package:
-
-    M-x package-install RET tab-bar-buffers
-
-Add to ~/.emacs :
-
-    (tab-bar-buffers-mode t)
-    (tab-bar-mode t)
-    (global-set-key (kbd "C-M-a") #'tab-previous) ; shadow beginning-of-defun
-    (global-set-key (kbd "C-M-e") #'tab-next) ; shadow end-of-defun
-
-But tab-bar-buffers have bugs for now.
-
-Alternative is to use tabs per window and show buffers with same mode.
-This may be even better solution:
-
-    (global-tab-line-mode t)
-    (setopt tab-line-tabs-function #'tab-line-tabs-mode-buffers)
-    (global-set-key (kbd "C-M-a") #'tab-line-switch-to-prev-tab) ; shadow beginning-of-defun
-    (global-set-key (kbd "C-M-e") #'tab-line-switch-to-next-tab) ; shadow end-of-defun
-
-C-M-a/e used in some modes like c-mode, you should unset it.
-
-    (add-hook 'c-mode-common-hook (lambda ()
-      (local-unset-key (kbd "C-M-a")) ; used for tabs ; beginning-of-defun
-      (local-unset-key (kbd "C-M-e"))
-    )
-
-
-<a id="orgd0ef7ce"></a>
+<a id="orgd2090ec"></a>
 
 # How to edit multiple position or multiple cursors?
 
@@ -1292,7 +1518,7 @@ Package multiple-cursors.
 This package saves permissions to ~/.emacs.d/.mc-lists.el
 
 
-<a id="orgac4927f"></a>
+<a id="org8460e0c"></a>
 
 ## Obsolate example of rectangular edition. limited to rectangle.
 
@@ -1321,9 +1547,462 @@ Ways to select:
 3.  C-x SPC  ; activate rectangle
 
 
-<a id="org971ca40"></a>
+<a id="org0a83a3e"></a>
 
 # GUI: How to reduce delay for minibuffer when F1 or C-x is pressed?
 
     (setq echo-keystrokes 0.2)
+
+
+<a id="orgecb1fbe"></a>
+
+# GUI: Why splitting window with C-x 3, C-x 2 works strage?
+
+Because the begining of the screen is upper left corner.
+
+When we split window we wait that something will appear at the left or
+ at the bottom, we move our eyes, move cursor and did not found it. By
+ default left and upper window will be selected after split.
+
+To select right window or bottom window after split-window:
+
+    (defun my/split-window-horizontally()
+      (interactive)
+      (select-window (split-window-horizontally)))
+    (defun my/split-window-vertically()
+      (interactive)
+      (select-window (split-window-vertically)))
+    (global-set-key "\C-x3" #'my/split-window-horizontally)
+    (global-set-key "\C-x2" #'my/split-window-vertically)
+
+"\C-x3" may be used to split windows before calling C-x C-j
+ dired-jump. We can simplify this workflow by compose this two action
+ in one C-u C-x C-j this way:
+
+    (defun my/dired-jump (args)
+      "Open Dired at left side, or just open Dired."
+      (interactive "P")
+      (if  args
+          (split-window-horizontally))
+      (dired-jump))
+    (global-set-key (kbd "C-x C-j") #'my/dired-jump)
+
+To open file at right window in Dired we can set
+ display-buffer-base-action variable to function
+ display-buffer-in-previous-window with right window as a
+ parameter. (see "IF RIGHT WINDOW EXIST")
+
+    (defun my/dired-find-file-other-window(&rest args)
+      "Use window at right or create a new one."
+      (interactive)
+      (let
+          ((display-buffer-base-action
+            (list '(
+               ;; display-buffer--maybe-same-window  ;FIXME: why isn't this redundant?
+               display-buffer-reuse-window ; pop up bottom window
+               display-buffer-in-previous-window ;; IF RIGHT WINDOW EXIST
+               display-buffer-in-side-window ;; right side window - MAINLY USED
+               display-buffer--maybe-pop-up-frame-or-window ;; create window
+               ;; ;; If all else fails, pop up a new frame.
+               display-buffer-pop-up-frame )
+              '(window-width . 0.8) ; 80 percent
+              (if (window-in-direction 'right)
+                  (cons 'previous-window (window-in-direction 'right)))
+              '(side . right))))
+    (apply #'dired-find-file-other-window args)))
+    
+    (define-key dired-mode-map "\M-o" #'my/dired-find-file-other-window)
+
+
+<a id="orgca32e46"></a>
+
+# GUI: Selecting Buffers, tab-bar-mode, like tabs in browser
+
+It is a problem in any GUI - how to switch between opened tasks.
+
+Default approaches:
+
+-   C-<f10>		buffer-menu-open - for X only
+-   C-x C-b		list-buffers - open list at the bottom but don't select window
+-   C-x b		switch-to-buffer - switch to recent buffer
+-   C-u C-x C-b		list-buffers - filter buffers visiting files
+-   M-x buffer-menu	open in current window
+-   C-x LEFT/RIGHT	previous-buffer/next-buffer
+
+Disadvantage of this approaches is that you can not guess about count
+ of buffers before interactions and there is two/three interactions
+ required:
+
+1.  open list
+2.  select/search item.
+3.  open buffer
+
+To solve this there are built-in minor modes (works in console too):
+
+-   tab-bar-mode - tabs in all frames (global).
+-   tab-line-mode - tabs per window (local and global).
+
+
+<a id="orgdd0e62b"></a>
+
+## tab-bar
+
+
+<a id="org0aad836"></a>
+
+## tab-line-mode
+
+Tabs per window. May show buffers with same mode.
+
+    (global-tab-line-mode t)
+    (setopt tab-line-tabs-function #'tab-line-tabs-mode-buffers)
+    (global-set-key (kbd "C-M-a") #'tab-line-switch-to-prev-tab) ; shadow beginning-of-defun
+    (global-set-key (kbd "C-M-e") #'tab-line-switch-to-next-tab) ; shadow end-of-defun
+
+C-M-a/e is used in some modes like c-mode, you should unset it.
+
+    (add-hook 'c-mode-common-hook (lambda ()
+      (local-unset-key (kbd "C-M-a")) ; used for tabs ; beginning-of-defun
+      (local-unset-key (kbd "C-M-e"))))
+
+
+<a id="orga76cecc"></a>
+
+## Solution with external tab-bar-buffers package:
+
+    M-x package-install RET tab-bar-buffers
+
+Add to ~/.emacs :
+
+    (tab-bar-buffers-mode t)
+    (tab-bar-mode t)
+    (global-set-key (kbd "C-M-a") #'tab-previous) ; shadow beginning-of-defun
+    (global-set-key (kbd "C-M-e") #'tab-next) ; shadow end-of-defun
+
+But tab-bar-buffers have bugs for now.
+
+
+<a id="org57f411e"></a>
+
+# GUI: How to switch to recent buffer and ignore system buffers like **Buffer List**?
+
+You can switch to recent buffer with keys:
+
+-   C-x <left>/<right>		previous-buffer/next-buffer
+-   C-x b switch-to-buffer RET
+
+From documentation we knew, how to switch to recent buffer.
+
+    (switch-to-buffer (other-buffer (current-buffer) t))
+
+But all this methods is long or don't ignore system buffers, how to fix it?
+
+Here we define ignore list, get buffer-list and filter system and our ignore list. The first entry in buffer-list is a recent buffer.
+
+    (defun my/other-buffer (&optional arg)
+      "Switch to other buffer, ie `other-buffer' without system buffers."
+      (interactive)
+      (let ((ignored-system-buffers '("*Messages*" "*Buffer List*")))
+        (switch-to-buffer
+         (seq-find (lambda (b) ; get first good one
+                     (and
+                      (/= (aref (buffer-name b) 0) ?\s)
+                      (buffer-live-p b)
+                      (not (member (buffer-name b)
+                                   ignored-system-buffers))))
+                   (cdr (buffer-list))))))
+    
+    (global-set-key (kbd "C-x C-b") #'my/other-buffer) ; shadow `downcase-region'
+
+
+<a id="orga24e3a0"></a>
+
+# GUI: How to open file in frame with the same major mode files?
+
+This solution works if tab-line mode activated in every frame.
+
+    (defun my/find-file-frame (filename)
+      "Open file in frame with the same mode buffer. If no frame was
+    found the new one will be created. Used with `tab-line-mode'
+    with (setopt tab-line-tabs-function 'tab-line-tabs-mode-buffers).
+    Steps: 1) create buffer. 2) found buffer in frame with tab-line-mode.
+    3) raise frame."
+      (let* ((b (find-file-noselect filename))
+            (f (cdr
+                (seq-find (lambda (x) (seq-contains-p (car x) b))
+                          (mapcar  (lambda (x) (select-frame x)
+                                     (cons (funcall tab-line-tabs-function) x)) (frame-list-z-order))))))
+        (if f
+            (progn
+              (raise-frame f)
+              (switch-to-buffer b))
+          ;; else
+          (switch-to-buffer-other-frame b))))
+
+More general approach based on major mode of opened buffer per frame
+ and don't require tab-line-mode:
+
+    (defun my/find-file-frame (filename)
+      "Open file in frame with the same mode buffer. If no frame was
+    found the new one will be created. Used with `tab-line-mode'
+    with (setopt tab-line-tabs-function 'tab-line-tabs-mode-buffers).
+    Steps: 1) create buffer. 2) found frame with same major mode.
+    3) select buffer in that frame and raise it."
+      (let* ((b (find-file-noselect filename))
+             ;; ((mode . frame) ...)
+             (mf (mapcar (lambda (x) (with-current-buffer (car x) (cons major-mode (cdr x))))
+                         (seq-filter (lambda (x) (car x)) ; filter nil
+                                     ;; ((buffer . frame)...)
+                                     (mapcar  (lambda (x)  (cons (window-buffer (frame-root-window x)) x))
+                                              (frame-list-z-order)))))
+             (f (cdr (with-current-buffer b
+                 (seq-find (lambda (x) (derived-mode-p (car x))) mf)))))
+        (if f
+            (progn
+              (select-frame f)
+              (switch-to-buffer b)
+              (raise-frame f))
+          ;; else
+          (switch-to-buffer-other-frame b))
+        ))
+
+
+<a id="orgdd8318c"></a>
+
+# GUT: Abort minibuffer everywhere if C-g pressed.
+
+Did you notice, that C-g in normal buffer don't abort minibuffer? It
+ is because they require separate abortion. Here is fix for that:
+
+    (defun my/keyboard-quit-with-minubuffer()
+      "Abort minibuffer when in normal buffer or in isearch-mode."
+      (interactive)
+      (when isearch-mode
+        (isearch-abort))
+      (if (switch-to-minibuffer)
+            (minibuffer-keyboard-quit))
+      (keyboard-quit))
+    
+    (global-set-key "\C-g" #'my/keyboard-quit-with-minubuffer)
+    (define-key isearch-mode-map "\C-g" #'my/keyboard-quit-with-minubuffer)
+
+
+<a id="org5c069b1"></a>
+
+# How to kill all buffers and duplicate frames?
+
+In this solution we define exceptions, lowercase them, after that we
+ get (buffer-list) and filter with our exceptions, system, alive and
+ current buffer. Finally, kill left buffers.
+
+We don't kill buffer if its name contains any of 'my/kill-buffer-exceptions'.
+
+If buffer-menu is opened (current-buffer) still point to previous
+ buffer, to prevent killing buffer-menu we filter buffer of
+ selected-window also.
+
+    ;; ------------------------ kill other buffers
+    (defvar my/kill-buffer-exceptions
+      (mapcar #'downcase '("Messages" "emacs-file" "scratch"))
+      "Any part of buffer name.")
+    (defun my/kill-buffer-testfn (key lcar)
+      (string-match-p (regexp-quote key) lcar))
+    
+    (defun my/kill-other-buffers ()
+        "Kill all other buffers."
+        (mapc 'kill-buffer
+              (delq (window-buffer (selected-window)) ; filter buffer-menu in current window
+              (delq (current-buffer) ; filter current buffer
+                    ;; filter alive and not system
+                    (seq-filter (lambda (b) (and (buffer-live-p b) ; filter alive
+                                                 (/= (aref (buffer-name b) 0) ?\s) ; filter system
+                                                 ;; filter exceptions
+                                                 (not (seq-contains-p my/kill-buffer-exceptions
+                                                                      (downcase (buffer-name b))
+                                                                 #'my/kill-buffer-testfn))))
+                                (seq-uniq (buffer-list)))))))
+    
+    ;; ------------------------ kill other frames
+    (defun my/member-frame(frame frames)
+      "Compare list of windows of FRAME with every frame in FRAMES."
+      (seq-contains-p
+       ;; sequence
+       (mapcar (lambda (x) (mapcar #'window-buffer (window-list x))) frames)
+       ;; element
+       (mapcar #'window-buffer (window-list frame))))
+    
+    (defun my/drop-frame-duplicates ()
+      "Compare window list by `my/member-frame' function and kill others."
+        (let ((duplicates '())
+              (unique-items '()))
+          (dolist (item (frame-list-z-order))
+            (if (my/member-frame item unique-items)
+                (push item duplicates)
+              (push item unique-items)))
+          (mapc #'delete-frame duplicates)))
+    
+    ;; -------------------------- all together
+    (defun my/kill-other-buffers-and-frame-duplicates ()
+      (interactive)
+      (my/kill-other-buffers)
+      (my/drop-frame-duplicates))
+    
+    (global-set-key (kbd "C-x !") #'my/kill-other-buffers-and-frame-duplicates)
+
+
+<a id="org245dcd0"></a>
+
+# How to create a blog from a single file?
+
+1.  write a single Org with one header per page or part of page
+2.  for every header:  C-c C-x p (org-set-property) EXPORT\_FILE\_NAME - to location and name of a file
+3.  C-c e - export buffer (to HTML) with my advice. Every root-subtree to a file defined in EXPORT\_FILE\_NAME for header.
+4.  apply SSGs to exported HTML files
+5.  sync-uppload to site
+
+Problem: Org don't support EXPORT\_FILE\_NAME per subtree. see <https://orgmode.org/manual/Export-Settings.html>
+
+Advice that allow to use EXPORT\_FILE\_NAME per subtree to set export location for subtree.
+
+    (defun my/org-html-export-to-html-all-subtrees (orig-fun &optional async subtreep visible-only body-only ext-plist)
+      "Apply export to HTML for every subtree when called for buffer."
+      (if (null subtreep)
+          (save-excursion
+            (while (let ((p (point)))
+                     (org-forward-heading-same-level nil)
+                     (not (eq (point) p)))
+              ;; export subtree
+              (org-html-export-to-html async t visible-only body-only ext-plist)))
+        ;; else
+        (apply orig-fun async subtreep visible-only body-only ext-plist)))
+    
+    (advice-add 'org-html-export-to-html :around #'my/org-html-export-to-html-all-subtrees)
+
+
+<a id="org1958a6e"></a>
+
+# How to fix vertico in Dired mode to properly handle path?
+
+Here we redefine vertico-insert function and and make proper clearing
+ of minubuffer and If current mode is Dired we fix candidate string
+ with expand-file-name function.
+
+    (defun vertico-insert (&optional exit-flag)
+      "Insert current candidate in minibuffer."
+      (interactive)
+      (when (> vertico--total 0)
+        (let ((vertico--index (max 0 vertico--index)))
+          (if exit-flag ; - RET
+              (insert (prog1
+                          (vertico--candidate) ; return value
+                        (delete-minibuffer-contents)))
+            ;; else - TAB - completion
+            ;; concat vartiant and fix // double + reset pointer position after
+              (let ((efn (concat (vertico--candidate) (buffer-substring (point) (point-max))))
+                    (pd (- (point-max) (point)))) ; text lenght after pointer
+                ;; (print pd)
+                (delete-minibuffer-contents)
+                ;; (print (minibuffer-prompt))
+                (if (and (with-current-buffer (other-buffer (current-buffer) t) (derived-mode-p 'dired-mode))
+                         (or (string-match "^Rename " (minibuffer-prompt))
+                             (string-match "^Find file: " (minibuffer-prompt))))
+                    (insert (expand-file-name efn))
+                  ;; else
+                  (insert efn))
+                (if (> pd 0) ; if we renaming preserve pointer after variant
+                    (goto-char (- (+ (minibuffer-prompt-end) (length (vertico--candidate))) 1 ))))))))
+
+
+<a id="orgebbe53d"></a>
+
+# How to enable ELisp mode in any buffer, or "There is no ElDoc support in this buffer."?
+
+M-x lisp-mode.
+
+To solve error:
+
+    M-: (eldoc--eval-expression-setup)
+
+IDK why this problem exist.
+
+
+<a id="org9161e3a"></a>
+
+# How to start notmuch with different .notmuch-config for different emails boxes?
+
+Emacs call "notmuch" process. There is no in-Emacs variable to set path to config.
+You should set environment variable "NOTMUCH\_CONFIG" for "notmuch" process.
+
+    (setenv "NOTMUCH_CONFIG" "/home/u/.notmuch-config-gmx")
+
+Here is full Bash alias to start Emacs with different configs:
+en-email() {
+    emacs &#x2013;eval "(progn (setenv \\"NOTMUCH\_CONFIG\\" \\"*home/user*.notmuch-config-email\\") ( notmuch ))"
+}
+
+
+<a id="org0159cb4"></a>
+
+# How to create link to certain place in file and open it from bash fast?
+
+We create two functions 1) create link in clipboard
+
+There is built-in ability to open file at line number:
+
+    emacsclient +4:3 FILE
+
+at line 4, column 3.
+
+    (defun my/copy-link-to-clipboard ()
+      "Copy to clipboard:
+    - for org mode files: link generated by `org-store-link'
+    - for other files '</path/to/file>:<line-number>'."
+      (interactive)
+      (let ((link))
+      (if (derived-mode-p 'org-mode)
+          (setq link (substring-no-properties (org-store-link nil)))
+        ;; else - not Org file
+        (setq link
+            (concat "file:" (buffer-file-name) "::" (number-to-string (line-number-at-pos)))))
+      (kill-new link)
+      (message (concat link "\t- copied to clipboard"))))
+    
+    ;; shadow `append-next-kill'
+    (define-key global-map (kbd "C-M-w") #'my/copy-link-to-clipboard)
+
+We bound this to C-M-w key.
+
+And function 2) that will be called from bash to open that link:
+
+    (defun my/open-link(arg)
+      "Open org link, generated by `my/copy-link-to-clipboard'."
+      (let
+          ((display-buffer-base-action
+            (list '(
+               display-buffer-reuse-window ; pop up bottom window
+               display-buffer--maybe-pop-up-frame-or-window ;; create window
+               ;; ;; If all else fails, pop up a new frame.
+               display-buffer-pop-up-frame ))))
+        (org-link-open-from-string arg)))
+
+Here is example of ~/.bash\_aliases file with alias with inserted link from clipboard created pointing to org file:
+
+    alias iaa='emacsclient --alternate-editor=emacs --create-frame --eval "(my/open-link \"file:~/nix::<<config_kernel_gentoo>>\")"'
+
+
+<a id="orgc03a5e9"></a>
+
+# How to kill Python Babel when execute source block in Org mode?
+
+
+<a id="org13d0c3a"></a>
+
+# ELisp: how to load new package for easy navigation?
+
+    (add-to-list 'load-path "~/path/folder")
+    M-x load-library RET file
+
+it will (load “~/path/folder/file.el”) and it’s dependencies defined
+in require statements. Be careful, it will load byte-compiled “.elc”
+files.
 

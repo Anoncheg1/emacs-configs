@@ -1102,6 +1102,10 @@ use this header:
 : :shebang #!/bin/bash -i :session s1
 * Org Babel: why :file dont save file to current directory?
 because session was started in another dire
+* Org Babel: How to C-c ' open buffer always at right?
+You need to set display-buffer parameters, because this functions is always called under the hood.
+
+See: [[GUI: Why splitting window with C-x 3, C-x 2 works strage?]]
 * How emacs behavior differ when run under root?
 C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
 - TAB is ascii C-i. ,
@@ -1111,23 +1115,6 @@ C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
 - "TAB" is also equivalent to "C-i", in both graphical user interface
  and terminal. If you define key by "TAB", it also defines "C-i" (and
  vice versa), in both graphical user interface and terminal.
-
-* Abort minibuffer everywhere if C-g pressed.
-Did you notice, that C-g in normal buffer don't abort minibuffer? It
- is because they require separate abortion. Here is fix for that:
-#+begin_src elisp
-(defun my/keyboard-quit-with-minubuffer()
-  "Abort minibuffer when in normal buffer or in isearch-mode."
-  (interactive)
-  (when isearch-mode
-    (isearch-abort))
-  (if (switch-to-minibuffer)
-        (minibuffer-keyboard-quit))
-  (keyboard-quit))
-
-(global-set-key "\C-g" #'my/keyboard-quit-with-minubuffer)
-(define-key isearch-mode-map "\C-g" #'my/keyboard-quit-with-minubuffer)
-#+end_src
 
 * How to use TAB for templates, and don't install Yasnippet and others?
 There is *Abbrevs* feature that replace word before cursor with
@@ -1420,6 +1407,23 @@ Steps: 1) create buffer. 2) found frame with same major mode.
       (switch-to-buffer-other-frame b))
     ))
 #+end_src
+* GUT: Abort minibuffer everywhere if C-g pressed.
+Did you notice, that C-g in normal buffer don't abort minibuffer? It
+ is because they require separate abortion. Here is fix for that:
+#+begin_src elisp
+(defun my/keyboard-quit-with-minubuffer()
+  "Abort minibuffer when in normal buffer or in isearch-mode."
+  (interactive)
+  (when isearch-mode
+    (isearch-abort))
+  (if (switch-to-minibuffer)
+        (minibuffer-keyboard-quit))
+  (keyboard-quit))
+
+(global-set-key "\C-g" #'my/keyboard-quit-with-minubuffer)
+(define-key isearch-mode-map "\C-g" #'my/keyboard-quit-with-minubuffer)
+#+end_src
+
 * How to kill all buffers and duplicate frames?
 In this solution we define exceptions, lowercase them, after that we
  get (buffer-list) and filter with our exceptions, system, alive and
@@ -1596,3 +1600,9 @@ And function 2) that will be called from bash to open that link:
 Here is example of ~/.bash_aliases file with alias with inserted link from clipboard created pointing to org file:
 : alias iaa='emacsclient --alternate-editor=emacs --create-frame --eval "(my/open-link \"file:~/nix::<<config_kernel_gentoo>>\")"'
 * How to kill Python Babel when execute source block in Org mode?
+* ELisp: how to load new package for easy navigation?
+: (add-to-list 'load-path "~/path/folder")
+: M-x load-library RET file
+ it will (load “~/path/folder/file.el”) and it’s dependencies defined
+ in require statements. Be careful, it will load byte-compiled “.elc”
+ files.
