@@ -1,10 +1,76 @@
-* How to use C-h as backspace as it works in console?
+* Keys: How to use C-h as backspace as it works in console?
 : (define-key (current-global-map) (kbd "C-h") 'delete-backward-char)
 backspace at search
 : (define-key isearch-mode-map "\C-h" #'isearch-delete-char) ; delete character during search C-s
 
 and for M-h word:
 : (global-set-key (kbd "M-h") #'backward-kill-word)  ; redefine mark-paragraph
+* Keys: How to use TAB for templates, and don't install Yasnippet and others?
+There is *Abbrevs* feature that replace word before cursor with
+ something. And there is *Skeletons* languages for tamplates that
+ insert some text and can prompt for user input.  They can be used
+ together.
+
+Steps:
+1. we define skeleton template with *define-skeleton*
+2. we define *define-abbrev-table* with link to skeleton
+3. we call *expand-abbrev* function
+
+There is a little problem, TAB key is overloaded with indentation, Org
+ staff and we want to add *expand-abbrev* function to this.
+
+M-x list-abbrevs - to get list of defined templates.
+
+Full code (greeTAB -> greetings!):
+#+begin_src elisp :results output :exports both
+(define-skeleton example
+  "Define skeleton template."
+  "" "greetings!")
+
+;; Abbrev table for Org-mode
+(define-abbrev-table 'org-mode-abbrev-table
+  '(
+    ("gree" "" example)
+  ))
+
+;; TAB key rebinding
+(defun my/indent-or-complete (arg)
+  (interactive "P")
+  (if (or (looking-back "\\." 1) (looking-at "\\_>")) ;; if character before cursor is last one of a word or dot (.)
+      (progn
+        (if (not (expand-abbrev)) ;; try abbrev first
+            (if (not (completion-at-point))
+                (progn
+                  (company-complete-common)
+                  )
+              )
+          )
+        )
+    ;; else
+    (execute-extended-command nil "indent-for-tab-command" nil) ; cycle line
+  ))
+
+(global-set-key (kbd "TAB") #'my/indent-or-complete)
+#+end_src
+
+You can also use company mode to show you available abbrevs.
+
+In this code we add company-abbrev to list of company-backends that
+ define priority for recomendations in Org mode.
+#+begin_src elisp :results output :exports both
+(add-hook 'org-mode-hook (lambda ()
+                           (setq company-backends
+                                 '(company-math-symbols-unicode
+                                   company-capf company-keywords
+                                   company-files company-abbrev
+                                   company-dabbrev))))
+#+end_src
+
+** links
+- https://www.gnu.org/software/emacs/manual/html_node/autotype/index.html
+- skeletons + abbrevs https://www.gnu.org/software/emacs/manual/html_node/autotype/Skeletons-as-Abbrevs.html
+- abbrevs https://www.gnu.org/software/emacs/manual/html_node/emacs/Abbrevs.html#Abbrevs
+
 * How to remove space character after Abbrev completion?
 as pointed out in documentation https://www.gnu.org/software/emacs/manual/html_node/autotype/Skeleton-Language.html
 you can use -1 in skeleton, like this:
@@ -20,165 +86,6 @@ you can use -1 in skeleton, like this:
 
 To prevent new line after insertion use:
 : (setq skeleton-end-newline nil)
-* How to bind TAB key to Expansion function in org-mode and don't break org-cycle?
-One of approaches is to bind TAB key for check if the pointer is
- located at the Org header then execute one safe expansion or org-cycle only.
-And if the pointer is not on the header then use more aggressive expansion function.
-#+begin_src elisp :results output :exports both
-(defun my/org-tab ()
-  "expand abbrevs with TAB key and don't break org-cycle"
-  (interactive)
-  (if (org-match-line org-outline-regexp)
-      (if (not (expand-abbrev)) ;; if on header try abbrevs only
-          (call-interactively 'org-cycle))
-    ;; else - if not on header use other expander
-    (if (not (call-interactively 'hippie-expand))
-            (call-interactively 'org-cycle)) ;; useful for Tables
-    )
-  )
-
-(add-hook 'org-mode-hook (lambda ()
-                           (local-set-key (kbd "TAB") 'my/org-tab)))
-#+end_src
-
-But expand-abbrev have a bug and expand even when if abbrev located at previous line.
-
-To prevent this behavior we use
-: (looking-back "\n\\** ?" 10)
-that will return t if we at the begining of Org header.
-
-Here is full code:
-#+begin_src elisp :results output :exports both
-(defun my/org-tab ()
-  "expand abbrevs with TAB key and don't break org-cycle"
-  (interactive)
-  ;; if on header close to *** begining of header
-  (if (and (org-match-line org-outline-regexp)
-           (save-excursion (looking-back "\n\\** ?" 10))) ;; fix for expand-abbrev
-      (call-interactively 'org-cycle)
-    ;; else far in header
-    (if (org-match-line org-outline-regexp)
-        (if (not (expand-abbrev)) ;; if on header try abbrevs only
-            (call-interactively 'org-cycle)
-          )
-      ;; else - if not on header use hippie expander
-      (if (not (call-interactively 'expand-abbrev))
-          (if (not (call-interactively 'company-complete))
-              (call-interactively 'org-cycle)  ;; useful for org Tables
-            ))
-      )
-    )
-  )
-(add-hook 'org-mode-hook (lambda ()
-                           (local-set-key (kbd "TAB") 'my/org-tab)))
-#+end_src
-
-* How to disable hiding of [[] [ links ] ] in Org mode? This is agains markdown principles.
-: (setq org-link-descriptive nil)
-or
-: M-x customize-variable org-link-descriptive
-
-* How to use regex template for isearch with C-M-s command, e.g. search in Org headers?
-When we add hook we use LOCAL flag to use hook per mode, to be able add template per mode.
-
-org-goto is default search in Org headers but it have many disadvantages, here is our replacement for it:
-#+begin_src python :results output :exports both :session s1
-(defun my/org-header-search ()
-  (if isearch-regexp
-      (progn
-        (setq isearch-case-fold-search 1)   ; make searches case insensitive
-        (setq case-fold-search 1)   ; make searches case insensitive
-        (isearch-push-state)
-        ;; (setq string "^*.*")
-        (let ((string "^*.*"))
-          (isearch-process-search-string
-           string (mapconcat 'isearch-text-char-description string ""))))))
-
-(add-hook 'org-mode-hook (lambda ()
-  (add-hook 'isearch-mode-hook 'my/org-header-search nil t) ;; LOCAL = t
-)
-#+end_src
-* How to set timeout on Org-mode code block execution by C-c C-c?
-#+begin_src elisp :results output :exports both
-(defun my/time-call (time-call &rest args)
-     (let ((org-babel-python-command "/usr/bin/timeout 15 python"))
-       (apply time-call args)))
-   (advice-add 'org-babel-python-evaluate-external-process :around #'my/time-call)
-#+end_src
-Sadly, it doesn't work with :session and require per language configuration.
-
-We can fix it by adding our code before every code blocks that will be executed:
-#+begin_src python :results output :exports both :session s1
-(defun my/f-call (func-call &rest args)
-  (let ((body
-        (concat  "import signal
-
-# Register an handler for the timeout
-def handler(signum, frame):
-    print(\"Forever is over!\")
-    raise Exception(\"end of time\")
-
-# Register the signal function handler
-signal.signal(signal.SIGALRM, handler)
-
-# Define a timeout for your function
-signal.alarm(15) # timeout 15 seconds
-" (car args)))
-        (params (cdr args)))
-
-  (apply func-call body params)))
-
-(advice-add 'org-babel-execute:python :around #'my/f-call)
-#+end_src
-
-* How to go to the first item in Org-mode list and fix org-backward-paragraph?
-
-first element:
-: M-: (goto-char (car (car (org-list-parents-alist (org-list-struct)))))
-
-last element:
-: M-: (goto-char (car (car (last (org-list-parents-alist (org-list-struct))))))
-
-
-Fix for org-backward-paragraph to skip lists
-#+begin_src elisp :results output :exports both
-(defun my/org-backward-paragraph ()
-  "fix to skip whole list"
-  (interactive)
-  (let ((element (org-element-at-point)))
-    (pcase (org-element-type element)
-      (`item ;; get first element of a list
-       (let ((newp (car (car (org-list-parents-alist (org-list-struct))))))
-         (if (eq newp (point)) ;; if at same point use old
-             (call-interactively 'org-backward-paragraph)
-           (goto-char newp)))
-       )
-      ;; other:
-      (_ (call-interactively 'org-backward-paragraph)))))
-
-(defun my/org-forward-paragraph ()
-  "fix to skip whole list"
-  (interactive)
-  (let ((element (org-element-at-point)))
-    (pcase (org-element-type element)
-      (`item ;; get first element of a list
-       (let ((newp (car (car (last (org-list-parents-alist (org-list-struct)))))))
-         (if (eq newp (point))
-             (call-interactively 'org-forward-paragraph)
-           (goto-char newp)))
-       )
-      ;; other:
-      (_ (call-interactively 'org-forward-paragraph))
-      )
-    )
-  )
-
-(add-hook 'org-mode-hook (lambda ()
-                           (local-set-key (kbd "M-p") 'my/org-backward-paragraph)
-                           (local-set-key (kbd "M-n") 'my/org-forward-paragraph)
-                           )
-#+end_src
-
 * How to highlight something and unhighlight and save it?
 
 1) M-s h ./r/p/l regexp RET
@@ -189,23 +96,6 @@ How to save and automatically load highlighted text?
 2) add to file first line: ;-*- hi-lock-file-patterns-policy: (lambda (x) 't); eval: (hi-lock-mode 1) ; -*-
 
 doc https://www.gnu.org/software/emacs/manual/html_node/emacs/Highlight-Interactively.html
-* How to jump to Org-mode src-block's result and key to open session in window
-#+begin_src elisp  :results output :exports both
-(add-hook 'org-mode-hook (lambda ()
-  (local-set-key (kbd "C-c c") (lambda () (interactive) (goto-char (org-babel-where-is-src-block-result))))
-
-(local-set-key (kbd "C-c M-c") (lambda () (interactive)
-                                                            "open session of current source block in right window"
-                                                            (if (org-babel-get-src-block-info)
-                                                                (progn
-                                                                  (delete-other-windows)
-                                                                  (split-window-right)
-                                                                  (org-babel-pop-to-session-maybe)
-                                                                  (move-beginning-of-line nil)
-                                                                  (other-window 1))
-                                                              (message "No src-block here!"))))
-))
-#+end_src
 * How to fixed recover autosaved #file# that is older: show message and own my/recover-this file.
 To show message we add hook and surround server-execute with own
  function to repeat and check for #file#.
@@ -486,18 +376,6 @@ Just press C-c C-c on this block and "aaa" block will be executed
  automatically. (x values is not used)
 #+begin_src python :var x=aaa :session s1
 #+end_src
-* (partial) Org: How to prevent returning to begining of #+begin_src after C-m C-/ and C-m, org-return?
-This is because of org-return -> org--newline -> (newline nil 1) -> electric-indent-post-self-insert-function -> indent-according-to-mode()
- indent-for-tab-command ->
- org-babel-do-key-sequence-in-edit-buffer("\11") -> (org-babel-do-in-edit-buffer -> org-edit-src-code
-
-At least we can do not use indent-according-to-mode when open new line.
-
-Here we create new line and use simple (indent-relative) to previous line without calling org-babel dependent indentation.
-#+begin_src elisp :results output :exports both
-(add-hook 'org-mode-hook (lambda ()
-     (local-set-key (kbd "C-m") (lambda () (interactive) (newline) (indent-relative) ) )))
-#+end_src
 * How to search for Chinese pinyin and ignore tones?
 I coded my minor mode for this:
 https://github.com/Anoncheg1/pinyin-isearch/
@@ -731,6 +609,208 @@ e() {
     fi
 }
 #+end_src
+
+* Org: How to go to the first item in Org-mode list and fix org-backward-paragraph?
+
+first element:
+: M-: (goto-char (car (car (org-list-parents-alist (org-list-struct)))))
+
+last element:
+: M-: (goto-char (car (car (last (org-list-parents-alist (org-list-struct))))))
+
+
+Fix for org-backward-paragraph to skip lists
+#+begin_src elisp :results output :exports both
+(defun my/org-backward-paragraph ()
+  "fix to skip whole list"
+  (interactive)
+  (let ((element (org-element-at-point)))
+    (pcase (org-element-type element)
+      (`item ;; get first element of a list
+       (let ((newp (car (car (org-list-parents-alist (org-list-struct))))))
+         (if (eq newp (point)) ;; if at same point use old
+             (call-interactively 'org-backward-paragraph)
+           (goto-char newp)))
+       )
+      ;; other:
+      (_ (call-interactively 'org-backward-paragraph)))))
+
+(defun my/org-forward-paragraph ()
+  "fix to skip whole list"
+  (interactive)
+  (let ((element (org-element-at-point)))
+    (pcase (org-element-type element)
+      (`item ;; get first element of a list
+       (let ((newp (car (car (last (org-list-parents-alist (org-list-struct)))))))
+         (if (eq newp (point))
+             (call-interactively 'org-forward-paragraph)
+           (goto-char newp)))
+       )
+      ;; other:
+      (_ (call-interactively 'org-forward-paragraph))
+      )
+    )
+  )
+
+(add-hook 'org-mode-hook (lambda ()
+                           (local-set-key (kbd "M-p") 'my/org-backward-paragraph)
+                           (local-set-key (kbd "M-n") 'my/org-forward-paragraph)
+                           )
+#+end_src
+
+* Org: How to use regex template for isearch with C-M-s command, e.g. search in Org headers?
+When we add hook we use LOCAL flag to use hook per mode, to be able add template per mode.
+
+org-goto is default search in Org headers but it have many disadvantages, here is our replacement for it:
+#+begin_src python :results output :exports both :session s1
+(defun my/org-header-search ()
+  (if isearch-regexp
+      (progn
+        (setq isearch-case-fold-search 1)   ; make searches case insensitive
+        (setq case-fold-search 1)   ; make searches case insensitive
+        (isearch-push-state)
+        ;; (setq string "^*.*")
+        (let ((string "^*.*"))
+          (isearch-process-search-string
+           string (mapconcat 'isearch-text-char-description string ""))))))
+
+(add-hook 'org-mode-hook (lambda ()
+  (add-hook 'isearch-mode-hook 'my/org-header-search nil t) ;; LOCAL = t
+)
+#+end_src
+
+* Org: How to disable hiding of [[] [ links ] ] in Org mode? This is agains markdown principles.
+: (setq org-link-descriptive nil)
+or
+: M-x customize-variable org-link-descriptive
+
+* Org: How to bind TAB key to Expansion function in org-mode and don't break org-cycle?
+One of approaches is to bind TAB key for check if the pointer is
+ located at the Org header then execute one safe expansion or org-cycle only.
+And if the pointer is not on the header then use more aggressive expansion function.
+#+begin_src elisp :results output :exports both
+(defun my/org-tab ()
+  "expand abbrevs with TAB key and don't break org-cycle"
+  (interactive)
+  (if (org-match-line org-outline-regexp)
+      (if (not (expand-abbrev)) ;; if on header try abbrevs only
+          (call-interactively 'org-cycle))
+    ;; else - if not on header use other expander
+    (if (not (call-interactively 'hippie-expand))
+            (call-interactively 'org-cycle)) ;; useful for Tables
+    )
+  )
+
+(add-hook 'org-mode-hook (lambda ()
+                           (local-set-key (kbd "TAB") 'my/org-tab)))
+#+end_src
+
+But expand-abbrev have a bug and expand even when if abbrev located at previous line.
+
+To prevent this behavior we use
+: (looking-back "\n\\** ?" 10)
+that will return t if we at the begining of Org header.
+
+Here is full code:
+#+begin_src elisp :results output :exports both
+(defun my/org-tab ()
+  "expand abbrevs with TAB key and don't break org-cycle"
+  (interactive)
+  ;; if on header close to *** begining of header
+  (if (and (org-match-line org-outline-regexp)
+           (save-excursion (looking-back "\n\\** ?" 10))) ;; fix for expand-abbrev
+      (call-interactively 'org-cycle)
+    ;; else far in header
+    (if (org-match-line org-outline-regexp)
+        (if (not (expand-abbrev)) ;; if on header try abbrevs only
+            (call-interactively 'org-cycle)
+          )
+      ;; else - if not on header use hippie expander
+      (if (not (call-interactively 'expand-abbrev))
+          (if (not (call-interactively 'company-complete))
+              (call-interactively 'org-cycle)  ;; useful for org Tables
+            ))
+      )
+    )
+  )
+(add-hook 'org-mode-hook (lambda ()
+                           (local-set-key (kbd "TAB") 'my/org-tab)))
+#+end_src
+
+* (partial) Org: How to prevent returning to begining of #+begin_src after C-m C-/ and C-m, org-return?
+This is because of org-return -> org--newline -> (newline nil 1) -> electric-indent-post-self-insert-function -> indent-according-to-mode()
+ indent-for-tab-command ->
+ org-babel-do-key-sequence-in-edit-buffer("\11") -> (org-babel-do-in-edit-buffer -> org-edit-src-code
+
+At least we can do not use indent-according-to-mode when open new line.
+
+Here we create new line and use simple (indent-relative) to previous line without calling org-babel dependent indentation.
+#+begin_src elisp :results output :exports both
+(add-hook 'org-mode-hook (lambda ()
+     (local-set-key (kbd "C-m") (lambda () (interactive) (newline) (indent-relative) ) )))
+#+end_src
+
+* Org: Babel: How to jump to Org-mode src-block's result and key to open session in window
+#+begin_src elisp  :results output :exports both
+(add-hook 'org-mode-hook (lambda ()
+  (local-set-key (kbd "C-c c") (lambda () (interactive) (goto-char (org-babel-where-is-src-block-result))))
+
+(local-set-key (kbd "C-c M-c") (lambda () (interactive)
+                                                            "open session of current source block in right window"
+                                                            (if (org-babel-get-src-block-info)
+                                                                (progn
+                                                                  (delete-other-windows)
+                                                                  (split-window-right)
+                                                                  (org-babel-pop-to-session-maybe)
+                                                                  (move-beginning-of-line nil)
+                                                                  (other-window 1))
+                                                              (message "No src-block here!"))))
+))
+#+end_src
+
+* Org: Babel: How to set timeout on Org-mode code block execution by C-c C-c?
+#+begin_src elisp :results output :exports both
+(defun my/time-call (time-call &rest args)
+     (let ((org-babel-python-command "/usr/bin/timeout 15 python"))
+       (apply time-call args)))
+   (advice-add 'org-babel-python-evaluate-external-process :around #'my/time-call)
+#+end_src
+Sadly, it doesn't work with :session and require per language configuration.
+
+We can fix it by adding our code before every code blocks that will be executed:
+#+begin_src python :results output :exports both :session s1
+(defun my/f-call (func-call &rest args)
+  (let ((body
+        (concat  "import signal
+
+# Register an handler for the timeout
+def handler(signum, frame):
+    print(\"Forever is over!\")
+    raise Exception(\"end of time\")
+
+# Register the signal function handler
+signal.signal(signal.SIGALRM, handler)
+
+# Define a timeout for your function
+signal.alarm(15) # timeout 15 seconds
+" (car args)))
+        (params (cdr args)))
+
+  (apply func-call body params)))
+
+(advice-add 'org-babel-execute:python :around #'my/f-call)
+#+end_src
+
+* Org: Babel: Why alias is not working?
+shell execuded in noninteractive mode
+use this header:
+: :shebang #!/bin/bash -i :session s1
+* Org: Babel: why :file dont save file to current directory?
+because session was started in another dire
+* Org: Babel: How to C-c ' open buffer always at right?
+You need to set display-buffer parameters, because this functions is always called under the hood.
+
+See: [[GUI: Why splitting window with C-x 3, C-x 2 works strage?]]
 
 * Dired: how to open as a file manager
 : emacsclient -c -a emacs --eval "(dired \"$@\")"
@@ -1096,16 +1176,6 @@ Deletion flag `dired-del-marker' is used."
 
 (keymap-set dired-mode-map "<remap> <dired-flag-file-deletion>" #'my/dired-flag-file-deletion)
 #+end_src
-* Org Babel: Why alias is not working?
-shell execuded in noninteractive mode
-use this header:
-: :shebang #!/bin/bash -i :session s1
-* Org Babel: why :file dont save file to current directory?
-because session was started in another dire
-* Org Babel: How to C-c ' open buffer always at right?
-You need to set display-buffer parameters, because this functions is always called under the hood.
-
-See: [[GUI: Why splitting window with C-x 3, C-x 2 works strage?]]
 * How emacs behavior differ when run under root?
 C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
 - TAB is ascii C-i. ,
@@ -1116,71 +1186,6 @@ C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
  and terminal. If you define key by "TAB", it also defines "C-i" (and
  vice versa), in both graphical user interface and terminal.
 
-* How to use TAB for templates, and don't install Yasnippet and others?
-There is *Abbrevs* feature that replace word before cursor with
- something. And there is *Skeletons* languages for tamplates that
- insert some text and can prompt for user input.  They can be used
- together.
-
-Steps:
-1. we define skeleton template with *define-skeleton*
-2. we define *define-abbrev-table* with link to skeleton
-3. we call *expand-abbrev* function
-
-There is a little problem, TAB key is overloaded with indentation, Org
- staff and we want to add *expand-abbrev* function to this.
-
-M-x list-abbrevs - to get list of defined templates.
-
-Full code (greeTAB -> greetings!):
-#+begin_src elisp :results output :exports both
-(define-skeleton example
-  "Define skeleton template."
-  "" "greetings!")
-
-;; Abbrev table for Org-mode
-(define-abbrev-table 'org-mode-abbrev-table
-  '(
-    ("gree" "" example)
-  ))
-
-;; TAB key rebinding
-(defun my/indent-or-complete (arg)
-  (interactive "P")
-  (if (or (looking-back "\\." 1) (looking-at "\\_>")) ;; if character before cursor is last one of a word or dot (.)
-      (progn
-        (if (not (expand-abbrev)) ;; try abbrev first
-            (if (not (completion-at-point))
-                (progn
-                  (company-complete-common)
-                  )
-              )
-          )
-        )
-    ;; else
-    (execute-extended-command nil "indent-for-tab-command" nil) ; cycle line
-  ))
-
-(global-set-key (kbd "TAB") #'my/indent-or-complete)
-#+end_src
-
-You can also use company mode to show you available abbrevs.
-
-In this code we add company-abbrev to list of company-backends that
- define priority for recomendations in Org mode.
-#+begin_src elisp :results output :exports both
-(add-hook 'org-mode-hook (lambda ()
-                           (setq company-backends
-                                 '(company-math-symbols-unicode
-                                   company-capf company-keywords
-                                   company-files company-abbrev
-                                   company-dabbrev))))
-#+end_src
-
-** links
-- https://www.gnu.org/software/emacs/manual/html_node/autotype/index.html
-- skeletons + abbrevs https://www.gnu.org/software/emacs/manual/html_node/autotype/Skeletons-as-Abbrevs.html
-- abbrevs https://www.gnu.org/software/emacs/manual/html_node/emacs/Abbrevs.html#Abbrevs
 * How to copy current file and current line to clipboard?
 #+begin_src elisp :results output :exports both
 (defun my/copy-current-line-position-to-clipboard ()
@@ -1606,3 +1611,115 @@ Here is example of ~/.bash_aliases file with alias with inserted link from clipb
  it will (load “~/path/folder/file.el”) and it’s dependencies defined
  in require statements. Be careful, it will load byte-compiled “.elc”
  files.
+* ELisp: how to test Macros fast?
+We need to expand our macro and see that it is what we expect.
+
+It is possible only for simple macros:
+#+begin_src elisp :results output :exports both
+(print (let ((arg '3) (fun 'myfun))
+`(defun ,fun(,arg)
+     (progn
+       (with-current-buffer ,fun
+         (,fun ,arg))
+       (raise-frame (next-frame))))))
+#+end_src
+
+#+RESULTS:
+:
+: (defun myfun (arg) (progn (with-current-buffer myfun (myfun 3)) (raise-frame (next-frame))))
+
+* Ediff: How to get rid of switching to "control buffer"?
+Ediff create control buffer that have ediff-mode-map that is not available in "variants" files.
+
+To do that we save control buffer in buffer local variables of A, B
+ variants windows and execute own minor-mode with wrapped functions that
+ switching to control buffer to call original functions.
+
+This solution for default configuration when separate frame used,
+ i.e. *ediff-setup-windows-multiframe* function is activated under X
+ windows.
+#+begin_src elisp :results none :exports code :eval no
+(defvar my/ediff-control-buffer nil)
+
+(defmacro my/ediff-macro (fun)
+  (let ((command-name (intern (format "my/%s" fun))))
+  `(defun ,command-name ()
+     (interactive)
+     (with-current-buffer my/ediff-control-buffer
+       (call-interactively #',fun))
+     (raise-frame (next-frame)))))
+
+(my/ediff-macro ediff-previous-difference)
+(my/ediff-macro ediff-next-difference)
+(my/ediff-macro ediff-quit)
+(my/ediff-macro ediff-toggle-split)
+(my/ediff-macro ediff-toggle-hilit)
+(my/ediff-macro ediff-toggle-autorefine)
+(my/ediff-macro ediff-toggle-narrow-region)
+(my/ediff-macro ediff-update-diffs)
+(my/ediff-macro ediff-combine-diffs)
+(my/ediff-macro ediff-copy-A-to-B)
+(my/ediff-macro ediff-copy-B-to-A)
+(my/ediff-macro ediff-toggle-read-only)
+(my/ediff-macro ediff-recenter)
+(my/ediff-macro ediff-swap-buffers)
+(my/ediff-macro ediff-show-current-session-meta-buffer)
+(my/ediff-macro ediff-show-registry)
+(my/ediff-macro ediff-save-buffer)
+(my/ediff-macro ediff-inferior-compare-regions)
+(my/ediff-macro ediff-toggle-wide-display)
+
+;; (global-set-key (kbd "C-M-") (lambda ()(interactive) (print "asd")))
+(defvar-keymap my/ediff-mode-map
+  :doc "Replacement for `ediff-setup-keymap'."
+  ;; :parent firstly-search-tabulated-list-mode-map
+  "C-M-k"	#'my/ediff-previous-difference
+  "C-M-n"	#'my/ediff-next-difference
+  "C-M-q"	#'my/ediff-quit
+  "C-|"	#'my/ediff-toggle-split
+  "C-M-h"	#'my/ediff-toggle-hilit
+  "C-@"	#'my/ediff-toggle-autorefine
+  "C-%"	#'my/ediff-toggle-narrow-region
+  "C-!"	#'my/ediff-update-diffs
+  "C-+"	#'my/ediff-combine-diffs
+  "C-M-a"	#'my/ediff-copy-A-to-B
+  "C-M-b"	#'my/ediff-copy-B-to-A
+  "C-M-t"	#'my/ediff-toggle-read-only
+  "C-M-l"	#'my/ediff-recenter
+  "C-M-~"	#'my/ediff-swap-buffers
+  "C-M-M"	#'my/ediff-show-current-session-meta-buffer
+  "C-M-R"	#'my/ediff-show-registry
+  "C-M-w"	#'my/ediff-save-buffer
+  "C-="	#'my/ediff-inferior-compare-regions
+  "C-M-m"	#'my/ediff-toggle-wide-display
+)
+
+(define-minor-mode my/ediff-mode
+  "In A, B buffer ediff mode."
+  :lighter " ediff"
+  :global nil)
+
+(defun my/ediff-startup()
+  (setq my/ediff-control-buffer ediff-control-buffer)
+
+  (with-current-buffer ediff-buffer-A
+    (make-variable-buffer-local 'my/ediff-control-buffer)
+    (my/ediff-mode))
+
+  (with-current-buffer ediff-buffer-B
+    (make-variable-buffer-local 'my/ediff-control-buffer)
+    (my/ediff-mode)))
+
+(defun my/ediff (file-a file-b)
+  (ediff-files file-a file-b '( my/ediff-startup)))
+
+#+end_src
+
+** references
+Ediff files:
+- file:/usr/share/emacs/29.3/lisp/vc/ediff.el::173 ediff-files function is entry point.
+- file:/usr/share/emacs/29.3/lisp/vc/ediff-util.el::224 ediff-setup create control buffer
+
+Ediff customization guides:
+- https://oremacs.com/2015/01/17/setting-up-ediff/
+- http://yummymelon.com/devnull/using-ediff-in-2023.html
