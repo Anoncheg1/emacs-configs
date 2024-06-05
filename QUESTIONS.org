@@ -71,6 +71,26 @@ In this code we add company-abbrev to list of company-backends that
 - skeletons + abbrevs https://www.gnu.org/software/emacs/manual/html_node/autotype/Skeletons-as-Abbrevs.html
 - abbrevs https://www.gnu.org/software/emacs/manual/html_node/emacs/Abbrevs.html#Abbrevs
 
+* Keys: Tab and C-u Tab, how to bind different commands?
+Org mode have own function org-cycle bount to TAB.
+
+You should bind TAB in 'org-mode-hook. For other modes you should use hooks and global binding.
+#+begin_src elisp :results output :exports both
+
+(defun my/indent-or-complete-org (arg)
+  "TAB key"
+  (interactive "P")
+  (if (bound-and-true-p myselect-mode) ;; if region selected
+             (if arg
+                 (apply-command-to-region 'indent-according-to-mode) ;; fix indentation in region
+               ;; else
+               (my/indent-python) ;; indent as first line
+             )))
+(add-hook 'org-mode-hook (lambda ()
+            (local-set-key (kbd "TAB") 'my/indent-or-complete-org)))
+(global-set-key (kbd "TAB") #'my/indent-or-complete)
+#+end_src
+
 * How to remove space character after Abbrev completion?
 as pointed out in documentation https://www.gnu.org/software/emacs/manual/html_node/autotype/Skeleton-Language.html
 you can use -1 in skeleton, like this:
@@ -224,19 +244,6 @@ We can bound this to TAB key and detect if region is active:
       (if (<= (line-beginning-position) end) ;; if not end of region
           (indent-rigidly (point) end differ))) ;; indent other lines as the first one
   ))
-#+end_src
-* For keys: Tab and C-u Tab, how to bind different commands?
-#+begin_src elisp :results output :exports both
-(defun my/indent-or-complete (arg)
-  "TAB key"
-  (interactive "P")
-  (if (bound-and-true-p myselect-mode) ;; if region selected
-             (if arg
-                 (apply-command-to-region 'indent-according-to-mode) ;; fix indentation in region
-               ;; else
-               (my/indent-python) ;; indent as first line
-             )
-    ...
 #+end_src
 * How to prevent changing of window title for specific files?
 Normally you use emacsclient and emacs --daemon. What if you need to
@@ -812,6 +819,32 @@ You need to set display-buffer parameters, because this functions is always call
 
 See: [[GUI: Why splitting window with C-x 3, C-x 2 works strage?]]
 
+* Org: Babel: How to change current folder for Python source block to use library in another directory?
+#+begin_src python :results none :exports code :eval no
+import os
+if "masking-baseline" != os.path.basename(os.getcwd()):
+    os.chdir("masking-baseline")
+#+end_src
+* Org: What is the best approach to document small table with big cells in plain text?
+You can write 2x2 table this way:
+
+Column1
+- row1
+- row2
+
+Column2
+- row1
+- row2
+
+or this:
+
+Column 0 - *Column1* - /Column2/
+- row
+  - *row1*
+    - /row1/
+- row
+  - *row2*
+    - /row2/
 * Dired: how to open as a file manager
 : emacsclient -c -a emacs --eval "(dired \"$@\")"
 
@@ -1176,6 +1209,11 @@ Deletion flag `dired-del-marker' is used."
 
 (keymap-set dired-mode-map "<remap> <dired-flag-file-deletion>" #'my/dired-flag-file-deletion)
 #+end_src
+* Dired: usecase - copy/move files between folders.
+1) C-x 3 RET
+2) select target folder in window
+3) switch to another window
+4) mark files and dired-copy/rename
 * How emacs behavior differ when run under root?
 C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
 - TAB is ascii C-i. ,
@@ -1412,7 +1450,7 @@ Steps: 1) create buffer. 2) found frame with same major mode.
       (switch-to-buffer-other-frame b))
     ))
 #+end_src
-* GUT: Abort minibuffer everywhere if C-g pressed.
+* GUI: Abort minibuffer everywhere if C-g pressed.
 Did you notice, that C-g in normal buffer don't abort minibuffer? It
  is because they require separate abortion. Here is fix for that:
 #+begin_src elisp
@@ -1429,6 +1467,54 @@ Did you notice, that C-g in normal buffer don't abort minibuffer? It
 (define-key isearch-mode-map "\C-g" #'my/keyboard-quit-with-minubuffer)
 #+end_src
 
+* GUI: How set default sorting of Buffer-menu and other tabular-list modes?
+We should set *tabulated-list-sort-key* variable. For that we first make sorting as we want and than
+: (print tabulated-list-sort-key)
+We get this output and place in our hook for Buffer-menu mode:
+#+begin_src elisp :results none :exports code :eval no
+(defun my/sort-buffer-meny-by-mode()
+  "result of (print tabulated-list-sort-key))."
+  (setq tabulated-list-sort-key '("Mode")) ; sort by Mode column
+)
+(add-hook 'Buffer-menu-mode-hook #'my/sort-buffer-meny-by-mode)
+#+end_src
+* GUT: How to open Buffer-menu at right?
+To do so we create our own function that do that and bind this function to default C-x C-l list-buffers.
+
+In that function we use function *display-buffer-in-direction*. If
+ frame was already splitted we just use curren window by using
+ *buffer-menu* functon.
+#+begin_src elisp :results none :exports code :eval no
+(defvar my/buffer-menu-window-width 100
+"We think that buffer menu is splitted if window widht is lower
+that this number. To ajust use (window-width (selected-window))")
+
+(defun my/buffer-menu()
+  "Display Buffer-menu at right side.
+If this window is splitted and small, just use current window."
+  (interactive)
+  (let ((b (list-buffers-noselect nil)))
+    (if (> (window-width (selected-window)) my/buffer-menu-window-width)
+        (progn
+          (display-buffer-in-direction b '((direction . right)))
+          (switch-to-buffer-other-window b))
+      ;; else
+      (buffer-menu))))
+
+(global-set-key (kbd "C-x C-l") #'my/buffer-menu) ; shadow `list-buffers'
+
+(defun my/buffer-menu-open-wide ()
+  "Open current selected item in menu after deleting other window."
+  (interactive)
+  (delete-other-windows)
+  (call-interactively 'Buffer-menu-this-window))
+
+(add-hook 'Buffer-menu-mode-hook
+          (lambda () (local-set-key "\C-j" #'my/buffer-menu-open-wide)))
+
+#+end_src
+* GUI: how to resize and enlarge frame with a sexp?
+: (set-frame-parameter (selected-frame) 'fullscreen 'fullheight)
 * How to kill all buffers and duplicate frames?
 In this solution we define exceptions, lowercase them, after that we
  get (buffer-list) and filter with our exceptions, system, alive and
@@ -1605,13 +1691,13 @@ And function 2) that will be called from bash to open that link:
 Here is example of ~/.bash_aliases file with alias with inserted link from clipboard created pointing to org file:
 : alias iaa='emacsclient --alternate-editor=emacs --create-frame --eval "(my/open-link \"file:~/nix::<<config_kernel_gentoo>>\")"'
 * How to kill Python Babel when execute source block in Org mode?
-* ELisp: how to load new package for easy navigation?
+* ELisp: How to load new package for easy navigation?
 : (add-to-list 'load-path "~/path/folder")
 : M-x load-library RET file
  it will (load “~/path/folder/file.el”) and it’s dependencies defined
  in require statements. Be careful, it will load byte-compiled “.elc”
  files.
-* ELisp: how to test Macros fast?
+* ELisp: How to test Macros fast?
 We need to expand our macro and see that it is what we expect.
 
 It is possible only for simple macros:
@@ -1628,6 +1714,14 @@ It is possible only for simple macros:
 :
 : (defun myfun (arg) (progn (with-current-buffer myfun (myfun 3)) (raise-frame (next-frame))))
 
+* Elisp: How reload current file after (defcustom variable was changed?
+It will be better to add dependent logic to :set function after setting variable.
+#+begin_src elisp :results output :exports both
+:set (lambda (symbol value)
+         (set-default symbol value)
+         (if value ; don't forget to check that symbol is what you need
+             (print "we are here")))
+#+end_src
 * Ediff: How to get rid of switching to "control buffer"?
 Ediff create control buffer that have ediff-mode-map that is not available in "variants" files.
 
@@ -1723,3 +1817,56 @@ Ediff files:
 Ediff customization guides:
 - https://oremacs.com/2015/01/17/setting-up-ediff/
 - http://yummymelon.com/devnull/using-ediff-in-2023.html
+* TODO How to use holidays?
+holidays.el is configured
+* Telega: How to add custom notification on new message?
+By default Telega uses D-Bus. D-Bus is a conviniet way to cetralizing control notifications from all applications.
+
+Evgeny Zajcev recommend to take a look at contrib/telega-alert.el
+
+Execution path of notification hook:
+: telega-chat-post-message-hook -> telega-notifications-chat-message -> telega-notifications--chat-msg0 - > telega-notifications--notify
+- telega-notifications-chat-message is working only if telega-notifications-mode active.
+
+To replace standard behavior you can:
+#+begin_src elisp :results none :exports code :eval no
+(setopt telega-inserter-for-msg-notification 'my/telega-ins--msg-notification)
+
+(advice-add 'telega-notifications--notify :override
+            #'my/telega-alert--notify)
+#+end_src
+* capitalize-word function don't capitalize first symbol of word, how to fix that?
+
+#+begin_src elisp :results none :exports code :eval no
+(defun char-at-point-is-capitalized ()
+  "Check if the character at the current point position is capitalized."
+  (let ((char (char-after (point))))
+    (and (characterp char)
+         (eq (upcase char) char))))
+
+(defun move-to-first-word ()
+  "Move point to the first normal text word at the current line."
+  (interactive)
+  (beginning-of-line)
+  (re-search-forward "\\b\\w+\\b" (point-at-eol) t)
+  (goto-char (match-beginning 0)))
+
+(defun my/capitalize-word (arg)
+  "Capitalize first letter of current word and preserve a point
+ position.
+With universal argument Capitalize first letter at current line."
+  (interactive "P")
+  (save-excursion
+    (if arg
+      (move-to-first-word)
+      ;; else
+      (forward-word)
+      (backward-word))
+    (if (not (char-at-point-is-capitalized))
+        (capitalize-word 1))))
+(global-set-key "\M-c" #'my/capitalize-word)
+#+end_src
+* How to evaluate code block remotely?
+For Org Babel in #+BEGIN_SRC there is a header argument :dir
+: :dir /scp:dand@yakuba.princeton.edu:
+https://orgmode.org/manual/Environment-of-a-Code-Block.html

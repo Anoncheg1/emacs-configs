@@ -6,7 +6,7 @@
 # emacs-configs
 A single emacs configuration file.
 
-Favorite modes (built-in): Org, org-agenda, Python, CC mode, Semantic, Dired + Bookmarks, VC.
+Favorite modes (built-in): Org, org-agenda, Python, CC mode, Semantic, Dired + Bookmarks, VC, Highlight Changes.
 
 Favorite modes (external): hidepw, Company, Notmuch, vlfi, multiple-cursors.
 
@@ -17,7 +17,7 @@ mini Python IDE:
 mini C IDE:
 - autocompletion and navigation with semantic and ggtags (GNU GLOBAL dependency)
 
-I use single ```.emacs``` with outline-mode. I don't generation from .org.
+I use a single ```.emacs``` with outline-mode. I don't generate from .org.
 # Key remappings
 ## Navigation
 This is between console and JIKL:
@@ -58,7 +58,8 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - set Scrolling as in modern IDEs
 - set backup directory for saving ~files
 - open two files in splitted window
-- open two files differences with ```emacsclient -c -a emacs --eval "(ediff-files \"$1\" \"$2\" )" ;```
+- Ediff: open two files differences with ```emacsclient -c -a emacs --eval "(ediff-files \"$1\" \"$2\" )" ;```
+- Ediff: 3-th frame removed, that shows help.
 - toggle window split - horizontally/vertically
 - change indentation prefix for paragraph "fill-prefix"
 - Org: replace header search search in goto-mode with isearch + template
