@@ -825,6 +825,10 @@ import os
 if "masking-baseline" != os.path.basename(os.getcwd()):
     os.chdir("masking-baseline")
 #+end_src
+* Org: Babel: why src block require lowercase name of language?
+solution:
+: (defalias 'Dockerfile-mode 'dockerfile-mode)
+: (defalias 'Python-mode 'python-mode)
 * Org: What is the best approach to document small table with big cells in plain text?
 You can write 2x2 table this way:
 
@@ -845,6 +849,19 @@ Column 0 - *Column1* - /Column2/
 - row
   - *row2*
     - /row2/
+* Org: How to set inline image size?
+https://orgmode.org/manual/Images.html
+
+you insert image as
+: [[file: ./img/a.jpg]]n
+or
+: [[./img/a.jpg]]
+
+per image link:
+#+ATTR_HTML: :width 500px
+
+globally:
+: (setopt org-image-actual-width 300)
 * Dired: how to open as a file manager
 : emacsclient -c -a emacs --eval "(dired \"$@\")"
 

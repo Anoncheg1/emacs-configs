@@ -8,7 +8,7 @@ A single emacs configuration file.
 
 Favorite modes (built-in): Org, org-agenda, Python, CC mode, Semantic, Dired + Bookmarks, VC, Highlight Changes.
 
-Favorite modes (external): hidepw, Company, Notmuch, vlfi, multiple-cursors.
+Favorite modes (external): hidepw, Company, Notmuch, vlfi, multiple-cursors, dockerfile-mode.
 
 mini Python IDE:
 - company-jedi: Autocompletion, documentation and navigation

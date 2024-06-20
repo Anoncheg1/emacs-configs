@@ -27,9 +27,7 @@
 (other . "gnu")))
  '(custom-enabled-themes '(wombat manoj-dark))
  '(delete-selection-mode t)
- '(diary-show-holidays-flag nil)
  '(display-time-mode t)
- '(ede-project-directories '("/tmp/x-set-keys"))
  '(global-eldoc-mode -1)
  '(inhibit-startup-screen t)
  '(menu-bar-mode nil)
@@ -42,7 +40,7 @@
  '(org-src-preserve-indentation t)
  '(org-startup-folded t)
  '(package-selected-packages
-'(rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc dirvish elpher command-log-mode pinyin-search package-lint idle-highlight-mode csv-mode free-keys expand-region flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
+'(dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc dirvish elpher command-log-mode pinyin-search package-lint idle-highlight-mode csv-mode free-keys expand-region flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
  '(size-indication-mode t)
  '(speedbar-show-unknown-files t))
 (custom-set-faces
@@ -72,18 +70,20 @@
 ;; (add-to-list 'load-path "~/.emacs.d/myplugins")
 ;; (load "iflipb.el")
 ;; (require 'iflipb)
-
 ;; -- LIST OF EXTERNAL FILES
 ;; .emacs - main config
 ;; .emacs.d - directory
 ;; .MyEmacsBackups - directory
 ;; .signature - file for notmuch - footer for output email
 ;; .mailcap - file for notmuch
+;; .authinfo - notmuch credentials and password
 ;; .tramp_history - file
+;; .emacs.d/cotrib/lisp/myholidays.el - holidays
 ;; -- Paths and file extensions, loading process
 ;; must not have subfolders
 (add-to-list 'load-path "~/.emacs.d/contrib/lisp/emacs-jedi")
 (add-to-list 'load-path "~/.emacs.d/contrib/lisp/package-build")
+(add-to-list 'load-path "~/.emacs.d/contrib/lisp/ediffnw")
 (add-to-list 'load-path "~/.emacs.d/contrib/lisp")
 (add-to-list 'load-path "~/sources/telega.el")
 ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ob-yaml.el")
@@ -217,7 +217,6 @@
   )
 
 ;; disable holidays
-;; (diary-show-holidays-flag nil)
 ;; # Monday is the first day of the week
 (setq calendar-week-start-day 1)
 ;; sort diary entries
@@ -304,26 +303,26 @@ Steps: 1) create buffer. 2) found frame with same major mode.
                                      )
                                )))
 ;; -- -- emacsclient file1 file2: open each file in separate window
-(defvar server-visit-files-custom-find:buffer-count)
-(defadvice server-visit-files
-  (around server-visit-files-custom-find
-      activate compile)
-  "Maintain a counter of visited files from a single client call."
-  (let ((server-visit-files-custom-find:buffer-count 0))
-    ad-do-it))
-(defun server-visit-hook-custom-find ()
-  "Arrange to visit the files from a client call in separate windows."
-  (if (zerop server-visit-files-custom-find:buffer-count)
-      (progn
-    (delete-other-windows)
-    (switch-to-buffer (current-buffer)))
-    (let ((buffer (current-buffer))
-      (window (split-window-sensibly)))
-      (switch-to-buffer buffer)
-      (balance-windows)))
-  (setq server-visit-files-custom-find:buffer-count
-    (1+ server-visit-files-custom-find:buffer-count)))
-(add-hook 'server-visit-hook 'server-visit-hook-custom-find)
+;; (defvar server-visit-files-custom-find:buffer-count)
+;; (defadvice server-visit-files
+;;   (around server-visit-files-custom-find
+;;       activate compile)
+;;   "Maintain a counter of visited files from a single client call."
+;;   (let ((server-visit-files-custom-find:buffer-count 0))
+;;     ad-do-it))
+;; (defun server-visit-hook-custom-find ()
+;;   "Arrange to visit the files from a client call in separate windows."
+;;   (if (zerop server-visit-files-custom-find:buffer-count)
+;;       (progn
+;;     (delete-other-windows)
+;;     (switch-to-buffer (current-buffer)))
+;;     (let ((buffer (current-buffer))
+;;       (window (split-window-sensibly)))
+;;       (switch-to-buffer buffer)
+;;       (balance-windows)))
+;;   (setq server-visit-files-custom-find:buffer-count
+;;     (1+ server-visit-files-custom-find:buffer-count)))
+;; (add-hook 'server-visit-hook 'server-visit-hook-custom-find)
 
 
 ;; -- -- ipynb
@@ -530,17 +529,26 @@ Steps: 1) create buffer. 2) found frame with same major mode.
         (reverse themes))
   (setq custom-enabled-themes themes))
 
+(defun my/set-theme-dark ()
+  (interactive)
+  (my/load-theme '(manoj-dark wombat)))
+
+(defun my/set-theme-middle ()
+  (interactive)
+  (my/load-theme '(wombat manoj-dark)))
+
+
+(defun my/set-theme-white ()
+  (interactive)
+  (my/load-theme nil))
 
 ;; enable themes - darker
-(global-set-key (kbd "M-_") (lambda () (interactive)
-                              (my/load-theme '(manoj-dark wombat))))
+(global-set-key (kbd "M-_") #'my/set-theme-dark)
 
-;; enable themes - middle
-(global-set-key (kbd "M-)") (lambda () (interactive) ; shadow `insert-parentheses'
-                              (my/load-theme '(wombat manoj-dark)))) ; modus-operandi - for root
-;; disable themes - white
-(global-set-key (kbd "M-(") (lambda () (interactive) ; shadow `move-past-close-and-reindent'
-                              (my/load-theme nil))) ; ; modus-vivendi - for root
+;; enable themes - middle ; shadow `insert-parentheses'
+(global-set-key (kbd "M-)") #'my/set-theme-middle) ; modus-operandi - for root
+;; disable themes - white ; shadow `move-past-close-and-reindent'
+(global-set-key (kbd "M-(") #'my/set-theme-white) ; ; modus-vivendi - for root
 
 ;; -- -- add current path to modeline
 (setq global-mode-string
@@ -561,6 +569,7 @@ Steps: 1) create buffer. 2) found frame with same major mode.
 ;; ;; ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; -- Functions
+;; -- -- toggle-window-split
 (defun my/toggle-window-split ()
   (interactive)
   (if (= (count-windows) 2)
@@ -586,11 +595,12 @@ Steps: 1) create buffer. 2) found frame with same major mode.
 	  (select-window first-win)
 	  (if this-win-2nd (other-window 1))))))
 
-(defun my/add-to-list ()
-  (interactive)
-  (add-to-list 'load-path default-directory)
-  (message "now load file with M-x load-library"))
+;; (defun my/add-to-list ()
+;;   (interactive)
+;;   (add-to-list 'load-path default-directory)
+;;   (message "now load file with M-x load-library"))
 
+;; -- -- exec-language
 (defun my/exec-language (exec-file-command)
   "Execute current buffer content in terminal with EXEC-FILE-COMMAND.
 First it save content to temporary file.
@@ -598,22 +608,77 @@ If we in Org src with C-c ' we create tmp file, write buffer and execute,
 else just execute current file
 EXEC-FILE-COMMAND for example may be: \"PYTHONPATH=. python\"."
   (let ((langnamestr (car (split-string (symbol-name major-mode) "-")))
-        fnv fn)
+        fnv ;; tmp file for C-c '
+        fn)
     (shell-command (concat "xdotool search emacs_" langnamestr " windowclose")) ;; alala is window name that we use to close and open again
     (setq fnv (org-babel-temp-file langnamestr))
+    ;; If we in C-c '
     (if (string-prefix-p "*Org Src" (buffer-name) t)
+        ;; save body to fnv buffer
         (let ((body (buffer-substring-no-properties (point-min) (point-max))))
           (with-temp-file fnv (insert body))))
+    ;; if C-c use tmp file, else  use file by itself
     (setq fn (if (string-prefix-p "*Org Src" (buffer-name) t)
                  fnv
+               ;; else
                (buffer-file-name)))
     (with-temp-buffer
-                  (setq-local default-directory (buffer-local-value 'default-directory (get-buffer "*Messages*")))
+                  ;; (setq-local default-directory (buffer-local-value 'default-directory (get-buffer "*Messages*")))
                   (message default-directory)
                   ;; "xfce4-terminal --initial-title \"emacs_python\" -e \"bash -c 'PYTHONPATH=. python " fn " ; bash ;'\""
                   (print (list "fnfile" fn))
+                  ;; in case of TRAMP execute remote:
+                  (when (string-prefix-p "/ssh:" filename)
+                      (let (
+                            (host (substring filename 5 (string-match "/" filename 5))) ; 5 is "/ssh:" length
+                            (command (substring filename (match-end 0))))
+                        (setq exec-file-command (concat "ssh " host " " exec-file-command " /" filename))
+                        ))
+
+                  (print (list "exefile" fn))
                   (shell-command (concat "xfce4-terminal --title \"emacs_" langnamestr "\" -e \"bash -c '" exec-file-command " " fn " ; bash ;'\""))
           )))
+;; -- -- Python REPL remotely
+(defun python-repl-remote(machine venv-path)
+  "Open xfce4-terminal with remote python interactive REPL.
+MACHINE is ip or .ssh/config name.
+VENV-PATH is /some/path/venv ."
+  (let* ((command (concat "ssh " machine " \\\"source " venv-path "/bin/activate; " venv-path "/bin/python -i \\\""))
+         (cc (concat "xfce4-terminal --title remote -e \"bash -c \'" command "; bash ;\'\"")))
+    (message cc)
+    (shell-command cc )))
+;; -- Global fixes
+
+(defun char-at-point-is-capitalized ()
+  "Check if the character at the current point position is capitalized."
+  (let ((char (char-after (point))))
+    (and (characterp char)
+         (eq (upcase char) char))))
+
+(defun move-to-first-word ()
+  "Move point to the first normal text word at the current line."
+  (interactive)
+  (beginning-of-line)
+  ;; \u0400-\u04FF to match Cyrillic characters specifically.
+  (re-search-forward "\\b[[:alpha:]\u0400-\u04FF]+\\b" (point-at-eol) t)
+  (goto-char (match-beginning 0)))
+
+(defun my/capitalize-word (arg)
+  "Capitalize first letter at current line.
+With universal argument capitalize first letter of current word
+and preserve a point position."
+  (interactive "P")
+  (save-excursion
+    (if (not arg)
+      (move-to-first-word)
+      ;; else
+      (forward-word)
+      (backward-word))
+    (if (not (char-at-point-is-capitalized))
+        (capitalize-word 1))))
+(global-set-key "\M-c" #'my/capitalize-word)
+(global-set-key (kbd "M-с") #'my/capitalize-word) ; rus
+
 ;; -- Key Bindings
 ;; -- -- backspace
 ;; (keyboard-translate ?\C-h  ?\C-?) ;; do not work in emacsclient, required for M-x
@@ -631,8 +696,11 @@ C-u behaviour."
   (interactive)
   (kill-region (line-beginning-position) (point)))
 
-(global-set-key (kbd "C-M-h") 'my/cut-line-to-begining) ; shadow `mark-defun'
-
+(global-set-key (kbd "C-x u") #'my/cut-line-to-begining) ; shadow `undo'
+(global-set-key (kbd "C-u") #'universal-argument) ; shadow `universal-argument'
+;; -- -- russian bindings
+(global-set-key (kbd "C-р") 'delete-backward-char)
+(global-set-key (kbd "C-.") 'undo)
 
 ;; -- -- minibuffer M-x: previous command, next command
 (define-key minibuffer-local-map (kbd "C-p") 'previous-line-or-history-element) ;; C-k
@@ -725,7 +793,7 @@ C-u behaviour."
 ;; org: M-RET org-meta-return - open new heading or new line in table
 ;; TO: ->
 ;; Basic rule: C without indentation, M with indentation (as already used in Emacs)
-;; - C-o open previous line
+;; - C-o open previous line and go there.
 ;; - C-j open line split, without indentation and stay at current
 ;; - M-j open line (split, with indentation) and stay at current
 ;; - C-m open next line split, without indentation and go there
@@ -933,10 +1001,7 @@ M-j"
            ;; else
            (my/indent-python) ;; indent as first line
            ))
-        ;; - org and at the header
-        ((and (derived-mode-p 'org-mode) (org-match-line org-outline-regexp)
-              (message "org header"))
-              (call-interactively 'org-cycle))
+
         ;; 2)
         ((not (or (looking-back "\\." 1) (looking-at "\\_>"))) ;; if character before cursor is last one of a word or dot (.)
          ;; - at the middle of the line:
@@ -1008,7 +1073,10 @@ M-j"
 
 
 ;; -- -- start open shell
-(global-set-key (kbd "M-!") (lambda () (interactive) (call-process-shell-command "xfce4-terminal -e tmux&" nil 0)))
+(defun my/call-process-shell-command()
+  (interactive)
+  (call-process-shell-command "xfce4-terminal -e tmux&" nil 0))
+(global-set-key (kbd "M-!") 'my/call-process-shell-command)
 ;; -- -- open config
 (defun my/open-config ()
   (interactive)
@@ -1058,9 +1126,9 @@ Bug: Can drop frame if emacs was started with emacsclient --create-frame"
   "Compare showed buffers of FRAME with every frame in FRAMES."
   (seq-contains-p
    ;; sequence
-   (mapcar (lambda (x) (mapcar #'window-buffer (window-list x))) frames)
+   (mapcar (lambda (x) (car (mapcar #'window-buffer (window-list x)))) frames)
    ;; element
-   (mapcar #'window-buffer (window-list frame))))
+   (car (mapcar #'window-buffer (window-list frame)))))
 
 (defun my/drop-frame-duplicates ()
   "Compare window list by `my/member-frame' function and kill others.
@@ -1070,6 +1138,7 @@ Function `frame-list-z-order' used as a source of frames."
       (dolist (item (frame-list-z-order))
         (if (my/member-frame item unique-items)
             (push item duplicates)
+          ;; else
           (push item unique-items)))
       (mapc #'delete-frame duplicates)))
 
@@ -1291,6 +1360,8 @@ Function `frame-list-z-order' used as a source of frames."
 (setq zone-programs (remove 'zone-pgm-jitter zone-programs))
 ;; Error running timer ‘zone’: (wrong-type-argument frame-live-p #<dead frame *zone* • 0x558dc90ae248>)
 (setq zone-programs (remove 'zone-pgm-rotate zone-programs))
+(setq zone-programs (remove 'zone-pgm-rotate-RL-lockstep zone-programs))
+
 
 ;; -- -- -- fix speed
 
@@ -1432,10 +1503,48 @@ Function `frame-list-z-order' used as a source of frames."
 ;; M-? jump to first occurance
 (setopt xref-auto-jump-to-first-xref t)
 ;; -- Buffers, Windows, Buffer menu, tab-bar, tab-list [rooted]
+;; -- -- Buffer menu buffer-menu - sorting(disabled)
+;; (defun my/sort-buffer-meny-by-mode()
+;;   "result of (print tabulated-list-sort-key))."
+;;   ;; (setq tabulated-list-sort-key '("C" "Mode"))
+;;   nil
+;; )
+;; ;; (setq Buffer-menu-sort-column 3)
+;; (add-hook 'Buffer-menu-mode-hook #'my/sort-buffer-meny-by-mode)
 ;; -- -- keys
 ;; -- -- -- buffer menu
-(global-set-key (kbd "C-x c") #'buffer-menu) ; rooted
-(global-set-key (kbd "C-S-z") #'buffer-menu) ; (not rooted)
+;; default C-x C-l
+(defvar my/buffer-menu-window-width 100
+"We think that buffer menu is splitted if window widht is lower
+that this number. To ajust use (window-width (selected-window))")
+
+
+(defun my/buffer-menu()
+  "Display Buffer-menu at right side.
+If this window is splitted and small, just use current window."
+  (interactive)
+  (let ((b (list-buffers-noselect nil)))
+    (if (> (window-width (selected-window)) my/buffer-menu-window-width)
+        (progn
+          (display-buffer-in-direction b '((direction . right)))
+          (switch-to-buffer-other-window b))
+      ;; else
+      (buffer-menu))))
+
+(global-set-key (kbd "C-x M-x") #'buffer-menu) ; rooted
+(global-set-key (kbd "C-x C-b") #'my/buffer-menu) ; shadow `list-buffers'
+
+(defun my/buffer-menu-open-wide ()
+  "Open current selected item in menu after deleting other window."
+  (interactive)
+  (delete-other-windows)
+  (call-interactively 'Buffer-menu-this-window))
+
+(add-hook 'Buffer-menu-mode-hook
+          (lambda () (local-set-key "\C-j" #'my/buffer-menu-open-wide)))
+
+
+;; (global-set-key (kbd "C-S-z") #'buffer-menu) ; (not rooted)
 ;; -- -- -- other-buffer
 (defun my/other-buffer (&optional arg)
   "Switch to other buffer, ie `other-buffer' without system buffers."
@@ -1473,7 +1582,7 @@ Function `frame-list-z-order' used as a source of frames."
 ;; (global-set-key (kbd "C-M-e") #'next-buffer) ; shadow end-of-defun
 ;; -- -- -- messages (rooted)
 (defun my/show-message-log () (interactive) (switch-to-buffer "*Messages*") (end-of-buffer))
-(global-set-key (kbd "C-M-z") #'my/show-message-log)
+(global-set-key (kbd "C-c M-c") #'my/show-message-log) ; rooted
 ;; -- -- tab-bar-mode for buffers
 ;; (require 'tab-bar-buffers)
 ;; (tab-bar-buffers-mode t)
@@ -1597,6 +1706,23 @@ header. [rooted]"
 
 
 
+;; -- -- calendar and holidays
+(require 'calendar)
+(require 'holidays)
+
+(setopt diary-show-holidays-flag t)
+(setopt calendar-mark-holidays-flag t)
+
+;; download bad: https://www.feiertagskalender.ch/export.php?geo=3538&hl=en
+;; download best https://ovodov.me/trud.ics
+;; check https://www.consultant.ru/law/ref/calendar/proizvodstvennye/2024/
+(require 'myholidays)
+
+;; reference https://github.com/grafov/russian-holidays
+(setopt calendar-holidays (append myholidays-russian-holidays
+                                  myholidays-general-holidays
+                                  myholidays-family-holidays))
+
 ;; -- -- firstly-search
 ;; -- -- -- loading
 (require 'firstly-search-dired)
@@ -1608,13 +1734,15 @@ header. [rooted]"
 (add-hook 'Buffer-menu-mode-hook #'firstly-search-buffermenu-mode)
 (add-hook 'bookmark-bmenu-mode-hook #'firstly-search-bookmarks-mode)
 ;; unbind for dired-mode-map
-
 ;; -- -- -- keys rebinding
 (keymap-unset firstly-search-dired-mode-map "M-o") ; for `my/dired-find-file-other-window'
 
 ;; - rebind M-p to my delete-other-windows
 (keymap-unset firstly-search-dired-mode-map "M-k") ; for `delete-other-windows'
-(define-key firstly-search-dired-mode-map (kbd "M-P") #'dired-do-kill-lines)
+(define-key firstly-search-dired-mode-map (kbd "M-K") #'dired-do-kill-lines)
+
+(keymap-unset firstly-search-buffermenu-mode-map "M-k") ; for `delete-other-windows'
+(define-key firstly-search-buffermenu-mode-map (kbd "M-K") #'Buffer-menu-delete)
 
 ;; (keymap-unset firstly-search-dired-mode-map "RET") ; for `dired-hist-tl-dired-find-file'
 ;; -- -- -- experiment
@@ -1753,7 +1881,7 @@ ePrompt for a choice.  URL
 (define-key dired-mode-map "\M-h" #'my/dired-unmark-one-line)
 ;; just copy text
 (define-key dired-mode-map "\M-w" #'kill-ring-save)
-(define-key dired-mode-map (kbd "C-M-w") #'dired-copy-filename-as-kill)
+(define-key dired-mode-map (kbd "C-c w") #'dired-copy-filename-as-kill)
 (define-key dired-mode-map (kbd "M-<return>") #'browse-url-of-dired-file)
 (define-key dired-mode-map (kbd "M-RET") #'browse-url-of-dired-file)
 (define-key dired-mode-map (kbd "S-<return>") #'browse-url-of-dired-file)
@@ -2016,7 +2144,7 @@ body-single - no marks, no preparation, for current line."
           (if (eq last-command 'kill-region)
               (kill-append string nil)
             (kill-new string))
-          ;; (print string)
+          (message string) ; show what we just killed
           ))
 
 (defun my/dired-copy-filename-as-kill (arg &optional interactive)
@@ -2045,7 +2173,7 @@ file nemes."
                       ))
 
 
-(define-key firstly-search-dired-mode-map (kbd "C-M-w") #'my/dired-copy-filename-as-kill)
+(define-key firstly-search-dired-mode-map (kbd "C-c w") #'my/dired-copy-filename-as-kill)
 (define-key firstly-search-dired-mode-map (kbd "M-W") #'my/call-external)
 
 
@@ -2235,6 +2363,7 @@ Deletion flag `dired-del-marker' is used."
              ))
 
 (add-hook 'org-mode-hook #'company-mode) ; company-capf
+;; -- -- frame-fullscreen
 ;; -- -- ORG
 ;; -- -- -- fix fill-paragraph
 (defun current-line-blank ()
@@ -2303,12 +2432,22 @@ depending on context."
 	(narrow-to-region (line-beginning-position) (line-end-position))
 	(call-interactively #'forward-sentence)) ;;modifyed move-end-of-line
     (let* ((element (org-element-at-point))
-	   (contents-end (org-element-property :contents-end element))
-	   (table (org-element-lineage element '(table) t)))
+           (contents-begin (org-element-property :contents-begin element))
+           (contents-begin (if contents-begin
+                               contents-begin
+                             ;; else
+                             (org-element-property :begin element)))
+           (contents-end (org-element-property :contents-end element))
+           (contents-end (if contents-end
+                               contents-end
+                             ;; else
+                             (org-element-property :begin element)))
+           (table (org-element-lineage element '(table) t)))
       (if (and table
-	       (>= (point) (org-element-property :contents-begin table))
+	       (>= (point) contents-begin)
 	       (< (point) contents-end))
-	  (call-interactively #'move-end-of-line) ;; modifyed
+	      (call-interactively #'move-end-of-line) ;; modifyed
+        ;; else
 	(save-restriction
 	  (when (and contents-end
 		     (> (point-max) contents-end)
@@ -2316,7 +2455,7 @@ depending on context."
 		     (< (org-element-property :end element)
 			(save-excursion (goto-char contents-end)
 					(skip-chars-forward " \r\t\n"))))
-	    (narrow-to-region (org-element-property :contents-begin element)
+	    (narrow-to-region contents-begin
 			      contents-end))
 	  ;; End of heading is considered as the end of a sentence.
 	  (let ((sentence-end (concat (sentence-end) "\\|^\\*+ .*$")))
@@ -2325,8 +2464,7 @@ depending on context."
 (defun back-to-indentation-or-beginning ()
   (interactive)
   (if (= (point) (progn (back-to-indentation) (- (point) 1))) ;; -1 because of  "(there is a bug)" see below
-      (beginning-of-line))
-  )
+      (beginning-of-line)))
 
 (defun my/org-backward-sentence (&optional _arg)
   "Go to beginning of sentence, or beginning of table field.
@@ -2335,21 +2473,36 @@ depending on context."
   (interactive)
   (let* ((element (org-element-at-point))
 	 (contents-begin (org-element-property :contents-begin element))
-	 (table (org-element-lineage element '(table) t)))
-    (if (and table
-	     (> (point) contents-begin)
-	     (<= (point) (org-element-property :contents-end table)))
-	(call-interactively #'move-beginning-of-line) ;; modifyed
-
-      (call-interactively #'backward-char) ;; required if we at the end of header. (there is a bug)
-      (save-restriction
-        (when (and contents-begin
-                   (< (point-min) contents-begin)
-                   (> (point) contents-begin))
-          (narrow-to-region contents-begin
-                	    (org-element-property :contents-end element)))
-        (call-interactively #'back-to-indentation-or-beginning))
-      ) ;; if
+         (contents-begin (if contents-begin
+                             contents-begin
+                           ;; else
+                           (org-element-property :begin element)))
+         (contents-end (org-element-property :contents-end element))
+         (contents-end (if contents-end
+                             contents-end
+                           ;; else
+                           (org-element-property :begin element)))
+         (el-type (org-element-type element)))
+    (cond
+     ((and (eq el-type 'table)
+           (> (point) contents-begin)
+           (<= (point) contents-end))
+         (call-interactively #'move-beginning-of-line)) ;; modifyed
+        ((eq el-type 'src-block)
+         (call-interactively 'back-to-indentation))
+        (t
+         ;; (print (org-element-at-point))
+         ;; (print el-type)
+         (call-interactively #'backward-char) ;; required if we at the end of header. (there is a bug)
+         (save-restriction
+           (when (and contents-begin
+                      (< (point-min) contents-begin)
+                      (> (point) contents-begin)
+                      (not (eq el-type 'fixed-width)))
+             (narrow-to-region contents-begin
+                               contents-end))
+           (call-interactively #'back-to-indentation-or-beginning))
+         )) ;; if
     ))
 
 
@@ -2458,6 +2611,50 @@ Like (outline-hide-other) (org-reveal) but better."
        (org-overview) ;; hide others
        (org-reveal '(4)))) ;; reveal current place appropriate)
 
+(defun my/org-ctrl-c-ctrl-c ()
+  "shadow `org-ctrl-c-ctrl-c'"
+  (interactive)
+  ;; - - redisplay images 1)
+  (if org-inline-image-overlays
+      (defvar-local s (overlay-buffer (car org-inline-image-overlays))))
+  ;; execute default
+  (org-ctrl-c-ctrl-c) ;; execute
+  ;; - - redisplay images 2)
+  (if (and (boundp 's) s)
+      (org-redisplay-inline-images))
+  ;; language (org-element-property :language (org-element-context))
+  ;; (eq 'src-block (org-element-type (org-element-at-point))
+
+  ;; go to result
+  ;; (goto-char (org-babel-where-is-src-block-result))
+  ;; scroll other window to the endpo
+  (if (string-equal-ignore-case "python" (org-element-property :language (org-element-context)))
+      (end-of-buffer-other-window nil))
+  )
+
+(defun my/indent-or-complete-org ()
+  "TAB key for Org mode"
+  (interactive)
+  (let ((el-type (org-element-type (org-element-at-point))))
+    (cond ;; - org and at the header
+     ((org-match-line org-outline-regexp)
+      ;; body
+      (message "org header")
+      (call-interactively 'org-cycle))
+    ((eq el-type 'table-row)
+     ;; body
+     (message "indetaborg")
+     (call-interactively 'org-cycle)
+     )
+    ((eq el-type 'src-block)
+     (org-cycle)
+     (hilit-chg-clear)
+     (message "srcblocktab")
+     )
+    (t
+     (call-interactively 'my/indent-or-complete))
+     )))
+
 (add-hook 'org-mode-hook (lambda ()
 
 			   ;; - - -  org keybindinds - - - -
@@ -2520,7 +2717,7 @@ Like (outline-hide-other) (org-reveal) but better."
                            ;; (setq company-backends '( company-capf company-keywords company-files company-dabbrev ))
                            ;; (setq company-backends '(  company-files company-dabbrev )) ; company-keywords company-capf
                            ;; (setq company-backends '(company-math-symbols-unicode company-keywords company-files company-abbrev company-dabbrev))
-                           (local-set-key (kbd "TAB") 'my/indent-or-complete)
+                           (local-set-key (kbd "TAB") 'my/indent-or-complete-org)
                            ;; (local-set-key (kbd "TAB") 'indent-for-tab-command)
 
                            ;; - - hide other
@@ -2620,34 +2817,15 @@ Like (outline-hide-other) (org-reveal) but better."
                                                               (message "No src-block here!"))))
                            ;; - - - disable Moving a tree to an archive file
                            (local-unset-key (kbd "C-c C-x C-s"))
-                           ;; - - - jump to result of current source block
-                           (local-set-key (kbd "C-c M-c") (lambda () (let ((location (org-babel-where-is-src-block-result)))
-                                                                       (when location
-                                                                         (goto-char location)))))
+                           ;; - - - jump to result of current source block - use M-} instead
+                           ;; (local-set-key (kbd "C-c M-c") (lambda () (let ((location (org-babel-where-is-src-block-result)))
+                           ;;                                             (when location
+                           ;;                                               (goto-char location)))))
                            ;; - - - fix: after C-q screen stay far away from right
-                           (local-set-key (kbd "M-q") 'my/fill-paragraph)
+                           (local-set-key (kbd "M-q") #'my/fill-paragraph)
                            ;; - - - Python source block redisplay image after block execution if inlineimages is on
-                           (local-set-key (kbd "C-c C-c")
-                                          '(lambda()
-                                "old but it is working"
-                                (interactive)
-                                (if org-inline-image-overlays
-                                  (defvar-local s (overlay-buffer (car org-inline-image-overlays))))
-                                ;; language (org-element-property :language (org-element-context))
-                                ;; (eq 'src-block (org-element-type (org-element-at-point))
+                           (local-set-key (kbd "C-c C-c") #'my/org-ctrl-c-ctrl-c)
 
-                                (org-ctrl-c-ctrl-c) ;; execute
-                                (if (and (boundp 's) s)
-                                  (org-redisplay-inline-images)
-                                  )
-                                ;; go to result
-                                ;; (goto-char (org-babel-where-is-src-block-result))
-                                ;; scroll other window to the endpo
-                                (if (string-equal-ignore-case "python" (org-element-property :language (org-element-context)))
-                                    (end-of-buffer-other-window nil)
-                                  )
-                                )
-                             )
                            ))
 
 
@@ -2903,411 +3081,88 @@ When nil, use the default face background."
 
 ;; (advice-add 'org-html-export-to-html :around #'my/org-html-export-to-html-all-subtrees)
 
-;; -- -- skeletons(templates) for abbrev TAB completion for ORG and Diary modes
-(define-skeleton example
-  "Template example."
-  "" "greetings!"
-  )
-(define-skeleton org-src-sqlite
-  "Allow to input name."
-  ""
-  "#+name: " _ "\n"
-  "#+begin_src sqlite :db /tmp/test-sqlite.db :colnames yes :exports both\n"
-  "\n"
-  "#+end_src"
-  )
-(define-skeleton org-src-shallow
-  "Allow to input language."
-  ""
-  "#+begin_src " _ "\n"
-  "\n"
-  "#+end_src"
-  )
-(define-skeleton org-src-with-output
-  "Allow to input language."
-  ""
-  "#+begin_src " _ " :results output :exports both"
-  "\n\n"
-  "#+end_src"
-  )
-(define-skeleton org-src-elisp-shallow
-  "no exec"
-  ""
-  "#+begin_src elisp :results none :exports code :eval no"
-  "\n\n"
-  "#+end_src")
-
-(define-skeleton org-src-elisp-no-exec
-  "exec"
-  ""
-  "#+begin_src elisp :results none :exports code :eval no"
-  "\n\n"
-  "#+end_src")
-
-(define-skeleton org-src-elisp-no-exec
-  "exec"
-  ""
-  "#+begin_src elisp :results none :exports code :eval no"
-  "\n\n"
-  "#+end_src")
-
-(define-skeleton org-src-elisp-with-output
-  "exec"
-  ""
-  "#+begin_src elisp :results output :exports both"
-  "\n\n"
-  "#+end_src")
-
-
-(define-skeleton org-src-python
-  "org-tempo replacement"
-  ""
-  "#+begin_src python :results output :exports both :session s1"
-  "\n\n"
-  "#+end_src")
-
-(define-skeleton org-src-python-no-exec
-  "Tangle C-c C-v C-t org-babel-tangle."
-  ""
-  "#+begin_src python :tangle /tmp/out.py :results none :exports code :eval no\n"
-  "\n"
-  "#+end_src")
-
-(define-skeleton org-src-python-img
-  "org-tempo replacement"
-  ""
-  "#+begin_src python :results file graphics :exports both :file ./autoimgs/a.png :session s1""\n"
-  "import matplotlib.pyplot as plt""\n"
-  "plt.savefig('./autoimgs/a.png')""\n"
-  "plt.close()""\n"
-  "#+end_src")
-
-(define-skeleton org-src-python-table-full
-  "org-tempo replacement"
-  ""
-  "#+tblname: data_table""\n"
-  "| |""\n"
-  "|-""\n"
-  "\n\n"
-  "#+name: ""\n"
-  "#+header: :prologue from tabulate import tabulate""\n"
-  "#+begin_src python :results value raw :exports both :var data=data_table :session s1""\n"
-  "import pandas as pd""\n"
-  "\n"
-  "def pd2org(df_to_table):""\n"
-  "    return tabulate(df_to_table, headers=df_to_table.columns, tablefmt='orgtbl')""\n"
-  "\n"
-  "df = pd.DataFrame(data, columns=['column_name'])""\n"
-  "df['column_name'] = df.acidity.str.extract('(?P<digit>([-+])?\d+(.\d+)?)')['column_name'].astype(float)""\n"
-  "pd2org(df.describe())""\n"
-  "#+end_src")
-(define-skeleton org-src-perl-exec
-  "normal"
-  ""
-  "#+begin_src perl :results output :exports both\n"
-  "\n"
-  "#+end_src")
-(define-skeleton org-src-perl-no-exec
-  "Tangle C-c C-v C-t org-babel-tangle."
-  ""
-  "#+begin_src perl :tangle /tmp/a.pl :results none :exports code :eval no\n"
-  "\n"
-  "#+end_src")
-(define-skeleton org-src-mastodon
-  "2m"
-  ""
-  "#+begin_src shell :results output :noweb yes\n"
-  "<<post_delete>>\n"
-  "post \"\n" _ "\"\n"
-  "#+end_src")
-(define-skeleton org-src-mastodon-old
-  "2m"
-  ""
-  "#+begin_src bash :results output\n"
-  ". ~/.bash_aliases\n"
-  "post \"\n" _ "\"\n"
-  "#+end_src")
-(define-skeleton org-src-julia
-  "julia"
-  ""
-  "#+begin_src julia :results output :exports both :session s1\n"
-  "#+end_src")
-(define-skeleton org-src-yaml
-  "julia"
-  ""
-  "#+begin_src yaml :results output pp\n"
-  "#+end_src")
-(define-skeleton diary-warntime
-  "warntime for appt, diary"
-  "" "## warntime 12")
-
-(define-skeleton org-src-mastadon
-  ""
-  ""
-  "#+begin_src bash :results output"
-  "\n"
-  "source ~/.bash_aliases"
-  "\n\n"
-  "# delete"
-  "\n\n"
-  "post \"\n😶\""
-  "\n"
-  "#+end_src")
-
-(define-skeleton org-src-mastadon2
-  ""
-  ""
-  "#+begin_src bash :results output\n"
-  "source ~/.bash_aliases\n"
-  "\n"
-  "# delete\n"
-  "\n"
-  "cat <<EOF | post\n"
-  "#dailyreport\n"
-  "😶\n"
-  "EOF\n"
-  "#+end_src")
-(define-skeleton org-src-shell
-  ""
-  ""
-  "#+begin_src bash :results output\n"
-  "#+end_src")
-(define-skeleton org-src-shell-no-exec
-  ""
-  ""
-  "#+begin_src bash :eval no :exports code :results none\n"
-  "#+end_src")
-(define-skeleton org-src-text
-  ""
-  ""
-  "#+begin_src text\n"
-  "#+end_src")
-(define-skeleton org-src-artist
-  ""
-  ""
-  "#+begin_src artist\n"
-  "#+end_src")
-(define-skeleton org-src-shell-curl
-  ""
-  ""
-  "#+begin_src bash :shebang #!/bin/bash :results output :session s1\n"
-  "alias curl=\"proxychains -f /home/user/proxychains.conf curl 2>/dev/null\"\n"
-  "#+end_src")
-;; - now for chinese characters I use input method chinese-py-punct that have chinese-punct inside
-;; (define-skeleton chinese-dot
-;;   ""
-;;   "" -1 "。")
-;; (define-skeleton chinese-comma
-;;   ""
-;;   "" -1 "，")
-;; (define-skeleton chinese-ecomma
-;;   ""
-;;   "" -1 "、")
-
-
-;; skeleton abbrevs - Abbrev table for Org-mode
-(define-abbrev-table 'org-mode-abbrev-table
-  '(
-    ("0-1-shallow" "" nil)
-    ("0-2-python" "" nil)
-    ("0-3-shell" "" nil)
-    ("0-4-others" "" nil)
-    ("0-6-lisp" "" nil)
-    ("0-bar-character" "¦" nil)
-    ;; ("gree" "" example)
-    ;; 1 blank, shallow
-    ("1s-shallow" "" org-src-shallow)
-    ("1r-result-shallow" "" org-src-with-output)
-
-    ;; 2 python
-    ("2p-python" "" org-src-python)
-    ("2i-img-python" "" org-src-python-img)
-    ("2tf-table-full-python" "" org-src-python-table-full)
-    ("2ne-noexec-tangle-python" "" org-src-python-no-exec)
-
-    ;; ("2t" "" org-src-python-table)
-    ;; ("2m-mastodon-python" "" org-src-mastodon)
-
-    ;; 3 shell, bash
-    ("3e-shell" "" org-src-shell)
-    ("3ne-shell" "" org-src-shell-no-exec)
-    ("3c-curl-shell" "" org-src-shell-curl)
-
-    ;; 4 for others
-    ("4y-yaml" "" org-src-yaml)
-    ("4s-sqlit" "" org-src-sqlite)
-    ("4j-julia" "" org-src-julia)
-    ("4m-mastadon" "" org-src-mastadon2)
-    ("4t-text" "" org-src-text)
-    ("4a-artist" "" org-src-artist)
-    ("4pne-perl" "" org-src-perl-no-exec)
-    ("4pe-perl" "" org-src-perl-exec)
-
-
-    ;; 6 lisp
-    ("6ne-lisp" "" org-src-elisp-no-exec)
-    ("6e-lisp" "" org-src-elisp-with-output)
-
-    ("bar-character" "¦" nil) ; C-x 8 RET 00A6 BROKEN BAR.
-    ;; - now for chinese characters I use input method chinese-py-punct that have chinese-punct inside
-    ;; (".." "" chinese-dot) ;; or use: C-x 8 RET IDEOGRAPHIC FULL STOP
-
-    ;; (".." "。" nil) ;; or use: C-x 8 RET IDEOGRAPHIC FULL STOP
-    ;; ;; ("," "" chinese-comma) ;; ，
-    ;; ("," "，" nil) ;; ，
-    ;; ;; (",," "" chinese-ecomma) ;; Enumeration comma 、
-    ;; (",," "、" nil) ;; Enumeration comma 、
-    ;; ("\"\"" "《》" nil)
-
-    ))
-
-(define-abbrev-table 'diary-mode-abbrev-table
-  '(
-    ("war" "" diary-warntime)
-    ))
-
-(setq save-abbrevs nil) ;; do not prompt to save abbrevs
-(setq skeleton-end-newline nil)
-;; -- -- flycheck-aspell for English
-;; Ensure `flycheck-aspell' is available
-(require 'flycheck-aspell)
-;; If you want to check TeX/LaTeX/ConTeXt buffers
-(add-to-list 'flycheck-checkers 'tex-aspell-dynamic)
-;; If you want to check Markdown/GFM buffers
-(add-to-list 'flycheck-checkers 'markdown-aspell-dynamic)
-;; If you want to check HTML buffers
-(add-to-list 'flycheck-checkers 'html-aspell-dynamic)
-;; If you want to check XML/SGML buffers
-(add-to-list 'flycheck-checkers 'xml-aspell-dynamic)
-;; If you want to check Nroff/Troff/Groff buffers
-(add-to-list 'flycheck-checkers 'nroff-aspell-dynamic)
-;; If you want to check Texinfo buffers
-(add-to-list 'flycheck-checkers 'texinfo-aspell-dynamic)
-;; If you want to check comments and strings for C-like languages
-(add-to-list 'flycheck-checkers 'c-aspell-dynamic)
-;; If you want to check message buffers
-(add-to-list 'flycheck-checkers 'mail-aspell-dynamic)
-
-(setq ispell-dictionary "en")
-(setq ispell-program-name "aspell")
-(setq ispell-silently-savep t)
-
-(flycheck-aspell-define-checker "org"
-  "Org" ("--add-filter" "url")
-  (org-mode))
-(add-to-list 'flycheck-checkers 'org-aspell-dynamic)
-
-(flycheck-aspell-define-checker "shell"
-  "Shell" ()
-  (shell-script-mode sh-mode))
-(add-to-list 'flycheck-checkers 'shell-aspell-dynamic)
-
-(setq flycheck-checker-error-threshold 1900)
-
-;; ispell-pdict-save to refresh flycheck when inserting new entries into your local dictionary
-;; (advice-add #'ispell-pdict-save :after #'flycheck-maybe-recheck)
-;; (defun flycheck-maybe-recheck (_)
-;;   (when (bound-and-true-p flycheck-mode)
-;;    (flycheck-buffer)))
-
-(defun my/ispell-flycheck-en()
-  (interactive)
-  (setq ispell-dictionary "en")
-  (call-interactively 'flycheck-mode))
-
-(defun my/ispell-flycheck-ru()
-  (interactive)
-  (setq ispell-dictionary "ru")
-  (call-interactively 'flycheck-mode))
-
-(global-set-key (kbd "C-c 2") #'my/ispell-flycheck-en)
-(global-set-key (kbd "C-c 3") #'my/ispell-flycheck-ru)
-
-;; -- -- org-agenda
-(setq org-agenda-include-diary t)
-(global-set-key (kbd "C-c a") 'org-agenda)
-
-;; ;; custom view
-;; (setq org-agenda-custom-commands
-;;       '(("c" "Desk Work" tags-todo "computer" ;; (1) (2) (3) (4)
-;;           (
-;; 	    (org-agenda-files '("~/todo.org" )) ;; (5)
-;;           (org-agenda-sorting-strategy '(priority-up effort-down))) ;; (5) cont.
-;;           ;; ("~/computer.html")
-;; 	  ) ;; (6)
-;;         ;; ...other commands here
-;;          ))
-
-
-
-;; (call-interactively 'my/agenda-split)
-;; (define-key org-mode-map (kbd "n") 'org-agenda-next-item) ;; shadow org-agenda-capture
-;; (define-key org-mode-map (kbd "k") 'org-agenda-previous-item) ;; shadow org-agenda-capture
-
-(add-hook 'org-agenda-mode-hook (lambda ()
-                             ;; (print "wtf")
-			   ;; do not indent for <s TAB
-			   ;(setq org-adapt-indentation nil)
-			   ;; - - - -  org keybindinds - - - - - -
-			   ;; (define-key org-mode-map [(control tab)] 'org-insert-structure-template)
-			   ;; new line
-			     ;; (define-key org-mode-map [(meta j)] 'org-meta-return)
-                             (local-set-key (kbd "n") 'org-agenda-next-item)
-                             (local-set-key (kbd "k") 'org-agenda-previous-item)
-                             ;; (define-key (current-global-map) (kbd "C-n") 'org-agenda-next-item) ;; shadow org-agenda-capture
-                             ;; (define-key (current-global-map) (kbd "C-k") 'org-agenda-previous-item) ;; shadow org-agenda-capture
-                             ;; (define-key (current-global-map) (kbd "C-M-,") 'picture-movement-down)
-                             ;; (local-set-key (kbd "C-k") 'org-agenda-previous-line)
-                           ;; (define-key key-translation-map (kbd "k") (kbd "p")) ;; left
-                           ;; (define-key key-translation-map (kbd "p") (kbd "k"))
-			   ;; - - replace arrows
-                           ;; (define-key org-mode-map [(control meta f)] 'org-shiftmetaright)
-			   ;; (define-key org-mode-map [(control meta l)] 'org-shiftmetaleft)
-                           ))
-;; -- -- appt - my appt X notification system:
-;; notify-send in by first emacs process
-
-(defvar my/duration (* 50 1000)) ; 50 seconds - of-notify-showing
-(defvar my/repeat 20) ; seconds
-
-(setq appt-disp-window-function
-  (lambda (min-to-app timenow msg)
-    ;; get emacs pids as "123 123 123"
-    (set 'v (shell-command-to-string "pidof emacs"))
-
-    ;; largest of "1 2 3" as number
-    (setq val (car ;; get ferst element of a list
-		(last
-		  (sort (mapcar  'string-to-number (split-string v)) #'>))))
-    ;; do if emacs-pid == val, 5000=5sec
-    ;; (print (type-of  msg))
-    (if (eq (emacs-pid) val)
-        (async-shell-command (format "notify-send -i emacs 'in %s minutes: %s' ; \
-timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg)))
-    ))
-
-;; update diary from for appt with timeout for every 60*5=300sec
-(run-with-timer 0 my/repeat (lambda ()
-                              ;; (print "asd")
-			   (appt-check t)
-			   ))
-
-;;  my X notification system
-;; (global-set-key "\C-cc" 'org-capture)
-;; (setq org-capture-templates
-;;       (quote (
-;;               ("n" "note" entry (file+datetree "~/Dropbox/org/reference.org")
-;;                "* %?\nEntered on %U\n  %i"))))
-
-;; do not display diary - you should press Esc to close it
-(setq appt-display-diary nil)
-;; before an appointment that the warning begins - minutes
-(setq appt-message-warning-time 15)
-
-;; activate notification
-(appt-activate t)
-
-
+;; -- -- -- fix BABEL SHELL: permission error
+;; (setq org-babel-temporary-directory "/var/tmp/babel")
+(defun org-babel-sh-evaluate (session body &optional params stdin cmdline)
+  "Pass BODY to the Shell process in BUFFER.
+If RESULT-TYPE equals `output' then return a list of the outputs
+of the statements in BODY, if RESULT-TYPE equals `value' then
+return the value of the last statement in BODY."
+  (let* ((shebang (cdr (assq :shebang params)))
+	 (results-params (cdr (assq :result-params params)))
+	 (value-is-exit-status
+	  (or (and
+	       (equal '("replace") results-params)
+	       (not org-babel-shell-results-defaults-to-output))
+	      (member "value" results-params)))
+	 (results
+	  (cond
+	   ((or stdin cmdline)	       ; external shell script w/STDIN
+	    (let ((script-file (org-babel-temp-file "sh-script-"))
+		  (stdin-file (org-babel-temp-file "sh-stdin-"))
+		  (padline (not (string= "no" (cdr (assq :padline params))))))
+	      (with-temp-file script-file
+		(when shebang (insert shebang "\n"))
+		(when padline (insert "\n"))
+		(insert body))
+	      (set-file-modes script-file #o755)
+	      (with-temp-file stdin-file (insert (or stdin "")))
+	      (with-temp-buffer
+                (with-connection-local-variables
+                 (print (list #'process-file
+                        (if shebang (file-local-name script-file)
+                          shell-file-name)
+		        stdin-file
+                        (current-buffer)
+                        nil
+                        (if shebang (when cmdline (list cmdline))
+                          (list shell-command-switch
+                                (concat (file-local-name script-file)  " " cmdline)))))
+                 (apply #'process-file
+                        (if shebang (file-local-name script-file)
+                          shell-file-name)
+		        stdin-file
+                        (current-buffer)
+                        nil
+                        (if shebang (when cmdline (list cmdline))
+                          (list shell-command-switch
+                                (concat (file-local-name script-file)  " " cmdline)))))
+		(buffer-string))))
+	   (session			; session evaluation
+	    (mapconcat
+	     #'org-babel-sh-strip-weird-long-prompt
+	     (mapcar
+	      #'org-trim
+	      (butlast ; Remove eoe indicator
+	       (org-babel-comint-with-output
+		   (session org-babel-sh-eoe-output t body)
+                 (insert (org-trim body) "\n"
+                         org-babel-sh-eoe-indicator)
+		 (comint-send-input nil t))
+               ;; Remove `org-babel-sh-eoe-indicator' output line.
+	       1))
+	     "\n"))
+	   ;; External shell script, with or without a predefined
+	   ;; shebang.
+	   ((org-string-nw-p shebang)
+	    (let ((script-file (org-babel-temp-file "sh-script-"))
+		  (padline (not (equal "no" (cdr (assq :padline params))))))
+	      (with-temp-file script-file
+		(insert shebang "\n")
+		(when padline (insert "\n"))
+		(insert body))
+	      (set-file-modes script-file #o755)
+	      (org-babel-eval script-file "")))
+	   (t (org-babel-eval shell-file-name (org-trim body))))))
+    (when (and results value-is-exit-status)
+      (setq results (car (reverse (split-string results "\n" t)))))
+    (when results
+      (let ((result-params (cdr (assq :result-params params))))
+        (org-babel-result-cond result-params
+          results
+          (let ((tmp-file (org-babel-temp-file "sh-")))
+            (with-temp-file tmp-file (insert results))
+            (org-babel-import-elisp-from-file tmp-file)))))))
 
 ;; -- -- Programming modes
 ;; -- -- -- all programming modes
@@ -3858,7 +3713,6 @@ This function is called by `org-babel-execute-src-block'."
 (add-hook 'sh-mode-hook 'my/sh-mode-hook)
 
 
-
 ;; -- -- -- HTML (testing)
 (add-hook 'html-mode-hook
           (lambda ()
@@ -3945,50 +3799,6 @@ This function is called by `org-babel-execute-src-block'."
 (advice-add 'artist-mode :after (lambda (&rest args) (call-interactively #'my/short-keys) ))
 
 (add-hook 'artist-mode-hook 'my/artist-mode-hook)
-
-;; -- -- multitran for ORG (translater)
-;; (setq multitran-languages)
-(require 'multitran)
-(defun my/multitran-at-pos-en (pos)
-  (interactive (list (point)))
-  (setq multitran-languages '("English" . "Russian") )
-  (multitran-at-pos pos)
-  )
-
-(defun my/multitran-at-pos-ch (pos)
-  (interactive (list (point)))
-  (setq multitran-languages '("Chinese" . "English") )
-  (multitran-at-pos pos)
-  )
-(defun my/multitran-at-pos-ch-en (pos)
-  (interactive (list (point)))
-  (setq multitran-languages '("English" . "Chinese") )
-  (multitran-at-pos pos)
-  )
-
-(defun my/multitran-at-pos-ru (pos)
-  (interactive (list (point)))
-  (setq multitran-languages '("Russian" . "English") )
-  (multitran-at-pos pos)
-  )
-
-
-
-(defun my/multitran()
-  (local-set-key (kbd "C-c t e") 'my/multitran-at-pos-en )
-  (local-set-key (kbd "C-c t c") 'my/multitran-at-pos-ch )
-  (local-set-key (kbd "C-c t d") 'my/multitran-at-pos-ch-en )
-  (local-set-key (kbd "C-c t r") 'my/multitran-at-pos-ru )
-  )
-;; org and markdown mode
-(add-hook 'org-mode-hook 'my/multitran)
-(add-hook 'markdown-mode-hook 'my/multitran)
-(add-hook 'fundamental-mode-hook 'my/multitran)
-
-
-(defconst multitran-url "https://www.multitran.com")
-;; (defconst multitran-url "https://89.108.112.70")
-
 
 ;; -- -- email
 ;; -- -- -- notmuch
@@ -4276,6 +4086,465 @@ This function is called by `org-babel-execute-src-block'."
 (setopt user-mail-address "user@mail.com")
 ;; (setopt user-mail-address "vitsmallboy@hotmail.com")
 
+;; -- -- skeletons(templates) for abbrev TAB completion for ORG and Diary modes
+(define-skeleton example
+  "Template example."
+  "" "greetings!"
+  )
+(define-skeleton org-src-sqlite
+  "Allow to input name."
+  ""
+  "#+name: " _ "\n"
+  "#+begin_src sqlite :db /tmp/test-sqlite.db :colnames yes :exports both\n"
+  "\n"
+  "#+end_src"
+  )
+(define-skeleton org-src-shallow
+  "Allow to input language."
+  ""
+  "#+begin_src " _ "\n"
+  "\n"
+  "#+end_src"
+  )
+(define-skeleton org-src-with-output
+  "Allow to input language."
+  ""
+  "#+begin_src " _ " :results output :exports both"
+  "\n\n"
+  "#+end_src"
+  )
+(define-skeleton org-src-elisp-shallow
+  "no exec"
+  ""
+  "#+begin_src elisp :results none :exports code :eval no"
+  "\n\n"
+  "#+end_src")
+
+(define-skeleton org-src-elisp-no-exec
+  "exec"
+  ""
+  "#+begin_src elisp :results none :exports code :eval no"
+  "\n\n"
+  "#+end_src")
+
+(define-skeleton org-src-elisp-no-exec
+  "exec"
+  ""
+  "#+begin_src elisp :results none :exports code :eval no"
+  "\n\n"
+  "#+end_src")
+
+(define-skeleton org-src-elisp-with-output
+  "exec"
+  ""
+  "#+begin_src elisp :results output :exports both"
+  "\n\n"
+  "#+end_src")
+
+
+(define-skeleton org-src-python
+  "org-tempo replacement"
+  ""
+  "#+begin_src python :results output :exports both :session s1"
+  "\n\n"
+  "#+end_src")
+
+(define-skeleton org-src-python-no-exec
+  "Tangle C-c C-v C-t org-babel-tangle."
+  ""
+  "#+begin_src python :results none :exports code :eval no\n"
+  "\n"
+  "#+end_src")
+
+(define-skeleton org-src-python-no-exec-tangle
+  "Tangle C-c C-v C-t org-babel-tangle."
+  ""
+  "#+begin_src python :tangle /tmp/out.py :results none :exports code :eval no\n"
+  "\n"
+  "#+end_src")
+
+(define-skeleton org-src-python-img
+  "org-tempo replacement"
+  ""
+  "#+begin_src python :results file graphics :exports both :file ./autoimgs/a.png :session s1""\n"
+  "import matplotlib.pyplot as plt""\n"
+  "plt.savefig('./autoimgs/a.png')""\n"
+  "plt.close()""\n"
+  "#+end_src")
+
+(define-skeleton org-src-python-table-full
+  "org-tempo replacement"
+  ""
+  "#+tblname: data_table""\n"
+  "| |""\n"
+  "|-""\n"
+  "\n\n"
+  "#+name: ""\n"
+  "#+header: :prologue from tabulate import tabulate""\n"
+  "#+begin_src python :results value raw :exports both :var data=data_table :session s1""\n"
+  "import pandas as pd""\n"
+  "\n"
+  "def pd2org(df_to_table):""\n"
+  "    return tabulate(df_to_table, headers=df_to_table.columns, tablefmt='orgtbl')""\n"
+  "\n"
+  "df = pd.DataFrame(data, columns=['column_name'])""\n"
+  "df['column_name'] = df.acidity.str.extract('(?P<digit>([-+])?\d+(.\d+)?)')['column_name'].astype(float)""\n"
+  "pd2org(df.describe())""\n"
+  "#+end_src")
+(define-skeleton org-src-perl-exec
+  "normal"
+  ""
+  "#+begin_src perl :results output :exports both\n"
+  "\n"
+  "#+end_src")
+(define-skeleton org-src-perl-no-exec
+  "Tangle C-c C-v C-t org-babel-tangle."
+  ""
+  "#+begin_src perl :tangle /tmp/a.pl :results none :exports code :eval no\n"
+  "\n"
+  "#+end_src")
+(define-skeleton org-src-mastodon
+  "2m"
+  ""
+  "#+begin_src shell :results output :noweb yes\n"
+  "<<post_delete>>\n"
+  "post \"\n" _ "\"\n"
+  "#+end_src")
+(define-skeleton org-src-mastodon-old
+  "2m"
+  ""
+  "#+begin_src bash :results output\n"
+  ". ~/.bash_aliases\n"
+  "post \"\n" _ "\"\n"
+  "#+end_src")
+(define-skeleton org-src-julia
+  "julia"
+  ""
+  "#+begin_src julia :results output :exports both :session s1\n"
+  "#+end_src")
+(define-skeleton org-src-yaml
+  "julia"
+  ""
+  "#+begin_src yaml :results output pp\n"
+  "#+end_src")
+(define-skeleton diary-warntime
+  "warntime for appt, diary"
+  "" "## warntime 12")
+
+(define-skeleton org-src-mastadon
+  ""
+  ""
+  "#+begin_src bash :results output"
+  "\n"
+  "source ~/.bash_aliases"
+  "\n\n"
+  "# delete"
+  "\n\n"
+  "post \"\n😶\""
+  "\n"
+  "#+end_src")
+
+(define-skeleton org-src-mastadon2
+  ""
+  ""
+  "#+begin_src bash :results output\n"
+  "source ~/.bash_aliases\n"
+  "\n"
+  "# delete\n"
+  "\n"
+  "cat <<EOF | post\n"
+  "#dailyreport\n"
+  "😶\n"
+  "EOF\n"
+  "#+end_src")
+(define-skeleton org-src-shell
+  ""
+  ""
+  "#+begin_src bash :results output\n"
+  "#+end_src")
+(define-skeleton org-src-shell-no-exec
+  ""
+  ""
+  "#+begin_src bash :eval no :exports code :results none\n"
+  "#+end_src")
+(define-skeleton org-src-text
+  ""
+  ""
+  "#+begin_src text\n"
+  "#+end_src")
+(define-skeleton org-src-artist
+  ""
+  ""
+  "#+begin_src artist\n"
+  "#+end_src")
+(define-skeleton org-src-shell-curl
+  ""
+  ""
+  "#+begin_src bash :shebang #!/bin/bash :results output :session s1\n"
+  "alias curl=\"proxychains -f /home/user/proxychains.conf curl 2>/dev/null\"\n"
+  "#+end_src")
+;; - now for chinese characters I use input method chinese-py-punct that have chinese-punct inside
+;; (define-skeleton chinese-dot
+;;   ""
+;;   "" -1 "。")
+;; (define-skeleton chinese-comma
+;;   ""
+;;   "" -1 "，")
+;; (define-skeleton chinese-ecomma
+;;   ""
+;;   "" -1 "、")
+
+
+;; skeleton abbrevs - Abbrev table for Org-mode
+(define-abbrev-table 'org-mode-abbrev-table
+  '(
+    ("0-1-shallow" "" nil)
+    ("0-2-python" "" nil)
+    ("0-3-shell" "" nil)
+    ("0-4-others" "" nil)
+    ("0-6-lisp" "" nil)
+    ("0-bar-character" "¦" nil)
+    ;; ("gree" "" example)
+    ;; 1 blank, shallow
+    ("1s-shallow" "" org-src-shallow)
+    ("1r-result-shallow" "" org-src-with-output)
+
+    ;; 2 python
+    ("2p-python" "" org-src-python)
+    ("2i-img-python" "" org-src-python-img)
+    ("2tf-table-full-python" "" org-src-python-table-full)
+    ("2ne-noexec" "" org-src-python-no-exec)
+    ("2ta-noexec-tangle-python" "" org-src-python-no-exec-tangle)
+
+    ;; ("2t" "" org-src-python-table)
+    ;; ("2m-mastodon-python" "" org-src-mastodon)
+
+    ;; 3 shell, bash
+    ("3e-shell" "" org-src-shell)
+    ("3ne-shell" "" org-src-shell-no-exec)
+    ("3c-curl-shell" "" org-src-shell-curl)
+
+    ;; 4 for others
+    ("4y-yaml" "" org-src-yaml)
+    ("4s-sqlit" "" org-src-sqlite)
+    ("4j-julia" "" org-src-julia)
+    ("4m-mastadon" "" org-src-mastadon2)
+    ("4t-text" "" org-src-text)
+    ("4a-artist" "" org-src-artist)
+    ("4pne-perl" "" org-src-perl-no-exec)
+    ("4pe-perl" "" org-src-perl-exec)
+
+
+    ;; 6 lisp
+    ("6ne-lisp" "" org-src-elisp-no-exec)
+    ("6e-lisp" "" org-src-elisp-with-output)
+
+    ("bar-character" "¦" nil) ; C-x 8 RET 00A6 BROKEN BAR.
+    ;; - now for chinese characters I use input method chinese-py-punct that have chinese-punct inside
+    ;; (".." "" chinese-dot) ;; or use: C-x 8 RET IDEOGRAPHIC FULL STOP
+
+    ;; (".." "。" nil) ;; or use: C-x 8 RET IDEOGRAPHIC FULL STOP
+    ;; ;; ("," "" chinese-comma) ;; ，
+    ;; ("," "，" nil) ;; ，
+    ;; ;; (",," "" chinese-ecomma) ;; Enumeration comma 、
+    ;; (",," "、" nil) ;; Enumeration comma 、
+    ;; ("\"\"" "《》" nil)
+
+    ))
+
+(define-abbrev-table 'diary-mode-abbrev-table
+  '(
+    ("war" "" diary-warntime)
+    ))
+
+(setq save-abbrevs nil) ;; do not prompt to save abbrevs
+(setq skeleton-end-newline nil)
+;; -- -- flycheck-aspell for English
+;; Ensure `flycheck-aspell' is available
+(require 'flycheck-aspell)
+;; If you want to check TeX/LaTeX/ConTeXt buffers
+(add-to-list 'flycheck-checkers 'tex-aspell-dynamic)
+;; If you want to check Markdown/GFM buffers
+(add-to-list 'flycheck-checkers 'markdown-aspell-dynamic)
+;; If you want to check HTML buffers
+(add-to-list 'flycheck-checkers 'html-aspell-dynamic)
+;; If you want to check XML/SGML buffers
+(add-to-list 'flycheck-checkers 'xml-aspell-dynamic)
+;; If you want to check Nroff/Troff/Groff buffers
+(add-to-list 'flycheck-checkers 'nroff-aspell-dynamic)
+;; If you want to check Texinfo buffers
+(add-to-list 'flycheck-checkers 'texinfo-aspell-dynamic)
+;; If you want to check comments and strings for C-like languages
+(add-to-list 'flycheck-checkers 'c-aspell-dynamic)
+;; If you want to check message buffers
+(add-to-list 'flycheck-checkers 'mail-aspell-dynamic)
+
+(setq ispell-dictionary "en")
+(setq ispell-program-name "aspell")
+(setq ispell-silently-savep t)
+
+(flycheck-aspell-define-checker "org"
+  "Org" ("--add-filter" "url")
+  (org-mode))
+(add-to-list 'flycheck-checkers 'org-aspell-dynamic)
+
+(flycheck-aspell-define-checker "shell"
+  "Shell" ()
+  (shell-script-mode sh-mode))
+(add-to-list 'flycheck-checkers 'shell-aspell-dynamic)
+
+(setq flycheck-checker-error-threshold 1900)
+
+;; ispell-pdict-save to refresh flycheck when inserting new entries into your local dictionary
+;; (advice-add #'ispell-pdict-save :after #'flycheck-maybe-recheck)
+;; (defun flycheck-maybe-recheck (_)
+;;   (when (bound-and-true-p flycheck-mode)
+;;    (flycheck-buffer)))
+
+(defun my/ispell-flycheck-en()
+  (interactive)
+  (setq ispell-dictionary "en")
+  (call-interactively 'flycheck-mode))
+
+(defun my/ispell-flycheck-ru()
+  (interactive)
+  (setq ispell-dictionary "ru")
+  (call-interactively 'flycheck-mode))
+
+(global-set-key (kbd "C-c 2") #'my/ispell-flycheck-en)
+(global-set-key (kbd "C-c 3") #'my/ispell-flycheck-ru)
+
+;; -- -- org-agenda
+(setq org-agenda-include-diary t)
+(global-set-key (kbd "C-c a") 'org-agenda)
+
+;; ;; custom view
+;; (setq org-agenda-custom-commands
+;;       '(("c" "Desk Work" tags-todo "computer" ;; (1) (2) (3) (4)
+;;           (
+;; 	    (org-agenda-files '("~/todo.org" )) ;; (5)
+;;           (org-agenda-sorting-strategy '(priority-up effort-down))) ;; (5) cont.
+;;           ;; ("~/computer.html")
+;; 	  ) ;; (6)
+;;         ;; ...other commands here
+;;          ))
+
+
+
+;; (call-interactively 'my/agenda-split)
+;; (define-key org-mode-map (kbd "n") 'org-agenda-next-item) ;; shadow org-agenda-capture
+;; (define-key org-mode-map (kbd "k") 'org-agenda-previous-item) ;; shadow org-agenda-capture
+
+(add-hook 'org-agenda-mode-hook (lambda ()
+                             ;; (print "wtf")
+			   ;; do not indent for <s TAB
+			   ;(setq org-adapt-indentation nil)
+			   ;; - - - -  org keybindinds - - - - - -
+			   ;; (define-key org-mode-map [(control tab)] 'org-insert-structure-template)
+			   ;; new line
+			     ;; (define-key org-mode-map [(meta j)] 'org-meta-return)
+                             (local-set-key (kbd "n") 'org-agenda-next-item)
+                             (local-set-key (kbd "k") 'org-agenda-previous-item)
+                             ;; (define-key (current-global-map) (kbd "C-n") 'org-agenda-next-item) ;; shadow org-agenda-capture
+                             ;; (define-key (current-global-map) (kbd "C-k") 'org-agenda-previous-item) ;; shadow org-agenda-capture
+                             ;; (define-key (current-global-map) (kbd "C-M-,") 'picture-movement-down)
+                             ;; (local-set-key (kbd "C-k") 'org-agenda-previous-line)
+                           ;; (define-key key-translation-map (kbd "k") (kbd "p")) ;; left
+                           ;; (define-key key-translation-map (kbd "p") (kbd "k"))
+			   ;; - - replace arrows
+                           ;; (define-key org-mode-map [(control meta f)] 'org-shiftmetaright)
+			   ;; (define-key org-mode-map [(control meta l)] 'org-shiftmetaleft)
+                           ))
+;; -- -- appt - my appt X notification system:
+;; notify-send in by first emacs process
+
+(defvar my/duration (* 50 1000)) ; 50 seconds - of-notify-showing
+(defvar my/repeat 20) ; seconds
+
+
+(defun my/display-msg (min-to-app timenow msg)
+    ;; get emacs pids as "123 123 123"
+    (set 'v (shell-command-to-string "pidof emacs"))
+
+    ;; largest of "1 2 3" as number
+    (setq val (car ;; get ferst element of a list
+		(last
+		  (sort (mapcar  'string-to-number (split-string v)) #'>))))
+    ;; do if emacs-pid == val, 5000=5sec
+    ;; (print (type-of  msg))
+    (if (eq (emacs-pid) val)
+        (async-shell-command (format "notify-send -i emacs 'in %s minutes: %s' ; \
+timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg)))
+    )
+
+(setopt appt-disp-window-function #'my/display-msg)
+
+;; update diary from for appt with timeout for every 60*5=300sec
+(run-with-timer 0 my/repeat (lambda ()
+                              ;; (print "asd")
+			   (appt-check t)
+			   ))
+
+;;  my X notification system
+;; (global-set-key "\C-cc" 'org-capture)
+;; (setq org-capture-templates
+;;       (quote (
+;;               ("n" "note" entry (file+datetree "~/Dropbox/org/reference.org")
+;;                "* %?\nEntered on %U\n  %i"))))
+
+;; do not display diary - you should press Esc to close it
+(setq appt-display-diary nil)
+;; before an appointment that the warning begins - minutes
+(setq appt-message-warning-time 15)
+
+;; activate notification
+(appt-activate t)
+
+;; -- -- multitran for ORG (translater)
+;; (setq multitran-languages)
+(require 'multitran)
+(defun my/multitran-at-pos-en (pos)
+  (interactive (list (point)))
+  (setq multitran-languages '("English" . "Russian") )
+  (multitran-at-pos pos)
+  )
+
+(defun my/multitran-at-pos-ch (pos)
+  (interactive (list (point)))
+  (setq multitran-languages '("Chinese" . "English") )
+  (multitran-at-pos pos)
+  )
+(defun my/multitran-at-pos-ch-en (pos)
+  (interactive (list (point)))
+  (setq multitran-languages '("English" . "Chinese") )
+  (multitran-at-pos pos)
+  )
+
+(defun my/multitran-at-pos-ru (pos)
+  (interactive (list (point)))
+  (setq multitran-languages '("Russian" . "English") )
+  (multitran-at-pos pos)
+  )
+
+
+
+(defun my/multitran()
+  (local-set-key (kbd "C-c t e") 'my/multitran-at-pos-en )
+  (local-set-key (kbd "C-c t c") 'my/multitran-at-pos-ch )
+  (local-set-key (kbd "C-c t d") 'my/multitran-at-pos-ch-en )
+  (local-set-key (kbd "C-c t r") 'my/multitran-at-pos-ru )
+  )
+;; org and markdown mode
+(add-hook 'org-mode-hook 'my/multitran)
+(add-hook 'markdown-mode-hook 'my/multitran)
+(add-hook 'fundamental-mode-hook 'my/multitran)
+
+
+(defconst multitran-url "https://www.multitran.com")
+;; (defconst multitran-url "https://89.108.112.70")
+
+
+
 ;; -- -- hidepw
 (require 'hidepw)
 (setq hidepw-patterns '("\\([pP]assword\\|[pP]ass\\|[lL]ogin\\|kv\\|[tT]oken\\):? \\(.+\\)$"))
@@ -4286,6 +4555,13 @@ This function is called by `org-babel-execute-src-block'."
           `(,@hidepw-patterns ,@(when hidepw-hide-first-line '("\\`\\(.*\\)$"))))
     )
   )
+;; -- -- Ediff
+(require 'ediffnw)
+;; (setopt ediff-window-setup-function #'ediff-setup-windows-plain)
+(setopt ediffnw-purge-window t)
+;; (setq 'ediff--startup-hook '(ediffnw--startup)) ;; not working, idk why
+;; (defun ediff-setup-control-buffer (ctl-buf)
+;;   t)
 ;; -- -- YAML - yaml-mode
 (add-hook 'yaml-mode-hook 'flymake-yamllint-setup)
 (add-hook 'yaml-mode-hook (lambda ()
@@ -4313,6 +4589,65 @@ This function is called by `org-babel-execute-src-block'."
 ;; -- -- pinyin-isearch
 (require 'pinyin-isearch)
 (pinyin-isearch-activate-submodes)
+
+;; -- -- org-present - in development
+(defun my/modeline-hide ()
+  (setq hide-mode-line-saved-mode-line-format
+              (list mode-line-format))
+  (setq mode-line-format nil))
+
+(defun my/modeline-show ()
+  (setq mode-line-format
+        (car hide-mode-line-saved-mode-line-format)))
+
+(setq visual-fill-column-width 110
+      visual-fill-column-center-text t)
+
+(defun my/org-present-hook ()
+  (org-display-inline-images) ;; 1
+  (my/modeline-hide) ;; 3
+  (my/set-theme-white) ;; 4
+  (visual-fill-column-mode 1) ;; 5 not working
+  (modify-frame-parameters (selected-frame) '((left-fringe . 0)))
+  (visual-line-mode 1) ;; 6 here to cause lines to be wrapped within the centered document, otherwise you will have to horizontally scroll to see them all!
+  (tab-line-mode 0)
+  (zone-when-idle 0)
+  (set-frame-parameter (selected-frame) 'internal-border-width 20)
+  (toggle-frame-fullscreen) ;; 7
+)
+
+(defun my/org-present-end ()
+  (org-remove-inline-images) ;; 1
+  (my/modeline-show) ;; 3
+  (my/set-theme-middle) ;; 4
+  (visual-fill-column-mode 0) ;; 5 not working
+  (modify-frame-parameters (selected-frame) '((left-fringe . 12)))
+  (visual-line-mode 0) ;; 6
+  (tab-line-mode 1)
+  (zone-when-idle 120)
+  (set-frame-parameter (selected-frame) 'internal-border-width 0)
+  (toggle-frame-fullscreen) ;; 7
+  (revert-buffer-quick)
+)
+
+;; (require 'org-present)
+(with-eval-after-load "org-present"
+
+  (add-hook 'org-present-mode-hook
+            (lambda ()
+              (org-present-big)
+              (org-present-read-only)
+              ))
+  (add-hook 'org-present-mode-hook
+            #'my/org-present-hook)
+  ;; --
+  (add-hook 'org-present-mode-quit-hook
+            (lambda ()
+              (org-present-read-write) ;; 2
+              ))
+  (add-hook 'org-present-mode-quit-hook
+            #'my/org-present-end)
+  )
 
 ;; -- -- RTAGS (old)
 ;; (require 'rtags)
@@ -4445,7 +4780,18 @@ This function is called by `org-babel-execute-src-block'."
 ;; -- jupyter export test
 (require 'ox-ipynb) ; todo
 ;; -- test
+;; (get-buffer "*Ediff Control Panel<2>*")
+;; (setopt ediff-window-setup-function 'ediff-setup-windows-plain)
 
+;; https://systemcrafters.net/emacs-tips/presentations-with-org-present/
+
+(require 'ox-html5slide)
+
+
+;; (defun my ediff
+;; startup-hooks
+
+;; ediff-setup
 
 ;; (require 'fuzzy-autoloads)
 ;; (require 'package-build)
