@@ -27,14 +27,13 @@ This is between console and JIKL:
 - C-n - down
 
 ## new line
-Basic rule: C without indentation, M with indentation (as already used in Emacs)
-- C-o open previous line
-- C-j open line split, without indentation and stay at current
-- M-j open line (split, with indentation) and stay at current
-- C-m open next line split, without indentation and go there
-- M-m open next line (split, with indentation) and go there
-- C-M-m don't split make new fresh line and go there
-
+Basic rule: C - go there, M(Alt) - stay at current, j - without indentation, m - with indentation
+- C-o open previous line and go there. - #'my/open-previous-line
+- C-j go there: open next line split, without indentation - 'electric-newline-and-maybe-indent
+- C-m go there: open next line (split, with indentation) - 'default-indent-new-line
+- M-j stay at current: open line split, without indentation - 'open-line
+- M-m stay at current: open line (split, with indentation) - 'my/new-line-stay-indent
+- C-M-m don't split make new fresh line and go there - 'my/open-next-line
 
 M-o 'other-winndow - as soon as it is free, it is popular approach.
 ## Detele backward (C-u in console)
