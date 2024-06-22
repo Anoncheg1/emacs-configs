@@ -27,7 +27,7 @@ This is between console and JIKL:
 - C-n - down
 
 ## new line
-Basic rule: C - go there, M(Alt) - stay at current, j - without indentation, m - with indentation
+Basic rule: C-j C-m - go there: without indentation, with indentation; M-j M-m stay cursor at current line
 - C-o open previous line and go there. - #'my/open-previous-line
 - C-j go there: open next line split, without indentation - 'electric-newline-and-maybe-indent
 - C-m go there: open next line (split, with indentation) - 'default-indent-new-line
