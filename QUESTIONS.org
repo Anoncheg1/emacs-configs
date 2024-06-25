@@ -1496,40 +1496,9 @@ We get this output and place in our hook for Buffer-menu mode:
 (add-hook 'Buffer-menu-mode-hook #'my/sort-buffer-meny-by-mode)
 #+end_src
 * GUT: How to open Buffer-menu at right?
-To do so we create our own function that do that and bind this function to default C-x C-l list-buffers.
+There is variable *split-width-threshold* for that, if "(window-width
+ (selected-window))" > this variable, window will be created at right.
 
-In that function we use function *display-buffer-in-direction*. If
- frame was already splitted we just use curren window by using
- *buffer-menu* functon.
-#+begin_src elisp :results none :exports code :eval no
-(defvar my/buffer-menu-window-width 100
-"We think that buffer menu is splitted if window widht is lower
-that this number. To ajust use (window-width (selected-window))")
-
-(defun my/buffer-menu()
-  "Display Buffer-menu at right side.
-If this window is splitted and small, just use current window."
-  (interactive)
-  (let ((b (list-buffers-noselect nil)))
-    (if (> (window-width (selected-window)) my/buffer-menu-window-width)
-        (progn
-          (display-buffer-in-direction b '((direction . right)))
-          (switch-to-buffer-other-window b))
-      ;; else
-      (buffer-menu))))
-
-(global-set-key (kbd "C-x C-l") #'my/buffer-menu) ; shadow `list-buffers'
-
-(defun my/buffer-menu-open-wide ()
-  "Open current selected item in menu after deleting other window."
-  (interactive)
-  (delete-other-windows)
-  (call-interactively 'Buffer-menu-this-window))
-
-(add-hook 'Buffer-menu-mode-hook
-          (lambda () (local-set-key "\C-j" #'my/buffer-menu-open-wide)))
-
-#+end_src
 * GUI: how to resize and enlarge frame with a sexp?
 : (set-frame-parameter (selected-frame) 'fullscreen 'fullheight)
 * How to kill all buffers and duplicate frames?
@@ -1887,3 +1856,14 @@ With universal argument Capitalize first letter at current line."
 For Org Babel in #+BEGIN_SRC there is a header argument :dir
 : :dir /scp:dand@yakuba.princeton.edu:
 https://orgmode.org/manual/Environment-of-a-Code-Block.html
+* Automatic curly quotation marks “” (instead of "") and ‘’ (instead of '')
+#+begin_src elisp :results none :exports code :eval no
+(setopt electric-quote-context-sensitive t)
+(setopt electric-quote-replace-double t)
+(add-hook 'org-mode-hook 'electric-quote-local-mode)
+#+end_src
+
+Sadly, conflict with #+begin_src #+end_src blocks with Python.
+use https://codeberg.org/Anoncheg/org-src-detect
+* TODO Org: How set #+TITLE: to filename?
+(plist-get (org-export-get-environment) ':title)

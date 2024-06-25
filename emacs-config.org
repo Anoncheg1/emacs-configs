@@ -765,6 +765,55 @@ VENV-PATH is /some/path/venv ."
     (message cc)
     (shell-command cc )))
 #+end_src
+** Detect Org source block
+#+begin_src elisp
+
+(defvar org-src-detect--last-post-command-position 0
+  "Holds the cursor position from the last run of post-command-hooks.")
+
+(defun org-src-detect-check ()
+  "Return t if cursor at src-block, fixed-width or comment line.
+Based on `org-edit-src-code'."
+  (let* ((element (org-element-at-point))
+         (el-type (org-element-type element))
+         (line (buffer-substring-no-properties
+                (line-beginning-position)
+                (line-end-position))))
+     (if (or
+          (string-match-p "^: " line) ; 'fixed-width
+          (string-match-p "^#" line) ; 'comments and other org
+          (and (memq el-type '(example-block src-block))
+               (org-src--on-datum-p element)))
+         t)))
+
+(defcustom org-src-detect-in-hook nil
+  "Hook run at every cursor movement in source block or comment line."
+  :type 'hook
+  :group 'matching)
+
+(defcustom org-src-detect-out-hook nil
+  "Hook run at every cursor movement outside of source block or comment line."
+  :type 'hook
+  :group 'matching)
+
+(defun org-src-detect--post-command ()
+  "Run one of hooks if cursor moved.
+Use (add-to-list 'post-command-hook 'org-src-detect--post-command)
+to activate."
+  (unless (equal (point) org-src-detect--last-post-command-position)
+    ;; - save cursor position
+    (unless (local-variable-p 'org-src-detect--last-post-command-position)
+      (make-local-variable 'org-src-detect--last-post-command-position))
+    (setq org-src-detect--last-post-command-position (point))
+    ;; - run hooks
+    (if (derived-mode-p 'org-mode)
+      (if (org-src-detect-check)
+          ;; at source code!
+          (run-hooks 'org-src-detect-in-hook)
+        ;; else - not at source code
+        (run-hooks 'org-src-detect-out-hook)
+        ))))
+#+end_src
 * Global fixes
 #+begin_src elisp
 
@@ -905,6 +954,10 @@ C-u behaviour."
 ** New Line
 #+begin_src elisp
 
+#+end_src
+*** main code
+#+begin_src elisp
+
 ;; Behave like vi's O command
 (defun my/open-previous-line (arg)
   "Open a new line before the current one.
@@ -917,13 +970,14 @@ C-u behaviour."
   ;;   (indent-according-to-mode))
   )
 
-(defun my/open-next-line (arg)
+(defun my/open-next-line ()
   "Move to the next line and then opens a line."
-  (interactive "p")
+  (interactive)
   (end-of-line)
-  (open-line arg)
+  (open-line 1)
   (forward-line 1)
-  (indent-according-to-mode))
+  ;; (indent-according-to-mode)
+) ;; TODO: problem if previous line is empty it indent anyway.
 
 ;; FROM:
 ;; By default: C without indentation, M with indentation
@@ -942,17 +996,39 @@ C-u behaviour."
 ;; C-M-j default-indent-new-line
 ;; org: M-RET org-meta-return - open new heading or new line in table
 ;; TO: ->
-;; Basic rule: C without indentation, M with indentation (as already used in Emacs)
-;; - C-o open previous line and go there.
-;; - C-j open line split, without indentation and stay at current
-;; - M-j open line (split, with indentation) and stay at current
-;; - C-m open next line split, without indentation and go there
-;; - M-m open next line (split, with indentation) and go there
-;; - C-M-m don't split make new fresh line and go there
+
+;; Basic rule: C-j C-m - go there: without indentation, with indentation; M-j M-m stay cursor at current line
+;; - C-o open previous line and go there. - #'my/open-previous-line
+;; - C-j go there: open next line split, without indentation - 'electric-newline-and-maybe-indent
+;; - C-m go there: open next line split, with indentation - 'default-indent-new-line
+;; - M-j stay at current: open line split, without indentation - 'open-line
+;; - M-m stay at current: open line split, with indentation - 'my/new-line-stay-indent
+;; - C-M-m don't split make new fresh line and go there - 'my/open-next-line
+;; For ORG - search "ORG NEW LINE"
+;; C-o 'my/open-previous-line
+;; C-j 'electric-newline-and-maybe-indent
+;; C-m 'my/default-indent-new-line
+;; M-j 'org-open-line
+;; M-m 'my/new-line-stay-indent
+;; C-M-m 'my/open-next-line
+
+;; Global rule: o - previous, j - basic, m - basic no split
+;; - C-o don't split: open previous line and go there without indentation - 'my/open-previous-line
+;; - C-m go there: open next line split, without indentation - 'electric-newline-and-maybe-indent
+;; - M-m go there: open next line split, with indentation - 'default-indent-new-line
+;; - C-j don't split: open next line and go there without indentation - 'my/open-next-line
+
+;; Org rule:
+;; - C-o - 'my/open-previous-line
+;; - C-m - 'electric-newline-and-maybe-indent
+;; - M-m - 'my/default-indent-new-line
+;; - C-j - 'my/open-next-line
+
+
 (defun my/new-line-stay-indent ()
   "Open new line with correct indentation, stay at the same line.
 M-j"
-  (interactive)
+   (interactive)
   (let ((p (point))) ; save current point
     ;; create line
     (if comment-start
@@ -965,12 +1041,9 @@ M-j"
 
 
 (global-set-key "\C-o" #'my/open-previous-line)
-(global-set-key "\C-j" 'open-line)
-(global-set-key "\M-j" 'my/new-line-stay-indent)
-(global-set-key "\C-m" 'electric-newline-and-maybe-indent)
-(global-set-key "\M-m" 'default-indent-new-line) ;; hides `back-to-indentation'
-(global-set-key (kbd "M-RET") 'my/open-next-line) ; C-M-m
-;; C-m don't need rebinding
+(global-set-key "\C-m" #'electric-newline-and-maybe-indent)
+(global-set-key "\M-m" #'default-indent-new-line)
+(global-set-key "\C-j" #'my/open-next-line)
 
 ;; (global-set-key (kbd "C-M-o") #'open-next-line) ;; hides split-line
 
@@ -1013,6 +1086,22 @@ M-j"
 
 ;;       (call-interactively 'indent-rigidly-left-to-tab-stop)
 ;;     (kill-word (- arg))))
+#+end_src
+*** remove space after (open-line 1) when cursor at empty line
+#+begin_src elisp
+
+(defun my/open-line-advice (func-call &rest args)
+  (let ((line-length (save-excursion
+                       (end-of-line)
+                       (- (point) (line-beginning-position)))))
+    (apply func-call args)
+    (when (= line-length 0)
+        (beginning-of-line)
+        (call-interactively 'whitespace-cleanup-region)
+      )
+    ))
+
+(advice-add 'open-line :around #'my/open-line-advice)
 
 #+end_src
 ** WINDOWS
@@ -1781,25 +1870,21 @@ Function `frame-list-z-order' used as a source of frames."
 #+begin_src elisp
 
 ;; default C-x C-l
-(defvar my/buffer-menu-window-width 100
-"We think that buffer menu is splitted if window widht is lower
-that this number. To ajust use (window-width (selected-window))")
 
+(setopt split-width-threshold 100) ;; split window to right if (window-width (selected-window)) > this
 
-(defun my/buffer-menu()
+(defun my/list-buffers-right()
   "Display Buffer-menu at right side.
 If this window is splitted and small, just use current window."
   (interactive)
   (let ((b (list-buffers-noselect nil)))
-    (if (> (window-width (selected-window)) my/buffer-menu-window-width)
-        (progn
-          (display-buffer-in-direction b '((direction . right)))
-          (switch-to-buffer-other-window b))
-      ;; else
-      (buffer-menu))))
+    (if (< (window-width (selected-window)) split-width-threshold)
+        (buffer-menu) ;; full window
+        ;; else
+      (switch-to-buffer-other-window b))))
 
 (global-set-key (kbd "C-x M-x") #'buffer-menu) ; rooted
-(global-set-key (kbd "C-x C-b") #'my/buffer-menu) ; shadow `list-buffers'
+(global-set-key (kbd "C-x C-b") #'my/list-buffers-right) ; shadow `list-buffers'
 
 (defun my/buffer-menu-open-wide ()
   "Open current selected item in menu after deleting other window."
@@ -2886,7 +2971,8 @@ depending on context."
 (defun my/org-backward-sentence (&optional _arg)
   "Go to beginning of sentence, or beginning of table field.
 This will call `backward-sentence' or `org-table-beginning-of-field',
-depending on context."
+depending on context.
+(org-element-type (org-element-at-point))"
   (interactive)
   (let* ((element (org-element-at-point))
 	 (contents-begin (org-element-property :contents-begin element))
@@ -3072,9 +3158,18 @@ Like (outline-hide-other) (org-reveal) but better."
      (call-interactively 'my/indent-or-complete))
      )))
 
+(defun my/default-indent-new-line()
+  "go there: new line with with indentation"
+  (interactive)
+  (if (org-babel-get-src-block-info) ;; if in source block
+      (progn
+        (newline) (indent-relative))
+      ;; else
+    (org-meta-return)))
+
 (add-hook 'org-mode-hook (lambda ()
 
-			   ;; - - -  org keybindinds - - - -
+;; - - -  org keybindinds - - - -
 			   ;; (define-key org-mode-map [(control tab)] 'org-insert-structure-template)
 			   ;; new line
 			   (define-key org-mode-map [(meta j)] 'org-meta-return)
@@ -3095,6 +3190,8 @@ Like (outline-hide-other) (org-reveal) but better."
                            ;; we need: 1) cycling with a single key 2) change indentation with two directions
                            (local-set-key (kbd "C-c C-f") 'org-shiftmetaright) ; shadow org-forward-heading-same-level
 			   (local-set-key (kbd "C-c C-b") 'org-shiftmetaleft) ; shadow org-backward-heading-same-level
+                           (local-set-key (kbd "C-c n") 'org-forward-heading-same-level)
+                           (local-set-key (kbd "C-c k") 'org-backward-heading-same-level)
                            (define-key org-mode-map (kbd "C-;") 'org-shiftright)
                            (define-key org-mode-map (kbd "C-:") 'org-shiftleft)
                            ;; (define-key org-mode-map (kbd "C-c l") 'org-shiftleft)
@@ -3174,27 +3271,19 @@ Like (outline-hide-other) (org-reveal) but better."
                                                                        )))
                                                             (call-interactively 'org-open-at-point))
                                                           ) )
-                           ;; - - - - NEW LINE:
-
-                           ;; C-o org-open-line - new line + stay at the same - no indent -> custom
+                           ;; - - - - ORG NEW LINE:
                            (local-set-key "\C-o" 'my/open-previous-line)
-                           ;; C-j org-return-and-maybe-indent -> org-open-line
-                           (local-set-key "\C-j" 'org-open-line)
-                           (local-set-key "\M-j" 'my/new-line-stay-indent)
+                           (local-set-key "\C-m" 'electric-newline-and-maybe-indent)
+                           (local-set-key "\M-m" 'my/default-indent-new-line)
+                           (local-set-key "\C-j" 'my/open-next-line)
+
                            ;; - - fix new line in src-block, just to prevous
                            ;; (local-set-key "\C-m" (lambda () (interactive) (newline) (indent-relative) ) )
-                           (local-set-key "\C-m" 'electric-newline-and-maybe-indent)
-                           (local-set-key "\M-m" (lambda () (interactive) (if (org-babel-get-src-block-info)
-                                                                              (progn
-                                                                                (newline) (indent-relative))
-                                                                              ;; else
-                                                                            (org-meta-return))))
-                           (local-set-key (kbd "M-RET") 'my/open-next-line) ; shadow `org-meta-return'
 
+                           ;; (local-set-key "\M-m" 'my/new-line-stay-indent)
+                           ;; (local-set-key (kbd "M-RET") 'my/open-next-line) ; shadow `org-meta-return'
 
-
-
-
+                           ;; - - - move header
 
                            ;; - - - -
                            ;; (setq show-paren-style 'parenthesis) ; highlight brackets
@@ -3607,6 +3696,32 @@ return the value of the last statement in BODY."
           (let ((tmp-file (org-babel-temp-file "sh-")))
             (with-temp-file tmp-file (insert results))
             (org-babel-import-elisp-from-file tmp-file)))))))
+
+#+end_src
+** Electric quote mode for Org
+#+begin_src elisp
+
+;; (require 'org-src-detect)
+(add-hook 'org-src-detect-in-hook
+          (lambda ()
+            ;; Disable inside #+begin_src
+            (electric-quote-local-mode -1)
+            ))
+
+(add-hook 'org-src-detect-out-hook
+          (lambda ()
+            ;; Enable
+            (electric-quote-local-mode t)
+            ))
+;; Minor mode configuration
+(setopt electric-quote-context-sensitive t)
+(setopt electric-quote-replace-double t)
+
+;; Hooks activation
+(add-hook 'org-mode-hook
+          (lambda ()
+            (add-to-list 'post-command-hook 'org-src-detect--post-command)
+            ))
 
 #+end_src
 ** Programming modes

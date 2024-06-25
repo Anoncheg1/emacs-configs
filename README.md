@@ -3,6 +3,7 @@
 [With lisp highlighting: .emacs.org](emacs-config.org)
 
 [Raw original: .emacs](.emacs)
+
 # emacs-configs
 A single emacs configuration file.
 
@@ -18,6 +19,7 @@ mini C IDE:
 - autocompletion and navigation with semantic and ggtags (GNU GLOBAL dependency)
 
 I use a single ```.emacs``` with outline-mode. I don't generate from .org.
+
 # Key remappings
 ## Navigation
 This is between console and JIKL:
@@ -26,20 +28,23 @@ This is between console and JIKL:
 - C-k - up (old C-p)
 - C-n - down
 
-## new line
-Basic rule: C-j C-m - go there: without indentation, with indentation; M-j M-m stay cursor at current line
-- C-o open previous line and go there. - #'my/open-previous-line
-- C-j go there: open next line split, without indentation - 'electric-newline-and-maybe-indent
-- C-m go there: open next line (split, with indentation) - 'default-indent-new-line
-- M-j stay at current: open line split, without indentation - 'open-line
-- M-m stay at current: open line (split, with indentation) - 'my/new-line-stay-indent
-- C-M-m don't split make new fresh line and go there - 'my/open-next-line
+## New line
 
-M-o 'other-winndow - as soon as it is free, it is popular approach.
+[New line rebinding: ./new-line-rebinding.md](new-line-rebinding.md)
+
 ## Detele backward (C-u in console)
 - C-h 'delete-backward-char
 - M-h 'backward-kill-word
 - C-M-h 'backward-kill-sentence (shadow mark-defun)
+
+## Org specific key binding
+- C-c p 'org-backward-heading-same-level - C-c C-b by default
+- C-c n 'org-forward-heading-same-level - C-c C-f by default
+
+by default:
+- C-c C-p up heading ignore level
+- C-c C-n down heading ignore level
+- C-c C-u to upper heading.
 
 ## Additional key bindings:
 - M-; 'comment-line
