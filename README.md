@@ -5,11 +5,10 @@
 [Raw original: .emacs](.emacs)
 
 # emacs-configs
-A single emacs configuration file.
 
-Favorite modes (built-in): Org, org-agenda, Python, CC mode, Semantic, Dired + Bookmarks, VC, Highlight Changes.
-
-Favorite modes (external): hidepw, Company, Notmuch, vlfi, multiple-cursors, dockerfile-mode.
+*Favorite modes*
+- (built-in): Org, org-agenda, Python, CC mode, Semantic, Dired + Bookmarks, VC, Highlight Changes.
+- (external): hidepw, Company, Notmuch, vlfi, multiple-cursors, dockerfile-mode.
 
 mini Python IDE:
 - company-jedi: Autocompletion, documentation and navigation
@@ -18,7 +17,7 @@ mini Python IDE:
 mini C IDE:
 - autocompletion and navigation with semantic and ggtags (GNU GLOBAL dependency)
 
-I use a single ```.emacs``` with outline-mode. I don't generate from .org.
+I use a single ```.emacs``` with outline-mode. I don't generate-tangle from ".org".
 
 # Key remappings
 ## Navigation
@@ -35,7 +34,7 @@ This is between console and JIKL:
 ## Detele backward (C-u in console)
 - C-h 'delete-backward-char
 - M-h 'backward-kill-word
-- C-M-h 'backward-kill-sentence (shadow mark-defun)
+- C-p 'kill-line (backward)
 
 ## Org specific key binding
 - C-c p 'org-backward-heading-same-level - C-c C-b by default
@@ -48,7 +47,7 @@ by default:
 
 ## Additional key bindings:
 - M-; 'comment-line
-- C-S-z and C-x c 'beffer-menu
+- C-x C-l 'my/list-buffers-right (beffer-menu)
 - C-x y 'bookmarks
 
 I changed behavior of C-a/e and M-a/e in Org mode.
@@ -87,7 +86,6 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - Dired: renaming single file will suggest same file if no other windows opened.
 - Dired: use region selection as marks at once
 - Abort minibuffer command if C-q pressed anywhere. By default minibuffer require separate quit.
-- C-x 2, C-x 3. other window?
 
 TODO:
 - in Org source block when you insert new line and do Undo - all source block is highlighted in highlight-changes-mode.
