@@ -34,7 +34,7 @@ This is between console and JIKL:
 ## Detele backward (C-u in console)
 - C-h 'delete-backward-char
 - M-h 'backward-kill-word
-- C-p 'kill-line (backward)
+- C-p 'kill-line (forward)
 
 ## Org specific key binding
 - C-c p 'org-backward-heading-same-level - C-c C-b by default
