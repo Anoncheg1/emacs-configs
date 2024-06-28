@@ -1821,7 +1821,7 @@ To replace standard behavior you can:
 (advice-add 'telega-notifications--notify :override
             #'my/telega-alert--notify)
 #+end_src
-* capitalize-word function don't capitalize first symbol of word, how to fix that?
+* Capitalize-word function don't capitalize first symbol of word, how to fix that?
 
 #+begin_src elisp :results none :exports code :eval no
 (defun char-at-point-is-capitalized ()
@@ -1865,5 +1865,53 @@ https://orgmode.org/manual/Environment-of-a-Code-Block.html
 
 Sadly, conflict with #+begin_src #+end_src blocks with Python.
 use https://codeberg.org/Anoncheg/org-src-detect
+* How to inhibit paired quotation for words like don't 1990's?
+You can add your function to electric-quote-inhibit-functions, that
+ should detect such exceptions.
+
+Here is example that search backward for opening and closining quotes
+ before any new line.
+#+begin_src elisp :results none :exports code :eval no
+(defun my/previous-char-is-text ()
+  "Test that character before previous one is something."
+  (let ((prev-char (char-before (1- (point)))))
+    (and prev-char
+         (not (member prev-char '(?\  ?\t ?\n ?\r))))))
+
+(defun search-backward-for-character ()
+  "Search for opening single quote until new line or closing quote."
+  (let ((found nil) (newline nil))
+    (save-excursion
+      (while (and (not (bolp)) (not found) (not newline))
+        (backward-char 1)
+        (when (eq (char-before) ?‘)
+          (setq found t))
+        (when (memq (char-before) '(?\n ?\r ?\f ?’))
+          (setq newline t))))
+    found))
+
+(defun my/inhibit-paired-quote ()
+  "Inhibit pairing for words like don't.
+For single quote \' and if it is after text and no opening quote
+was made."
+  (if (eq last-command-event ?\')
+      (if (my/previous-char-is-text)
+          (not (search-backward-for-character))
+       )))
+
+(add-hook 'electric-quote-inhibit-functions #'my/paired-quote)
+#+end_src
 * TODO Org: How set #+TITLE: to filename?
 (plist-get (org-export-get-environment) ':title)
+* My Emacs is not loading what to do? How to debug init file?
+1) Try emacs --debug-init
+2) Comment 2/3 of your init file and try to start, then comment 1/3
+ of your init file and try to start, etc. You can use Emacs itself
+ without loading configuration to comment lines:
+   - ~emacs -Q .emacs~. (it is same to -q --no-site-file
+   --no-splash). Select region and do ~M-x comment-line~
+3) There is a package for debugin init file, but I never used it https://github.com/emacs-straight/bug-hunter
+
+Good article about bug hunting: https://whatacold.io/blog/2022-07-17-emacs-elisp-debug/
+
+Init file profiler https://github.com/jschaf/esup

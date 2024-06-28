@@ -7,7 +7,7 @@
 # emacs-configs
 
 *Favorite modes*
-- (built-in): Org, org-agenda, Python, CC mode, Semantic, Dired + Bookmarks, VC, Highlight Changes.
+- (built-in): Org, org-agenda, Python, CC mode, Semantic, Dired + Bookmarks, VC, Highlight Changes, Electric Quote.
 - (external): hidepw, Company, Notmuch, vlfi, multiple-cursors, dockerfile-mode.
 
 mini Python IDE:
@@ -86,6 +86,9 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - Dired: renaming single file will suggest same file if no other windows opened.
 - Dired: use region selection as marks at once
 - Abort minibuffer command if C-q pressed anywhere. By default minibuffer require separate quit.
+- Capitalize first letter of word correctly whenever point is placed.
+- Electric quote should not be paired in Org source blocks and comments.
+- Electric quote or apostrophe should not be stright in Org src blocks and in words like: don't your's 1990's
 
 TODO:
 - in Org source block when you insert new line and do Undo - all source block is highlighted in highlight-changes-mode.
