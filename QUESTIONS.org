@@ -1869,8 +1869,12 @@ use https://codeberg.org/Anoncheg/org-src-detect
 You can add your function to electric-quote-inhibit-functions, that
  should detect such exceptions.
 
-Here is example that search backward for opening and closining quotes
- before any new line.
+Simple solution is to disable pairing for any single quote “'”.
+
+: (add-hook 'electric-quote-inhibit-functions (lambda() (eq last-command-event ?\')))
+
+More advanced solution that search backward for opening and closining quotes
+ before any new line:
 #+begin_src elisp :results none :exports code :eval no
 (defun my/previous-char-is-text ()
   "Test that character before previous one is something."
