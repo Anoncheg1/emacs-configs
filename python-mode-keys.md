@@ -1,0 +1,40 @@
+# Python mode keys rebindings
+## Old:
+- M-;		comment-line
+- C-q		jedi:show-doc
+- M-.		jedi:goto-definition
+- M-,		jedi:goto-definition-pop-marker
+- C-c C-n	flymake-goto-next-error
+- C-M-a	Move to beginning of current or preceding defun (beginning-of-defun).
+- C-M-e	Move to end of current or following defun (end-of-defun).
+- C-M-h	Put region around whole current or following defun (mark-defun).
+- C-c C-c	execute file in terminal
+- M-left		python-indent-shift-left
+- M-right		python-indent-shift-right
+
+## New:
+
+default:
+- C-c C-f		(python-eldoc-at-point)
+- C-c C-j		(imenu)
+- C-c C-r		after run-python -> python-shell-send-region
+- C-c C-s		after run-python -> python-shell-send-string
+- C-c C-v		(python-check)
+
+Custom:
+- C-c C-k		(beginning-of-defun)
+- C-c C-n		(end-of-defun)
+- C-c m		(mark-defun)
+- M-;			(comment-line)
+- C-c c		(run-python) - on remote machine
+- C-c C-c		execute file in terminal (my/exec-python)
+- M-left		(python-indent-shift-left)
+- M-right		(python-indent-shift-right)
+
+- C-c C-n		(flymake-goto-next-error)
+- C-c C-o		(python-sort-imports)
+- C-c C-e		(eglot-rename)
+- C-c C-f		(eglot-format) - region or entire buffer
+
+May be useful:
+- M-x treesit-check-indent

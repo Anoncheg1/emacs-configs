@@ -1,13 +1,13 @@
-[With table of contents: .emacs.md](emacs-config.md)
+[With table of contents: ./.emacs.md](emacs-config.md)
 
-[With lisp highlighting: .emacs.org](emacs-config.org)
+[With lisp highlighting: ./.emacs.org](emacs-config.org)
 
-[Raw original: .emacs](.emacs)
+[Raw original: ./.emacs](.emacs)
 
 # emacs-configs
 
 *Favorite modes*
-- (built-in): Org, org-agenda, Python, CC mode, Semantic, Dired + Bookmarks, VC, Highlight Changes, Electric Quote.
+- (built-in): Org, org-agenda, Python, CC mode, Semantic, ElDoc, Dired + Bookmarks, VC, Highlight Changes, Electric Quote.
 - (external): hidepw, Company, Notmuch, vlfi, multiple-cursors, dockerfile-mode.
 
 mini Python IDE:
@@ -35,8 +35,9 @@ This is between console and JIKL:
 - C-h 'delete-backward-char
 - M-h 'backward-kill-word
 - C-p 'kill-line (forward)
+- M-p 'my/kill-line-backward
 
-## Org specific key binding
+## Org heading navigation keys
 - C-c p 'org-backward-heading-same-level - C-c C-b by default
 - C-c n 'org-forward-heading-same-level - C-c C-f by default
 
@@ -54,6 +55,9 @@ I changed behavior of C-a/e and M-a/e in Org mode.
 - C-a - move to the begining of the current element at the line. (For example: to the begining of the URL.)
 - M-e - move to the begining of the line.
 
+Windows:
+- M-o - my/other-window-or-split
+
 ## Email Client
 isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 
@@ -62,7 +66,7 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - set backup directory for saving ~files
 - open two files in splitted window
 - Ediff: open two files differences with ```emacsclient -c -a emacs --eval "(ediff-files \"$1\" \"$2\" )" ;```
-- Ediff: 3-th frame removed, that shows help.
+- Ediff: 3-th frame removed, that shows help and used for commands.
 - toggle window split - horizontally/vertically
 - change indentation prefix for paragraph "fill-prefix"
 - Org: replace header search search in goto-mode with isearch + template
@@ -82,16 +86,18 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - after M-q fill-paragraph cursor stays far away from left - I added move-beginning-of-line.
 - added key for fill-paragraph that don't look at babel language of source block to find language specific fill-column.
 - C-u C-SPC don't unwrap Org headers when jump, just like org-goto. advice added.
-- fill-paragraph don't work in Org-mode list, when the next line in form "^text".
+- ```M-x fill-paragraph``` don't work in Org-mode list, when the next line in form "^text".
 - Dired: renaming single file will suggest same file if no other windows opened.
 - Dired: use region selection as marks at once
 - Abort minibuffer command if C-q pressed anywhere. By default minibuffer require separate quit.
 - Capitalize first letter of word correctly whenever point is placed.
 - Electric quote should not be paired in Org source blocks and comments.
-- Electric quote or apostrophe should not be stright in Org src blocks and in words like: don't your's 1990's
+- Electric quote or apostrophe be straight in words like: don't, your's, 1990's.
+- Eldoc in ```eldoc-documentation-strategy``` don't have "show only if ElDoc side window have been opened".
+- ```(message "Preparing diary...")``` inhibited by ```(diary-including t)```. Called by ```appt-check```.
+- For TAB indentation in Org src block “Highlighted Changes” cleared with ```(hilit-chg-clear)```.
 
 TODO:
-- in Org source block when you insert new line and do Undo - all source block is highlighted in highlight-changes-mode.
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.
 
 # bashrc
@@ -140,23 +146,9 @@ alias emin="emacs -q --load ~/.emacs.minimal"
 alias en="emacs --eval \"(notmuch)\""
 ```
 
-# Python mode keys
+# Python keys
+[Python mode keys rebindings: ./python-mode-keys.md](python-mode-keys.md)
 
-- M-;		comment-line
-- C-q		jedi:show-doc
-- M-.		jedi:goto-definition
-- M-,		jedi:goto-definition-pop-marker
-- C-c C-n	flymake-goto-next-error
-- C-M-a	Move to beginning of current or preceding defun (beginning-of-defun).
-- C-M-e	Move to end of current or following defun (end-of-defun).
-- C-M-h	Put region around whole current or following defun (mark-defun).
-- C-c C-c	execute file in terminal
-- M-left		python-indent-shift-left
-- M-right		python-indent-shift-right
-
-useful:
-
-- M-x treesit-check-indent
 # Time management
 For time management I use 3 windows:
 1) (org-agenda nil "a")

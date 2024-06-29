@@ -1501,6 +1501,9 @@ There is variable *split-width-threshold* for that, if "(window-width
 
 * GUI: how to resize and enlarge frame with a sexp?
 : (set-frame-parameter (selected-frame) 'fullscreen 'fullheight)
+* GUI: How to sort buffers in buffer menu by most visited?
+You can use recentf-mode and add:
+: (add-hook 'buffer-list-update-hook #'recentf-track-opened-file)
 * How to kill all buffers and duplicate frames?
 In this solution we define exceptions, lowercase them, after that we
  get (buffer-list) and filter with our exceptions, system, alive and
