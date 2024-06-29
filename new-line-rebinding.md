@@ -19,25 +19,23 @@ Ways of new line by priority:
 
 Problem: Org and other modes require per-mode implementation
 
-Rule:
+Rules:
 - “m” is a main key for new line, “j” is additional
 - Ctrl for close range operations, Meta for far range
+- Open new line without indentation is a far range operation.
 
 Global: o - previous, m - basic no split, j - rarely used, Ctrl/Alt - with indentation/no indentation
 - C-o don't split: open previous line and go there without indentation - 'my/open-previous-line
 - C-m go there: open next line split, with indentation - 'default-indent-new-line
 - M-m go there: open next line split, without indentation - 'electric-newline-and-maybe-indent
-
-- C-j don't split: open next line and go there without indentation - 'my/open-next-line
-- M-j don't split: open next line and go there with indentation - #'my/open-next-line-indent
+- C-j don't split: open next line and go there with indentation - #'my/open-next-line-indent
 
 Org rule:
 - C-o - 'my/open-previous-line
-- C-m - 'my/org-new-line-indented
+- C-m - 'my/org-new-line-indented, if cursor at the begining of line, don't split and inser line above with indentation
 - M-m - 'electric-newline-and-maybe-indent
-
-- C-j - 'my/open-next-line
-- M-j - 'my/org-open-next-line-indent-shift - used for list to create new items and shift it deeper
+- C-j - my/org-open-next-line-indent - don't split new line with indentation, always below
+- M-j - 'my/org-open-next-line-indent-shift - used for list to create new items and shift it deeper, always below
 
 
 M-o 'other-winndow - as soon as it is free, it is popular approach.

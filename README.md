@@ -96,9 +96,11 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - Eldoc in ```eldoc-documentation-strategy``` don't have "show only if ElDoc side window have been opened".
 - ```(message "Preparing diary...")``` inhibited by ```(diary-including t)```. Called by ```appt-check```.
 - For TAB indentation in Org src block “Highlighted Changes” cleared with ```(hilit-chg-clear)```.
+- From ```org-meta-return``` - new line with indentation removed indent heading and indent to there is space above.
 
 TODO:
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.
+- ```org-insert-item``` insert line above current if cursor at the begining of the line that is not desirable.
 
 # bashrc
 
