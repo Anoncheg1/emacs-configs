@@ -23,6 +23,7 @@ Rules:
 - “m” is a main key for new line, “j” is additional
 - Ctrl for close range operations, Meta for far range
 - Open new line without indentation is a far range operation.
+- Don't bind keys to solve current issues, better solve those issues.
 
 Global: o - previous, m - basic no split, j - rarely used, Ctrl/Alt - with indentation/no indentation
 - C-o don't split: open previous line and go there without indentation - 'my/open-previous-line

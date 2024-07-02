@@ -1922,3 +1922,25 @@ was made."
 Good article about bug hunting: https://whatacold.io/blog/2022-07-17-emacs-elisp-debug/
 
 Init file profiler https://github.com/jschaf/esup
+* TODO How to execute hook on active buffer change focus?
+Cases:
+1. Changing the buffer in the current window (e.g. C-x <left>).
+2. Switching to another window (C-x o).
+3. Switching to another frame.
+
+Hooks:
+- buffer-list-update-hook :: is called for both (1) and (2). - run before the buffer is changed,
+- window-configuration-change-hook :: .
+- window-state-change-hook :: .
+- window-buffer-change-functions :: after buffer showed.
+
+One of solutions may be:
+#+begin_src elisp :results none :exports code :eval no
+(add-hook 'window-buffer-change-functions
+          (lambda (arg) ; arg is frame object
+            (if (derived-mode-p 'python-mode 'python-ts-mode) ; for active buffer
+                (demap-open)
+              ;; else
+              (demap-close)
+              )))
+#+end_src

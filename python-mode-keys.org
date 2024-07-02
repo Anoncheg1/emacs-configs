@@ -20,21 +20,31 @@ default:
 - C-c C-r		after run-python -> python-shell-send-region
 - C-c C-s		after run-python -> python-shell-send-string
 - C-c C-v		(python-check)
+- M-?			(xref-find-references) - for symbol at cursor
+- M-.			(xref-find-definitions) - for symbol at cursor
+- M-,			(xref-go-back)
+- C-M-,		(xref-go-forward)
 
-Custom:
+Custom common:
+- M-;			(comment-line)
+- C-;			(comment-dwim)
 - C-c C-k		(beginning-of-defun)
 - C-c C-n		(end-of-defun)
-- C-c m		(mark-defun)
-- M-;			(comment-line)
+- C-c h		(mark-defun)
+- C-c i		(demap-toggle)
+
+Custom Python mode:
 - C-c c		(run-python) - on remote machine
 - C-c C-c		execute file in terminal (my/exec-python)
 - M-left		(python-indent-shift-left)
 - M-right		(python-indent-shift-right)
-
-- C-c C-n		(flymake-goto-next-error)
 - C-c C-o		(python-sort-imports)
+
+Custom Eglot
+- M-q			(my/eldoc) - show description in separate window only
+- C-c C-f/l	(flymake-goto-next-error) / (flymake-goto-prev-error)
 - C-c C-e		(eglot-rename)
-- C-c C-f		(eglot-format) - region or entire buffer
+- C-c o		(eglot-format) - region or entire buffer
 
 May be useful:
 - M-x treesit-check-indent

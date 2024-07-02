@@ -7,8 +7,8 @@
 # emacs-configs
 
 *Favorite modes*
-- (built-in): Org, org-agenda, Python, CC mode, Semantic, ElDoc, Dired + Bookmarks, VC, Highlight Changes, Electric Quote.
-- (external): hidepw, Company, Notmuch, vlfi, multiple-cursors, dockerfile-mode.
+- (built-in): Org, org-agenda, Python, CC mode, Semantic, ElDoc, Dired + Bookmarks, VC, Highlight Changes, Electric Quote, dictionary.
+- (external): hidepw, free-keys, Notmuch, vlfi, dockerfile-mode, company-math, csv-mode, org-present, multiple-cursors.
 
 mini Python IDE:
 - company-jedi: Autocompletion, documentation and navigation
@@ -28,7 +28,6 @@ This is between console and JIKL:
 - C-n - down
 
 ## New line
-
 [New line rebinding: ./new-line-rebinding.md](new-line-rebinding.md)
 
 ## Detele backward (C-u in console)
@@ -37,14 +36,8 @@ This is between console and JIKL:
 - C-p 'kill-line (forward)
 - M-p 'my/kill-line-backward
 
-## Org heading navigation keys
-- C-c p 'org-backward-heading-same-level - C-c C-b by default
-- C-c n 'org-forward-heading-same-level - C-c C-f by default
-
-by default:
-- C-c C-p up heading ignore level
-- C-c C-n down heading ignore level
-- C-c C-u to upper heading.
+## Org keys
+[Org keys: ./org-keys.org](org-keys.org)
 
 ## Additional key bindings:
 - M-; 'comment-line
@@ -94,13 +87,15 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - Electric quote should not be paired in Org source blocks and comments.
 - Electric quote or apostrophe be straight in words like: don't, your's, 1990's.
 - Eldoc in ```eldoc-documentation-strategy``` don't have "show only if ElDoc side window have been opened".
+- Eldoc: open and close window with single key M-q.
 - ```(message "Preparing diary...")``` inhibited by ```(diary-including t)```. Called by ```appt-check```.
-- For TAB indentation in Org src block “Highlighted Changes” cleared with ```(hilit-chg-clear)```.
-- From ```org-meta-return``` - new line with indentation removed indent heading and indent to there is space above.
+- Org: For TAB indentation in Org src block “Highlighted Changes” cleared with ```(hilit-chg-clear)```.
+- Org: From ```org-meta-return``` - new line with indentation removed indent heading and indent to there is space above.
 
 TODO:
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.
-- ```org-insert-item``` insert line above current if cursor at the begining of the line that is not desirable.
+- Org: ```org-insert-item``` insert line above current if cursor at the begining of the line - not desirable?
+- clear Hightlight changed after Undo if buffer is not modified.
 
 # bashrc
 
@@ -149,7 +144,7 @@ alias en="emacs --eval \"(notmuch)\""
 ```
 
 # Python keys
-[Python mode keys rebindings: ./python-mode-keys.md](python-mode-keys.md)
+[Python mode keys rebindings: ./python-mode-keys.org](python-mode-keys.org)
 
 # Time management
 For time management I use 3 windows:
