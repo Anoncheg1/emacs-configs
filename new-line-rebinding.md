@@ -10,12 +10,10 @@ Old default Org:
 - C-M-m go there: open next line split, with indentation - 'org-meta-return
 
 Ways of new line by priority:
-1. go there: open next line split, without indentation
-2. go there: open next line split, with indentation
-3. don't split: open next line and go there without indentation
-4. don't split: open previous line and go there without indentation
-5. stay at current: open line split, without indentation
-6. stay at current: open line split, with indentation
+1. go there(basic): open next line split, with/without indentation
+2. stay at current: open line split, without/with indentation - 'open-line/'my/new-line-stay-indent
+3. don't split: open next line and go there without/with indentation - 'my/open-next-line/'my/open-next-line-indent
+4. don't split: open previous line and go there without indentation - 'my/open-previous-line
 
 Problem: Org and other modes require per-mode implementation
 
@@ -29,13 +27,14 @@ Global: o - previous, m - basic no split, j - rarely used, Ctrl/Alt - with inden
 - C-o don't split: open previous line and go there without indentation - 'my/open-previous-line
 - C-m go there: open next line split, with indentation - 'default-indent-new-line
 - M-m go there: open next line split, without indentation - 'electric-newline-and-maybe-indent
-- C-j don't split: open next line and go there with indentation - #'my/open-next-line-indent
+- C-j stay at current: open line split, with indentation - 'my/new-line-stay-indent
+- M-j don't split: open next line and go there with indentation - 'my/open-next-line-indent
 
 Org rule:
 - C-o - 'my/open-previous-line
 - C-m - 'my/org-new-line-indented, if cursor at the begining of line, don't split and inser line above with indentation
 - M-m - 'electric-newline-and-maybe-indent
-- C-j - my/org-open-next-line-indent - don't split new line with indentation, always below
+- C-j - 'my/org-new-line-stay-indented - stay at current: open line split, with indentation
 - M-j - 'my/org-open-next-line-indent-shift - used for list to create new items and shift it deeper, always below
 
 
