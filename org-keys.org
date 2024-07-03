@@ -22,3 +22,4 @@ by default:
 - M-n/k	‘my/org-backward-paragraph/'my/org-forward-paragraph
 - M-,		'org-mark-ring-goto Go back from links
 - C-c e	'org-export-dispatch
+- C-c d	'dictionary-lookup-definition

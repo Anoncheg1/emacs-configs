@@ -1,102 +1,106 @@
 
 # Table of Contents
 
-1.  [Keys: How to use C-h as backspace as it works in console?](#org82ad78f)
-2.  [Keys: How to use TAB for templates, and don't install Yasnippet and others?](#orgf152d2a)
-    1.  [links](#orgbacf585)
-3.  [Keys: Tab and C-u Tab, how to bind different commands?](#org976a7fb)
-4.  [How to remove space character after Abbrev completion?](#orge731b31)
-5.  [How to highlight something and unhighlight and save it?](#orgcc8ee4f)
-6.  [How to fixed recover autosaved #file# that is older: show message and own my/recover-this file.](#orgf74495d)
-7.  [How to indent region line by line](#orgf5ded41)
-8.  [How to indent region as first line](#org8f46295)
-9.  [How to prevent changing of window title for specific files?](#org43fb747)
-10. [How to open https links in Org mode with shell command for external browser?](#org83bba70)
-11. [How to emulate M-x or call interactive repeatedly/programmably?](#orgce6a316)
-12. [How to change current directory "default-directory" to directory of emacs's start or directory of other buffer?](#orgdf0d17e)
-13. [How in Org-mode to hide other headers and leave current open without hiding text and headers in opened?](#org8b8bd68)
-14. [How to see full tree when using C-u C-SPC on Org mode?](#orga9722b4)
-15. [How to prevent evaluation of Org source blocks during export](#orgc4fbc2f)
-16. [Can I call Org source block during call of another source block and save result in session?](#org9a4fdaf)
-17. [How to search for Chinese pinyin and ignore tones?](#orgcb4f3b2)
-18. [How to make fuzzy search](#org9243a19)
-19. [How to prevent fill-paragraph in Org mode to indent source block according to language](#org70bba1f)
-20. [In source block in Org mode < > breaks matched parentheses](#org6d2eb31)
-21. [\`fill-paragraph' and \`org-fill-paragraph' don't work in Org-mode list.](#org7629891)
-22. [Themes: How to activate theme per mode or buffer or per file?](#org2e6ebac)
-23. [Themes: how to switch theme, for example for day and night.](#orge8bbc60)
-24. [Zone (fun screensaver): how to make it slower and less CPU hungry?](#org1277ac9)
-25. [Zone (fun screensaver): how to teach zone to respect text zooming?](#org6f75428)
-26. [How to open file with emacs daemon from bash?](#org66175b6)
-27. [Org: How to go to the first item in Org-mode list and fix org-backward-paragraph?](#org0b03bc3)
-28. [Org: How to use regex template for isearch with C-M-s command, e.g. search in Org headers?](#orge981e0b)
-29. [Org: How to disable hiding of [[] [ links ] ] in Org mode? This is agains markdown principles.](#org6c9a290)
-30. [Org: How to bind TAB key to Expansion function in org-mode and don't break org-cycle?](#org8e1ace8)
-31. [(partial) Org: How to prevent returning to begining of #+begin\_src after C-m C-/ and C-m, org-return?](#org99d78ec)
-32. [Org: Babel: How to jump to Org-mode src-block's result and key to open session in window](#org63bd427)
-33. [Org: Babel: How to set timeout on Org-mode code block execution by C-c C-c?](#org656841b)
-34. [Org: Babel: Why alias is not working?](#org9bcb883)
-35. [Org: Babel: why :file dont save file to current directory?](#orgaf1f126)
-36. [Org: Babel: How to C-c ' open buffer always at right?](#orgba5d38c)
-37. [Org: Babel: How to change current folder for Python source block to use library in another directory?](#org5893701)
-38. [Org: Babel: why src block require lowercase name of language?](#org9b6add2)
-39. [Org: What is the best approach to document small table with big cells in plain text?](#orgfc9d590)
-40. [Org: How to set inline image size?](#org941628e)
-41. [Dired: how to open as a file manager](#org95ea0b0)
-42. [Dired: open with default app, human readable size](#org2891b99)
-43. [Dired: don't delete files, move to trash first](#org1d90264)
-44. [Dired: bind ^ to something better and show thumbnails with image-dired](#orgf497210)
-45. [Dired: use Xfce4 thumbnails](#orgef0b897)
-46. [Dired: hide "." dot files and remember your choose](#org9d8ac30)
-47. [Dired: open files with external applications](#orgc241a4d)
-    1.  [solution](#orge4177ee)
-    2.  [Advanced solutions](#orgba3265b)
-48. [Dired: why renaming a same file suggest directory instead of same file name?](#orgb8c952e)
-49. [Dired: Side window: opening file with "o" key #'dired-find-file-other-window?](#org62274fd)
-50. [Dired: Side window: toggle side window](#orgf7095f2)
-51. [Dired: Side window: update side window when the cursor move in the main window](#org4ccf034)
-52. [Dired: how to add current path to mode line?](#org61d60a5)
-53. [Dired: how to use region selection instead of marks?](#org4f4f6dd)
-54. [Dired: toggle mark - a single key for all marks](#orgd3ee8a2)
-55. [Dired: what if I forgot to use flag and mark files for deletion?](#orgd4afda3)
-56. [Dired: usecase - copy/move files between folders.](#orge9ba921)
-57. [How emacs behavior differ when run under root?](#org627fecc)
-58. [How to copy current file and current line to clipboard?](#org34aadc5)
-59. [How to edit multiple position or multiple cursors?](#org095ad8a)
-    1.  [Obsolate example of rectangular edition. limited to rectangle.](#orgd96d31f)
-60. [GUI: How to reduce delay for minibuffer when F1 or C-x is pressed?](#org91828b4)
-61. [GUI: Why splitting window with C-x 3, C-x 2 works strage?](#org48902aa)
-62. [GUI: Selecting Buffers, tab-bar-mode, like tabs in browser](#orgf547270)
-    1.  [tab-bar](#org280877a)
-    2.  [tab-line-mode](#orga6090f4)
-    3.  [Solution with external tab-bar-buffers package:](#orgfd91d46)
-63. [GUI: How to switch to recent buffer and ignore system buffers like **Buffer List**?](#orgc5dc2af)
-64. [GUI: How to open file in frame with the same major mode files?](#org6849355)
-65. [GUI: Abort minibuffer everywhere if C-g pressed.](#org683c478)
-66. [GUI: How set default sorting of Buffer-menu and other tabular-list modes?](#org71a6e6a)
-67. [GUT: How to open Buffer-menu at right?](#org6e6ae5f)
-68. [GUI: how to resize and enlarge frame with a sexp?](#org8c3fc4b)
-69. [How to kill all buffers and duplicate frames?](#orgbd7db87)
-70. [How to create a blog from a single file?](#org4921a86)
-71. [How to fix vertico in Dired mode to properly handle path?](#org9573841)
-72. [How to enable ELisp mode in any buffer, or "There is no ElDoc support in this buffer."?](#orge1f2c36)
-73. [How to start notmuch with different .notmuch-config for different emails boxes?](#orgb75fc5a)
-74. [How to create link to certain place in file and open it from bash fast?](#org0b7c88f)
-75. [How to kill Python Babel when execute source block in Org mode?](#org0735be1)
-76. [ELisp: How to load new package for easy navigation?](#orgd6007de)
-77. [ELisp: How to test Macros fast?](#org77c0bb3)
-78. [Elisp: How reload current file after (defcustom variable was changed?](#orgab1fe3c)
-79. [Ediff: How to get rid of switching to "control buffer"?](#orgcd86eff)
-    1.  [references](#orge75e873)
-80. [How to use holidays?](#org23fbda2)
-81. [Telega: How to add custom notification on new message?](#orge528bbd)
-82. [capitalize-word function don't capitalize first symbol of word, how to fix that?](#org35a738f)
-83. [How to evaluate code block remotely?](#orgbc9602e)
-84. [Automatic curly quotation marks “” (instead of "") and ‘’ (instead of '')](#org6f26b15)
-85. [Org: How set #+TITLE: to filename?](#org686417a)
+1.  [Keys: How to use C-h as backspace as it works in console?](#orgaa91a8c)
+2.  [Keys: How to use TAB for templates, and don't install Yasnippet and others?](#org8d4e367)
+    1.  [links](#orge90177f)
+3.  [Keys: Tab and C-u Tab, how to bind different commands?](#org7ce58c4)
+4.  [How to remove space character after Abbrev completion?](#org7a46e3f)
+5.  [How to highlight something and unhighlight and save it?](#orgd39886d)
+6.  [How to fixed recover autosaved #file# that is older: show message and own my/recover-this file.](#orgf67ed50)
+7.  [How to indent region line by line](#orgce5a11e)
+8.  [How to indent region as first line](#orge8e6584)
+9.  [How to prevent changing of window title for specific files?](#orga7043dd)
+10. [How to open https links in Org mode with shell command for external browser?](#org9f40db3)
+11. [How to emulate M-x or call interactive repeatedly/programmably?](#orge93a1ec)
+12. [How to change current directory "default-directory" to directory of emacs's start or directory of other buffer?](#orgcbc9a36)
+13. [How in Org-mode to hide other headers and leave current open without hiding text and headers in opened?](#orgae0ce07)
+14. [How to see full tree when using C-u C-SPC on Org mode?](#orga8a94e5)
+15. [How to prevent evaluation of Org source blocks during export](#org551d58b)
+16. [Can I call Org source block during call of another source block and save result in session?](#org59cd92a)
+17. [How to search for Chinese pinyin and ignore tones?](#orgf352843)
+18. [How to make fuzzy search](#orgb2c13d4)
+19. [How to prevent fill-paragraph in Org mode to indent source block according to language](#orgedcda66)
+20. [In source block in Org mode < > breaks matched parentheses](#org78804f4)
+21. [\`fill-paragraph' and \`org-fill-paragraph' don't work in Org-mode list.](#org37d1a13)
+22. [Themes: How to activate theme per mode or buffer or per file?](#orge80e32d)
+23. [Themes: how to switch theme, for example for day and night.](#orgfa8a76e)
+24. [Zone (fun screensaver): how to make it slower and less CPU hungry?](#orgb50503a)
+25. [Zone (fun screensaver): how to teach zone to respect text zooming?](#orgebe9fd4)
+26. [How to open file with emacs daemon from bash?](#org9844844)
+27. [Org: How to go to the first item in Org-mode list and fix org-backward-paragraph?](#orgadd685f)
+28. [Org: How to use regex template for isearch with C-M-s command, e.g. search in Org headers?](#org7e4fdf0)
+29. [Org: How to disable hiding of [[] [ links ] ] in Org mode? This is agains markdown principles.](#org88c786d)
+30. [Org: How to bind TAB key to Expansion function in org-mode and don't break org-cycle?](#orgc37209d)
+31. [(partial) Org: How to prevent returning to begining of #+begin\_src after C-m C-/ and C-m, org-return?](#org708e699)
+32. [Org: Babel: How to jump to Org-mode src-block's result and key to open session in window](#org7a7e3a8)
+33. [Org: Babel: How to set timeout on Org-mode code block execution by C-c C-c?](#org5ddf280)
+34. [Org: Babel: Why alias is not working?](#orge31ada0)
+35. [Org: Babel: why :file dont save file to current directory?](#org8f3b416)
+36. [Org: Babel: How to C-c ' open buffer always at right?](#org08dc8c8)
+37. [Org: Babel: How to change current folder for Python source block to use library in another directory?](#orgf1c394e)
+38. [Org: Babel: why src block require lowercase name of language?](#org47fa2a1)
+39. [Org: What is the best approach to document small table with big cells in plain text?](#org51dc5c9)
+40. [Org: How to set inline image size?](#orgbc9d56d)
+41. [Dired: how to open as a file manager](#org4ede455)
+42. [Dired: open with default app, human readable size](#org897a9e0)
+43. [Dired: don't delete files, move to trash first](#org0f243b5)
+44. [Dired: bind ^ to something better and show thumbnails with image-dired](#orgfd96a3b)
+45. [Dired: use Xfce4 thumbnails](#orgddee4cb)
+46. [Dired: hide "." dot files and remember your choose](#orgcac3ac4)
+47. [Dired: open files with external applications](#org0410360)
+    1.  [solution](#orgf4d8b0b)
+    2.  [Advanced solutions](#org6a333db)
+48. [Dired: why renaming a same file suggest directory instead of same file name?](#org062e191)
+49. [Dired: Side window: opening file with "o" key #'dired-find-file-other-window?](#org4ef0c68)
+50. [Dired: Side window: toggle side window](#orgc88126f)
+51. [Dired: Side window: update side window when the cursor move in the main window](#orga43d76e)
+52. [Dired: how to add current path to mode line?](#orgb7b2bf3)
+53. [Dired: how to use region selection instead of marks?](#org67767cd)
+54. [Dired: toggle mark - a single key for all marks](#org4db7c06)
+55. [Dired: what if I forgot to use flag and mark files for deletion?](#org6bbbca7)
+56. [Dired: usecase - copy/move files between folders.](#org5304c67)
+57. [How emacs behavior differ when run under root?](#org57864ad)
+58. [How to copy current file and current line to clipboard?](#orge6f2c91)
+59. [How to edit multiple position or multiple cursors?](#org68ed5c0)
+    1.  [Obsolate example of rectangular edition. limited to rectangle.](#org2b95e56)
+60. [GUI: How to reduce delay for minibuffer when F1 or C-x is pressed?](#orgcd1509d)
+61. [GUI: Why splitting window with C-x 3, C-x 2 works strage?](#org5659a12)
+62. [GUI: Selecting Buffers, tab-bar-mode, like tabs in browser](#org55ddc89)
+    1.  [tab-bar](#org315d763)
+    2.  [tab-line-mode](#orgb2e9d6c)
+    3.  [Solution with external tab-bar-buffers package:](#orgb8ccdf2)
+63. [GUI: How to switch to recent buffer and ignore system buffers like **Buffer List**?](#org72cf60e)
+64. [GUI: How to open file in frame with the same major mode files?](#orgba21583)
+65. [GUI: Abort minibuffer everywhere if C-g pressed.](#org7a65463)
+66. [GUI: How set default sorting of Buffer-menu and other tabular-list modes?](#orgce62c47)
+67. [GUT: How to open Buffer-menu at right?](#org62455c9)
+68. [GUI: how to resize and enlarge frame with a sexp?](#org5e65c39)
+69. [GUI: How to sort buffers in buffer menu by most visited?](#org07d445e)
+70. [How to kill all buffers and duplicate frames?](#orgef42200)
+71. [How to create a blog from a single file?](#org097c10a)
+72. [How to fix vertico in Dired mode to properly handle path?](#org155cc09)
+73. [How to enable ELisp mode in any buffer, or "There is no ElDoc support in this buffer."?](#org0387990)
+74. [How to start notmuch with different .notmuch-config for different emails boxes?](#orga0edc51)
+75. [How to create link to certain place in file and open it from bash fast?](#org95fab90)
+76. [How to kill Python Babel when execute source block in Org mode?](#org64c40a1)
+77. [ELisp: How to load new package for easy navigation?](#org89b4ab1)
+78. [ELisp: How to test Macros fast?](#org2ae155b)
+79. [Elisp: How reload current file after (defcustom variable was changed?](#orga7156e9)
+80. [Ediff: How to get rid of switching to "control buffer"?](#orgd131995)
+    1.  [references](#org4634d5c)
+81. [How to use holidays?](#orgccccba8)
+82. [Telega: How to add custom notification on new message?](#orgb28abd6)
+83. [Capitalize-word function don't capitalize first symbol of word, how to fix that?](#org4aa7f26)
+84. [How to evaluate code block remotely?](#orga501d7a)
+85. [Automatic curly quotation marks “” (instead of "") and ‘’ (instead of '')](#orgdb20c54)
+86. [How to inhibit paired quotation for words like don't 1990's?](#org3cbbd7c)
+87. [Org: How set #+TITLE: to filename?](#orgbf1352c)
+88. [My Emacs is not loading what to do? How to debug init file?](#org8bca559)
+89. [How to execute hook on active buffer change focus?](#org3ab593e)
 
 
-<a id="org82ad78f"></a>
+<a id="orgaa91a8c"></a>
 
 # Keys: How to use C-h as backspace as it works in console?
 
@@ -111,7 +115,7 @@ and for M-h word:
     (global-set-key (kbd "M-h") #'backward-kill-word)  ; redefine mark-paragraph
 
 
-<a id="orgf152d2a"></a>
+<a id="org8d4e367"></a>
 
 # Keys: How to use TAB for templates, and don't install Yasnippet and others?
 
@@ -175,7 +179,7 @@ In this code we add company-abbrev to list of company-backends that
                                        company-dabbrev))))
 
 
-<a id="orgbacf585"></a>
+<a id="orge90177f"></a>
 
 ## links
 
@@ -184,7 +188,7 @@ In this code we add company-abbrev to list of company-backends that
 -   abbrevs <https://www.gnu.org/software/emacs/manual/html_node/emacs/Abbrevs.html#Abbrevs>
 
 
-<a id="org976a7fb"></a>
+<a id="org7ce58c4"></a>
 
 # Keys: Tab and C-u Tab, how to bind different commands?
 
@@ -207,7 +211,7 @@ You should bind TAB in 'org-mode-hook. For other modes you should use hooks and 
     (global-set-key (kbd "TAB") #'my/indent-or-complete)
 
 
-<a id="orge731b31"></a>
+<a id="org7a46e3f"></a>
 
 # How to remove space character after Abbrev completion?
 
@@ -227,7 +231,7 @@ To prevent new line after insertion use:
     (setq skeleton-end-newline nil)
 
 
-<a id="orgcc8ee4f"></a>
+<a id="orgd39886d"></a>
 
 # How to highlight something and unhighlight and save it?
 
@@ -242,7 +246,7 @@ How to save and automatically load highlighted text?
 doc <https://www.gnu.org/software/emacs/manual/html_node/emacs/Highlight-Interactively.html>
 
 
-<a id="orgf74495d"></a>
+<a id="orgf67ed50"></a>
 
 # How to fixed recover autosaved #file# that is older: show message and own my/recover-this file.
 
@@ -332,7 +336,7 @@ To be able to recover, we need to rewrite recover-this-file function, also we ad
     	  (t (user-error "Recover-file canceled")))))
 
 
-<a id="orgf5ded41"></a>
+<a id="orgce5a11e"></a>
 
 # How to indent region line by line
 
@@ -358,7 +362,7 @@ We can bound this to TAB key and detect if region is active:
     (global-set-key (kbd "TAB") #'my/indent-or-complete)
 
 
-<a id="org8f46295"></a>
+<a id="orge8e6584"></a>
 
 # How to indent region as first line
 
@@ -380,7 +384,7 @@ We can bound this to TAB key and detect if region is active:
       ))
 
 
-<a id="org43fb747"></a>
+<a id="orga7043dd"></a>
 
 # How to prevent changing of window title for specific files?
 
@@ -404,7 +408,7 @@ For dynamic title use frame-title-format variable:
           )
 
 
-<a id="org83bba70"></a>
+<a id="org9f40db3"></a>
 
 # How to open https links in Org mode with shell command for external browser?
 
@@ -434,7 +438,7 @@ Firefox can not open url from command line, that is why I just copy link to buff
                                ))
 
 
-<a id="orgce6a316"></a>
+<a id="orge93a1ec"></a>
 
 # How to emulate M-x or call interactive repeatedly/programmably?
 
@@ -446,7 +450,7 @@ The way to emulate it properly is to use followind call:
     (execute-extended-command nil "indent-for-tab-command" nil)
 
 
-<a id="orgdf0d17e"></a>
+<a id="orgcbc9a36"></a>
 
 # How to change current directory "default-directory" to directory of emacs's start or directory of other buffer?
 
@@ -458,7 +462,7 @@ to change directory to emacs's start temporarely:
            ...)
 
 
-<a id="org8b8bd68"></a>
+<a id="orgae0ce07"></a>
 
 # How in Org-mode to hide other headers and leave current open without hiding text and headers in opened?
 
@@ -504,7 +508,7 @@ For outline mode:
                                    (local-set-key (kbd "C-c e") 'my/outline-hide-other)))
 
 
-<a id="orga9722b4"></a>
+<a id="orga8a94e5"></a>
 
 # How to see full tree when using C-u C-SPC on Org mode?
 
@@ -521,7 +525,7 @@ I use
 hook for any functions that trying to show context.
 
 
-<a id="orgc4fbc2f"></a>
+<a id="org551d58b"></a>
 
 # How to prevent evaluation of Org source blocks during export
 
@@ -545,7 +549,7 @@ prevent evaluation if Org source blocks during export:
              "never-export")
 
 
-<a id="org9a4fdaf"></a>
+<a id="org59cd92a"></a>
 
 # Can I call Org source block during call of another source block and save result in session?
 
@@ -557,7 +561,7 @@ Just press C-c C-c on this block and "aaa" block will be executed
  automatically. (x values is not used)
 
 
-<a id="orgcb4f3b2"></a>
+<a id="orgf352843"></a>
 
 # How to search for Chinese pinyin and ignore tones?
 
@@ -568,7 +572,7 @@ It replaces isearch-search-fun-function with our function that replace
  search string with regex that ignore tones.
 
 
-<a id="org9243a19"></a>
+<a id="orgb2c13d4"></a>
 
 # How to make fuzzy search
 
@@ -594,7 +598,7 @@ There is fzf command line utility and integration with Emacs <https://github.com
 and there is implementation in pure Emacs: <https://www.masteringemacs.org/article/fuzzy-finding-emacs-instead-of-fzf>
 
 
-<a id="org70bba1f"></a>
+<a id="orgedcda66"></a>
 
 # How to prevent fill-paragraph in Org mode to indent source block according to language
 
@@ -618,7 +622,7 @@ For example:
         (call-interactively 'fill-paragraph)))
 
 
-<a id="org6d2eb31"></a>
+<a id="org78804f4"></a>
 
 # In source block in Org mode < > breaks matched parentheses
 
@@ -629,7 +633,7 @@ Solution is to disable them in org-mode-syntax-table:
                                (modify-syntax-entry ?< "." org-mode-syntax-table)))
 
 
-<a id="org7629891"></a>
+<a id="org37d1a13"></a>
 
 # \`fill-paragraph' and \`org-fill-paragraph' don't work in Org-mode list.
 
@@ -683,7 +687,7 @@ Solution 2:
       (org-fill-paragraph))
 
 
-<a id="org2e6ebac"></a>
+<a id="orge80e32d"></a>
 
 # Themes: How to activate theme per mode or buffer or per file?
 
@@ -701,7 +705,7 @@ Solution: Check current buffer major-mode at opening new file event and with tim
 You can not actiavate mode on buffer change, hook \`buffer-list-update-hook' will recurse itself.
 
 
-<a id="orge8bbc60"></a>
+<a id="orgfa8a76e"></a>
 
 # Themes: how to switch theme, for example for day and night.
 
@@ -724,7 +728,7 @@ Simplies way is to bind switching to keys. In following code we
                                   (my/load-theme nil)))
 
 
-<a id="org1277ac9"></a>
+<a id="orgb50503a"></a>
 
 # Zone (fun screensaver): how to make it slower and less CPU hungry?
 
@@ -778,7 +782,7 @@ advanced
     (advice-add 'zone-call :around #'my/zone-call)
 
 
-<a id="org6f75428"></a>
+<a id="orgebe9fd4"></a>
 
 # Zone (fun screensaver): how to teach zone to respect text zooming?
 
@@ -794,7 +798,7 @@ We add advice after buffer of zoom creation and before call of
     (advice-add 'zone-call :around #'my/zone-call-scalefix)
 
 
-<a id="org66175b6"></a>
+<a id="org9844844"></a>
 
 # How to open file with emacs daemon from bash?
 
@@ -828,7 +832,7 @@ Add to ~/.bash\_aliases or ~/.bashrc:
     }
 
 
-<a id="org0b03bc3"></a>
+<a id="orgadd685f"></a>
 
 # Org: How to go to the first item in Org-mode list and fix org-backward-paragraph?
 
@@ -879,7 +883,7 @@ Fix for org-backward-paragraph to skip lists
                                )
 
 
-<a id="orge981e0b"></a>
+<a id="org7e4fdf0"></a>
 
 # Org: How to use regex template for isearch with C-M-s command, e.g. search in Org headers?
 
@@ -903,7 +907,7 @@ org-goto is default search in Org headers but it have many disadvantages, here i
     )
 
 
-<a id="org6c9a290"></a>
+<a id="org88c786d"></a>
 
 # Org: How to disable hiding of [[] [ links ] ] in Org mode? This is agains markdown principles.
 
@@ -914,7 +918,7 @@ or
     M-x customize-variable org-link-descriptive
 
 
-<a id="org8e1ace8"></a>
+<a id="orgc37209d"></a>
 
 # Org: How to bind TAB key to Expansion function in org-mode and don't break org-cycle?
 
@@ -971,7 +975,7 @@ Here is full code:
                                (local-set-key (kbd "TAB") 'my/org-tab)))
 
 
-<a id="org99d78ec"></a>
+<a id="org708e699"></a>
 
 # (partial) Org: How to prevent returning to begining of #+begin\_src after C-m C-/ and C-m, org-return?
 
@@ -987,7 +991,7 @@ Here we create new line and use simple (indent-relative) to previous line withou
          (local-set-key (kbd "C-m") (lambda () (interactive) (newline) (indent-relative) ) )))
 
 
-<a id="org63bd427"></a>
+<a id="org7a7e3a8"></a>
 
 # Org: Babel: How to jump to Org-mode src-block's result and key to open session in window
 
@@ -1007,7 +1011,7 @@ Here we create new line and use simple (indent-relative) to previous line withou
     ))
 
 
-<a id="org656841b"></a>
+<a id="org5ddf280"></a>
 
 # Org: Babel: How to set timeout on Org-mode code block execution by C-c C-c?
 
@@ -1042,7 +1046,7 @@ We can fix it by adding our code before every code blocks that will be executed:
     (advice-add 'org-babel-execute:python :around #'my/f-call)
 
 
-<a id="org9bcb883"></a>
+<a id="orge31ada0"></a>
 
 # Org: Babel: Why alias is not working?
 
@@ -1052,23 +1056,23 @@ use this header:
     :shebang #!/bin/bash -i :session s1
 
 
-<a id="orgaf1f126"></a>
+<a id="org8f3b416"></a>
 
 # Org: Babel: why :file dont save file to current directory?
 
 because session was started in another dire
 
 
-<a id="orgba5d38c"></a>
+<a id="org08dc8c8"></a>
 
 # Org: Babel: How to C-c ' open buffer always at right?
 
 You need to set display-buffer parameters, because this functions is always called under the hood.
 
-See: [61](#org48902aa)
+See: [61](#org5659a12)
 
 
-<a id="org5893701"></a>
+<a id="orgf1c394e"></a>
 
 # Org: Babel: How to change current folder for Python source block to use library in another directory?
 
@@ -1077,7 +1081,7 @@ See: [61](#org48902aa)
         os.chdir("masking-baseline")
 
 
-<a id="org9b6add2"></a>
+<a id="org47fa2a1"></a>
 
 # Org: Babel: why src block require lowercase name of language?
 
@@ -1087,7 +1091,7 @@ solution:
     (defalias 'Python-mode 'python-mode)
 
 
-<a id="orgfc9d590"></a>
+<a id="org51dc5c9"></a>
 
 # Org: What is the best approach to document small table with big cells in plain text?
 
@@ -1115,7 +1119,7 @@ Column 0 - **Column1** - *Column2*
         -   *row2*
 
 
-<a id="org941628e"></a>
+<a id="orgbc9d56d"></a>
 
 # Org: How to set inline image size?
 
@@ -1136,7 +1140,7 @@ globally:
     (setopt org-image-actual-width 300)
 
 
-<a id="org95ea0b0"></a>
+<a id="org4ede455"></a>
 
 # Dired: how to open as a file manager
 
@@ -1152,10 +1156,10 @@ globally:
         fi
     }
 
-see [26](#org66175b6)
+see [26](#org9844844)
 
 
-<a id="org2891b99"></a>
+<a id="org897a9e0"></a>
 
 # Dired: open with default app, human readable size
 
@@ -1168,14 +1172,14 @@ open with default app
     W key
 
 
-<a id="org1d90264"></a>
+<a id="org0f243b5"></a>
 
 # Dired: don't delete files, move to trash first
 
     (setopt delete-by-moving-to-trash t)
 
 
-<a id="orgf497210"></a>
+<a id="orgfd96a3b"></a>
 
 # Dired: bind ^ to something better and show thumbnails with image-dired
 
@@ -1188,7 +1192,7 @@ open with default app
     (define-key dired-mode-map (kbd "C-,") #'my/thumbnails)
 
 
-<a id="orgef0b897"></a>
+<a id="orgddee4cb"></a>
 
 # Dired: use Xfce4 thumbnails
 
@@ -1196,7 +1200,7 @@ open with default app
     (setopt image-dired-thumbnail-storage 'standard)
 
 
-<a id="org9d8ac30"></a>
+<a id="orgcac3ac4"></a>
 
 # Dired: hide "." dot files and remember your choose
 
@@ -1233,7 +1237,7 @@ Dired don't remember your choose by default, to fix that:
     (define-key dired-mode-map "\C-\M-h" #'my/dired-omit-switch) ; to switch on/off
 
 
-<a id="orgc241a4d"></a>
+<a id="org0410360"></a>
 
 # Dired: open files with external applications
 
@@ -1245,7 +1249,7 @@ keys
 -   !	dired-do-shell-command (dired-aux)
 
 
-<a id="orge4177ee"></a>
+<a id="orgf4d8b0b"></a>
 
 ## solution
 
@@ -1258,7 +1262,7 @@ to open with ! and &:
     (add-to-list 'dired-guess-shell-alist-user '("\\.flac$" "mpv"))
 
 
-<a id="orgba3265b"></a>
+<a id="org6a333db"></a>
 
 ## Advanced solutions
 
@@ -1267,7 +1271,7 @@ to open with ! and &:
 -   <https://stackoverflow.com/questions/2284319/opening-files-with-default-windows-application-from-within-emacs>
 
 
-<a id="orgb8c952e"></a>
+<a id="org062e191"></a>
 
 # Dired: why renaming a same file suggest directory instead of same file name?
 
@@ -1291,7 +1295,7 @@ Beacause C-x C-q allow you to edit any file you see.
     (advice-add 'dired-do-rename :around #'my/dired-do-rename )
 
 
-<a id="org62274fd"></a>
+<a id="org4ef0c68"></a>
 
 # Dired: Side window: opening file with "o" key #'dired-find-file-other-window?
 
@@ -1349,7 +1353,7 @@ Use default display-buffer-fallback-action as base for your config.
 -   **display-start or just start** - buffer position that specifies where in the buffer display should start to display text at screen.
 
 
-<a id="orgf7095f2"></a>
+<a id="orgc88126f"></a>
 
 # Dired: Side window: toggle side window
 
@@ -1390,7 +1394,7 @@ How to open side window and toggle with the a single key?
     (global-set-key (kbd "C-'") #'my/window-toggle-side-windows)
 
 
-<a id="org4ccf034"></a>
+<a id="orga43d76e"></a>
 
 # Dired: Side window: update side window when the cursor move in the main window
 
@@ -1409,7 +1413,7 @@ We add advice function before commands **dired-next-line** and **dired-previous-
     (advice-add 'dired-previous-line :after #'my/update-side-window)
 
 
-<a id="org61d60a5"></a>
+<a id="orgb7b2bf3"></a>
 
 # Dired: how to add current path to mode line?
 
@@ -1426,7 +1430,7 @@ This code adds default-directory to global-mode-string variable as a
                  (list global-mode-string 'default-directory))))
 
 
-<a id="org4f4f6dd"></a>
+<a id="org67767cd"></a>
 
 # Dired: how to use region selection instead of marks?
 
@@ -1492,7 +1496,7 @@ If you want function that behave differently for selected, marked and just at cu
                           ))
 
 
-<a id="orgd3ee8a2"></a>
+<a id="org4db7c06"></a>
 
 # Dired: toggle mark - a single key for all marks
 
@@ -1514,7 +1518,7 @@ By default mark require you to select region or use mark and unmark separate com
     (define-key dired-mode-map (kbd "m") #'my/dired-toggle-marks)
 
 
-<a id="orgd4afda3"></a>
+<a id="org6bbbca7"></a>
 
 # Dired: what if I forgot to use flag and mark files for deletion?
 
@@ -1572,7 +1576,7 @@ Here is how it works:
     (keymap-set dired-mode-map "<remap> <dired-flag-file-deletion>" #'my/dired-flag-file-deletion)
 
 
-<a id="orge9ba921"></a>
+<a id="org5304c67"></a>
 
 # Dired: usecase - copy/move files between folders.
 
@@ -1582,7 +1586,7 @@ Here is how it works:
 4.  mark files and dired-copy/rename
 
 
-<a id="org627fecc"></a>
+<a id="org57864ad"></a>
 
 # How emacs behavior differ when run under root?
 
@@ -1597,7 +1601,7 @@ C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
     vice versa), in both graphical user interface and terminal.
 
 
-<a id="org34aadc5"></a>
+<a id="orge6f2c91"></a>
 
 # How to copy current file and current line to clipboard?
 
@@ -1612,7 +1616,7 @@ C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
     (define-key global-map (kbd "C-c z") #'my/copy-current-line-position-to-clipboard)
 
 
-<a id="org095ad8a"></a>
+<a id="org68ed5c0"></a>
 
 # How to edit multiple position or multiple cursors?
 
@@ -1621,7 +1625,7 @@ Package multiple-cursors.
 This package saves permissions to ~/.emacs.d/.mc-lists.el
 
 
-<a id="orgd96d31f"></a>
+<a id="org2b95e56"></a>
 
 ## Obsolate example of rectangular edition. limited to rectangle.
 
@@ -1650,14 +1654,14 @@ Ways to select:
 3.  C-x SPC  ; activate rectangle
 
 
-<a id="org91828b4"></a>
+<a id="orgcd1509d"></a>
 
 # GUI: How to reduce delay for minibuffer when F1 or C-x is pressed?
 
     (setq echo-keystrokes 0.2)
 
 
-<a id="org48902aa"></a>
+<a id="org5659a12"></a>
 
 # GUI: Why splitting window with C-x 3, C-x 2 works strage?
 
@@ -1717,7 +1721,7 @@ To open file at right window in Dired we can set
     (define-key dired-mode-map "\M-o" #'my/dired-find-file-other-window)
 
 
-<a id="orgf547270"></a>
+<a id="org55ddc89"></a>
 
 # GUI: Selecting Buffers, tab-bar-mode, like tabs in browser
 
@@ -1746,12 +1750,12 @@ To solve this there are built-in minor modes (works in console too):
 -   tab-line-mode - tabs per window (local and global).
 
 
-<a id="org280877a"></a>
+<a id="org315d763"></a>
 
 ## tab-bar
 
 
-<a id="orga6090f4"></a>
+<a id="orgb2e9d6c"></a>
 
 ## tab-line-mode
 
@@ -1769,7 +1773,7 @@ C-M-a/e is used in some modes like c-mode, you should unset it.
       (local-unset-key (kbd "C-M-e"))))
 
 
-<a id="orgfd91d46"></a>
+<a id="orgb8ccdf2"></a>
 
 ## Solution with external tab-bar-buffers package:
 
@@ -1785,7 +1789,7 @@ Add to ~/.emacs :
 But tab-bar-buffers have bugs for now.
 
 
-<a id="orgc5dc2af"></a>
+<a id="org72cf60e"></a>
 
 # GUI: How to switch to recent buffer and ignore system buffers like **Buffer List**?
 
@@ -1818,7 +1822,7 @@ Here we define ignore list, get buffer-list and filter system and our ignore lis
     (global-set-key (kbd "C-x C-b") #'my/other-buffer) ; shadow `downcase-region'
 
 
-<a id="org6849355"></a>
+<a id="orgba21583"></a>
 
 # GUI: How to open file in frame with the same major mode files?
 
@@ -1870,7 +1874,7 @@ More general approach based on major mode of opened buffer per frame
         ))
 
 
-<a id="org683c478"></a>
+<a id="org7a65463"></a>
 
 # GUI: Abort minibuffer everywhere if C-g pressed.
 
@@ -1890,7 +1894,7 @@ Did you notice, that C-g in normal buffer don't abort minibuffer? It
     (define-key isearch-mode-map "\C-g" #'my/keyboard-quit-with-minubuffer)
 
 
-<a id="org71a6e6a"></a>
+<a id="orgce62c47"></a>
 
 # GUI: How set default sorting of Buffer-menu and other tabular-list modes?
 
@@ -1907,7 +1911,7 @@ We get this output and place in our hook for Buffer-menu mode:
     (add-hook 'Buffer-menu-mode-hook #'my/sort-buffer-meny-by-mode)
 
 
-<a id="org6e6ae5f"></a>
+<a id="org62455c9"></a>
 
 # GUT: How to open Buffer-menu at right?
 
@@ -1915,14 +1919,23 @@ There is variable **split-width-threshold** for that, if "(window-width
  (selected-window))" > this variable, window will be created at right.
 
 
-<a id="org8c3fc4b"></a>
+<a id="org5e65c39"></a>
 
 # GUI: how to resize and enlarge frame with a sexp?
 
     (set-frame-parameter (selected-frame) 'fullscreen 'fullheight)
 
 
-<a id="orgbd7db87"></a>
+<a id="org07d445e"></a>
+
+# GUI: How to sort buffers in buffer menu by most visited?
+
+You can use recentf-mode and add:
+
+    (add-hook 'buffer-list-update-hook #'recentf-track-opened-file)
+
+
+<a id="orgef42200"></a>
 
 # How to kill all buffers and duplicate frames?
 
@@ -1985,7 +1998,7 @@ If buffer-menu is opened (current-buffer) still point to previous
     (global-set-key (kbd "C-x !") #'my/kill-other-buffers-and-frame-duplicates)
 
 
-<a id="org4921a86"></a>
+<a id="org097c10a"></a>
 
 # How to create a blog from a single file?
 
@@ -2014,7 +2027,7 @@ Advice that allow to use EXPORT\_FILE\_NAME per subtree to set export location f
     (advice-add 'org-html-export-to-html :around #'my/org-html-export-to-html-all-subtrees)
 
 
-<a id="org9573841"></a>
+<a id="org155cc09"></a>
 
 # How to fix vertico in Dired mode to properly handle path?
 
@@ -2048,7 +2061,7 @@ Here we redefine vertico-insert function and and make proper clearing
                     (goto-char (- (+ (minibuffer-prompt-end) (length (vertico--candidate))) 1 ))))))))
 
 
-<a id="orge1f2c36"></a>
+<a id="org0387990"></a>
 
 # How to enable ELisp mode in any buffer, or "There is no ElDoc support in this buffer."?
 
@@ -2061,7 +2074,7 @@ To solve error:
 IDK why this problem exist.
 
 
-<a id="orgb75fc5a"></a>
+<a id="orga0edc51"></a>
 
 # How to start notmuch with different .notmuch-config for different emails boxes?
 
@@ -2076,7 +2089,7 @@ en-email() {
 }
 
 
-<a id="org0b7c88f"></a>
+<a id="org95fab90"></a>
 
 # How to create link to certain place in file and open it from bash fast?
 
@@ -2125,12 +2138,12 @@ Here is example of ~/.bash\_aliases file with alias with inserted link from clip
     alias iaa='emacsclient --alternate-editor=emacs --create-frame --eval "(my/open-link \"file:~/nix::<<config_kernel_gentoo>>\")"'
 
 
-<a id="org0735be1"></a>
+<a id="org64c40a1"></a>
 
 # How to kill Python Babel when execute source block in Org mode?
 
 
-<a id="orgd6007de"></a>
+<a id="org89b4ab1"></a>
 
 # ELisp: How to load new package for easy navigation?
 
@@ -2142,7 +2155,7 @@ in require statements. Be careful, it will load byte-compiled “.elc”
 files.
 
 
-<a id="org77c0bb3"></a>
+<a id="org2ae155b"></a>
 
 # ELisp: How to test Macros fast?
 
@@ -2161,7 +2174,7 @@ It is possible only for simple macros:
     (defun myfun (arg) (progn (with-current-buffer myfun (myfun 3)) (raise-frame (next-frame))))
 
 
-<a id="orgab1fe3c"></a>
+<a id="orga7156e9"></a>
 
 # Elisp: How reload current file after (defcustom variable was changed?
 
@@ -2173,7 +2186,7 @@ It will be better to add dependent logic to :set function after setting variable
                  (print "we are here")))
 
 
-<a id="orgcd86eff"></a>
+<a id="orgd131995"></a>
 
 # Ediff: How to get rid of switching to "control buffer"?
 
@@ -2262,7 +2275,7 @@ This solution for default configuration when separate frame used,
       (ediff-files file-a file-b '( my/ediff-startup)))
 
 
-<a id="orge75e873"></a>
+<a id="org4634d5c"></a>
 
 ## references
 
@@ -2277,14 +2290,14 @@ Ediff customization guides:
 -   <http://yummymelon.com/devnull/using-ediff-in-2023.html>
 
 
-<a id="org23fbda2"></a>
+<a id="orgccccba8"></a>
 
 # TODO How to use holidays?
 
-holidays.el is configured
+Configure holidays.el by hands at the begining of every year.
 
 
-<a id="orge528bbd"></a>
+<a id="orgb28abd6"></a>
 
 # Telega: How to add custom notification on new message?
 
@@ -2306,9 +2319,9 @@ To replace standard behavior you can:
                 #'my/telega-alert--notify)
 
 
-<a id="org35a738f"></a>
+<a id="org4aa7f26"></a>
 
-# capitalize-word function don't capitalize first symbol of word, how to fix that?
+# Capitalize-word function don't capitalize first symbol of word, how to fix that?
 
     (defun char-at-point-is-capitalized ()
       "Check if the character at the current point position is capitalized."
@@ -2339,7 +2352,7 @@ To replace standard behavior you can:
     (global-set-key "\M-c" #'my/capitalize-word)
 
 
-<a id="orgbc9602e"></a>
+<a id="orga501d7a"></a>
 
 # How to evaluate code block remotely?
 
@@ -2350,7 +2363,7 @@ For Org Babel in #+BEGIN\_SRC there is a header argument :dir
 <https://orgmode.org/manual/Environment-of-a-Code-Block.html>
 
 
-<a id="org6f26b15"></a>
+<a id="orgdb20c54"></a>
 
 # Automatic curly quotation marks “” (instead of "") and ‘’ (instead of '')
 
@@ -2362,9 +2375,100 @@ Sadly, conflict with #+begin\_src #+end\_src blocks with Python.
 use <https://codeberg.org/Anoncheg/org-src-detect>
 
 
-<a id="org686417a"></a>
+<a id="org3cbbd7c"></a>
+
+# How to inhibit paired quotation for words like don't 1990's?
+
+You can add your function to electric-quote-inhibit-functions, that
+ should detect such exceptions.
+
+Simple solution is to disable pairing for any single quote “'”.
+
+    (add-hook 'electric-quote-inhibit-functions (lambda() (eq last-command-event ?\')))
+
+More advanced solution that search backward for opening and closining quotes
+ before any new line:
+
+    (defun my/previous-char-is-text ()
+      "Test that character before previous one is something."
+      (let ((prev-char (char-before (1- (point)))))
+        (and prev-char
+             (not (member prev-char '(?\  ?\t ?\n ?\r))))))
+    
+    (defun search-backward-for-character ()
+      "Search for opening single quote until new line or closing quote."
+      (let ((found nil) (newline nil))
+        (save-excursion
+          (while (and (not (bolp)) (not found) (not newline))
+            (backward-char 1)
+            (when (eq (char-before) ?‘)
+              (setq found t))
+            (when (memq (char-before) '(?\n ?\r ?\f ?’))
+              (setq newline t))))
+        found))
+    
+    (defun my/inhibit-paired-quote ()
+      "Inhibit pairing for words like don't.
+    For single quote \' and if it is after text and no opening quote
+    was made."
+      (if (eq last-command-event ?\')
+          (if (my/previous-char-is-text)
+              (not (search-backward-for-character))
+           )))
+    
+    (add-hook 'electric-quote-inhibit-functions #'my/paired-quote)
+
+
+<a id="orgbf1352c"></a>
 
 # TODO Org: How set #+TITLE: to filename?
 
 (plist-get (org-export-get-environment) ':title)
+
+
+<a id="org8bca559"></a>
+
+# My Emacs is not loading what to do? How to debug init file?
+
+1.  Try emacs &#x2013;debug-init
+2.  Comment 2/3 of your init file and try to start, then comment 1/3
+    of your init file and try to start, etc. You can use Emacs itself
+    without loading configuration to comment lines:
+    
+    -   `emacs -Q .emacs`. (it is same to -q &#x2013;no-site-file
+    
+    &#x2013;no-splash). Select region and do `M-x comment-line`
+3.  There is a package for debugin init file, but I never used it <https://github.com/emacs-straight/bug-hunter>
+
+Good article about bug hunting: <https://whatacold.io/blog/2022-07-17-emacs-elisp-debug/>
+
+Init file profiler <https://github.com/jschaf/esup>
+
+
+<a id="org3ab593e"></a>
+
+# TODO How to execute hook on active buffer change focus?
+
+Cases:
+
+1.  Changing the buffer in the current window (e.g. C-x <left>).
+2.  Switching to another window (C-x o).
+3.  Switching to another frame.
+
+Hooks:
+
+-   **buffer-list-update-hook:** is called for both (1) and (2). - run before the buffer is changed,
+-   **window-configuration-change-hook:** .
+-   **window-state-change-hook:** .
+-   **window-buffer-change-functions:** after buffer showed.
+
+One of solutions may be:
+
+    (add-hook 'window-buffer-change-functions
+              (lambda (arg) ; arg is frame object
+                (if (derived-mode-p 'python-mode 'python-ts-mode) ; for active buffer
+                    (demap-open)
+                  ;; else
+                  (demap-close)
+                  )))
 

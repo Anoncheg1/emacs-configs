@@ -10,12 +10,9 @@
 - (built-in): Org, org-agenda, Python, CC mode, Semantic, ElDoc, Dired + Bookmarks, VC, Highlight Changes, Electric Quote, dictionary.
 - (external): hidepw, free-keys, Notmuch, vlfi, dockerfile-mode, company-math, csv-mode, org-present, multiple-cursors.
 
-mini Python IDE:
-- company-jedi: Autocompletion, documentation and navigation
-- flymake: Errors checking with (pyflake dependency)
+Python IDE for remote and local: Eglot + pylsp, demap (minimap), recentf (recent visited)
 
-mini C IDE:
-- autocompletion and navigation with semantic and ggtags (GNU GLOBAL dependency)
+mini C IDE: autocompletion and navigation with semantic and ggtags (GNU GLOBAL dependency)
 
 I use a single ```.emacs``` with outline-mode. I don't generate-tangle from ".org".
 
