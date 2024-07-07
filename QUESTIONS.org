@@ -1945,3 +1945,24 @@ One of solutions may be:
               (demap-close)
               )))
 #+end_src
+* I have M-x recover-this-file message, how to show difference and remove auto-save?
+Here is two functions for that, copy this code to "M-:" or add to init
+ configuration file. After that you can use "M-x diff-auto-save-file"
+ and "M-x auto-save-file-remove" commands.
+#+begin_src elisp :results none :exports code :eval no
+(defun diff-auto-save-file ()
+  "Get auto-save #file# difference with current buffer."
+  (interactive)
+  (diff (make-auto-save-file-name) (current-buffer) nil 'noasync))
+
+(defun auto-save-file-remove ()
+  "Delete auto-save #file# if exist."
+  (interactive)
+  (let ((filename (make-auto-save-file-name)))
+    (if (not (file-exists-p filename))
+        (message (concat "File " filename " doesn't exist"))
+      ;; else
+      (delete-file filename nil) ; no trash
+      (message (concat "File " filename " succesfully removed."))
+      )))
+#+end_src

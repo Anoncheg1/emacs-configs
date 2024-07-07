@@ -36,13 +36,13 @@ Custom common:
 Custom Python mode:
 - C-c c		(run-python) - on remote machine
 - C-c C-c		execute file in terminal (my/exec-python)
-- M-left		(python-indent-shift-left)
-- M-right		(python-indent-shift-right)
+- C-c l/f		(python-indent-shift-left) / (python-indent-shift-right)
 - C-c C-o		(python-sort-imports)
 
 Custom Eglot
 - M-q			(my/eldoc) - show description in separate window only
-- C-c C-f/l	(flymake-goto-next-error) / (flymake-goto-prev-error)
+- C-'			(flymake-goto-next-error)
+- M-'			(flymake-goto-prev-error)
 - C-c C-e		(eglot-rename)
 - C-c o		(eglot-format) - region or entire buffer
 

@@ -90,6 +90,7 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - Org: For TAB indentation in Org src block “Highlighted Changes” cleared with ```(hilit-chg-clear)```.
 - Org: From ```org-meta-return``` - new line with indentation removed indent heading and indent to there is space above.
 - Closing all not modified buffers and duplicate frames with one key ```C-x !```.
+- Added Auto-save file functions: detect difference and remove file.
 
 TODO:
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.
