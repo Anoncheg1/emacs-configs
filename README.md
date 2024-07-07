@@ -47,6 +47,7 @@ I changed behavior of C-a/e and M-a/e in Org mode.
 
 Windows:
 - M-o - my/other-window-or-split
+- C-x ! - 'my/kill-other-buffers-and-frame-duplicates - kill not modified buffers and duplicate frames
 
 ## Email Client
 isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
@@ -79,7 +80,7 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - ```M-x fill-paragraph``` don't work in Org-mode list, when the next line in form "^text".
 - Dired: renaming single file will suggest same file if no other windows opened.
 - Dired: use region selection as marks at once
-- Abort minibuffer command if C-q pressed anywhere. By default minibuffer require separate quit.
+- Abort minibuffer command if C-g pressed anywhere. By default minibuffer require separate quit.
 - Capitalize first letter of word correctly whenever point is placed.
 - Electric quote should not be paired in Org source blocks and comments.
 - Electric quote or apostrophe be straight in words like: don't, your's, 1990's.
@@ -88,6 +89,7 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - ```(message "Preparing diary...")``` inhibited by ```(diary-including t)```. Called by ```appt-check```.
 - Org: For TAB indentation in Org src block “Highlighted Changes” cleared with ```(hilit-chg-clear)```.
 - Org: From ```org-meta-return``` - new line with indentation removed indent heading and indent to there is space above.
+- Closing all not modified buffers and duplicate frames with one key ```C-x !```.
 
 TODO:
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.

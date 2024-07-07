@@ -1910,7 +1910,7 @@ was made."
 #+end_src
 * TODO Org: How set #+TITLE: to filename?
 (plist-get (org-export-get-environment) ':title)
-* My Emacs is not loading what to do? How to debug init file?
+* My Emacs is not loading what to do? How to debug init config file?
 1) Try emacs --debug-init
 2) Comment 2/3 of your init file and try to start, then comment 1/3
  of your init file and try to start, etc. You can use Emacs itself
@@ -1918,6 +1918,7 @@ was made."
    - ~emacs -Q .emacs~. (it is same to -q --no-site-file
    --no-splash). Select region and do ~M-x comment-line~
 3) There is a package for debugin init file, but I never used it https://github.com/emacs-straight/bug-hunter
+4) try to add (setq debug-on-error t) at the top of your init.
 
 Good article about bug hunting: https://whatacold.io/blog/2022-07-17-emacs-elisp-debug/
 
