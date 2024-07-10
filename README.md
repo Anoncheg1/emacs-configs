@@ -78,10 +78,9 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - Jump to Org-mode src-block's result and key to open session in window
 - fixed recover autosaved #file# that is older: show message and own my/recover-this file.
 - indent region line by line
-- after M-q fill-paragraph cursor stays far away from left - I added move-beginning-of-line.
-- added key for fill-paragraph that don't look at babel language of source block to find language specific fill-column.
+- after M-q fill-paragraph cursor stays far away from left - I surrounder call with (save-excursion...
+- org-fill-paragraph don't respect language of source block to find language specific fill-column, I added additional key C-u TAB for that.
 - C-u C-SPC don't unwrap Org headers when jump, just like org-goto. advice added.
-- ```M-x fill-paragraph``` don't work in Org-mode list, when the next line in form "^text".
 - Dired: renaming single file will suggest same file if no other windows opened.
 - Dired: use region selection as marks at once
 - Abort minibuffer command if C-g pressed anywhere. By default minibuffer require separate quit.
