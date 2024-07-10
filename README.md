@@ -47,6 +47,10 @@ I changed behavior of C-a/e and M-a/e in Org mode.
 
 Windows:
 - M-o - my/other-window-or-split
+
+Buffers:
+- C-c M-c - *Messages* buffer
+- C-c M-z - previous buffer
 - C-x ! - 'my/kill-other-buffers-and-frame-duplicates - kill not modified buffers and duplicate frames
 
 ## Email Client
@@ -91,6 +95,8 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - Org: From ```org-meta-return``` - new line with indentation removed indent heading and indent to there is space above.
 - Closing all not modified buffers and duplicate frames with one key ```C-x !```.
 - Added Auto-save file functions: detect difference and remove file.
+- Dired: Preserve vertical position after up/down moving.
+- Org: breaking list by org-shiftright if (setq fill-prefix " "), patch https://github.com/Anoncheg1/org-shiftright-patch
 
 TODO:
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.

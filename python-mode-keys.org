@@ -40,7 +40,7 @@ Custom Python mode:
 - C-c C-o		(python-sort-imports)
 
 Custom Eglot
-- M-q			(my/eldoc) - show description in separate window only
+- M-i			(my/eldoc) - show description in separate window only
 - C-'			(flymake-goto-next-error)
 - M-'			(flymake-goto-prev-error)
 - C-c C-e		(eglot-rename)

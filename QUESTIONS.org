@@ -107,9 +107,14 @@ you can use -1 in skeleton, like this:
 To prevent new line after insertion use:
 : (setq skeleton-end-newline nil)
 * How to highlight something and unhighlight and save it?
-
+Using built-in hi-lock.el:
 1) M-s h ./r/p/l regexp RET
 2) M-s h u RET
+
+Also there is commands:
+- highlight-compare-buffers
+- highlight-compare-with-file
+- highlight-symbol-at-mouse.
 
 How to save and automatically load highlighted text?
 1) M-s h w - save patterns to file
@@ -1911,14 +1916,36 @@ was made."
 * TODO Org: How set #+TITLE: to filename?
 (plist-get (org-export-get-environment) ':title)
 * My Emacs is not loading what to do? How to debug init config file?
-1) Try emacs --debug-init
-2) Comment 2/3 of your init file and try to start, then comment 1/3
- of your init file and try to start, etc. You can use Emacs itself
- without loading configuration to comment lines:
-   - ~emacs -Q .emacs~. (it is same to -q --no-site-file
-   --no-splash). Select region and do ~M-x comment-line~
-3) There is a package for debugin init file, but I never used it https://github.com/emacs-straight/bug-hunter
-4) try to add (setq debug-on-error t) at the top of your init.
+1) *Check for Errors in Messages Buffer*: When Emacs hangs, you can
+ try pressing `C-g` to see if you can regain control. Additionally,
+ check the Messages buffer (`M-x messages`) for any error messages
+ that might provide clues about what's going wrong.
+2) *Inspect the Init File*:
+3) *Run Emacs in Debug Mode*: try running Emacs with ~emacs
+ --debug-init~ to see if additional debugging information reveals the
+ source of the problem.
+4) *Try to run Emacs without config* ~emacs --quick~
+5) *Bisection* is a technique used to debug a problematic init file by
+ commenting out half the file and running emacs. If the problem
+ persists, you know that it is in the un-commented part of your init
+ file. Comment or uncomment half of the remaining code and re-run
+ emacs; recurse as needed. You can use Emacs itself without loading
+ configuration to comment lines: ~emacs --quick .emacs~. Select region
+ and do ~M-x comment-line~.
+6) Try to add (setq debug-on-error t) at the top of your init.
+7) *Check for System Updates*: It's also worth checking if there were
+ any recent updates to your operating system or any related software
+ that might have affected Emacs.
+8) *Verify Installation*: Ensure that the Org package is installed
+  correctly. You can check this by running `M-x package-list-packages`
+9) *Update packages*.
+10) *Try a Different Emacs Installation*: If the issue persists even
+  after reinstalling Emacs, you could try using a different build or
+  version of Emacs to see if the problem is specific to the version
+  you're using.
+11) *Try to run Emacs under different user of your operation system.*
+
+There is a package for debugin init file, but I never used it https://github.com/emacs-straight/bug-hunter
 
 Good article about bug hunting: https://whatacold.io/blog/2022-07-17-emacs-elisp-debug/
 
