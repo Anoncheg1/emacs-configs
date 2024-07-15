@@ -96,6 +96,8 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - Added Auto-save file functions: detect difference and remove file.
 - Dired: Preserve vertical position after up/down moving.
 - Org: breaking list by org-shiftright if (setq fill-prefix " "), patch https://github.com/Anoncheg1/org-shiftright-patch
+- recentf: save directory path and TRAMP path, that was opened with ```find-file``` command.
+- Dired: cycle sorting, not just toggle between by date / by name as it was by default.
 
 TODO:
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.

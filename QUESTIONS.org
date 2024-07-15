@@ -1236,6 +1236,69 @@ Deletion flag `dired-del-marker' is used."
 2) select target folder in window
 3) switch to another window
 4) mark files and dired-copy/rename
+* Dired: how to toggle sorting? Sorting by size?
+By default, Dired uses “dired-listing-switches” variable for ls
+ command options and sort buffer by name.
+
+There is “s” key for “dired-sort-toggle-or-edit” ->
+ “dired-sort-toggle” function, that switch sorting: by name or
+ by date.
+
+“dired-sort-toggle” - search “-t” ls option in “dired-actual-switches”
+ variable and add or remove “-t”.
+
+One of approaches is just “save and select”:
+http://xahlee.info/emacs/emacs/dired_sort.html
+
+More intelligent approach is to “cycle” with a single key sorting: by
+ name, by date, by size.
+#+begin_src elisp :results none :exports code :eval no
+;;; Comments:
+;; By defalt dired-sort-toggle toggle between by date / by name, we
+;; extend it to toggle by looping throught the list of
+;; `dired-listing-switches-others'
+(setopt dired-listing-switches "-AlthG") ;;  --group-directories-first
+
+(defvar dired-listing-switches-name "by date") ; by date by default here.
+
+(defvar dired-listing-switches-others
+      '(("by name" . "-AlhG")
+        ("by size" . "-AlShG")))
+
+(defun get-next-item-by-string-value (clist value)
+  (cl-loop for pair in clist
+           for i from 1
+           when (string-equal (cdr pair) value)
+           do (cl-return (nth i clist))
+           finally return nil))
+;; test:
+;; (cl-assert (equal (get-next-item-by-string-value dired-listing-switches-others "-AlhG") '("by size" . "-AlShG")))
+
+(defun dired-sort-toggle()
+  "Rewrite of `dired-sort-toggle'.
+Loop over `dired-listing-switches' +
+`dired-listing-switches-others' and set next sorting switch."
+  (interactive)
+  (let* ((new-clist
+          ;; loop of switches
+          (append (list (cons dired-listing-switches-name dired-listing-switches))
+                  dired-listing-switches-others
+                  (list (cons dired-listing-switches-name dired-listing-switches))))
+         ;; next item
+         (pair (get-next-item-by-string-value new-clist dired-actual-switches))
+         (name (if pair
+                  (car pair)
+                ;; else
+                dired-listing-switches-name))
+         (switch (if pair
+                  (cdr pair)
+                ;; else
+                dired-listing-switches)))
+    (setq dired-actual-switches switch)
+    (setq mode-name (concat "Dired " name))
+    (revert-buffer)))
+#+end_src
+
 * How emacs behavior differ when run under root?
 C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
 - TAB is ascii C-i. ,
@@ -1992,4 +2055,13 @@ Here is two functions for that, copy this code to "M-:" or add to init
       (delete-file filename nil) ; no trash
       (message (concat "File " filename " succesfully removed."))
       )))
+#+end_src
+* recentf: How to add directories that was opened from “find-file”?
+#+begin_src elisp :results none :exports code :eval no
+(defun my/find-file-hook (filename &optional wildcards)
+  "Add directory that was opened with find-file commands."
+  (if (file-directory-p filename)
+      (recentf-add-file filename)))
+
+(advice-add 'find-file :before #'my/find-file-hook)
 #+end_src
