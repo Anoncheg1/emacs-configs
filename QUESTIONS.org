@@ -412,7 +412,7 @@ To activate:
 There is fzf command line utility and integration with Emacs https://github.com/bling/fzf.el
 
 and there is implementation in pure Emacs: https://www.masteringemacs.org/article/fuzzy-finding-emacs-instead-of-fzf
-* How to prevent fill-paragraph in Org mode to indent source block according to language
+* paragraph.el: How to prevent fill-paragraph in Org mode to indent source block according to language
 How to force fill-paragraph to use just local fill-column and don't use babel?
 
 Solution: just set variable fill-paragraph-function to nil. This is set to org-fill-paragraph.
@@ -439,7 +439,7 @@ Solution is to disable them in org-mode-syntax-table:
                            (modify-syntax-entry ?> "." org-mode-syntax-table)
                            (modify-syntax-entry ?< "." org-mode-syntax-table)))
 #+end_src
-* `fill-paragraph' and `org-fill-paragraph' don't work in Org-mode list.
+* paragraph.el: `fill-paragraph' and `org-fill-paragraph' don't work in Org-mode list.
 It breaks when new line have ^text... and works when ^  text.. - have some spaces.
    I think the source of the problem lies in the function `org-element-at-point'.
 
@@ -2062,7 +2062,7 @@ Here is two functions for that, copy this code to "M-:" or add to init
       (message (concat "File " filename " succesfully removed."))
       )))
 #+end_src
-* Why paragraph start not match “1. text”, not correct end of paragraph?
+* paragraph.el: Why paragraph start not match “1. text”, not correct end of paragraph?
 Because Org redefine paragraph-start and paragraph-separate in
  `org-setup-filling' function in main `org-mode' function.
 
@@ -2088,4 +2088,96 @@ Solution to get right org-forward-sentence:
       (recentf-add-file filename)))
 
 (advice-add 'find-file :before #'my/find-file-hook)
+#+end_src
+* How to set faces: foreground, background, font based on selected day and night theme
+Org mode have (background dark), (background light) switch for
+ automaticly choosing face based on background, but this function
+ working only after applying faces in hook or function.
+
+Global faces set in (custom-set-faces ... ) expression.
+
+You should set:
+1) default faces in (custom-set-faces ... ) expression.
+2) modifications of this faces after changing theme
+3) Org specifica faces may be set with (background dark), (background
+ light) switches in a hook or in a custom keybinding.
+
+** Default and Org specific automatic faces:
+#+begin_src elisp :results none :exports code :eval no
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(highlight-changes ((t (:background nil :foreground "pink"))))
+ '(highlight-changes-delete ((t (:foreground "red"))))
+ '(whitespace-tab ((t (:foreground "#636363"))))
+ '(whitespace-trailing ((t (:extend t :background "dark red")))))
+
+
+;; Org specific faces configurations with dark/lagth auto switching
+(add-hook 'org-mode-hook (lambda ()
+                           ;; Can not be set globally! Only in function or hook
+                           (custom-set-faces
+                            '(org-level-1 ((t ( :weight bold :height 1.10))))
+                            '(org-level-2 ((t ( :weight bold :height 1.10))))
+                            '(org-level-3 ((t ( :weight bold :height 1.10))))
+                            '(org-hide ((((background dark)) (:foreground "dark slate blue"))
+                                        (((background light)) (:foreground "gray"))))
+                            )))
+
+#+end_src
+
+** Switching keybindings for themes
+#+begin_src elisp :results none :exports code :eval no
+(defun my/load-theme (themes)
+  "Load THEMES properly by disabling the previous themes first."
+  ;; (setq themes '(wombat manoj-dark)) ; debug
+  (mapc #'disable-theme custom-enabled-themes)
+  (mapc (lambda (x)(load-theme x t))
+        (reverse themes))
+  (setq custom-enabled-themes themes))
+
+(defun my/dark-common()
+  (custom-set-faces
+   '(highlight-changes ((t (:background nil :foreground "pink"))))
+   '(highlight-changes-delete ((t (:foreground "red"))))
+   '(whitespace-tab ((t (:foreground "#636363"))))
+   '(whitespace-trailing ((t (:extend t :background "dark red"))))
+   )
+  )
+
+(defun my/set-theme-dark ()
+  "Theme 1."
+  (interactive)
+  (my/load-theme '(manoj-dark wombat))
+  (my/dark-common)
+  )
+
+(defun my/set-theme-middle ()
+  "Theme 2."
+  (interactive)
+  (my/load-theme '(wombat manoj-dark))
+  (my/dark-common))
+
+
+(defun my/set-theme-white ()
+  "Theme 3."
+  (interactive)
+  ;; (my/load-theme nil)
+  (my/load-theme '(tsdh-light)) ; theme name
+  (custom-set-faces
+   '(highlight-changes ((t (:background nil :foreground "red"))))
+   '(highlight-changes-delete ((t (:foreground "red"))))
+   '(whitespace-tab ((t (:foreground "#636363"))))
+   '(whitespace-trailing ((t (:extend t :background "pink")))))
+  )
+
+;; enable themes - darker
+(global-set-key (kbd "M-_") #'my/set-theme-dark)
+;; enable themes - middle ; shadow `insert-parentheses'
+(global-set-key (kbd "M-)") #'my/set-theme-middle) ; modus-operandi - for root
+;; disable themes - white ; shadow `move-past-close-and-reindent'
+(global-set-key (kbd "M-(") #'my/set-theme-white) ; ; modus-vivendi - for root
+
 #+end_src
