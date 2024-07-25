@@ -1978,7 +1978,7 @@ was made."
 #+end_src
 * TODO Org: How set #+TITLE: to filename?
 (plist-get (org-export-get-environment) ':title)
-* My Emacs is not loading what to do? How to debug init config file?
+* FAQ: My Emacs is not loading what to do? How to debug init config file?
 1) *Check for Errors in Messages Buffer*: When Emacs hangs, you can
  try pressing `C-g` to see if you can regain control. Additionally,
  check the Messages buffer (`M-x messages`) for any error messages
@@ -2013,6 +2013,12 @@ There is a package for debugin init file, but I never used it https://github.com
 Good article about bug hunting: https://whatacold.io/blog/2022-07-17-emacs-elisp-debug/
 
 Init file profiler https://github.com/jschaf/esup
+* FAQ: how to unbind key?
+#+begin_src elisp :results none :exports code :eval no
+(keymap-global-unset "C-e") ; - some global key
+(unbind-key "C-c x" org-mode-map) ; - for Org mode specific key, for example.
+(keymap-unset clojure-mode-map "C-c C-z") ; - new approach same to unbind-key.
+#+end_src
 * TODO How to execute hook on active buffer change focus?
 Cases:
 1. Changing the buffer in the current window (e.g. C-x <left>).
@@ -2055,6 +2061,24 @@ Here is two functions for that, copy this code to "M-:" or add to init
       (delete-file filename nil) ; no trash
       (message (concat "File " filename " succesfully removed."))
       )))
+#+end_src
+* Why paragraph start not match “1. text”, not correct end of paragraph?
+Because Org redefine paragraph-start and paragraph-separate in
+ `org-setup-filling' function in main `org-mode' function.
+
+That is why you should use “org-” prefix for all commands working
+ with paragraphs from paragraph.el.
+
+Solution to get right org-forward-sentence:
+#+begin_src elisp :results none :exports code :eval no
+(let* (
+           ;; works for one lists and don't works for others
+           (forward1 (save-excursion (org-end-of-item) (backward-char) (point)))
+           ;; works for one lists and don't works for others
+           (forward2 (save-excursion
+                       (org-forward-sentence)))
+           (closest (if (< forward1 forward2) forward1 forward2)))
+      (goto-char closest))
 #+end_src
 * recentf: How to add directories that was opened from “find-file”?
 #+begin_src elisp :results none :exports code :eval no

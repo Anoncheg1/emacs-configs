@@ -1,4 +1,4 @@
-;-*- mode: elisp-byte-code; eval: (outline-minor-mode 1); lexical-binding: t -*-
+;; -*- mode: elisp-byte-code; eval: (outline-minor-mode 1); lexical-binding: t -*-
 ;; -- Guide for this config
 ;; ##### First opening guide: ##########
 ;; #
@@ -14,6 +14,16 @@
 ;; [ Shift+TAB ] (backtab) 	- hide all, show only headers
 ;; [ C-c TAB ] 		- hide all, show only headers
 ;; [ C-c C-e ] 		- hide other headers, leave opened current
+;; -- -- List of external files
+;; .emacs - main config
+;; .emacs.d - directory, (not valuable)
+;; .MyEmacsBackups - directory
+;; .signature - file for notmuch - footer for output email
+;; .mailcap - file for notmuch
+;; .authinfo - notmuch credentials and password
+;; .tramp_history - file, (not valuable)
+;; .emacs.d/cotrib/lisp/myholidays.el - holidays
+
 ;; -- Automatic Variables
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -31,7 +41,6 @@
 (other . "gnu")))
  '(custom-enabled-themes '(wombat manoj-dark))
  '(delete-selection-mode t)
- '(demap-minimap-window-width 10)
  '(display-time-mode t)
  '(global-eldoc-mode -1)
  '(inhibit-startup-screen t)
@@ -58,42 +67,64 @@
  '(whitespace-tab ((t (:foreground "#636363"))))
  '(whitespace-trailing ((t (:extend t :background "dark red")))))
 
-;; -- enable commands (automatc added)
+;; -- Enable commands (automatc added)
 (put 'scroll-left 'disabled nil)
 ;; (put 'erase-buffer 'disabled nil)
-;; -- Package Management
-(setopt load-prefer-newer t)
-;; -- -- MELPA
+;; - MELPA
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 ;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
 ;; and `package-pinned-packages`. Most users will not need or want to do this.
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(package-initialize)
+(package-initialize) ; use `package-load-list' variable, dafault: (all)
+                     ; and `package-activated-list' variable
+;; -- Proxy configuration - for what types of connections? HTTP/HTTPS?
+(setq url-gateway-method 'socks)
+(setq socks-password "")
+(setq socks-server '("Default server" "127.0.0.1" 9050 5)) ;; M-x customize socks
+;; (url-proxy-services
+;; test proxy:
+(require 'url)
+(require 'url-vars)
+(defun my/testproxy ()
+  (let (
+        ;; (url-mime-accept-string "application/xml")
+        (url-request-extra-headers
+         '(("User-Agent" . "curl/8.7.1")
+           ("Accept" . "*/*"))))
+  (display-buffer (url-retrieve-synchronously "http://ipinfo.io/ip"))))
 
-;; -- -- GitHub packages
-;; (add-to-list 'load-path "~/.emacs.d/myplugins")
-;; (load "iflipb.el")
-;; (require 'iflipb)
-;; -- LIST OF EXTERNAL FILES
-;; .emacs - main config
-;; .emacs.d - directory
-;; .MyEmacsBackups - directory
-;; .signature - file for notmuch - footer for output email
-;; .mailcap - file for notmuch
-;; .authinfo - notmuch credentials and password
-;; .tramp_history - file
-;; .emacs.d/cotrib/lisp/myholidays.el - holidays
+
+;; (my/testproxy)
+;; (with-current-buffer
+
+  ;; (goto-char (point-min))
+  ;; (re-search-forward "^$")
+  ;; (delete-region (point) (point-min))
+  ;; (buffer-string))
+  ;; )
+
+;; ;; -- gui and new version dependent configurations
+;; ;; gui
+(tool-bar-mode     -1) ;; отключаем tool-bar
+(scroll-bar-mode   -1) ;; отключаем полосу прокрутки
+;; ;; path for info
+;; (require 'info)
+;; (add-to-list 'Info-directory-list "/usr/local/src/elisp")
+
 ;; -- Paths and file extensions, loading process
+;; - Package Management
+(setopt load-prefer-newer t)
+
 ;; must not have subfolders
-(add-to-list 'load-path "~/.emacs.d/contrib/lisp/emacs-jedi")
 (add-to-list 'load-path "~/.emacs.d/contrib/lisp/package-build")
 (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ediffnw")
-(add-to-list 'load-path "~/.emacs.d/contrib/lisp/lsp-bridge")
 (add-to-list 'load-path "~/.emacs.d/contrib/lisp")
-(add-to-list 'load-path "~/sources/telega.el")
+(add-to-list 'load-path "~/.emacs.d/contrib/lis/org-src-context.el")
 ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ob-yaml.el")
 ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ob-yamlmy.el")
+;; ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/emacs-jedi")
+;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/lsp-bridge")
 ;; conf-mode for /etc
 (add-to-list 'auto-mode-alist '("/etc/.*" . conf-unix-mode))
 ;; images
@@ -122,8 +153,24 @@
 (setopt delete-old-versions t) ;  nil, the default - asks , t -  deletes the excess backup files silently
 (setopt kept-old-versions 6)
 (setopt kept-new-versions 6)
-;; -- -- Auto save files
-;; -- -- -- fix not visible message about #file# exist
+;; -- -- Auto save files "#file#" (Auto-save)
+;; -- -- -- Difference and remove
+(defun my/diff-auto-save-file ()
+  "Get auto-save #file# difference with current buffer."
+  (interactive)
+  (diff (make-auto-save-file-name) (current-buffer) nil 'noasync))
+
+(defun my/auto-save-file-remove ()
+  "Delete auto-save #file# if exist."
+  (interactive)
+  (let ((filename (make-auto-save-file-name)))
+    (if (not (file-exists-p filename))
+        (message (concat "File " filename " don't exist"))
+      ;; else
+      (delete-file filename nil) ; no trash
+      (message (concat "File " filename " succesfully removed."))
+      )))
+;; -- -- -- Fix not visible message about #file# exist (old)
 ;; (defun my/hook-fix-auto-save-was-found(&optional proc files nowait commands dontkill frame tty-name)
 ;;   ;; No need to warn if buffer is auto-saved
 ;;   ;; under the name of the visited file.
@@ -144,7 +191,7 @@
 ;; (add-hook 'find-file-hook 'my/hook-fix-auto-save-was-found)
 ;; ;; and when emacsclient is used and hide by message "When done with a buffer, type C-x #"
 ;; (advice-add 'server-execute :after #'my/hook-fix-auto-save-was-found)
-;; -- -- -- fix reciver-this-file to recover old files (old, not used)
+;; -- -- -- Fix reciver-this-file to recover old files (old, not used)
 ;; (defun my/recover-this-file ()
 ;;   "Recover the visited file--get contents from its last auto-save file.
 ;;    Visit file FILE, but get contents from its last auto-save file."
@@ -204,7 +251,7 @@
 ;;         (after-find-file nil nil t))
 ;;        (t (user-error "Recover-file canceled")))))
 ;; -- Called externally with: emacs --eval "()"
-;; -- -- canedarn and diary
+;; -- -- Calendar and diary
 (defun my/agenda-split()
   "called with (call-interactively 'my/agenda-split)"
   (interactive)
@@ -228,7 +275,7 @@
 ;; sort diary entries
 (add-hook 'diary-list-entries-hook 'diary-sort-entries t)
 
-;; -- -- open link
+;; -- -- Open link
 ;; usage in ~/.bash_aliases: alias iaa='emacsclient --alternate-editor=emacs --create-frame --eval "(my/open-link \"file:~/nix::<<config_kernel_gentoo>>\")"'
 (defun my/open-link(arg)
   "Open org link, generated by `my/copy-link-to-clipboard'."
@@ -244,7 +291,7 @@
 
 
 
-;; -- -- find file in right frame
+;; -- -- Find file in right frame
 ;; (defun my/find-file-frame (filename)
 ;;   "Open file in frame with the same mode buffer. If no frame was
 ;; found the new one will be created. Used with `tab-line-mode'
@@ -299,7 +346,7 @@ Steps: 1) create buffer. 2) found frame with same major mode.
 ;; (setq display-buffer-base-action '(display-buffer-in-tab))
 
 
-;; -- -- delete white spaces at save
+;; -- -- Delete white spaces at save
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
 (add-hook 'after-save-hook (lambda ()
                              (if highlight-changes-mode
@@ -373,7 +420,7 @@ Steps: 1) create buffer. 2) found frame with same major mode.
                    (let ((imdata (base64-decode-string im64)))
                      (insert-image (create-image imdata 'png t)))))
                (insert "\n\n")))))))))
-;; -- -- copy current file path and line number to clipboard
+;; -- -- Copy current file path and line number to clipboard
 (defun my/copy-link-to-clipboard ()
   "Copy to clipboard:
 - for org mode files: link generated by `org-store-link'
@@ -456,6 +503,7 @@ Steps: 1) create buffer. 2) found frame with same major mode.
 (setopt truncate-lines t)
 ;; (add-hook 'text-mode-hook 'visual-line-mode)
 ;; (add-hook 'prog-mode-hook 'toggle-truncate-lines)
+;; used in `fill-paragraph'
 (add-hook 'text-mode-hook (lambda () (setq-local fill-prefix " "))) ;; buffer-local
 
 ;; - auto wrap mode with by fill-column
@@ -711,19 +759,25 @@ to activate."
         ))))
 ;; -- Global fixes
 
+(defvar my/end-of-sentence "[.?!。]"
+  "End of sentence characters in [] regex.")
+
+(defun my/move-to-first-word ()
+  (interactive)
+    (let ((found (re-search-backward
+                  "[.?!。]" (line-beginning-position) t)))
+      (if found
+          (goto-char (match-beginning 0))
+        (goto-char (line-beginning-position)))
+      (re-search-forward "[[:alpha:]\u0400-\u04FF]+"
+                         (point-at-eol) t)
+      (goto-char (match-beginning 0))))
+
 (defun char-at-point-is-capitalized ()
   "Check if the character at the current point position is capitalized."
   (let ((char (char-after (point))))
     (and (characterp char)
          (eq (upcase char) char))))
-
-(defun move-to-first-word ()
-  "Move point to the first normal text word at the current line."
-  (interactive)
-  (beginning-of-line)
-  ;; \u0400-\u04FF to match Cyrillic characters specifically.
-  (re-search-forward "\\b[[:alpha:]\u0400-\u04FF]+\\b" (point-at-eol) t)
-  (goto-char (match-beginning 0)))
 
 (defun my/capitalize-word (arg)
   "Capitalize first letter at current line.
@@ -732,12 +786,13 @@ and preserve a point position."
   (interactive "P")
   (save-excursion
     (if (not arg)
-      (move-to-first-word)
+      (my/move-to-first-word)
       ;; else
       (forward-word)
       (backward-word))
     (if (not (char-at-point-is-capitalized))
         (capitalize-word 1))))
+
 (global-set-key "\M-c" #'my/capitalize-word)
 (global-set-key (kbd "M-с") #'my/capitalize-word) ; rus
 
@@ -932,15 +987,15 @@ and preserve a point position."
        ;; else - not comment
        (insert-and-inherit ?\n)
        (indent-to-left-margin))
-       ;; got back to saved point
+     ;; got back to saved point
      )))
 
 
 (global-set-key "\C-o" #'my/open-previous-line)
 (global-set-key "\C-m" #'default-indent-new-line)
 (global-set-key "\M-m" #'electric-newline-and-maybe-indent)
-(global-set-key "\C-j" #'my/new-line-stay-indent)
-(global-set-key "\M-j" #'my/open-next-line)
+(global-set-key "\C-j" #'my/open-next-line)
+(global-set-key "\M-j" #'my/new-line-stay-indent)
 
 ;; (global-set-key (kbd "C-M-o") #'open-next-line) ;; hides split-line
 
@@ -1010,6 +1065,14 @@ and preserve a point position."
 ;; (setq scroll-step 10) ;; keyboard scroll one line at a time
 
 (global-set-key "\M-o" 'other-window)
+
+(global-set-key (kbd "M-[") (lambda () (interactive)
+                              (other-frame -1)
+                              (message "%d frames total" (1- (length (frame-list))))))
+(global-set-key (kbd "M-]") (lambda () (interactive)
+                              (other-frame 1)
+                              (message "%d frames total" (1- (length (frame-list))))))
+
 
 ;; (global-set-key (kbd "M-c") 'yank)
 ;; -- -- -- split windows
@@ -1217,28 +1280,32 @@ and preserve a point position."
 
 (defun my/kill-other-buffers (&optional test)
     "Kill all other buffers. If TEST is true just print victims.
-Bug: Can drop frame if emacs was started with emacsclient --create-frame"
-
+Can drop frame that started as emacsclient --create-frame"
     (let* (;; if current window is buffer-menu with selected buffers
+           ;; this buffers will be ignored.
            (exception-buffers (if (derived-mode-p 'Buffer-menu-mode)
                                   (Buffer-menu-marked-buffers)
                                 ;; else
                                 nil))
-           ;; get buffers to kill
+           ;; buffers to kill from source: `buffer-list'
            (buffers (delq (window-buffer (selected-window)) ; filter buffer-menu in current window
-                         (delq (current-buffer) ; filter current buffer
-                               ;; filter alive and not system
-                               (seq-filter (lambda (b) (and (buffer-live-p b) ; filter alive
-                                                            ; first character of name should be not space
-                                                            (/= (aref (buffer-name b) 0) ?\s)
-                                                            ;; don't kill selected buffers
-                                                            (print (list exception-buffers b))
-                                                            (not (seq-contains-p exception-buffers b))
-                                                            ;; filter exceptions
-                                                            (not (seq-contains-p my/kill-buffer-exceptions
-                                                                                 (downcase (buffer-name b))
-                                                                                 #'my/kill-buffer-testfn))))
-                                           (seq-uniq (buffer-list)))))))
+                          (delq (current-buffer) ; filter current buffer
+                                ;; filters per individual buffer - alive, not modified and not system
+                                (seq-filter (lambda (b)
+                                              ;; true means - to kill
+                                              (and (buffer-live-p b) ; filter alive
+                                                   ;; first character of name should be not space
+                                                   (/= (aref (buffer-name b) 0) ?\s)
+                                                   ;; don't kill if was modified
+                                                   (not (buffer-modified-p b))
+                                                   ;; don't kill selected buffers
+                                                   ;; (print (list exception-buffers b))
+                                                   (not (seq-contains-p exception-buffers b))
+                                                   ;; filter exceptions
+                                                   (not (seq-contains-p my/kill-buffer-exceptions
+                                                                        (downcase (buffer-name b))
+                                                                        #'my/kill-buffer-testfn))))
+                                            (seq-uniq (buffer-list)))))))
       (if test
           (print buffers)
           ;; else
@@ -1255,8 +1322,8 @@ Bug: Can drop frame if emacs was started with emacsclient --create-frame"
    (car (mapcar #'window-buffer (window-list frame)))))
 
 (defun my/drop-frame-duplicates ()
-  "Compare window list by `my/member-frame' function and kill others.
-Function `frame-list-z-order' used as a source of frames."
+  "Compare frame list by `my/member-frame' function and kill others.
+Function `frame-list-z-order' used as a source for frames."
     (let ((duplicates '())
           (unique-items '()))
       (dolist (item (frame-list-z-order))
@@ -1268,11 +1335,13 @@ Function `frame-list-z-order' used as a source of frames."
 
 ;; -------------------------- all together
 (defun my/kill-other-buffers-and-frame-duplicates (arg)
-  "C-u for test, don't kill actually."
+  "Kill not modified buffers and duplicate frames.
+Called from buffer-menu. Marked buffers will be ignored. C-u for
+test and will kill actually."
   (interactive "P")
-  (my/drop-frame-duplicates) ; drop duplicates
+  (my/drop-frame-duplicates) ; drop duplicate frames by showed buffer
   (my/kill-other-buffers arg) ; drop other buffers
-  (my/drop-frame-duplicates) ; drop duplicates - because buffers changed
+  (my/drop-frame-duplicates) ; drop duplicate frames - because buffers changed
   ;; Hack to trigger all window hooks (I need force-mode-line-update for myself)
   (let ((sw (selected-window)))
     (select-window (minibuffer-window))
@@ -1485,7 +1554,7 @@ Function `frame-list-z-order' used as a source of frames."
 ;; Error running timer ‘zone’: (wrong-type-argument frame-live-p #<dead frame *zone* • 0x558dc90ae248>)
 (setq zone-programs (remove 'zone-pgm-rotate zone-programs))
 (setq zone-programs (remove 'zone-pgm-rotate-RL-lockstep zone-programs))
-
+(setq zone-programs (remove 'zone-pgm-five-oclock-swan-dive zone-programs))
 
 ;; -- -- -- fix speed
 
@@ -1628,11 +1697,40 @@ Function `frame-list-z-order' used as a source of frames."
 ;; M-? jump to first occurance
 (setopt xref-auto-jump-to-first-xref t)
 ;; -- -- recent [rooted]
+(require 'recentf)
+;; -- -- -- save directories
+(defun my/find-file-hook (filename &optional wildcards)
+  "Add directory that was opened with find-file commands."
+  (if (file-directory-p filename)
+      (recentf-add-file filename)))
+
+(advice-add 'find-file :before #'my/find-file-hook)
+;; -- -- -- save only remote files
+(defun recentf-track-opened-file ()
+  "Insert the name of the file just opened or written into the recent list."
+  (if (and buffer-file-name
+           (file-remote-p buffer-file-name))
+       (recentf-add-file buffer-file-name)
+    )
+  ;; Must return nil because it is run from `write-file-functions'.
+  nil)
+
+;; -- -- -- Don't remove from saved if buffer killed
+(defconst recentf-used-hooks
+  '(
+    (find-file-hook       recentf-track-opened-file)
+    (write-file-functions recentf-track-opened-file)
+    ;; (kill-buffer-hook     recentf-track-closed-file)
+    (kill-emacs-hook      recentf-save-list)
+    )
+  "Hooks used by recentf.")
+;; -- -- -- Activate and key
 (recentf-mode 1)
 ;; (setq recentf-max-menu-items 25)
 ;; (setq recentf-max-saved-items 25)
 ;; (add-hook 'buffer-list-update-hook #'recentf-track-opened-file)
 (global-set-key (kbd "M-r") 'recentf-open-files) ; shadow `move-to-window-line-top-bottom'
+
 ;; -- Buffers, Windows, Buffer menu, tab-bar, tab-list [rooted]
 ;; -- -- Buffer menu buffer-menu - sorting(disabled)
 ;; (defun my/sort-buffer-meny-by-mode()
@@ -1682,7 +1780,7 @@ If this window is splitted and small, just use current window."
 (defun my/other-buffer (&optional arg)
   "Switch to other buffer, ie `other-buffer' without system buffers."
   (interactive)
-  (let ((ignored-system-buffers '("*Messages*" "*Buffer List*")))
+  (let ((ignored-system-buffers '("*Buffer List*"))) ; "*Messages*"
     (switch-to-buffer
      (seq-find (lambda (b) ; get first good one
                  (and
@@ -1700,7 +1798,13 @@ If this window is splitted and small, just use current window."
 ;;          (call-interactively 'Buffer-menu-this-window)))
 
 ;; (global-set-key "\C-o" #'other-window) ; shadow 'open-line
-(global-set-key (kbd "C-c M-c") #'my/other-buffer)
+(global-set-key (kbd "C-c C-z") #'my/other-buffer)
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `org-add-note'
+(with-eval-after-load 'sh-script
+  (define-key sh-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `sh-show-shell'
+(with-eval-after-load 'python
+  (define-key python-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `python-shell-switch-to-shell'
 ;; -- -- -- next/previous line
 (global-set-key  (kbd "C-z") #'next-line) ; rooted
 (global-set-key (kbd "M-z") #'previous-line) ; shadow `zap-to-char' rooted
@@ -1713,13 +1817,7 @@ If this window is splitted and small, just use current window."
   (switch-to-buffer "*Messages*")
   (end-of-buffer))
 
-(global-set-key (kbd "C-c C-z") #'my/show-message-log) ; rooted
-(with-eval-after-load 'org
-  (define-key org-mode-map (kbd "C-c C-z") #'my/show-message-log)) ; shadow `org-add-note'
-(with-eval-after-load 'sh-script
-  (define-key sh-mode-map (kbd "C-c C-z") #'my/show-message-log)) ; shadow `sh-show-shell'
-(with-eval-after-load 'python
-  (define-key python-mode-map (kbd "C-c C-z") #'my/show-message-log)) ; shadow `python-shell-switch-to-shell'
+(global-set-key (kbd "C-c M-c") #'my/show-message-log) ; rooted
 ;; -- -- tab-bar-mode for buffers
 ;; (require 'tab-bar-buffers)
 ;; (tab-bar-buffers-mode t)
@@ -1744,40 +1842,8 @@ If this window is splitted and small, just use current window."
 ;; -- Tree-sitter (disabled now)
 ;; (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 ;; (add-to-list 'major-mode-remap-alist '(bash-mode . bash-ts-mode))
-;; -- Proxy configuration
-(setq url-gateway-method 'socks)
-(setq socks-password "")
-(setq socks-server '("Default server" "127.0.0.1" 9050 5)) ;; M-x customize socks
-;; (url-proxy-services
-;; test proxy:
-(require 'url)
-(require 'url-vars)
-(defun my/testproxy ()
-  (let (
-        ;; (url-mime-accept-string "application/xml")
-        (url-request-extra-headers
-         '(("User-Agent" . "curl/8.7.1")
-           ("Accept" . "*/*"))))
-  (display-buffer (url-retrieve-synchronously "http://ipinfo.io/ip"))))
-;; (my/testproxy)
-;; (with-current-buffer
-
-  ;; (goto-char (point-min))
-  ;; (re-search-forward "^$")
-  ;; (delete-region (point) (point-min))
-  ;; (buffer-string))
-  ;; )
-
-;; ;; -- gui and new version dependent configurations
-;; ;; gui
-(tool-bar-mode     -1) ;; отключаем tool-bar
-(scroll-bar-mode   -1) ;; отключаем полосу прокрутки
-;; ;; path for info
-;; (require 'info)
-;; (add-to-list 'Info-directory-list "/usr/local/src/elisp")
-
 ;; -- Per Mode Configurations
-;; -- -- Outline minor mode for Elisp [rooted]
+;; -- -- Outline minor mode for Elisp [rooted] (not working)
 ;; same as my/org-fold-hide-other, but "sublevels 20"
 (defun my/outline-hide-other ()
   "Hide other headers and don't hide headers and text in opened."
@@ -1866,8 +1932,7 @@ header. [rooted]"
                                   myholidays-general-holidays
                                   myholidays-family-holidays))
 
-;; -- -- firstly-search - Dired, Package menu, Buffer menu, Bookmarks
-;; -- -- -- loading
+;; -- -- firstly-search - Dired, Package menu, Buffer menu, Bookmarks;; -- -- -- loading
 (require 'firstly-search-dired)
 (require 'firstly-search-package)
 (require 'firstly-search-buffermenu)
@@ -1940,40 +2005,84 @@ header. [rooted]"
 ;; -v - sort by version
 ;; -r - reverse sort order
 ;; -t - sort by time
-;; (setopt dired-listing-switches "-Al -aGht1v --group-directories-first")
 (setopt dired-listing-switches "-AlthG") ;;  --group-directories-first
 
-;; sorting
-(defun xah-dired-sort (&optional par)
-  "Sort dired dir listing in different ways.
-ePrompt for a choice.  URL
-`http://ergoemacs.org/emacs/dired_sort.html'
-`https://wilkesley.org/~ian/xah/emacs/dired_sort.html'
- Version 2015-07-30"
-  (interactive)
-  (let (-sort-by -arg)
-    (if (not par)
-        (setq -sort-by (ido-completing-read "Sort by:" '( "size" "date" "name" "dir" "default")))
-      ;; else
-      (setq -sort-by par))
-    (cond
-     ((equal -sort-by "name") (setq -arg "-Al")) ; --si --time-style long-iso
-     ((equal -sort-by "date") (setq -arg "-Al -t")) ; --si --time-style long-iso
-     ((equal -sort-by "size") (setq -arg "-Al -S")) ; --si --time-style long-iso
-     ((equal -sort-by "dir") (setq -arg "-Al")) ; --si --time-style long-iso --group-directories-first
-     ((equal -sort-by "default") (setq -arg dired-listing-switches))
-     (t (error "logic error 09535" )))
-    (dired-sort-other -arg )))
+;;; Comments:
+;; By defalt dired-sort-toggle toggle between by date / by name, we
+;; extend it to toggle by looping throught the list of
+;; `dired-listing-switches-others'
+(defvar dired-listing-switches-name "by date")
 
-(define-key dired-mode-map (kbd "C-c s") #'xah-dired-sort)
-(define-key dired-mode-map (kbd "C-c n") (lambda () (interactive) (xah-dired-sort "name") ))
-(define-key dired-mode-map (kbd "C-c d") (lambda () (interactive) (xah-dired-sort "default") ))
+(defvar dired-listing-switches-others
+      '(("by name" . "-AlhG")
+        ("by size" . "-AlShG")))
+
+(defun get-next-item-by-string-value (clist value)
+  (cl-loop for pair in clist
+           for i from 1
+           when (string-equal (cdr pair) value)
+           do (cl-return (nth i clist))
+           finally return nil))
+;; test:
+;; (cl-assert (equal (get-next-item-by-string-value dired-listing-switches-others "-AlhG") '("by size" . "-AlShG")))
+
+(defun dired-sort-toggle()
+  "Rewrite of `dired-sort-toggle'.
+Loop over `dired-listing-switches' +
+`dired-listing-switches-others' and set next sorting switch."
+  (interactive)
+  (let* ((new-clist
+          ;; loop of switches
+          (append (list (cons dired-listing-switches-name dired-listing-switches))
+                  dired-listing-switches-others
+                  (list (cons dired-listing-switches-name dired-listing-switches))))
+         ;; next item
+         (pair (get-next-item-by-string-value new-clist dired-actual-switches))
+         (name (if pair
+                  (car pair)
+                ;; else
+                dired-listing-switches-name))
+         (switch (if pair
+                  (cdr pair)
+                ;; else
+                dired-listing-switches)))
+    (setq dired-actual-switches switch)
+    (setq mode-name (concat "Dired " name))
+    (revert-buffer)))
+
+
+;; - - Old
+;; (defun xah-dired-sort (&optional par)
+;;   "Sort dired dir listing in different ways.
+;; ePrompt for a choice.  URL
+;; `http://ergoemacs.org/emacs/dired_sort.html'
+;; `https://wilkesley.org/~ian/xah/emacs/dired_sort.html'
+;;  Version 2015-07-30"
+;;   (interactive)
+;;   (let (-sort-by -arg)
+;;     (if (not par)
+;;         (setq -sort-by (ido-completing-read "Sort by:" '( "size" "date" "name" "dir" "default")))
+;;       ;; else
+;;       (setq -sort-by par))
+;;     (cond
+;;      ((equal -sort-by "name") (setq -arg "-Al")) ; --si --time-style long-iso
+;;      ((equal -sort-by "date") (setq -arg "-Al -t")) ; --si --time-style long-iso
+;;      ((equal -sort-by "size") (setq -arg "-Al -Sh")) ; --si --time-style long-iso
+;;      ((equal -sort-by "dir") (setq -arg "-Al")) ; --si --time-style long-iso --group-directories-first
+;;      ((equal -sort-by "default") (setq -arg dired-listing-switches))
+;;      (t (error "logic error 09535" )))
+;;     (dired-sort-other -arg )))
+
+;; (define-key dired-mode-map (kbd "C-c s") #'xah-dired-sort)
+;; (define-key dired-mode-map (kbd "C-c n") (lambda () (interactive) (xah-dired-sort "name") ))
+;; (define-key dired-mode-map (kbd "C-c d") (lambda () (interactive) (xah-dired-sort "default") ))
 ;; (defun my/xah-dired-sort-size ()
 ;;   (interactive
 ;;   (dired-sort-other -arg ))
 
 ;; (define-key dired-mode-map (kbd "C-c s") )
 ;; (dired-sort-other -arg )
+;; -- -- --
 ;; -- -- -- Tweeks: suggest path, buffer kill, trash, hl-line
 ;; Do not open new buffer when you navigate in Dired mode.
 (setopt dired-kill-when-opening-new-dired-buffer nil)
@@ -2457,6 +2566,31 @@ Deletion flag `dired-del-marker' is used."
 
 (keymap-set dired-mode-map "<remap> <dired-flag-file-deletion>" #'my/dired-flag-file-deletion)
 
+;; -- -- -- Fix: preserve column position after up/down moving
+(defun my/dired-preserve-column (orig-fun &rest args)
+  "Preserve column position after up/down moving."
+              (let ((p (point))
+                    d1 d2) ; difference = point - beginning-of-line
+                ;; calc difference
+                (save-excursion
+                  (beginning-of-line)
+                  (setq d1 (- p (point))))
+                ;; apply function
+                (apply orig-fun args)
+                ;; calc Column position
+                (setq p (point))
+                (save-excursion
+                  (beginning-of-line)
+                  (setq d2 (- p (point))) ; name column position
+                  (setq p (point))
+                  )
+                ;; if cursor at column with name
+                (if (< d2 d1)
+                  (goto-char (+ p d1))
+                )
+              ))
+(advice-add 'dired-next-line :around #'my/dired-preserve-column)
+(advice-add 'dired-previous-line :around #'my/dired-preserve-column)
 ;; -- -- Bookmarks
 (define-key (current-global-map) (kbd "C-x y") #'list-bookmarks)
 (defun my/bookmark-set ()
@@ -2508,59 +2642,124 @@ Deletion flag `dired-del-marker' is used."
 ;; -- -- frame-fullscreen
 ;; -- -- ORG
 ;; -- -- -- fix fill-paragraph
-(defun current-line-blank ()
-  "Return non-nil if line is empty line."
-  (eq (progn (end-of-line) (point)) (progn (beginning-of-line) (point)) ))
-
-(defun current-line-list ()
-  "Return boolean, non-nil if line is a list in Org mode."
-  (or (eq (org-element-type (org-element-property :parent (org-element-at-point))) 'plain-list)
-      (eq (org-element-type (org-element-at-point)) 'plain-list)))
-
-(defun my/fill-paragraph-list ()
-  "Fix for list in Org mode.
-Properly apply fill-paragraph in Org mode."
-  (interactive)
-  ;; go backward - cases: 1 at list, 2 uder list, 3 at paragraph
-  (save-excursion
-    (beginning-of-line)
-    (when (not (current-line-list)) ; 1
-      (forward-line -1)
-      (while (let ((r (and (not (current-line-blank))
-                           (not (current-line-list)) ; 2
-                           (eq (org-element-type (org-element-at-point)) 'paragraph))))
-               r)
-        (forward-line -1))
-      (if (or (current-line-blank) (not (current-line-list))) ; 3, 2
-          (forward-line))))
-
-  ;; go forward
-  (let ((v t))
-    (while v
-      (search-forward "\n" nil t)
-      (setq v (and (not (current-line-blank))
-                   (not (current-line-list))
-                   (eq (org-element-type (org-element-at-point)) 'paragraph)))
-      (if v (replace-match " "))
-      ))
-  (forward-line -1)
-  (org-fill-paragraph))
 
 
-(defun my/fill-paragraph (arg)
+(defun my/org-current-line-is-a-list ()
+  "Non-nil if line is a list."
+  (org-in-item-p))
+
+;; (defun my/fill-paragraph-list ()
+;;   "Fix for list in Org mode.
+;; Properly apply fill-paragraph in Org mode."
+;;   (interactive)
+;;   ;; go backward - cases: 1 at list, 2 uder list, 3 at paragraph
+;;   (save-excursion
+;;     (beginning-of-line)
+;;     (when (not (current-line-list)) ; 1
+;;       (forward-line -1)
+;;       (while (let ((r (and (not (current-line-blank))
+;;                            (not (current-line-list)) ; 2
+;;                            (eq (org-element-type (org-element-at-point)) 'paragraph))))
+;;                r)
+;;         (forward-line -1))
+;;       (if (or (current-line-blank) (not (current-line-list))) ; 3, 2
+;;           (forward-line))))
+
+;;   ;; go forward
+;;   (let ((v t))
+;;     (while v
+;;       (search-forward "\n" nil t)
+;;       (setq v (and (not (current-line-blank))
+;;                    (not (current-line-list))
+;;                    (eq (org-element-type (org-element-at-point)) 'paragraph)))
+;;       (if v (replace-match " "))
+;;       ))
+;;   (forward-line -1)
+;;   (org-fill-paragraph))
+
+;; (defun my/fill-paragraph-list ()
+;;   (interactive)
+;;   (save-excursion (org-fill-paragraph))
+;;   )
+
+(defun my/org-fill-paragraph (&optional justify region)
 "Fix two things: 1) return cursor after prefix to the beginning.
 2) with C-u M-q use fill-column instead of org source block specific."
-  (interactive "P")
-  (if current-prefix-arg ; if C-u
+  (interactive (progn
+		 (barf-if-buffer-read-only)
+		 (list (when current-prefix-arg 'full) t)))
+  (if justify ; if C-u
     (let ((saved-fill-paragraph-function fill-paragraph-function))
       (setq fill-paragraph-function nil)
       (setq current-prefix-arg nil)
       (call-interactively 'fill-paragraph)
       (setq fill-paragraph-function saved-fill-paragraph-function))
-    ;; else
-    (call-interactively 'my/fill-paragraph-list))
-  (call-interactively 'move-beginning-of-line))
-;; -- -- -- keys rebinding
+    ;; else - if at list
+    ;; (if (eq (org-element-type (org-element-at-point)) 'plain-list)
+    ;;     (my/fill-paragraph-list)
+  ;; else
+  (save-excursion (org-fill-paragraph))))
+    ;; )
+  ;; (call-interactively 'move-beginning-of-line))
+;; -- -- -- key: meta-return
+(defun my/org-meta-return()
+  "`org-meta-return' without new line for heading."
+  (org-fold-check-before-invisible-edit 'insert)
+  (if (save-excursion ; if is empty line
+        (beginning-of-line)
+        (looking-at-p "[[:blank:]]*$"))
+      (newline)
+    ;; else - not empty
+    (cond
+     ;; table
+     ((org-at-table-p) (call-interactively 'org-table-wrap-region))
+     ;; list
+     ((org-in-item-p) (org-insert-item)) ; insert line above current if cursor at the begining of the line
+     ;; others
+     (t (progn (newline)
+               (indent-relative-first-indent-point))))))
+
+;; -- -- -- key: new list item with indentation
+(defun my/current-line-blank ()
+  "Return non-nil if current line is empty."
+  (and (eolp) (bolp)))
+
+(defun my/find-position-by (i elt seq)
+  (seq-position seq elt (lambda (a b) (equal (nth i a) b))))
+
+(defun get-next-or-current (i elt seq)
+  (let ((p (1+ (my/find-position-by i elt seq)))) ; 0 for org-list
+    (if (= p (length seq))
+        (nth 6 (nth (1- p) seq)) ; current end
+      ;; else
+      (car (nth p seq)) ; next begining
+      )))
+
+(defun my/org-list-forward-sentence ()
+  "Fix `org-forward-sentence' in list."
+  (progn
+    (end-of-line)
+    (org-backward-sentence)
+    (goto-char (get-next-or-current 0 (org-in-item-p) (org-list-struct)))
+    (if (bolp) (backward-char))))
+
+(defun my/org-open-next-line-indent-shift()
+  "Insert new list item with indentation.
+`Fixes for `org-forward-sentence' and `org-list-struct' used."
+  (interactive)
+  (when (and (not (my/current-line-blank)) (org-in-item-p))
+    (my/org-list-forward-sentence)
+    (let ((efs-p (point)))
+      ;; `org-list-struct' function required pointer at the begin of
+      ;; sentence to work, that is why `org-backward-sentence' required
+      (org-backward-sentence)
+      (narrow-to-region (org-list-get-top-point (org-list-struct)) efs-p)
+      (my/org-list-forward-sentence)
+      (my/org-meta-return)
+      (org-shiftmetaright)
+      (widen)
+      (org-list-repair))))
+;; -- -- -- keys others
 ;; We bind org-forward-sentence and org-backward-sentence to
 ;; C-e and C-e, and make it simplier.
 (defun my/org-forward-sentence (&optional _arg)
@@ -2640,7 +2839,7 @@ depending on context.
          (save-restriction
            (when (and contents-begin
                       (< (point-min) contents-begin)
-                      (> (point) contents-begin)
+                      (>= (point) contents-begin)
                       (not (eq el-type 'fixed-width)))
              (narrow-to-region contents-begin
                                contents-end))
@@ -2759,11 +2958,11 @@ Like (outline-hide-other) (org-reveal) but better."
   (interactive)
   ;; - - redisplay images 1)
   (if org-inline-image-overlays
-      (defvar-local s (overlay-buffer (car org-inline-image-overlays))))
+      (defvar-local my/org-ctrl-c-ctrl-c-flag (overlay-buffer (car org-inline-image-overlays))))
   ;; execute default
   (org-ctrl-c-ctrl-c) ;; execute
   ;; - - redisplay images 2)
-  (if (and (boundp 's) s)
+  (if (and (boundp 'my/org-ctrl-c-ctrl-c-flag) my/org-ctrl-c-ctrl-c-flag)
       (org-redisplay-inline-images))
   ;; language (org-element-property :language (org-element-context))
   ;; (eq 'src-block (org-element-type (org-element-at-point))
@@ -2798,18 +2997,6 @@ Like (outline-hide-other) (org-reveal) but better."
      (call-interactively 'my/indent-or-complete))
      )))
 
-(defun my/org-meta-return()
-  "`org-meta-return' without new line for heading."
-  (org-fold-check-before-invisible-edit 'insert)
-  (if (save-excursion ; if is empty line
-        (beginning-of-line)
-        (looking-at-p "[[:blank:]]*$"))
-      (newline)
-    ;; else - not empty
-    (cond ((org-at-table-p) (call-interactively 'org-table-wrap-region))
-          ((org-in-item-p) (org-insert-item)) ; insert line above current if cursor at the begining of the line
-          (t (progn (newline)
-                    (indent-relative-first-indent-point))))))
 
 (defun my/org-new-line-indented()
   "go there: open next line split, with indentation"
@@ -2835,11 +3022,38 @@ Like (outline-hide-other) (org-reveal) but better."
   (my/org-meta-return))
 
 
-(defun my/org-open-next-line-indent-shift()
+
+  ;; (my/org-backward-sentence) ; 2. (point) text
+
+  ;; (let ((oldp (point))
+  ;;       newp) ; check that we are "2. (point) text"
+  ;;   (save-excursion
+  ;;     (my/org-backward-sentence)
+  ;;     (setq newp (point)))
+  ;;   (if (and (bolp) (/= oldp newp))
+  ;;       (progn
+  ;;         (my/org-meta-return)
+  ;;         (org-shiftmetaright) ; new item item above
+  ;;         ;; (org-move-item-down)
+  ;;         )
+  ;;     ;; else - meta return will create item below
+  ;;     (my/org-meta-return) ; new item below
+  ;;     (org-shiftmetaright))))
+
+(defun my/org-list-insert-item ()
+  "Insert a new list item after current and after it's subitems.
+If not in a list don't split, open new line and indent."
   (interactive)
-  (end-of-line)
-  (my/org-meta-return)
-  (org-shiftmetaright))
+  (if (org-in-item-p) ; if in a list
+    (progn
+      ;; go to the begining, before list bullet
+      (my/org-backward-sentence)
+      ;; use special case to unsert above current line
+      (org-insert-item)
+      ;; move down
+      (org-move-item-down))
+    ;; else - just open new line without split
+    (my/org-open-next-line-indent)))
 
 ;; - - -  org keybindinds - - - -
 (add-hook 'org-mode-hook (lambda ()
@@ -2881,8 +3095,8 @@ Like (outline-hide-other) (org-reveal) but better."
                            (local-set-key(kbd "C-c SPC") 'org-babel-mark-block) ; Do I really need this?
 
                            ;; - - - C-e should be short and M-e should be long
-                           (local-set-key (kbd "M-e") 'move-end-of-line)
-                           (local-set-key (kbd "M-a") 'move-beginning-of-line)
+                           (local-set-key (kbd "M-e") (lambda () (interactive) (org-forward-sentence)))
+                           (local-set-key (kbd "M-a") (lambda () (interactive) (org-backward-sentence)))
                            (local-set-key (kbd "C-e") 'my/org-forward-sentence)
                            (local-set-key (kbd "C-a") 'my/org-backward-sentence)
 
@@ -2947,7 +3161,7 @@ Like (outline-hide-other) (org-reveal) but better."
                            (local-set-key "\C-o" 'my/open-previous-line)
                            (local-set-key "\C-m" 'my/org-new-line-indented)
                            (local-set-key "\M-m" 'electric-newline-and-maybe-indent)
-                           (local-set-key "\C-j" 'my/org-new-line-stay-indented)
+                           (local-set-key "\C-j" 'my/org-list-insert-item)
                            ;; (local-set-key "\M-j" 'my/org-open-next-line-indent)
                            (local-set-key "\M-j" 'my/org-open-next-line-indent-shift)
 
@@ -3004,7 +3218,7 @@ Like (outline-hide-other) (org-reveal) but better."
                                                                        (when location
                                                                          (goto-char location)))))
                            ;; - - - fix: after C-q screen stay far away from right
-                           (local-set-key (kbd "M-q") #'my/fill-paragraph)
+                           (local-set-key (kbd "M-q") #'my/org-fill-paragraph)
                            ;; - - - Python source block redisplay image after block execution if inlineimages is on
                            (local-set-key (kbd "C-c C-c") #'my/org-ctrl-c-ctrl-c)
 
@@ -3042,13 +3256,11 @@ Like (outline-hide-other) (org-reveal) but better."
 
 (add-hook 'org-mode-hook (lambda ()
 
-                           ;; - - forward-word delete backward word t
-                           (my/syntax-table-org)
-
                            ;; - - link's opening with firefox C-c C-o - (org-open-at-point) calls (org-link-open) which uses the variable (org-link-parameters)
                            ;; - - Firefox can not open link :-(
                            ;; (defvar-local mybookmarksfile nil) ;; bookmark browser activator
-                           (make-variable-buffer-local 'org-link-parameters)
+
+                           (make-variable-buffer-local 'org-link-parameters) ; ?
                            (dolist (scheme '("http" "https")) ;; (dolist (scheme '("ftp" "http" "https" "mailto" "news"))
                              (org-link-set-parameters scheme
                                           :follow
@@ -3057,8 +3269,12 @@ Like (outline-hide-other) (org-reveal) but better."
                                               (setq-local url (concat "http:" url arg))
                                               ;; (async-shell-command (format "?? %s" url))
                                               (kill-new url)
-                                              ;; )
-                                          )))
+                                              )))
+
+                           ;; - - forward-word delete backward word t
+                           (my/syntax-table-org)
+
+
 
                            ;; - - my/org-sort-key - for sort headings by TODO and then by priority
                            (require 'cl-lib)
@@ -3066,11 +3282,11 @@ Like (outline-hide-other) (org-reveal) but better."
                            ;; (require 'dash)
 
                            (defun todo-to-int (todo)
-                             (first (-non-nil
+                             (cl-first (-non-nil
                                       (mapcar (lambda (keywords)
                                                 (let ((todo-seq
                                                         (-map (lambda (x) (first (split-string  x "(")))
-                                                          (rest keywords))))
+                                                          (cl-rest keywords))))
                                                   (cl-position-if (lambda (x) (string= x todo)) todo-seq)))
                                         org-todo-keywords))))
 
@@ -3226,6 +3442,7 @@ Like (outline-hide-other) (org-reveal) but better."
 
 
 ;; org-babel-execute:python
+;; -- -- -- HTTP links will be copied to buffer
 ;; -- -- -- fix for inline images with transparent background
 (defcustom org-inline-image-background nil
   "The color used as the default background for inline images.
@@ -3491,7 +3708,44 @@ was made."
                 )))
 )
 
-;; -- -- -- Emacs-Lisp
+;; -- -- -- Elisp - Emacs-Lisp
+;; -- -- -- -- new line key - open new list sexp
+(defun my/is-current-line-single-comment-p ()
+  (save-excursion
+      (if (and (re-search-forward "\\s-;" (line-end-position) t)
+               (/= (point) (line-end-position))
+                   (not (looking-at ";"))) t)))
+
+(defun my/line-is-whole-comment-p ()
+  (save-excursion
+    (beginning-of-line)
+    (looking-at "^[ \t]*;.*$")))
+
+(defun my/insert-new-sexp ()
+  "Insert () after current sexp.
+Used to open new line for Elisp mode. Insert () template after
+list sexp or comment at current cursor position."
+  (interactive)
+  (if (my/line-is-whole-comment-p)
+      (end-of-line)
+    ;; else
+    ;; if not at "(" or ")", go up
+    (progn (if (not (memq (char-after) '(?\( ?\))))
+               (backward-up-list)) ; error "Unbalanced parentheses" at (insert "\(point)n")
+           (forward-sexp))) ; error at ;; (point) )
+  (insert "\n")
+  ;; indent with fix for "; comment" line.
+  (if (my/is-current-line-single-comment-p)
+      (indent-relative)
+      ;; else
+      (lisp-indent-line))
+  ;; don't insdert () if there is other sexp on the line
+  (if (not (save-excursion
+             (re-search-forward "(" (line-end-position) t)))
+      (insert "()"))
+  (backward-char))
+
+;; -- -- -- -- hook
 (defun my/syntax-table-elisp()
   "forward-word, backward-word, backward-kill-word, kill-word."
   ;; make forward-word, backward-word, backward-kill-word, kill-word
@@ -3499,9 +3753,11 @@ was made."
 
 (defun my/elisp-keys()
   (local-set-key (kbd "C-c C-p") #'beginning-of-defun)
-  (local-set-key (kbd "C-c C-n") #'end-of-defun))
+  (local-set-key (kbd "C-c C-n") #'end-of-defun)
+  (local-set-key (kbd "M-i") #'describe-symbol) ; shadow `tab-to-tab-stop'
+  (local-set-key "\C-j" #'my/insert-new-sexp))
 
-;; hook executed per buffer
+;; ;; hook executed per buffer
 (add-hook 'emacs-lisp-mode-hook 'my/syntax-table-elisp)
 (add-hook 'emacs-lisp-mode-hook 'my/elisp-keys)
 
@@ -3511,6 +3767,109 @@ was made."
   "Execute this command with filename of saved buffer."
   (interactive)
   (my/exec-language "PYTHONPATH=. python3"))
+
+
+;; (defun org-babel-edit-prep:python (info)
+;;   "called after `org-edit-special'."
+;;   (let ((dir (cdr (assq :dir (nth 2 info)))))
+;;     (setq-local buffer-file-name (concat "dir" "/tmp/tmp.py"))
+;;     (setq default-directory dir)
+;;     (eglot-ensure)
+;;   ))
+
+;; (defun mb/org-babel-edit:python ()
+
+(defcustom org-eglot-starter #'my/eglot-start
+  "`eglot-ensure' or wrap around it.
+May check `default-directory' or `buffer-file-name and decide
+what `eglot-server-programs' to use.  Check that buffer-file-name
+is remote and call `eglot-ensure' function.
+Consider `eglot-shutdown-all' for reconnection."
+  :type 'function)
+
+(defcustom org-eglot-starter-local org-eglot-starter
+  "`eglot-ensure' or wrap around it."
+  :type 'function)
+
+(defun org-eglot--org-edit-special-advice (orig-fun &rest args)
+  "Edit python src block with LSP support.
+By tangling the block and then setting the `org-edit-special'
+variable `buffer-file-name' to the absolute path.  Finally load
+eglot.  By default tangle to /tmp/tmp.py.  Source block should
+have :dir value /ssh:host:.
+Argument ORIG-FUN is original `org-edit-special' function.
+Optional argument ARGS ."
+  (interactive)
+  (let* ((info (org-babel-get-src-block-info)) ; available only here
+         (dir (cdr (assq :dir (nth 2 info)))) ; string
+         (lang (nth 0 info)) ; programming language of source block
+         (languages (mapconcat 'identity (mapcar 'symbol-name (mapcar 'car eglot-server-programs)) "" ))
+         tangled-file-name tang)
+    ;; (print (list "dir" dir))
+    ;; if 1) dir specified 2) dir remote 3) eglot-server-programs have language of source block
+    (if (and dir (file-remote-p dir) (string-match-p lang languages))
+        (progn
+          (setq tang (assoc-default :tangle (nth 2 info)))
+          ;; set tangle name for local or remote host
+          (setq tangled-file-name (if (string-equal tang "no")
+                                      (concat dir "/tmp/tmp.py")
+                                    ;; else
+                                    tang
+                                    ))
+          ;; (print (list "tang" tang tangled-file-name))
+          ;; tangle the src block at point
+          (org-babel-tangle '(4)) ; required by TRAMP
+
+          (apply orig-fun args) ; (org-edit-special)
+          ;; Now we should be in the special edit buffer with python-mode. Set
+          ;; the buffer-file-name to the tangled file so that pylsp and
+          ;; plugins can see an actual file.
+          (setq-local default-directory dir) ; reqguired for Eglot
+          (setq-local buffer-file-name tangled-file-name) ; requiered for Eglot
+          (funcall org-eglot-starter))
+      ;; else - local
+      (apply orig-fun args)
+      (funcall org-eglot-starter-local))))
+
+(advice-add 'org-edit-special :around 'org-eglot--org-edit-special-advice)
+
+;; (lambda (orig-fun &rest args)
+;;               (if (eq eldoc-echo-area-prefer-doc-buffer t)
+;;                   (if (get-buffer-window eldoc--doc-buffer t)
+;;                       (apply orig-fun args))
+;;                 ;; else
+;;                 (apply orig-fun args)))
+
+;; (defun org-babel-edit-prep:python (babel-info)
+;;   (setq-local buffer-file-name (expand-file-name (->> babel-info caddr (alist-get :tangle))))
+;;   (eglot-ensure)
+;;   )
+
+;; (defun mb/org-babel-edit:python ()
+;;   (interactive)
+;;   (org-babel-tangle '(4))
+;;   (org-edit-special)
+;;   )
+
+;; (require 'eglot)
+
+;; (defun sloth/org-babel-edit-prep (info)
+;;   (setq buffer-file-name (or (alist-get :file (caddr info))
+;;                              "org-src-babel-tmp"))
+;;   (eglot-ensure))
+
+;; (advice-add 'org-edit-src-code
+;;             :before (defun sloth/org-edit-src-code/before (&rest args)
+;;                       (when-let* ((element (org-element-at-point))
+;;                                   (type (org-element-type element))
+;;                                   (lang (org-element-property :language element))
+;;                                   (mode (org-src-get-lang-mode lang))
+;;                                   ((eglot--lookup-mode mode))
+;;                                   (edit-pre (intern
+;;                                              (format "org-babel-edit-prep:%s" lang))))
+;;                         (if (fboundp edit-pre)
+;;                             (advice-add edit-pre :after #'sloth/org-babel-edit-prep)
+;;                           (fset edit-pre #'sloth/org-babel-edit-prep)))))
 
 ;; (defun my/python-exec ()
 ;;   "If we in Org src with C-c ' we create tmp file, write buffer and execute,
@@ -3539,11 +3898,11 @@ was made."
   (interactive)
 
   ;; - - - keybindings
-  (local-set-key (kbd "<M-left>") 'python-indent-shift-left )
-  (local-set-key (kbd "<M-right>") 'python-indent-shift-right )
-  (local-set-key "\C-c\C-c" 'my/exec-python)
-  (local-set-key "\C-c\ c" 'run-python) ; open REPL on remote machine too
-  (local-set-key "\C-c\C-o" 'python-sort-imports)
+  (local-set-key (kbd "C-c C-b") 'python-indent-shift-left )
+  (local-set-key (kbd "C-c C-f") 'python-indent-shift-right ) ;; shadows python-eldoc-at-point
+  (local-set-key (kbd "C-c C-c") 'my/exec-python)
+  (local-set-key (kbd "C-c c") 'run-python) ; open REPL on remote machine too
+  (local-set-key (kbd "C-c C-o") 'python-sort-imports)
 
   ;; (local-set-key (kbd "C-M-l") 'backward-sexp)
   ;; (local-set-key (kbd "C-M-f") 'forward-sexp)
@@ -3637,71 +3996,43 @@ was made."
 ;;                             (setopt company-backends '(company-jedi company-capf company-keywords company-files company-dabbrev))
 ;;                             ))
 
-;; -- -- -- -- -- ElDoc
-(setopt eldoc-echo-area-prefer-doc-buffer t)
-(setopt eldoc-idle-delay 0.3)
-
-;; Don't show eldoc if window for that was not created.
-(advice-add 'eldoc-print-current-symbol-info :around
-            (lambda (orig-fun &rest args)
-              (if (get-buffer-window eldoc--doc-buffer t)
-                  (apply orig-fun args))))
-
-(defun my/eldoc ()
-  "Create eldoc buffer and window and call eldoc.
-Because we block `eldoc-print-current-symbol-info' that normally
- do that.
-If window already exist, close window and hence block ElDoc."
-  (interactive)
-  (let ((eldoc-window (get-buffer-window eldoc--doc-buffer t)))
-    (if eldoc-window
-        (delete-window eldoc-window)
-        ;; else
-        (eldoc--format-doc-buffer nil)
-        (display-buffer (eldoc-doc-buffer))
-        (eldoc))))
-
-;; (defun my/eldoc-startup ()
-;;   (local-set-key (kbd "M-q") #'my/eldoc))
-
-;; (add-hook 'python-ts-mode-hook 'my/eldoc-startup)
-;; (add-hook 'python-mode-hook 'my/eldoc-startup)
-
-
 ;; -- -- -- -- Eglot - for LSP
-;; (setq eglot-server-programs '(("python" "ssh:machine:/path/to/venv/bin/pylsp")))
-(defvar my/remote-bin "/home/jup/.local/bin")
-
+;; -- -- -- -- -- main
 (require 'eglot)
-
-;; - - LSP server configuration
+(setq eglot-sync-connect 1) ; wait to connect
+(setq eglot-autoshutdown t) ; disconnect if all buffer closed
+;; - - LSP server configuration - default
 (setq eglot-server-programs
              '((python-ts-mode . ("127.0.0.1" 2087))
                (python-mode . ("127.0.0.1" 2087))
                )) ; default
+;; (setq-default eglot-workspace-configuration
+;;             '(:pylsp (:plugins (:jedi_completion (:include_params t
+;;                                                   :fuzzy t)
+;;                                 :pylint (:enabled :json-false)))
+;;               :gopls (:usePlaceholders t)))
+;; ;;               :mypy (:enabled :json-false
+;;                                        :live_mode :json-false
+;;                                        :report_progress t
+;;                                        :dmypy t)
 (setq-default eglot-workspace-configuration
             '(:pylsp (:plugins (:jedi_completion (:include_params t
                                                   :fuzzy t)
-                                :pylint (:enabled :json-false)))
+                                :pylint (:enabled :json-false)
+                                ))
               :gopls (:usePlaceholders t)))
 
-(with-eval-after-load 'python
-  (add-to-list 'python-shell-remote-exec-path my/remote-bin))
-;; - - keys
-(keymap-set eglot-mode-map "M-q" #'my/eldoc)
-(keymap-set eglot-mode-map "C-c C-f" #'flymake-goto-next-error)
-(keymap-set eglot-mode-map "C-c C-l" #'flymake-goto-prev-error)
-(keymap-set eglot-mode-map "C-c C-e" #'eglot-rename)
-(keymap-set eglot-mode-map "C-c o" #'eglot-format)
+
 ;; - - flymake
-(setq flymake-no-changes-timeout 1)
-;; - - TRAMP
-(with-eval-after-load 'tramp
-  (add-to-list 'tramp-remote-path my/remote-bin))
+(setq flymake-no-changes-timeout 0.5)
 
 ;; - - modes for which Eglot will be activated
 (defun my/eglot-start ()
-  (if (file-remote-p default-directory)
+  (interactive)
+  (eglot-shutdown-all) ; two connection to same file is not allowed
+  (print (list "Eglot:" buffer-file-name default-directory))
+  (if (and buffer-file-name
+           (file-remote-p buffer-file-name))
       (setq eglot-server-programs
              '((python-ts-mode . ("127.0.0.1" 2087))
                (python-mode . ("127.0.0.1" 2087))
@@ -3715,10 +4046,84 @@ If window already exist, close window and hence block ElDoc."
     (eglot-ensure)
   )
 
-(add-hook 'python-mode-hook 'my/eglot-start)
-(add-hook 'python-ts-mode-hook 'my/eglot-start)
+;; (add-hook 'python-mode-hook 'my/eglot-start)
+;; (add-hook 'python-ts-mode-hook 'my/eglot-start)
+;; -- -- -- -- -- remote bin
+;; (setq eglot-server-programs '(("python" "ssh:machine:/path/to/venv/bin/pylsp")))
+(defvar my/remote-bin "/home/jup/.local/bin")
+(with-eval-after-load 'python
+  (add-to-list 'python-shell-remote-exec-path my/remote-bin))
+;; - - TRAMP
+(with-eval-after-load 'tramp
+  (add-to-list 'tramp-remote-path my/remote-bin))
+;; -- -- -- -- -- ElDoc
+;; -- -- -- -- -- -- disable echo area
+;; remove `eldoc-display-in-echo-area' to disable echo areo
+(setq eldoc-display-functions
+  '(eldoc-display-in-buffer))
 
-;; -- -- -- -- lsp-bridge
+;; (defun my/eldoc-use-side-window (orig-fun &rest args)
+;;   "Don't show eldoc if window for that was not created."
+;;   ;; (print (get-buffer-window eldoc--doc-buffer t))
+;;   ;; (eldoc--echo-area-prefer-doc-buffer-p)
+;;   ;;
+;;   (if (eq eldoc-echo-area-prefer-doc-buffer t)
+;;       (if (get-buffer-window eldoc--doc-buffer t)
+;;           (apply orig-fun args))
+;;     ;; else
+;;     (apply orig-fun args)))
+
+
+;; (advice-add 'eldoc-print-current-symbol-info :around 'my/eldoc-use-side-window)
+;; -- -- -- -- -- -- activation hook
+(defun my/windowed-eldoc()
+  ;; used in our `eldoc-print-current-symbol-info' advice
+  (make-local-variable 'eldoc-echo-area-prefer-doc-buffer)
+  (setq eldoc-echo-area-prefer-doc-buffer t)
+  (make-local-variable 'eldoc-idle-delay)
+  (setq eldoc-idle-delay 0.3))
+
+(add-hook 'python-mode-hook 'my/windowed-eldoc)
+(add-hook 'python-ts-mode-hook 'my/python-mode-hook)
+
+(defun my/eldoc ()
+  "Create eldoc buffer and window and call eldoc.
+Because we block `eldoc-print-current-symbol-info' that normally
+ do that.
+If window already exist, close window and hence block ElDoc."
+  (interactive)
+  (let ((eldoc-window (get-buffer-window eldoc--doc-buffer t)))
+    (if eldoc-window
+        (delete-window eldoc-window)
+        ;; else
+        (eldoc--format-doc-buffer nil)
+        ;; wrap lines in eldoc documentation buffer
+        (with-current-buffer eldoc--doc-buffer
+          (turn-on-visual-line-mode))
+        (display-buffer (eldoc-doc-buffer))
+        ;; (visual-line-mode 1)
+
+        (eldoc))))
+
+
+
+;; (defun my/eldoc-turn-on-visual-line-mode (&rest args)
+;;   (with-current-buffer eldoc--doc-buffer
+;;     (turn-on-visual-line-mode)))
+
+;; (advice-add 'eldoc-display-in-buffer :after 'my/eldoc-turn-on-visual-line-mode)
+
+;; (add-hook 'eldoc-documentation-functions 'turn-on-visual-line-mode)
+;; (remove-hook 'eldoc-documentation-functions 'turn-on-visual-line-mode)
+
+
+;; -- -- -- -- -- keys
+(keymap-set eglot-mode-map "M-i" #'my/eldoc) ; shadow `tab-to-tab-stop'
+(keymap-set eglot-mode-map "C-'" #'flymake-goto-next-error)
+(keymap-set eglot-mode-map "M-'" #'flymake-goto-prev-error) ; shadow `my/window-toggle-side-windows'
+(keymap-set eglot-mode-map "C-c C-e" #'eglot-rename)
+(keymap-set eglot-mode-map "C-c o" #'eglot-format)
+;; -- -- -- -- lsp-bridge (not working)
 ;; (require 'yasnippet)
 ;; (yas-global-mode 1)
 
@@ -3847,33 +4252,6 @@ If window already exist, close window and hence block ElDoc."
 
 ;; (add-hook 'python-mode-hook 'my/python-mode-hook)
 
-;; -- -- -- -- TODO
-;; (global-set-key (kbd "<tab>") (lambda () (interactive) ('indent-region) ('indent-for-tab-command)) )
-  ;; (add-hook 'company-mode
-  ;;         (lambda () (local-set-key [backtab] 'python-indent-shift-left))
-  ;; )
-;; (eval-after-load 'company
-;;                     '(define-key company- (kbd "<backtab>") 'python-indent-shift-left))
-
-  ;; (setq jedi:environment-root "jedi")
-  ;; (setq jedi:server-command (jedi:-env-server-command))
-
-;; (setq jedi:setup-keys t)
-;; (add-hook 'python-mode-hook 'auto-complete-mode)
-
-
-;; (defun config/enable-jedi ()
-;;   (add-to-list 'company-backends 'company-jedi))
-;; (add-hook 'python-mode-hook 'jedi:setup)
-;; (add-hook 'python-mode-hook 'config/enable-jedi)
-;; (setq jedi:complete-on-dot t)
-;; (setq jedi:use-shortcuts t)
-
-
-  ;; (defun config/enable-company-jedi ()
-  ;;   (add-to-list 'company-backends 'company-jedi))
-  ;; (add-hook 'python-mode-hook 'config/enable-company-jedi)
-
 ;; -- -- -- -- DONT WORKED
 ;; (require 'lsp-mode)
 ;; (add-hook 'python-mode-hook 'lsp)
@@ -3979,7 +4357,7 @@ If window already exist, close window and hence block ElDoc."
 
 
 ;; -- -- -- cc mode: C/C++
-;; -- -- -- -- semantic
+;; -- -- -- -- semantic - old
 ;; (defun my-inhibit-semantic-p ()
 ;;   (not (equal major-mode 'c-mode-common)))
 (defun ide()
@@ -4497,6 +4875,7 @@ This function is called by `org-babel-execute-src-block'."
 ;; (setopt user-mail-address "vitsmallboy@hotmail.com")
 
 ;; -- -- skeletons(templates) for abbrev TAB completion for ORG and Diary modes
+;; -- -- -- global
 (define-skeleton example
   "Template example."
   "" "greetings!"
@@ -4769,6 +5148,51 @@ This function is called by `org-babel-execute-src-block'."
 
 (setq save-abbrevs nil) ;; do not prompt to save abbrevs
 (setq skeleton-end-newline nil)
+;; -- -- -- Python
+;; https://github.com/cstrap/python-snippets/blob/master/snippets/base.json
+;; https://gist.github.com/andreberg/d3876b82f9f33343862534df96ed2906
+(define-skeleton python-skl-main
+  "template"
+  ""
+  "def main()" _ \n
+  "if __name__ == \"__main__\":" \n
+  "main()")
+
+(define-skeleton python-skl-print
+  "template"
+  ""
+  "print(\"" _ "\")")
+
+(define-skeleton python-skl-open
+  "template"
+  ""
+  "with open(\"" _ "\", \"r\") as f:" \n)
+
+(define-skeleton python-skl-class
+  "template"
+  ""
+  "class " _ ":" \n
+  "\"\"\" \"\"\"" \n
+  "def __init__(self, ):" \n
+  ""
+  )
+
+(with-eval-after-load 'python
+  (setq python-skeleton-autoinsert t) ; required by python.el
+  (define-abbrev python-mode-skeleton-abbrev-table
+    "1m" "" 'python-skl-main)
+  (define-abbrev python-mode-skeleton-abbrev-table
+    "1p" "" 'python-skl-print)
+  (define-abbrev python-mode-skeleton-abbrev-table
+    "1o" "" 'python-skl-open)
+  (define-abbrev python-mode-skeleton-abbrev-table
+    "1c" "" 'python-skl-class)
+
+  )
+;; (setq python-mode-abbrev-table python-mode-skeleton-abbrev-table)
+;; (define-abbrev-table 'python-mode-abbrev-table
+;;   '(
+;;     ("init" "" )))
 ;; -- -- flycheck-aspell for English
 ;; Ensure `flycheck-aspell' is available
 (require 'flycheck-aspell)
@@ -4873,6 +5297,7 @@ This function is called by `org-babel-execute-src-block'."
 
 
 (defun my/display-msg (min-to-app timenow msg)
+  ;; (let ((val))
     ;; get emacs pids as "123 123 123"
     (set 'v (shell-command-to-string "pidof emacs"))
 
@@ -5196,12 +5621,28 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg)))
 ;; -- jupyter export test
 (require 'ox-ipynb) ; todo
 ;; -- test
+;; - - insert new Org item at bottom
+;; org-beginning-of-item-list  org-end-of-item-list
+;; org-previous-item 'org-insert-item' 'org-move-item-down'
+;; should be named like: dired-default-sort-command
+;; (let ((itemp (org-in-item-p))
+;; 	(pos (point)))
+;;   (goto-char itemp)
+;;   )
+
+
+;;
+;; (defun a()
+;;   (print "adass"))
+;; (add-hook 'find-file-hook 'a)
+
+
 ;; (get-buffer "*Ediff Control Panel<2>*")
 ;; (setopt ediff-window-setup-function 'ediff-setup-windows-plain)
 
 ;; https://systemcrafters.net/emacs-tips/presentations-with-org-present/
 
-(require 'ox-html5slide)
+;; (require 'ox-html5slide)
 
 
 ;; (defun my ediff
@@ -5228,6 +5669,7 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg)))
 ;; (put 'set-goal-column 'disabled nil)
 ;; (setq subword-mode t)
 ;;
+
 
 ;; -- Local Variables for first opening
 ;; Local Variables:

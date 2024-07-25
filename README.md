@@ -48,6 +48,9 @@ I changed behavior of C-a/e and M-a/e in Org mode.
 Windows:
 - M-o - my/other-window-or-split
 
+Frames:
+- M-[/] - (other-frame -1/1)
+
 Buffers:
 - C-c M-c - *Messages* buffer
 - C-c M-z - previous buffer
@@ -98,10 +101,11 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - Org: breaking list by org-shiftright if (setq fill-prefix " "), patch https://github.com/Anoncheg1/org-shiftright-patch
 - recentf: save directory path and TRAMP path, that was opened with ```find-file``` command.
 - Dired: cycle sorting, not just toggle between by date / by name as it was by default.
+- Elisp: created “new line” function that insert new list sexp after list sexp or comment at current cursor position
 
 TODO:
+- M-j in buffer-menu to open existing frame or create new.
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.
-- Org: ```org-insert-item``` insert line above current if cursor at the begining of the line - not desirable?
 - clear Hightlight changed after Undo if buffer is not modified.
 
 # bashrc
