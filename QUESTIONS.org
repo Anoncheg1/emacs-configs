@@ -2102,6 +2102,8 @@ You should set:
 3) Org specifica faces may be set with (background dark), (background
  light) switches in a hook or in a custom keybinding.
 
+to choose colour: M-x customize-face RET ...
+
 ** Default and Org specific automatic faces:
 #+begin_src elisp :results none :exports code :eval no
 (custom-set-faces
@@ -2130,6 +2132,10 @@ You should set:
 
 ** Switching keybindings for themes
 #+begin_src elisp :results none :exports code :eval no
+;; default theme:
+(custom-set-variables
+ '(custom-enabled-themes '(wombat manoj-dark)))
+
 (defun my/load-theme (themes)
   "Load THEMES properly by disabling the previous themes first."
   ;; (setq themes '(wombat manoj-dark)) ; debug
@@ -2142,7 +2148,6 @@ You should set:
   (custom-set-faces
    '(highlight-changes ((t (:background nil :foreground "pink"))))
    '(highlight-changes-delete ((t (:foreground "red"))))
-   '(whitespace-tab ((t (:foreground "#636363"))))
    '(whitespace-trailing ((t (:extend t :background "dark red"))))
    )
   )
@@ -2169,7 +2174,6 @@ You should set:
   (custom-set-faces
    '(highlight-changes ((t (:background nil :foreground "red"))))
    '(highlight-changes-delete ((t (:foreground "red"))))
-   '(whitespace-tab ((t (:foreground "#636363"))))
    '(whitespace-trailing ((t (:extend t :background "pink")))))
   )
 
