@@ -2111,9 +2111,9 @@ to choose colour: M-x customize-face RET ...
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(highlight-changes ((t (:background nil :foreground "pink"))))
- '(highlight-changes-delete ((t (:foreground "red"))))
- '(whitespace-tab ((t (:foreground "#636363"))))
+ '(highlight-changes ((t (:background nil :foreground "hot pink"))))
+ '(highlight-changes-delete ((t (:background nil :foreground "red"))))
+ '(whitespace-tab ((t (:foreground "hot pink"))))
  '(whitespace-trailing ((t (:extend t :background "dark red")))))
 
 
@@ -2147,7 +2147,6 @@ to choose colour: M-x customize-face RET ...
 (defun my/dark-common()
   (custom-set-faces
    '(highlight-changes ((t (:background nil :foreground "pink"))))
-   '(highlight-changes-delete ((t (:foreground "red"))))
    '(whitespace-trailing ((t (:extend t :background "dark red"))))
    )
   )
@@ -2173,7 +2172,6 @@ to choose colour: M-x customize-face RET ...
   (my/load-theme '(tsdh-light)) ; theme name
   (custom-set-faces
    '(highlight-changes ((t (:background nil :foreground "red"))))
-   '(highlight-changes-delete ((t (:foreground "red"))))
    '(whitespace-trailing ((t (:extend t :background "pink")))))
   )
 
