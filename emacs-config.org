@@ -69,7 +69,8 @@
  '(org-src-preserve-indentation t)
  '(org-startup-folded t)
  '(package-selected-packages
-'(demap dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search package-lint idle-highlight-mode csv-mode free-keys expand-region flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
+'(circadian demap dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search package-lint idle-highlight-mode csv-mode free-keys expand-region flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
+ '(safe-local-variable-values '((org-image-actual-width . 500)))
  '(size-indication-mode t)
  '(speedbar-show-unknown-files t))
 (custom-set-faces
@@ -77,10 +78,29 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(highlight-changes ((t (:background nil :foreground "pink"))))
- '(highlight-changes-delete ((t (:background nil :foreground "pink"))))
- '(whitespace-tab ((t (:foreground "#636363"))))
+ '(highlight-changes ((t (:background nil :foreground "hot pink" :weight bold))))
+ '(highlight-changes-delete ((t (:background nil :foreground "red"))))
+ '(org-hide ((((background dark)) (:foreground "dark blue")) (((background light)) (:foreground "gray"))))
+ '(org-level-1 ((t (:weight bold :height 1.1))))
+ '(org-level-2 ((t (:weight bold :height 1.1))))
+ '(org-level-3 ((t (:weight bold :height 1.1))))
+ '(whitespace-tab ((t (:foreground "hot pink"))))
  '(whitespace-trailing ((t (:extend t :background "dark red")))))
+
+ ;; '(org-hide ((((background dark)) (:foreground "dark slate blue"))
+ ;;             (((background light)) (:foreground "gray"))))
+;; '(org-hide ((((background dark)) (:foreground "dark slate blue"))
+;;                                             (((background light)) (:foreground "gray"))))
+;; dark:
+;; ;;  ;; '(highlight-changes ((t (:background nil :foreground "pink"))))
+  ;;  ;; '(highlight-changes-delete ((t (:foreground "red"))))
+  ;;  ;; '(whitespace-tab ((t (:foreground "#636363"))))
+  ;;  ;; '(whitespace-trailing ((t (:extend t :background "dark red"))))
+;; white:
+;;  ;; '(highlight-changes ((t (:background nil :foreground "red"))))
+  ;;  ;; '(highlight-changes-delete ((t (:foreground "red"))))
+  ;;  ;; '(whitespace-tab ((t (:foreground "#636363"))))
+  ;;  ;; '(whitespace-trailing ((t (:extend t :background "pink"))))
 
 #+end_src
 * Enable commands (automatc added)
@@ -677,35 +697,85 @@ Steps: 1) create buffer. 2) found frame with same major mode.
 ** theme switching - day and night [rooted]
 #+begin_src elisp
 
+#+end_src
+*** main
+#+begin_src elisp
+
 (defun my/load-theme (themes)
   "Load THEMES properly by disabling the previous themes first."
-  ;; (setq themes '(wombat manoj-dark)) ; debug
   (mapc #'disable-theme custom-enabled-themes)
   (mapc (lambda (x)(load-theme x t))
         (reverse themes))
   (setq custom-enabled-themes themes))
 
+(defun my/dark-common()
+  (custom-set-faces
+   '(highlight-changes ((t (:foreground "hot pink" :weight bold :background nil))))
+   ;; '(highlight-changes-delete ((t (:foreground "red"))))
+   '(whitespace-tab ((t (:foreground "PaleVioletRed4"))))
+   '(whitespace-trailing ((t (:extend t :background "dark red"))))
+   )
+  )
+
 (defun my/set-theme-dark ()
+  "Theme 1."
   (interactive)
-  (my/load-theme '(manoj-dark wombat)))
+  (my/load-theme '(manoj-dark wombat))
+  (my/dark-common)
+  )
 
 (defun my/set-theme-middle ()
+  "Theme 2."
   (interactive)
-  (my/load-theme '(wombat manoj-dark)))
+  (my/load-theme '(wombat manoj-dark))
+  (my/dark-common))
 
 
 (defun my/set-theme-white ()
+  "Theme 3."
   (interactive)
-  (my/load-theme nil))
+  ;; (my/load-theme nil)
+  (my/load-theme '(tsdh-light)) ; theme name
+  (custom-set-faces
+   '(highlight-changes ((t (:background nil :foreground "maroon" :weight bold))))
+   ;; '(highlight-changes-delete ((t (:foreground "red"))))
+   ;; '(whitespace-tab ((t (:foreground "hot pink"))))
+   '(whitespace-trailing ((t (:extend t :background "pink")))))
+  )
 
 ;; enable themes - darker
 (global-set-key (kbd "M-_") #'my/set-theme-dark)
-
 ;; enable themes - middle ; shadow `insert-parentheses'
 (global-set-key (kbd "M-)") #'my/set-theme-middle) ; modus-operandi - for root
 ;; disable themes - white ; shadow `move-past-close-and-reindent'
 (global-set-key (kbd "M-(") #'my/set-theme-white) ; ; modus-vivendi - for root
 
+
+#+end_src
+*** by time - circadian package
+#+begin_src elisp
+
+;; - load circadian https://github.com/GuidoSchmidt/circadian.el
+(require 'circadian)
+
+;; - circadian basic config
+(setq circadian-themes '(("00:00" . my/set-theme-dark)
+                         ("02:00"   . my/set-theme-middle)
+                         ("06:00"  . my/set-theme-white)
+                         ("12:00"  . my/set-theme-white)
+                         ("18:00"   . my/set-theme-middle)
+                         ("20:00" . my/set-theme-dark)))
+
+;; - override function that activate theme to our
+(defun my/circadian-enable-theme (theme)
+    "Call function instead of just set theme."
+    (funcall theme)
+    (setq circadian-next-timer nil)
+    (circadian-schedule))
+
+(advice-add 'circadian-enable-theme :override #'my/circadian-enable-theme)
+;; - activate circadian
+(circadian-setup)
 #+end_src
 ** add current path to modeline
 #+begin_src elisp
@@ -1721,7 +1791,7 @@ test and will kill actually."
 (marginalia-mode 1)
 
 #+end_src
-*** vertico fix Dired path selection
+*** vertico fix Dired path selection (vertico-insert)
 #+begin_src elisp
 
 ;; (defun vertico-exit (&optional arg)
@@ -1760,7 +1830,7 @@ test and will kill actually."
 ;; C-m   /u......... -> /u/usr/........
 
 #+end_src
-*** vertico up-directory M-h and Enter select and enter
+*** vertico-directory RET for directory and delete-backward M-h
 #+begin_src elisp
 
 (require 'vertico-directory)
@@ -1775,10 +1845,6 @@ test and will kill actually."
   (call-interactively #'backward-kill-word)))
 
 (keymap-set vertico-map "M-h" 'my/delete-backward)
-
-#+end_src
-*** vertico go to home
-#+begin_src elisp
 
 #+end_src
 ** zone screensaver FOR FUN
@@ -1801,7 +1867,7 @@ test and will kill actually."
 (setq zone-programs (remove 'zone-pgm-rotate zone-programs))
 (setq zone-programs (remove 'zone-pgm-rotate-RL-lockstep zone-programs))
 (setq zone-programs (remove 'zone-pgm-five-oclock-swan-dive zone-programs))
-
+(setq zone-programs (remove 'zone-pgm-random-life zone-programs))
 #+end_src
 *** fix speed
 #+begin_src elisp
@@ -3066,10 +3132,6 @@ Deletion flag `dired-del-marker' is used."
 
 (add-hook 'org-mode-hook #'company-mode) ; company-capf
 #+end_src
-** frame-fullscreen
-#+begin_src elisp
-
-#+end_src
 ** ORG
 #+begin_src elisp
 
@@ -3132,8 +3194,25 @@ Deletion flag `dired-del-marker' is used."
     ;; else - if at list
     ;; (if (eq (org-element-type (org-element-at-point)) 'plain-list)
     ;;     (my/fill-paragraph-list)
-  ;; else
-  (save-excursion (org-fill-paragraph))))
+  ;; else - region - skip code blocks
+  (if (and region transient-mark-mode mark-active
+	   (not (eq (region-beginning) (region-end))))
+      (let ((origin (point-marker))
+                  (start (region-beginning)))
+              (unwind-protect
+                  (progn
+                    (goto-char (region-end))
+                    (skip-chars-backward " \t\n")
+                    (let ((org--single-lines-list-is-paragraph nil))
+                      (while (> (point) start)
+                        (if (not (org-babel-active-location-p)) ; my patch
+                            (org-fill-element justify))
+                        (org-backward-paragraph)
+                        (skip-chars-backward " \t\n"))))
+                (goto-char origin)
+                (set-marker origin nil)))
+      ;; else - others
+      (save-excursion (org-fill-paragraph)))))
     ;; )
   ;; (call-interactively 'move-beginning-of-line))
 #+end_src
@@ -3206,7 +3285,7 @@ Deletion flag `dired-del-marker' is used."
 
 ;; We bind org-forward-sentence and org-backward-sentence to
 ;; C-e and C-e, and make it simplier.
-(defun my/org-forward-sentence (&optional _arg)
+(defun my/org-forward-close (&optional _arg)
   "Go to end of sentence, or end of table field.
 This will call `forward-sentence' or `org-table-end-of-field',
 depending on context."
@@ -3251,7 +3330,7 @@ depending on context."
   (if (= (point) (progn (back-to-indentation) (- (point) 1))) ;; -1 because of  "(there is a bug)" see below
       (beginning-of-line)))
 
-(defun my/org-backward-sentence (&optional _arg)
+(defun my/org-backward-close (&optional _arg)
   "Go to beginning of sentence, or beginning of table field.
 This will call `backward-sentence' or `org-table-beginning-of-field',
 depending on context.
@@ -3273,22 +3352,26 @@ depending on context.
      ((and (eq el-type 'table)
            (> (point) contents-begin)
            (<= (point) contents-end))
-         (call-interactively #'move-beginning-of-line)) ;; modifyed
-        ((eq el-type 'src-block)
-         (call-interactively 'back-to-indentation))
-        (t
-         ;; (print (org-element-at-point))
-         ;; (print el-type)
-         (call-interactively #'backward-char) ;; required if we at the end of header. (there is a bug)
-         (save-restriction
-           (when (and contents-begin
-                      (< (point-min) contents-begin)
-                      (>= (point) contents-begin)
-                      (not (eq el-type 'fixed-width)))
-             (narrow-to-region contents-begin
-                               contents-end))
-           (call-interactively #'back-to-indentation-or-beginning))
-         )) ;; if
+      (call-interactively #'move-beginning-of-line)) ;; modifyed
+     ((eq el-type 'src-block)
+      (let ((p (point)))
+        (call-interactively 'back-to-indentation)
+        (if (eq p (point)) ; not changed
+            (beginning-of-line)
+          )))
+     (t
+      ;; (print (org-element-at-point))
+      ;; (print el-type)
+      (call-interactively #'backward-char) ;; required if we at the end of header. (there is a bug)
+      (save-restriction
+        (when (and contents-begin
+                   (< (point-min) contents-begin)
+                   (>= (point) contents-begin)
+                   (not (eq el-type 'fixed-width)))
+          (narrow-to-region contents-begin
+                            contents-end))
+        (call-interactively #'back-to-indentation-or-beginning))
+      )) ;; if
     ))
 
 
@@ -3300,8 +3383,8 @@ depending on context.
                                        (define-key map (kbd "C-b") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'backward-char)())) ;; C-l
                                        (define-key map (kbd "C-n") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'next-line)()))
                                        (define-key map (kbd "C-p") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'kill-line)())) ;; C-k
-                                       (define-key map (kbd "C-a") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'my/org-backward-sentence)()))
-                                       (define-key map (kbd "C-e") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'my/org-forward-sentence)()))
+                                       (define-key map (kbd "C-a") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'my/org-backward-close)()))
+                                       (define-key map (kbd "C-e") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'my/org-forward-close)()))
                                        map))
 
 (defun my/org-tab-text ()
@@ -3467,12 +3550,12 @@ Like (outline-hide-other) (org-reveal) but better."
 
 
 
-  ;; (my/org-backward-sentence) ; 2. (point) text
+  ;; (my/org-backward-close) ; 2. (point) text
 
   ;; (let ((oldp (point))
   ;;       newp) ; check that we are "2. (point) text"
   ;;   (save-excursion
-  ;;     (my/org-backward-sentence)
+  ;;     (my/org-backward-close)
   ;;     (setq newp (point)))
   ;;   (if (and (bolp) (/= oldp newp))
   ;;       (progn
@@ -3491,8 +3574,8 @@ If not in a list don't split, open new line and indent."
   (if (org-in-item-p) ; if in a list
     (progn
       ;; go to the begining, before list bullet
-      (my/org-backward-sentence)
-      ;; use special case to unsert above current line
+      (my/org-backward-close)
+      ;; use special case to insert above current line
       (org-insert-item)
       ;; move down
       (org-move-item-down))
@@ -3533,7 +3616,7 @@ If not in a list don't split, open new line and indent."
                            ;; begin of line:
                            ;; (define-key key-translation-map (kbd "M-a") (kbd "M-m"))
                            ;; (define-key key-translation-map (kbd "M-m") (kbd "M-a"))
-                           (local-set-key (kbd "M-h") 'my/backward-kill-word)
+                           (local-set-key (kbd "M-h") 'backward-kill-word)
                            ;; (define-key org-mode-map (kbd "M-h") 'backward-kill-word) ; redefine org-mark-element
 
                            (local-set-key(kbd "C-c SPC") 'org-babel-mark-block) ; Do I really need this?
@@ -3541,8 +3624,8 @@ If not in a list don't split, open new line and indent."
                            ;; - - - C-e should be short and M-e should be long
                            (local-set-key (kbd "M-e") (lambda () (interactive) (org-forward-sentence)))
                            (local-set-key (kbd "M-a") (lambda () (interactive) (org-backward-sentence)))
-                           (local-set-key (kbd "C-e") 'my/org-forward-sentence)
-                           (local-set-key (kbd "C-a") 'my/org-backward-sentence)
+                           (local-set-key (kbd "C-e") 'my/org-forward-close)
+                           (local-set-key (kbd "C-a") 'my/org-backward-close)
 
                            ;; - - - up down - paragraph
                            (local-set-key (kbd "M-p") 'my/org-backward-paragraph)
@@ -3788,7 +3871,31 @@ If not in a list don't split, open new line and indent."
 *** configuration
 #+begin_src elisp
 
+(add-hook 'org-mode-hook (lambda ()
+                           ;; Can not be set globally! Only in function or hook
+                           (custom-set-faces
+                            '(org-level-1 ((t ( :weight bold :height 1.10))))
+                            '(org-level-2 ((t ( :weight bold :height 1.10))))
+                            '(org-level-3 ((t ( :weight bold :height 1.10))))
+                            '(org-hide ((((background dark)) (:foreground "dark blue"))
+                                        (((background light)) (:foreground "gray"))))
+                            )))
 (with-eval-after-load 'org
+  ;; (set-face-attribute 'org-level-1 nil :weight 'bold :height 1.10)
+  ;; (set-face-attribute 'org-level-2 nil :weight 'bold :height 1.10)
+  ;; (set-face-attribute 'org-level-3 nil :weight 'bold :height 1.10)
+  ;; (clear-face-cache)
+  ;; (redisplay)
+  ;; (face-spec-set 'org-hide
+  ;;                '((((background dark)) (:foreground "dark slate blue"))
+  ;;                  (((background light)) (:foreground "black"))))
+
+  ;; (set-face-attribute 'org-hide t :foreground "dark slate blue")
+  ;; (custom-set-faces
+  ;;  '(org-level-1 ((t ( :weight "bold" :height 1.10))))
+  ;;  '(org-level-2 ((t ( :weight "bold" :height 1.10))))
+  ;;  '(org-level-3 ((t ( :weight "bold" :height 1.10))))
+  ;;  '(org-hide ((t (:foreground "dark slate blue")))))
   ;; fix C-u C-SPC set-mark-command to fight sparce trees
   (advice-add 'org-fold-show-context :after (lambda (&rest args) (org-reveal '(4)) )) ;; org-mark-jump-unhide
 
@@ -3796,10 +3903,7 @@ If not in a list don't split, open new line and indent."
   (setopt org-adapt-indentation nil)
 
   ;; font size
-  ;; (set-face-attribute 'default nil :height 120)
-  (set-face-attribute 'org-level-1 nil :height 1.50)
-  (set-face-attribute 'org-level-2 nil :height 1.25)
-  (set-face-attribute 'org-level-3 nil :height 1.10)
+
 
   ;;   (define-key org-mode-map [(control meta tab)] 'org-insert-structure-template)
   ;; org initial folded - overview is not working
@@ -4188,6 +4292,10 @@ was made."
   ;; - keys
   (add-hook 'js-mode-hook (lambda ()
                             (local-set-key "\C-c\ i" #'demap-toggle)))
+  (add-hook 'sh-mode-hook (lambda ()
+                            (local-set-key "\C-c\ i" #'demap-toggle)))
+  (add-hook 'ebuild-mode-hook (lambda ()
+                            (local-set-key "\C-c\ i" #'demap-toggle)))
   (add-hook 'js-ts-mode-hook (lambda ()
                             (local-set-key "\C-c\ i" #'demap-toggle)))
   (add-hook 'python-mode-hook (lambda ()
@@ -4205,7 +4313,7 @@ was made."
   ;; - - open/close when buffer was switched
   (add-hook 'window-buffer-change-functions
             (lambda (arg) ; arg is frame object
-              (if (derived-mode-p 'python-mode 'python-ts-mode)
+              (if (derived-mode-p 'python-mode 'python-ts-mode 'sh-mode 'ebuild-mode)
                   (demap-open)
                 ;; else
                 (demap-close)
@@ -5771,7 +5879,10 @@ This function is called by `org-babel-execute-src-block'."
     ;; ;; (",," "" chinese-ecomma) ;; Enumeration comma 、
     ;; (",," "、" nil) ;; Enumeration comma 、
     ;; ("\"\"" "《》" nil)
-
+    ("ru" "" (lambda () (activate-input-method "russian-computer")))
+    ("ут" "" (lambda () (activate-input-method nil)))
+    ("zh" "" (lambda () (activate-input-method "chinese-sisheng")))
+    ("en" "" (lambda () (activate-input-method nil)))
     ))
 
 (define-abbrev-table 'diary-mode-abbrev-table
@@ -5887,6 +5998,23 @@ This function is called by `org-babel-execute-src-block'."
 (global-set-key (kbd "C-c 2") #'my/ispell-flycheck-en)
 (global-set-key (kbd "C-c 3") #'my/ispell-flycheck-ru)
 
+#+end_src
+** guess-languagel - ispell - (not working)
+#+begin_src elisp
+
+;; (require 'guess-language)
+;; (setq guess-language-languages '(en ru))
+;; ;; (setq guess-language-langcodes
+;; ;;   '((en . ("en_GB" "English" "🇬🇧" "English"))
+;; ;;     (ru . ("ru_CH" "German" "🇨🇭" "Swiss German"))))
+;; ;; (setq guess-language-min-paragraph-length 5)
+;; (setq guess-language-min-paragraph-length 10)
+
+;; (defun my-custom-function (lang beginning end)
+;;   (message "ok")
+;;   (message lang))
+
+;; (add-hook 'guess-language-after-detection-functions #'my-custom-function)
 #+end_src
 ** org-agenda
 #+begin_src elisp

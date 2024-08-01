@@ -91,6 +91,22 @@ You should bind TAB in 'org-mode-hook. For other modes you should use hooks and 
 (global-set-key (kbd "TAB") #'my/indent-or-complete)
 #+end_src
 
+* Keys: Tab as a predefined command executor
+#+begin_src elisp :results none :exports code :eval no
+(let ((my-current-input-abbrev 'never-switched))
+  (define-abbrev-table 'org-mode-abbrev-table
+    `(("zh" ""
+       ,(lambda ()
+          (activate-input-method
+           (setf my-current-input-abbrev
+                 "chinese-sisheng"))))
+      ("en" ""
+       ,(lambda ()
+          (activate-input-method
+           (setf my-current-input-abbrev
+                 nil)))))))
+(global-set-key (kbd "TAB") 'expand-abbrev)
+#+end_src
 * How to remove space character after Abbrev completion?
 as pointed out in documentation https://www.gnu.org/software/emacs/manual/html_node/autotype/Skeleton-Language.html
 you can use -1 in skeleton, like this:
