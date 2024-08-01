@@ -2089,7 +2089,7 @@ Solution to get right org-forward-sentence:
 
 (advice-add 'find-file :before #'my/find-file-hook)
 #+end_src
-* How to set faces: foreground, background, font based on selected day and night theme
+* Themes: How to set faces: foreground, background, font based on selected day and night theme
 Org mode have (background dark), (background light) switch for
  automaticly choosing face based on background, but this function
  working only after applying faces in hook or function.
@@ -2183,3 +2183,65 @@ to choose colour: M-x customize-face RET ...
 (global-set-key (kbd "M-(") #'my/set-theme-white) ; ; modus-vivendi - for root
 
 #+end_src
+* Themes: How to set theme by time.
+two ways:
+1. (run-at-time (encode-time '(0 0 7 13 6 2020)) nil #+my-func) - run by time
+   - sorting list required
+   - find next time in a list
+2. (run-with-timer 0 3600 synchronize-theme) - check time every hour.
+   - check that time in period -> sorting list required
+
+There is already exist circadian.el package
+ https://github.com/GuidoSchmidt/circadian.el for 1. approach.
+
+* Solution with circadian.el
+Here is modification that run our function instead of just change theme:
+
+#+begin_src elisp :results none :exports code :eval no
+;; - Load circadian https://github.com/GuidoSchmidt/circadian.el
+(require 'circadian)
+
+;; - Circadian basic config
+(setq circadian-themes '(("00:00" . my/set-theme-dark)
+                         ("10:00"  . my/set-theme-white)
+                         ("19:00"   . my/set-theme-middle)))
+
+;; - Replace function that activate theme
+(defun my/circadian-enable-theme (theme)
+    "Call function instead of just set theme."
+    (funcall theme))
+
+(advice-add 'circadian-enable-theme :override #'my/circadian-enable-theme)
+;; - Activate circadian
+(circadian-setup)
+#+end_src
+** other packages
+I need 3-4 themes switching by time + cycling based on custom functions.
+- https://github.com/guidoschmidt/circadian.el/
+  - set theme by time
+  - ugliest code
+- https://github.com/toroidal-code/cycle-themes.el/
+  - switch theme, allow hook
+- https://github.com/valignatev/heaven-and-hell
+  - two themes switcher
+- https://github.com/zakudriver/lacquer
+  - Switch theme/font by selecting from a cache
+- https://github.com/hadronzoo/theme-changer
+  - change theme by sunrise, sunset only.
+  - support default nil theme
+- theme-looper http://ismail.teamfluxion.com  -
+  - Loop though available color theme
+- theme-buffet - change theme every 30 min or 2 hoursn
+
+
+** circadian.el main functions
+- (circadian-themes-parse) sort “circadian-themes” by time
+- (circadian-a-earlier-b-p time1 time2) - return time1 < time2
+- (circadian-string-to-time time) - split string “HH:MM” to (HH MM)
+- (setq circadian-next-timer (run-at-time next-time nil #'circadian-enable-theme next-theme)
+- (circadian-filter-inactivate-themes) - find next time to run
+* Password management
+Password management in Emacs:
+- you can encrypt and decrypt files *.gpg automaticly or in Dired: https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
+- you can use "hidepw" package to just hide password on screen.
+- The standard unix password manager (or just pass) + https://github.com/emacsmirror/password-store or https://www.gnu.org/software/emacs/manual/html_node/auth/The-Unix-password-store.html

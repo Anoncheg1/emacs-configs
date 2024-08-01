@@ -50,11 +50,12 @@ Windows:
 
 Frames:
 - M-[/] - (other-frame -1/1)
+- C-x 5 2 - (make-frame) (default)
 
 Buffers:
 - C-c M-c - *Messages* buffer
 - C-c M-z - previous buffer
-- C-x ! - 'my/kill-other-buffers-and-frame-duplicates - kill not modified buffers and duplicate frames
+- C-x ! - 'my/kill-other-buffers-and-frame-duplicates - kill not modified buffers and duplicate frames, kill not marked buffers in menu
 
 ## Email Client
 isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
@@ -102,6 +103,7 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - recentf: save directory path and TRAMP path, that was opened with ```find-file``` command.
 - Dired: cycle sorting, not just toggle between by date / by name as it was by default.
 - Elisp: created “new line” function that insert new list sexp after list sexp or comment at current cursor position
+- theme cycling by time (circadian.el) with own theme modifications
 
 TODO:
 - M-j in buffer-menu to open existing frame or create new.
