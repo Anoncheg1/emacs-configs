@@ -109,6 +109,7 @@ TODO:
 - M-j in buffer-menu to open existing frame or create new.
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.
 - clear Hightlight changed after Undo if buffer is not modified.
+- automatic input language detection and change current line
 
 # bashrc
 

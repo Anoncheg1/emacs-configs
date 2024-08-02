@@ -3181,7 +3181,8 @@ Deletion flag `dired-del-marker' is used."
 
 (defun my/org-fill-paragraph (&optional justify region)
 "Fix two things: 1) return cursor after prefix to the beginning.
-2) with C-u M-q use fill-column instead of org source block specific."
+2) with C-u M-q use fill-column instead of org source block specific.
+3) fix to fill-paragraph to bullet indentation"
   (interactive (progn
 		 (barf-if-buffer-read-only)
 		 (list (when current-prefix-arg 'full) t)))
@@ -3191,30 +3192,38 @@ Deletion flag `dired-del-marker' is used."
       (setq current-prefix-arg nil)
       (call-interactively 'fill-paragraph)
       (setq fill-paragraph-function saved-fill-paragraph-function))
-    ;; else - if at list
-    ;; (if (eq (org-element-type (org-element-at-point)) 'plain-list)
-    ;;     (my/fill-paragraph-list)
-  ;; else - region - skip code blocks
-  (if (and region transient-mark-mode mark-active
-	   (not (eq (region-beginning) (region-end))))
-      (let ((origin (point-marker))
-                  (start (region-beginning)))
-              (unwind-protect
-                  (progn
-                    (goto-char (region-end))
-                    (skip-chars-backward " \t\n")
-                    (let ((org--single-lines-list-is-paragraph nil))
-                      (while (> (point) start)
-                        (if (not (org-babel-active-location-p)) ; my patch
-                            (org-fill-element justify))
-                        (org-backward-paragraph)
-                        (skip-chars-backward " \t\n"))))
-                (goto-char origin)
-                (set-marker origin nil)))
-      ;; else - others
-      (save-excursion (org-fill-paragraph)))))
-    ;; )
-  ;; (call-interactively 'move-beginning-of-line))
+    ;; else - at list item
+    (if (org-in-item-p) ;
+        (let ((fill-prefix nil))
+          ;; region - skip code blocks
+          (if (and region transient-mark-mode mark-active
+                   (not (eq (region-beginning) (region-end))))
+              (let ((origin (point-marker))
+                          (start (region-beginning)))
+                      (unwind-protect
+                          (progn
+                            (goto-char (region-end))
+                            (skip-chars-backward " \t\n")
+                            (let ((org--single-lines-list-is-paragraph nil))
+                              (while (> (point) start)
+                                (if (not (org-babel-active-location-p)) ; my patch
+                                    (org-fill-element justify))
+                                (org-backward-paragraph)
+                                (skip-chars-backward " \t\n"))))
+                        (goto-char origin)
+                        (set-marker origin nil)))
+      ;; else - at list item
+      ;; (if (org-in-item-p)
+      ;;     (let ((fill-prefix nil)) ; fix to fill-paragraph to bullet indentation
+      ;;       (fill-paragraph))
+        ;; (let* ((ind (org-list-get-ind (line-beginning-position) (org-list-struct)))
+        ;;        (bul-len (length (org-list-get-bullet (line-beginning-position) (org-list-struct))))
+        ;;        (fill-prefix (concat (make-string (+ ind bul-len) ? ) fill-prefix)))
+        ;;   (fill-paragraph)
+        ;;   )
+            ;; else - others
+            (save-excursion (org-fill-paragraph)))))))
+
 #+end_src
 *** key: meta-return
 #+begin_src elisp
