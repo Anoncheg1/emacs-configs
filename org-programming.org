@@ -1,0 +1,22 @@
+In “C-c ‘“ Eglot not supported.
+
+To edit remote use C-x C-f /ssh:sshconfigrecord:
+- C-c C-c working on remote
+
+For remote, working in “C-c ‘“ and directly with C-c C-c:
+: #+begin_src python :dir "/ssh:host:"
+: #+end_src
+
+not supported:
+: :session s1
+
+
+
+
+For troubleshooting use:
+#+begin_src elisp :results output :exports both
+(let ((default-directory "/ssh:host:/root/"))
+(org-babel-eval "python" "import sys; print(sys.path)"))
+#+end_src
+
+use: ln -fs /usr/local/bin/python3.11 /usr/bin/python

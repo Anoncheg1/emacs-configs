@@ -26,7 +26,7 @@ Rules:
 - Don't bind keys to solve current issues, better solve those issues.
 
 Global: o - previous, m - basic no split, j - rarely used, Ctrl/Alt - with indentation/no indentation
-- C-o don't split: open previous line and go there without indentation - 'my/open-previous-line
+- M-o don't split: open previous line and go there without indentation - 'my/open-previous-line
 - C-m go there: open next line split, with indentation - 'default-indent-new-line
 - M-m go there: open next line split, without indentation - 'electric-newline-and-maybe-indent
 - C-j don't split: open next line and go there with indentation - 'my/open-next-line-indent

@@ -25,7 +25,7 @@ This is between console and JIKL:
 - C-n - down
 
 ## New line
-[New line rebinding: ./new-line-rebinding.md](new-line-rebinding.md)
+[New line rebinding: ./new-line-rebinding.org](new-line-rebinding.org)
 
 ## Detele backward (C-u in console)
 - C-h 'delete-backward-char
@@ -37,16 +37,18 @@ This is between console and JIKL:
 [Org keys: ./org-keys.org](org-keys.org)
 
 ## Additional key bindings:
-- M-; 'comment-line
-- C-x C-l 'my/list-buffers-right (beffer-menu)
-- C-x y 'bookmarks
+- M-;		'comment-line
+- C-x C-l	'my/list-buffers-right (beffer-menu)
+- C-x y	'bookmarks
+- C-x m	'compose-mail
+- C-c w	'my/copy-link-to-clipboard, 'my/dired-copy-filename-as-kill
 
 I changed behavior of C-a/e and M-a/e in Org mode.
 - C-a - move to the begining of the current element at the line. (For example: to the begining of the URL.)
 - M-e - move to the begining of the line.
 
 Windows:
-- M-o - my/other-window-or-split
+- C-o - my/other-window-or-split
 
 Frames:
 - M-[/] - (other-frame -1/1)
@@ -60,6 +62,8 @@ Buffers:
 ## Email Client
 isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 
+# Org notes
+[./org-programming.org](org-programming.org)
 # Solved troubles:
 - set Scrolling as in modern IDEs
 - set backup directory for saving ~files
@@ -106,10 +110,16 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - theme cycling by time (circadian.el) with own theme modifications
 
 TODO:
-- M-j in buffer-menu to open existing frame or create new.
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.
 - clear Hightlight changed after Undo if buffer is not modified.
-- automatic input language detection and change current line
+- Org: automatic input language detection and change current line
+- Org: line numbers at left side of Org blocks
+  - https://emacs.stackexchange.com/questions/69309/org-mode-enable-line-numbers-only-in-source-code-blocks
+  - https://kitchingroup.cheme.cmu.edu/blog/2015/10/13/Line-numbers-in-org-mode-code-blocks/
+- .emacs: get rid of all lambdas for extensibility
+- Dired: simple file filter like in dired-filter, but without water (https://github.com/Fuco1/dired-hacks)
+- image-dired-thumbnail-mode or image-dired-minor-mode: C-c w, M-W and zoom.
+- replace expand-region with mark-word, mark-mark-paragraph, mark-end-of-sentence, org-mark-element, org-mark-subtree
 
 # bashrc
 

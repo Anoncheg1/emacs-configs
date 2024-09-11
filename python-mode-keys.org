@@ -9,12 +9,10 @@
 - C-M-e	Move to end of current or following defun (end-of-defun).
 - C-M-h	Put region around whole current or following defun (mark-defun).
 - C-c C-c	execute file in terminal
-- M-left		python-indent-shift-left
-- M-right		python-indent-shift-right
+- M-left	python-indent-shift-left
+- M-right	python-indent-shift-right
 
-## New:
-
-default:
+## Default:
 - C-c C-f		(python-eldoc-at-point)
 - C-c C-j		(imenu)
 - C-c C-r		after run-python -> python-shell-send-region
@@ -24,12 +22,19 @@ default:
 - M-.			(xref-find-definitions) - for symbol at cursor
 - M-,			(xref-go-back)
 - C-M-,		(xref-go-forward)
+- C-M-u	backward-up-list - go to first line of current block
+- M-x pdb	Debugger
+- C-x C-a	Debugger keys prefix
+
+## New:
+
 
 Custom common:
 - M-;			(comment-line)
 - C-;			(comment-dwim)
 - C-c C-k		(beginning-of-defun)
 - C-c C-n		(end-of-defun)
+- C-M-u		(backward-up-list)  - by dafult
 - C-c h		(mark-defun)
 - C-c i		(demap-toggle)
 

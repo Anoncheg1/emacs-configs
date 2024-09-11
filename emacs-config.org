@@ -1,8 +1,4 @@
 ;; -*- mode: elisp-byte-code; eval: (outline-minor-mode 1); lexical-binding: t -*-
-#+end_src
-* Guide for this config
-#+begin_src elisp
-
 ;; ##### First opening guide: ##########
 ;; #
 ;; # C-c @ C-t  PREPARE         outline-hide-body
@@ -69,7 +65,7 @@
  '(org-src-preserve-indentation t)
  '(org-startup-folded t)
  '(package-selected-packages
-'(circadian demap dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search package-lint idle-highlight-mode csv-mode free-keys expand-region flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
+'(circadian demap dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search idle-highlight-mode csv-mode free-keys flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
  '(safe-local-variable-values '((org-image-actual-width . 500)))
  '(size-indication-mode t)
  '(speedbar-show-unknown-files t))
@@ -528,7 +524,7 @@ Steps: 1) create buffer. 2) found frame with same major mode.
   (message (concat link "\t- copied to clipboard"))))
 
 ;; shadow `append-next-kill'
-(define-key global-map (kbd "C-M-w") #'my/copy-link-to-clipboard)
+(define-key global-map (kbd "C-c w") #'my/copy-link-to-clipboard)
 
 #+end_src
 * GUI
@@ -763,7 +759,7 @@ Steps: 1) create buffer. 2) found frame with same major mode.
                          ("02:00"   . my/set-theme-middle)
                          ("06:00"  . my/set-theme-white)
                          ("12:00"  . my/set-theme-white)
-                         ("18:00"   . my/set-theme-middle)
+                         ("17:00"   . my/set-theme-middle)
                          ("20:00" . my/set-theme-dark)))
 
 ;; - override function that activate theme to our
@@ -842,7 +838,7 @@ Steps: 1) create buffer. 2) found frame with same major mode.
 ** exec-language
 #+begin_src elisp
 
-(defun my/exec-language (exec-file-command)
+(defun my/exec-language (exec-file-command buffer) ; "*Org Src"
   "Execute current buffer content in terminal with EXEC-FILE-COMMAND.
 First it save content to temporary file.
 If we in Org src with C-c ' we create tmp file, write buffer and execute,
@@ -854,7 +850,8 @@ EXEC-FILE-COMMAND for example may be: \"PYTHONPATH=. python\"."
 
     (setq fnv (org-babel-temp-file langnamestr))
     ;; If we in C-c '
-    (if (string-prefix-p "*Org Src" (buffer-name) t)
+    ;; (if (string-prefix-p "*Org Src" (buffer-name) t)
+    (with-current-buffer buffer
         ;; save body to fnv buffer
         (let ((body (buffer-substring-no-properties (point-min) (point-max))))
           (with-temp-file fnv (insert body))))
@@ -865,7 +862,7 @@ EXEC-FILE-COMMAND for example may be: \"PYTHONPATH=. python\"."
                (buffer-file-name)))
     (with-temp-buffer
                   ;; (setq-local default-directory (buffer-local-value 'default-directory (get-buffer "*Messages*")))
-                  (message default-directory)
+                  (message (concat "default-directory" default-directory))
                   ;; "xfce4-terminal*initial-title \"emacs_python\" -e \"bash -c 'PYTHONPATH=. python " fn " ; bash ;'\""
                   ;; (print (list "fnfile" fn))
                   ;; in case of TRAMP execute remote:
@@ -880,11 +877,12 @@ EXEC-FILE-COMMAND for example may be: \"PYTHONPATH=. python\"."
                         (setq exec-file-command (concat "ssh " host " " exec-file-command " " file))
                         ;; xfce4-terminal -e "tmux new-session \"bash -c 'ls; exec bash'\""
                         (print (concat "xfce4-terminal*title \"emacs_" langnamestr "\" -e \"tmux new-session \\\"bash -c '" exec-file-command " " fn " ; bash ;'\\\"\""))
-                        (shell-command (concat "xfce4-terminal*title \"emacs_" langnamestr "\" -e \"tmux new-session \\\"bash -c '" exec-file-command " " fn " ; bash ;'\\\"\""))
+                        (async-shell-command (concat "xfce4-terminal*title \"emacs_" langnamestr "\" -e \"tmux new-session \\\"bash -c '" exec-file-command " " fn " ; bash ;'\\\"\""))
                         ;; (shell-command (concat "xfce4-terminal*title \"emacs_" langnamestr "\" -e \"bash -c '" exec-file-command " " fn " ; bash ;'\""))
                         )
                     ;; else - not TRAMP
                     (progn
+                      ;; (print exec-file-command)
                       (shell-command (concat "xdotool search emacs_" langnamestr " windowclose")) ;; alala is window name that we use to close and open again
                       (shell-command (concat "xfce4-terminal*title \"emacs_" langnamestr "\" -e \"bash -c '" exec-file-command " " fn " ; bash ;'\"")))
                     )
@@ -1026,12 +1024,18 @@ and preserve a point position."
 (global-set-key (kbd "M-k") #'my/kill-line-backward) ; shadow `undo'
 ;; (global-set-key (kbd "C-u") #'universal-argument) ; shadow `universal-argument'
 #+end_src
-** russian bindings
+** russian bindings when russian layout activated
 #+begin_src elisp
 
 (global-set-key (kbd "C-р") 'delete-backward-char)
 (global-set-key (kbd "C-.") 'undo)
 
+(global-set-key (kbd "C-а") 'forward-char)
+(global-set-key (kbd "C-д") 'backward-char)
+(global-set-key (kbd "C-л") 'previous-line)
+(global-set-key (kbd "C-т") 'next-line)
+(global-set-key (kbd "C-ф") 'next-line)
+(global-set-key (kbd "C-у") 'move-end-of-line)
 #+end_src
 ** minibuffer M-x: previous command, next command
 #+begin_src elisp
@@ -1220,7 +1224,7 @@ and preserve a point position."
      )))
 
 
-(global-set-key "\C-o" #'my/open-previous-line)
+(global-set-key "\M-o" #'my/open-previous-line)
 (global-set-key "\C-m" #'default-indent-new-line)
 (global-set-key "\M-m" #'electric-newline-and-maybe-indent)
 (global-set-key "\C-j" #'my/open-next-line)
@@ -1302,7 +1306,7 @@ and preserve a point position."
 
 ;; (setq scroll-step 10) ;; keyboard scroll one line at a time
 
-(global-set-key "\M-o" 'other-window)
+;; (global-set-key "\M-o" 'other-window)
 
 (global-set-key (kbd "M-[") (lambda () (interactive)
                               (other-frame -1)
@@ -1335,7 +1339,7 @@ and preserve a point position."
     (my/split-window-horizontally) )
   (other-window 1) )
 
-(global-set-key "\M-o"    #'my/other-window-or-split)
+(global-set-key "\C-o"    #'my/other-window-or-split)
 ;; (global-set-key "\M-k"    #'delete-other-windows)
 
 #+end_src
@@ -1479,11 +1483,11 @@ and preserve a point position."
 
 (defun my/remapcame ()
 ;; C-a should be close range, M-a long range
-  (local-set-key (kbd "C-a") 'my/begining-of-the-line)
-  (local-set-key (kbd "M-a") 'move-beginning-of-line)
+  (keymap-local-set "C-a" 'my/begining-of-the-line)
+  (keymap-local-set "M-a" 'move-beginning-of-line)
   ;; (local-set-key (kbd "C-a") )
-  (local-set-key (kbd "C-e") 'move-end-of-line)
-  (local-set-key (kbd "M-e") 'move-end-of-line)
+  (keymap-local-set "C-e" 'move-end-of-line)
+  (keymap-local-set "M-e" 'move-end-of-line)
   ;; was at C-m
   ;; (local-set-key (kbd "M-m") 'backward-sentence)
 
@@ -1625,6 +1629,14 @@ test and will kill actually."
     (select-window sw)))
 
 (global-set-key (kbd "C-x !") #'my/kill-other-buffers-and-frame-duplicates)
+
+
+(defun my/kill-buffer-and-frame ()
+  (interactive)
+  (if (kill-buffer (current-buffer))
+      (call-interactively 'delete-frame)))
+
+(global-set-key (kbd "C-x M-p") #'my/kill-buffer-and-frame)
 #+end_src
 ** minor-mode experiment
 #+begin_src elisp
@@ -1868,6 +1880,7 @@ test and will kill actually."
 (setq zone-programs (remove 'zone-pgm-rotate-RL-lockstep zone-programs))
 (setq zone-programs (remove 'zone-pgm-five-oclock-swan-dive zone-programs))
 (setq zone-programs (remove 'zone-pgm-random-life zone-programs))
+(setq zone-programs (remove 'zone-pgm-drip zone-programs))
 #+end_src
 *** fix speed
 #+begin_src elisp
@@ -1881,7 +1894,6 @@ test and will kill actually."
                          "zone-pgm-jitter"))
 
 (defvar my/zone-demanding '("zone-pgm-rotate"
-                            "zone-pgm-drip"
                             "zone-pgm-rotate-LR-lockstep"
                             "zone-pgm-rotate-RL-variable"
                             "zone-pgm-paragraph-spaz"))
@@ -1908,53 +1920,257 @@ test and will kill actually."
 
 (advice-add 'sit-for :around #'my/zone-sit-for-advice)
 #+end_src
-*** fix text scale or zoom
+*** fix zone-pgm-stress over-messaging
 #+begin_src elisp
 
-(defun my/zone-call-scalefix (func-call program &optional timeout)
-"We add advice after buffer of zoom creation and before call of
- program. We switch to buffer before current, get zoom from it and
- adjust zoom in zone buffer."
-  (let ((v (with-current-buffer (buffer-name (car (car (window-prev-buffers))))
-      text-scale-mode-amount)))
-    (text-scale-increase v))
-  (apply func-call program timeout))
-(advice-add 'zone-call :around #'my/zone-call-scalefix)
+(defun my/silent-message (text)
+  (with-current-buffer "*Messages*"
+    (read-only-mode -1)
+    (let ((buffer-content (buffer-substring
+                           (point-min) (point-max))))
+
+      (message text)
+      (erase-buffer)
+      (insert buffer-content))
+    (read-only-mode t)))
+
+(defun zone-pgm-stress ()
+  (let ((ok t)
+        lines)
+    (save-excursion
+      (goto-char (point-min))
+      (while (and ok (< (point) (point-max)))
+        (let ((p (point)))
+          (setq ok (zerop (forward-line 1))
+                lines (cons (buffer-substring p (point)) lines)))))
+    (sit-for 5)
+    (zone-hiding-mode-line
+     (let ((msg "Zoning... (zone-pgm-stress)"))
+       (while (not (string= msg ""))
+         (my/silent-message (setq msg (substring msg 1)))
+         (sit-for 0.05)))
+     (while (not (input-pending-p))
+       (when (< 50 (random 100))
+         (goto-char (point-max))
+         (forward-line -1)
+         (delete-region (point) (line-beginning-position 2))
+         (goto-char (point-min))
+         (insert (seq-random-elt lines)))
+       (my/silent-message (concat (make-string (random (- (frame-width) 5)) ? ) "grrr"))
+       (sit-for 0.1)))))
+#+end_src
+*** zone function - fix text scale or zoom
+#+begin_src elisp
+
+;; (defun my/zone-call-scalefix (func-call program &optional timeout)
+;; "We add advice after buffer of zoom creation and before call of
+;;  program. We switch to buffer before current, get zoom from it and
+;;  adjust zoom in zone buffer."
+;;   (let ((v (with-current-buffer (buffer-name (car (car (window-prev-buffers))))
+;;       text-scale-mode-amount)))
+;;     (text-scale-increase v))
+;;   (apply func-call program timeout))
+
+;; (advice-add 'zone-call :around #'my/zone-call-scalefix)
+;; (advice-remove 'zone-call #'my/zone-call-scalefix)
+
+
+;; (defun my/get-buffer-create (buffer)
+;;     (when (string-equal (buffer-name buffer) "*zone*")
+;;       (let ((v text-scale-mode-amount))
+;;         (with-current-buffer buffer
+;;           (text-scale-increase v))
+;;         ;; (apply orig-fun args)
+;;       ))
+;;     buffer
+;;     )
+;; (advice-add 'get-buffer-create :filter-return #'my/get-buffer-create)
+;; (advice-remove 'get-buffer-create #'my/get-buffer-create)
+
+(defun zone-prepare-buffer-org ()
+  (condition-case nil
+          ;; recenter, to fix window position after deletion
+          (let ((orig-marker (set-marker (make-marker) (point))))
+            (re-search-backward org-outline-regexp)
+            (forward-line -1)
+
+              (while (not (bobp))
+                (let ((p (point)))
+                  (org-previous-visible-heading 1)
+                  ;; (print (list (line-end-position) p))
+                  (delete-region (line-end-position) p)
+                  (newline)
+                  (forward-line -1)
+                  ))
+
+              ;; restore pointer
+              (goto-char orig-marker)
+              (recenter-top-bottom 7)
+              )
+          (error nil)))
+
+(defun zone-prepare-buffer (buffer)
+  (let* ((bsize 3500)
+         (wmin (if (> (window-start) bsize)
+                    (- (window-start) bsize)
+                    ;;else
+                    (window-start)))
+         ;; start of window
+         (ws (if (> (window-start) bsize)
+                    bsize
+                    ;;else
+                    0))
+         (text
+          ;; partial fix for Dired, IDK why buffer-substring not working
+          (if (derived-mode-p 'dired-mode)
+              (buffer-substring-no-properties
+               wmin ; with space around
+               (window-end nil t))
+            ;; else
+            (buffer-substring
+                 wmin ; with space around
+                 (window-end nil t))))
+         ;; (wp (1+ (- (window-point)
+         ;;            wmin)))
+         (p (1+ (- (point) wmin)))
+         (saved-marker (set-marker (make-marker) (point)))
+         (ts (if (boundp 'text-scale-mode-amount)
+                 text-scale-mode-amount
+               ;; else
+               0))
+         (org-mode-flag (derived-mode-p 'org-mode)))
+    (put 'zone 'orig-buffer (current-buffer))
+    ;;
+    (with-current-buffer buffer
+
+      (setq mode-name "Zone")
+      (erase-buffer)
+      (setq buffer-undo-list t
+          truncate-lines t
+          tab-width (zone-orig tab-width)
+          line-spacing (zone-orig line-spacing))
+      (insert text)
+
+      ;; (untabify (point-min) (point-max)) ; required for some zones, (not shure)
+      (set-window-buffer-start-and-point (selected-window) buffer ws p)
+      ;; (goto-char saved-marker)
+      (when org-mode-flag
+        (zone-prepare-buffer-org))
+
+      (text-scale-increase ts)
+      )))
+
+
+(defun zone (&optional pgm)
+  "Zone out, completely.
+With a prefix argument the user is prompted for a program to run.
+When called from Lisp the optional argument PGM can be used to
+run a specific program.  The program must be a member of
+`zone-programs'."
+  (interactive
+   (and current-prefix-arg
+        (let ((choice (completing-read
+                       "Program: "
+                       (mapcar
+                        (lambda (prog)
+                          (substring (symbol-name prog) 9))
+                        zone-programs)
+                       nil t)))
+          (list (intern (concat "zone-pgm-" choice))))))
+  (unless pgm
+    (setq pgm (aref zone-programs (random (length zone-programs)))))
+    (let ((f (selected-frame))
+          (outbuf (get-buffer-create (concat "*zone " (buffer-name (current-buffer)) "*"))))
+      ;; (put 'zone 'orig-buffer (current-buffer))
+      ;; (save-window-excursion
+      (zone-prepare-buffer outbuf)
+      (switch-to-buffer outbuf)
+        ;; (setq mode-name "Zone")
+        ;; (erase-buffer)
+        ;; (setq buffer-undo-list t
+        ;;       truncate-lines t
+        ;;       tab-width (zone-orig tab-width)
+        ;;       line-spacing (zone-orig line-spacing))
+        ;; (insert text)
+        ;; (untabify (point-min) (point-max))
+        ;; (set-window-start (selected-window) (point-min))
+        ;; (set-window-point (selected-window) wp)
+        (sit-for 0.500)
+        (let ((ct (and f (frame-parameter f 'cursor-type)))
+              (show-trailing-whitespace nil)
+              ;; Make `restore' a self-disabling one-shot thunk.
+              ( restore ))
+          (setq restore (lambda ()
+                          "access to cf, f and outbuff"
+                          (when ct
+                            (modify-frame-parameters
+                             f (list (cons 'cursor-type ct))))
+                          (kill-buffer outbuf)
+                          (setq restore nil)))
+          (when ct
+            (modify-frame-parameters f '((cursor-type . (bar . 0)))))
+
+          (condition-case nil
+              (progn
+                (message "Zoning... (%s)" pgm)
+                (garbage-collect)
+                ;; If some input is pending, zone says "sorry", which
+                ;; isn't nice; this might happen e.g. when they invoke the
+                ;; game by clicking the menu bar.  So discard any pending
+                ;; input before zoning out.
+                (if (input-pending-p)
+                    (discard-input))
+                (zone-call pgm) ; Zone function call
+                (message "Zoning...sorry"))
+            ((debug error) nil)
+            (error
+             (funcall restore)
+             (while (not (input-pending-p))
+               (message "We were zoning when we wrote %s..." pgm)
+               (sit-for 3)
+               (message "...here's hoping we didn't hose your buffer!")
+               (sit-for 3)))
+            (quit
+             (funcall restore)
+             (ding)
+             (message "Zoning...sorry")))
+          (when restore (funcall restore)))))
+
 #+end_src
 ** expand-region - one key for selecting everything (experiment)
 #+begin_src elisp
 
-(require 'expand-region)
-;; (define-minor-mode my/expand-region-keys
-;;                              ""
-;;                              :lighter "modal"
-;;                              :keymap (let ((map (make-sparse-keymap)))
-;;                                        (define-key map (kbd "C-u") 'er/expand-region)
-;;                                        (define-key map (kbd "C-c") 'er/contract-region)
-;;                                        (define-key map (kbd "C-n") 'er/contract-region)
+;; (require 'expand-region)
+;; ;; (define-minor-mode my/expand-region-keys
+;; ;;                              ""
+;; ;;                              :lighter "modal"
+;; ;;                              :keymap (let ((map (make-sparse-keymap)))
+;; ;;                                        (define-key map (kbd "C-u") 'er/expand-region)
+;; ;;                                        (define-key map (kbd "C-c") 'er/contract-region)
+;; ;;                                        (define-key map (kbd "C-n") 'er/contract-region)
 
-;;                                        (define-key map (kbd "C-g") (lambda () (interactive) (my/expand-region-keys -1) ))
-;;                                        (define-key map (kbd "C-f") (lambda () (interactive) (my/expand-region-keys -1) ))
-;;                                        (define-key map (kbd "C-n") (lambda () (interactive) (my/expand-region-keys -1) ))
-;;                                        (define-key map (kbd "C-k") (lambda () (interactive) (my/expand-region-keys -1) ))
-;;                                        (define-key map (kbd "C-l") (lambda () (interactive) (my/expand-region-keys -1) ))
-;;                                        map))
-;; (global-set-key (kbd "C-c C-SPC") 'my/expand-region-keys)
-;; ;; (global-set-key (kbd "C-c C-u") 'er/contract-region)
-(global-set-key (kbd "C-S-SPC") 'er/expand-region)
-(global-set-key (kbd "C-_") 'er/contract-region)
-;; (global-set-key (kbd "C-S-SPC") 'er/contract-region)
-;; (global-set-key (kbd "C-M-u") 'er/contract-region) ;; used for "list motion"
+;; ;;                                        (define-key map (kbd "C-g") (lambda () (interactive) (my/expand-region-keys -1) ))
+;; ;;                                        (define-key map (kbd "C-f") (lambda () (interactive) (my/expand-region-keys -1) ))
+;; ;;                                        (define-key map (kbd "C-n") (lambda () (interactive) (my/expand-region-keys -1) ))
+;; ;;                                        (define-key map (kbd "C-k") (lambda () (interactive) (my/expand-region-keys -1) ))
+;; ;;                                        (define-key map (kbd "C-l") (lambda () (interactive) (my/expand-region-keys -1) ))
+;; ;;                                        map))
+;; ;; (global-set-key (kbd "C-c C-SPC") 'my/expand-region-keys)
+;; ;; ;; (global-set-key (kbd "C-c C-u") 'er/contract-region)
+;; (global-set-key (kbd "C-S-SPC") 'er/expand-region)
+;; (global-set-key (kbd "C-_") 'er/contract-region)
+;; ;; (global-set-key (kbd "C-S-SPC") 'er/contract-region)
+;; ;; (global-set-key (kbd "C-M-u") 'er/contract-region) ;; used for "list motion"
 
 
-(defun er/add-text-mode-expansions ()
-  (make-variable-buffer-local 'er/try-expand-list)
-  (setq er/try-expand-list (append
-                            er/try-expand-list
-                            '(mark-paragraph
-                              mark-page))))
+;; (defun er/add-text-mode-expansions ()
+;;   (make-variable-buffer-local 'er/try-expand-list)
+;;   (setq er/try-expand-list (append
+;;                             er/try-expand-list
+;;                             '(mark-paragraph
+;;                               mark-page))))
 
-(add-hook 'org-mode-hook 'er/add-text-mode-expansions)
+;; (add-hook 'org-mode-hook 'er/add-text-mode-expansions)
 #+end_src
 ** when selecting text you can move without Control, only C-g stops selection mode
 #+begin_src elisp
@@ -2115,6 +2331,7 @@ If this window is splitted and small, just use current window."
 
 (global-set-key (kbd "C-x M-x") #'buffer-menu) ; rooted
 (global-set-key (kbd "C-x C-b") #'my/list-buffers-right) ; shadow `list-buffers'
+(global-set-key (kbd "C-x M-j") #'buffer-menu)
 
 (defun my/buffer-menu-open-wide ()
   "Open current selected item in menu after deleting other window."
@@ -2128,8 +2345,8 @@ If this window is splitted and small, just use current window."
 
 (add-hook 'Buffer-menu-mode-hook
           (lambda ()
-            (local-set-key "\C-j" #'my/buffer-menu-open-wide)
-            (local-set-key (kbd "C-'") #'my/sort-by-modified)))
+            (keymap-local-set "C-j" #'my/buffer-menu-open-wide)
+            (keymap-local-set "C-'" #'my/sort-by-modified)))
 
 
 ;; (global-set-key (kbd "C-S-z") #'buffer-menu) ; (not rooted)
@@ -2279,10 +2496,10 @@ header. [rooted]"
   (setq outline-heading-end-regexp "\n")
   ;; (define-key outline-minor-mode-map (kbd "C-x i") 'outline-toggle-children) ;;
   ;; (define-key outline-minor-mode-map (kbd "C-c TAB") 'outline-toggle-children) ;;
-  (local-set-key (kbd "<backtab>") 'outline-show-only-headings) ;; S-tab
-  (local-set-key (kbd "TAB") 'my/outline-tab) ;; rooted
-  (local-set-key (kbd "C-c C-e") 'my/outline-hide-other) ;; hides `elisp-eval-region-or-buffer'
-  (local-set-key (kbd "C-c TAB") 'outline-hide-body)
+  (keymap-local-set "<backtab>" 'outline-show-only-headings) ;; S-tab
+  (keymap-local-set "TAB" 'my/outline-tab) ;; rooted
+  (keymap-local-set "C-c C-e" 'my/outline-hide-other) ;; hides `elisp-eval-region-or-buffer'
+  (keymap-local-set "C-c TAB" 'outline-hide-body)
   ;; (define-key outline-minor-mode-map [S-tab] 'outline-show-all)
   (outline-hide-body)
 
@@ -2484,10 +2701,6 @@ Loop over `dired-listing-switches' +
 
 ;; (define-key dired-mode-map (kbd "C-c s") )
 ;; (dired-sort-other -arg )
-#+end_src
-***
-#+begin_src elisp
-
 #+end_src
 *** Tweeks: suggest path, buffer kill, trash, hl-line
 #+begin_src elisp
@@ -3193,26 +3406,27 @@ Deletion flag `dired-del-marker' is used."
       (call-interactively 'fill-paragraph)
       (setq fill-paragraph-function saved-fill-paragraph-function))
     ;; else - at list item
-    (if (org-in-item-p) ;
-        (let ((fill-prefix nil))
-          ;; region - skip code blocks
-          (if (and region transient-mark-mode mark-active
-                   (not (eq (region-beginning) (region-end))))
-              (let ((origin (point-marker))
-                          (start (region-beginning)))
-                      (unwind-protect
-                          (progn
-                            (goto-char (region-end))
-                            (skip-chars-backward " \t\n")
-                            (let ((org--single-lines-list-is-paragraph nil))
-                              (while (> (point) start)
-                                (if (not (org-babel-active-location-p)) ; my patch
-                                    (org-fill-element justify))
-                                (org-backward-paragraph)
-                                (skip-chars-backward " \t\n"))))
-                        (goto-char origin)
-                        (set-marker origin nil)))
-      ;; else - at list item
+    (let ((fill-prefix (if (org-in-item-p) nil
+                         ;; else
+                         fill-prefix)))
+      ;; region - skip code blocks
+      (if (and region transient-mark-mode mark-active
+               (not (eq (region-beginning) (region-end))))
+          (let ((origin (point-marker))
+                      (start (region-beginning)))
+                  (unwind-protect
+                      (progn
+                        (goto-char (region-end))
+                        (skip-chars-backward " \t\n")
+                        (let ((org--single-lines-list-is-paragraph nil))
+                          (while (> (point) start)
+                            (if (not (org-babel-active-location-p)) ; my patch
+                                (org-fill-element justify))
+                            (org-backward-paragraph)
+                            (skip-chars-backward " \t\n"))))
+                    (goto-char origin)
+                    (set-marker origin nil)))
+  ;; else - at list item
       ;; (if (org-in-item-p)
       ;;     (let ((fill-prefix nil)) ; fix to fill-paragraph to bullet indentation
       ;;       (fill-paragraph))
@@ -3222,7 +3436,7 @@ Deletion flag `dired-del-marker' is used."
         ;;   (fill-paragraph)
         ;;   )
             ;; else - others
-            (save-excursion (org-fill-paragraph)))))))
+            (save-excursion (org-fill-paragraph))))))
 
 #+end_src
 *** key: meta-return
@@ -3596,8 +3810,8 @@ If not in a list don't split, open new line and indent."
                            ;; (define-key org-mode-map [(control tab)] 'org-insert-structure-template)
                            ;; new line
                            (define-key org-mode-map [(meta j)] 'org-meta-return)
-                           (local-set-key (kbd "C-x t") 'company-math-symbols-unicode)
-                           (local-set-key (kbd "C-c v") 'org-footnote-action)
+                           (keymap-local-set "C-x t" 'company-math-symbols-unicode)
+                           (keymap-local-set "C-c v" 'org-footnote-action)
 
                            ;; - - replace arrows
                            ;; (define-key org-mode-map [(control meta f)] 'org-shiftmetaright)
@@ -3611,10 +3825,10 @@ If not in a list don't split, open new line and indent."
                            ;; - org-shiftleft - cycle list marks to left
                            ;; - org-shiftright - cycle list marks to righ
                            ;; we need: 1) cycling with a single key 2) change indentation with two directions
-                           (local-set-key (kbd "C-c C-f") 'org-shiftmetaright) ; shadow org-forward-heading-same-level
-                           (local-set-key (kbd "C-c C-b") 'org-shiftmetaleft) ; shadow org-backward-heading-same-level
-                           (local-set-key (kbd "C-c n") 'org-forward-heading-same-level)
-                           (local-set-key (kbd "C-c k") 'org-backward-heading-same-level)
+                           (keymap-local-set "C-c C-f" 'org-shiftmetaright) ; shadow org-forward-heading-same-level
+                           (keymap-local-set "C-c C-b" 'org-shiftmetaleft) ; shadow org-backward-heading-same-level
+                           (keymap-local-set "C-c n" 'org-forward-heading-same-level)
+                           (keymap-local-set "C-c k" 'org-backward-heading-same-level)
                            (define-key org-mode-map (kbd "C-'") 'org-shiftright)
                            (define-key org-mode-map (kbd "M-'") 'org-shiftleft)
                            ;; (define-key org-mode-map (kbd "C-c l") 'org-shiftleft)
@@ -3625,27 +3839,27 @@ If not in a list don't split, open new line and indent."
                            ;; begin of line:
                            ;; (define-key key-translation-map (kbd "M-a") (kbd "M-m"))
                            ;; (define-key key-translation-map (kbd "M-m") (kbd "M-a"))
-                           (local-set-key (kbd "M-h") 'backward-kill-word)
+                           (keymap-local-set "M-h" 'backward-kill-word)
                            ;; (define-key org-mode-map (kbd "M-h") 'backward-kill-word) ; redefine org-mark-element
 
-                           (local-set-key(kbd "C-c SPC") 'org-babel-mark-block) ; Do I really need this?
+                           (keymap-local-set "C-c SPC" 'org-babel-mark-block) ; Do I really need this?
 
                            ;; - - - C-e should be short and M-e should be long
-                           (local-set-key (kbd "M-e") (lambda () (interactive) (org-forward-sentence)))
-                           (local-set-key (kbd "M-a") (lambda () (interactive) (org-backward-sentence)))
-                           (local-set-key (kbd "C-e") 'my/org-forward-close)
-                           (local-set-key (kbd "C-a") 'my/org-backward-close)
+                           (keymap-local-set "M-e" (lambda () (interactive) (org-forward-sentence)))
+                           (keymap-local-set "M-a" (lambda () (interactive) (org-backward-sentence)))
+                           (keymap-local-set "C-e" 'my/org-forward-close)
+                           (keymap-local-set "C-a" 'my/org-backward-close)
 
                            ;; - - - up down - paragraph
-                           (local-set-key (kbd "M-p") 'my/org-backward-paragraph)
-                           (local-set-key (kbd "M-n") 'my/org-forward-paragraph)
+                           (keymap-local-set "M-p" 'my/org-backward-paragraph)
+                           (keymap-local-set "M-n" 'my/org-forward-paragraph)
 
 
                            ;; - - back from link C-c & -> M-,
-                           (local-set-key (kbd "M-,") 'org-mark-ring-goto)
+                           (keymap-local-set "M-," 'org-mark-ring-goto)
 
                            ;; cut word. C-c M-w - copy
-                           (local-set-key (kbd "C-c C-w") 'my/cut-word) ; hides org-refile
+                           (keymap-local-set "C-c C-w" 'my/cut-word) ; hides org-refile
 
                            ;; - - TAB key - hippie-expand-try-functions-list: expand-abbrev, org-cycle
                            ;; do not indent src block:
@@ -3654,14 +3868,14 @@ If not in a list don't split, open new line and indent."
                            ;; (setq company-backends '( company-capf company-keywords company-files company-dabbrev ))
                            ;; (setq company-backends '(  company-files company-dabbrev )) ; company-keywords company-capf
                            ;; (setq company-backends '(company-math-symbols-unicode company-keywords company-files company-abbrev company-dabbrev))
-                           (local-set-key (kbd "TAB") 'my/indent-or-complete-org)
-                           ;; (local-set-key (kbd "TAB") 'indent-for-tab-command)
+                           (keymap-local-set "TAB" 'my/indent-or-complete-org)
+                           ;; (keymap-local-set "TAB") 'indent-for-tab-command)
 
                            ;; - - hide other
-                           (local-set-key (kbd "C-c C-e") 'my/org-fold-hide-other) ;; hides org-export-dispatch
-                           (local-set-key (kbd "C-c e") 'org-export-dispatch)
+                           (keymap-local-set "C-c C-e" 'my/org-fold-hide-other) ;; hides org-export-dispatch
+                           (keymap-local-set "C-c e" 'org-export-dispatch)
                            ;; - - fix horizontal windows split for C-c '
-                           (local-set-key (kbd "C-c '") (lambda () (interactive)
+                           (keymap-local-set "C-c '" (lambda () (interactive)
                                                           (let
                                                               ((display-buffer-base-action
                                                                 (list '(
@@ -3678,7 +3892,7 @@ If not in a list don't split, open new line and indent."
                                                                        '(side . right))))
                                                             (call-interactively 'org-edit-special))
                                                           ) )
-                           (local-set-key (kbd "C-c C-o") (lambda () (interactive)
+                           (keymap-local-set "C-c C-o" (lambda () (interactive)
                                                             "not working properly."
                                                           (let
                                                               ((display-buffer-base-action
@@ -3694,20 +3908,20 @@ If not in a list don't split, open new line and indent."
                                                             (call-interactively 'org-open-at-point))
                                                           ) )
                            ;; - - - - ORG NEW LINE:
-                           (local-set-key "\C-o" 'my/open-previous-line)
-                           (local-set-key "\C-m" 'my/org-new-line-indented)
-                           (local-set-key "\M-m" 'electric-newline-and-maybe-indent)
-                           (local-set-key "\C-j" 'my/org-list-insert-item)
-                           ;; (local-set-key "\M-j" 'my/org-open-next-line-indent)
-                           (local-set-key "\M-j" 'my/org-open-next-line-indent-shift)
+                           (keymap-local-set "C-o" 'my/open-previous-line)
+                           (keymap-local-set "C-m" 'electric-newline-and-maybe-indent)
+                           (keymap-local-set "M-m" 'my/org-new-line-indented)
+                           (keymap-local-set "C-j" 'my/org-list-insert-item)
+                           ;; (keymap-local-set "\M-j" 'my/org-open-next-line-indent)
+                           (keymap-local-set "M-j" 'my/org-open-next-line-indent-shift)
 
-                           ;; (local-set-key (kbd "C-c j") 'my/org-open-next-line-indent-shift)
+                           ;; (keymap-local-set "C-c j") 'my/org-open-next-line-indent-shift)
 
                            ;; - - fix new line in src-block, just to prevous
-                           ;; (local-set-key "\C-m" (lambda () (interactive) (newline) (indent-relative) ) )
+                           ;; (keymap-local-set "\C-m" (lambda () (interactive) (newline) (indent-relative) ) )
 
-                           ;; (local-set-key "\M-m" 'my/new-line-stay-indent)
-                           ;; (local-set-key (kbd "M-RET") 'my/open-next-line) ; shadow `org-meta-return'
+                           ;; (keymap-local-set "\M-m" 'my/new-line-stay-indent)
+                           ;; (keymap-local-set "M-RET") 'my/open-next-line) ; shadow `org-meta-return'
 
                            ;; - - - move header
 
@@ -3734,8 +3948,8 @@ If not in a list don't split, open new line and indent."
                            ;;                                  (move-beginning-of-line nil)
                            ;;                                  (message "wtf3")
                            ;;                                  (other-window 1))
-                           ;; (local-set-key (kbd "C-c M-c") 'my/s)
-                           (local-set-key (kbd "C-c c") (lambda () (interactive)
+                           ;; (keymap-local-set "C-c M-c") 'my/s)
+                           (keymap-local-set "C-c c" (lambda () (interactive)
                                                             "open session of current source block in right window"
                                                             (if (org-babel-get-src-block-info)
                                                                 (progn
@@ -3750,13 +3964,13 @@ If not in a list don't split, open new line and indent."
                            ;; - - - disable Moving a tree to an archive file
                            (local-unset-key (kbd "C-c C-x C-s"))
                            ;; - - - jump to result of current source block - use M-} instead
-                           (local-set-key (kbd "C-c r") (lambda () (let ((location (org-babel-where-is-src-block-result)))
+                           (keymap-local-set "C-c r" (lambda () (let ((location (org-babel-where-is-src-block-result)))
                                                                        (when location
                                                                          (goto-char location)))))
                            ;; - - - fix: after C-q screen stay far away from right
-                           (local-set-key (kbd "M-q") #'my/org-fill-paragraph)
+                           (keymap-local-set "M-q" #'my/org-fill-paragraph)
                            ;; - - - Python source block redisplay image after block execution if inlineimages is on
-                           (local-set-key (kbd "C-c C-c") #'my/org-ctrl-c-ctrl-c)
+                           (keymap-local-set "C-c C-c" #'my/org-ctrl-c-ctrl-c)
 
                            ))
 
@@ -3842,7 +4056,7 @@ If not in a list don't split, open new line and indent."
                              (interactive)
                              (org-sort-entries nil ?f #'my/org-sort-key))
 
-                           (local-set-key (kbd "C-c s") 'my/org-sort-entries )
+                           (keymap-local-set "C-c s" 'my/org-sort-entries )
 
                            ;; tag words: TODO STARTED WAIT CANCEL
                            (setq org-todo-keyword-faces
@@ -4276,11 +4490,11 @@ was made."
 
 ;; - - Keys
 (defun my/programming-keys()
-  (local-set-key (kbd "M-;") 'comment-line)
-  (local-set-key (kbd "C-;") 'comment-dwim)
-  (local-set-key (kbd "C-c C-p") #'beginning-of-defun)
-  (local-set-key (kbd "C-c C-n") #'end-of-defun)
-  (local-set-key (kbd "C-c h") #'mark-defun)
+  (keymap-local-set "M-;" 'comment-line)
+  (keymap-local-set "C-;" 'comment-dwim)
+  (keymap-local-set "C-c C-p" #'beginning-of-defun)
+  (keymap-local-set "C-c C-n" #'end-of-defun)
+  (keymap-local-set "C-c h" #'mark-defun)
   )
 
 (add-hook 'python-mode-hook 'idle-highlight-mode)
@@ -4289,6 +4503,10 @@ was made."
 (add-hook 'yaml-mode-hook 'idle-highlight-mode)
 (add-hook 'emacs-lisp-mode-hook 'idle-highlight-mode)
 
+(add-hook 'python-mode-hook 'my/programming-keys)
+(add-hook 'python-ts-mode-hook 'my/programming-keys)
+(add-hook 'c-mode-common-hook 'my/programming-keys)
+(add-hook 'emacs-lisp-mode-hook 'my/programming-keys)
 #+end_src
 *** Demap - minimap - global key C-c i
 #+begin_src elisp
@@ -4300,25 +4518,25 @@ was made."
 
   ;; - keys
   (add-hook 'js-mode-hook (lambda ()
-                            (local-set-key "\C-c\ i" #'demap-toggle)))
+                            (keymap-local-set "C-c i" #'demap-toggle)))
   (add-hook 'sh-mode-hook (lambda ()
-                            (local-set-key "\C-c\ i" #'demap-toggle)))
+                            (keymap-local-set "C-c i" #'demap-toggle)))
   (add-hook 'ebuild-mode-hook (lambda ()
-                            (local-set-key "\C-c\ i" #'demap-toggle)))
+                            (keymap-local-set "C-c i" #'demap-toggle)))
   (add-hook 'js-ts-mode-hook (lambda ()
-                            (local-set-key "\C-c\ i" #'demap-toggle)))
+                            (keymap-local-set "C-c i" #'demap-toggle)))
   (add-hook 'python-mode-hook (lambda ()
-                            (local-set-key "\C-c\ i" #'demap-toggle)
+                            (keymap-local-set "C-c i" #'demap-toggle)
                             (demap-open)))
   (add-hook 'python-ts-mode-hook (lambda ()
-                            (local-set-key "\C-c\ i" #'demap-toggle)
+                            (keymap-local-set "C-c i" #'demap-toggle)
                             (demap-open)))
   (add-hook 'c-mode-hook (lambda ()
-                            (local-set-key "\C-c\ i" #'demap-toggle)))
+                            (keymap-local-set "C-c i" #'demap-toggle)))
   (add-hook 'yaml-mode-hook (lambda ()
-                            (local-set-key "\C-c\ i" #'demap-toggle)))
+                            (keymap-local-set "C-c i" #'demap-toggle)))
   (add-hook 'emacs-lisp-mode-hook (lambda ()
-                            (local-set-key "\C-c\ i" #'demap-toggle)))
+                            (keymap-local-set "C-c i" #'demap-toggle)))
   ;; - - open/close when buffer was switched
   (add-hook 'window-buffer-change-functions
             (lambda (arg) ; arg is frame object
@@ -4382,10 +4600,8 @@ list sexp or comment at current cursor position."
   (modify-syntax-entry ?\- "w"))
 
 (defun my/elisp-keys()
-  (local-set-key (kbd "C-c C-p") #'beginning-of-defun)
-  (local-set-key (kbd "C-c C-n") #'end-of-defun)
-  (local-set-key (kbd "M-i") #'describe-symbol) ; shadow `tab-to-tab-stop'
-  (local-set-key "\C-j" #'my/insert-new-sexp))
+  (keymap-local-set "M-i" #'describe-symbol) ; shadow `tab-to-tab-stop'
+  (keymap-local-set "C-j" #'my/insert-new-sexp))
 
 ;; ;; hook executed per buffer
 (add-hook 'emacs-lisp-mode-hook 'my/syntax-table-elisp)
@@ -4400,9 +4616,10 @@ list sexp or comment at current cursor position."
 #+begin_src elisp
 
 (defun my/exec-python ()
-  "Execute this command with filename of saved buffer."
+  "Execute this command with filename of saved buffer.
+Commonly binded in Language specific mode and in *Org Src* buffer."
   (interactive)
-  (my/exec-language "PYTHONPATH=. python3"))
+  (my/exec-language "PYTHONPATH=. python3" (current-buffer))) ; "*Org Src"...
 
 
 ;; (defun org-babel-edit-prep:python (info)
@@ -4537,17 +4754,17 @@ Optional argument ARGS ."
   (interactive)
 
   ;; - - - keybindings
-  (local-set-key (kbd "C-c C-b") 'python-indent-shift-left )
-  (local-set-key (kbd "C-c C-f") 'python-indent-shift-right ) ;; shadows python-eldoc-at-point
-  (local-set-key (kbd "C-c C-c") 'my/exec-python)
-  (local-set-key (kbd "C-c c") 'run-python) ; open REPL on remote machine too
-  (local-set-key (kbd "C-c C-o") 'python-sort-imports)
+  (keymap-local-set "C-c C-b" 'python-indent-shift-left )
+  (keymap-local-set "C-c C-f" 'python-indent-shift-right ) ;; shadows python-eldoc-at-point
+  (keymap-local-set "C-c C-c" 'my/exec-python)
+  (keymap-local-set "C-c c" 'run-python) ; open REPL on remote machine too
+  (keymap-local-set "C-c C-o" 'python-sort-imports)
 
-  ;; (local-set-key (kbd "C-M-l") 'backward-sexp)
-  ;; (local-set-key (kbd "C-M-f") 'forward-sexp)
+  ;; (keymap-local-set "C-M-l" 'backward-sexp)
+  ;; (keymap-local-set "C-M-f" 'forward-sexp)
 
   ;; - - - TAB key
-  ;; (local-set-key (kbd "TAB") 'my/indent-or-complete)
+  ;; (keymap-local-set "TAB" 'my/indent-or-complete)
 
 
   ;; - - - Python syntax checking - flymake python specific
@@ -4581,6 +4798,10 @@ Optional argument ARGS ."
 
 (add-hook 'python-mode-hook 'my/python-mode-hook)
 (add-hook 'python-ts-mode-hook 'my/python-mode-hook)
+
+;; Org babel command for python
+;; use: .bashrc: ln -fs /usr/local/bin/python3.11 /usr/bin/python
+;; (setq org-babel-python-command "python3")
 
 #+end_src
 **** python company-jedi
@@ -4657,9 +4878,13 @@ Optional argument ARGS ."
 (setq eglot-autoshutdown t) ; disconnect if all buffer closed
 ;; - - LSP server configuration - default
 (setq eglot-server-programs
-             '((python-ts-mode . ("127.0.0.1" 2087))
-               (python-mode . ("127.0.0.1" 2087))
-               )) ; default
+      '((python-ts-mode . ("pylsp"))
+        (python-mode . ("pylsp"))
+        )) ; default
+;; (setq eglot-server-programs
+;;              '((python-ts-mode . ("127.0.0.1" 2087))
+;;                (python-mode . ("127.0.0.1" 2087))
+;;                )) ; default
 ;; (setq-default eglot-workspace-configuration
 ;;             '(:pylsp (:plugins (:jedi_completion (:include_params t
 ;;                                                   :fuzzy t)
@@ -4698,7 +4923,19 @@ Optional argument ARGS ."
             ))
     )
     (eglot-ensure)
+    ;; (eglot)
   )
+
+(defun my/eglot-config-hack (&rest args)
+  (seq-let (managed-major-mode project class contact language-id) (car args)
+     (if (and buffer-file-name
+             (file-remote-p buffer-file-name))
+        (setq contact '("127.0.0.1" 2087))
+      ;; else "pylsp" by defalut from `eglot-server-programs' variable
+    )
+    (list managed-major-mode project class contact language-id)))
+
+(advice-add 'eglot--guess-contact :filter-return 'my/eglot-config-hack)
 
 ;; (add-hook 'python-mode-hook 'my/eglot-start)
 ;; (add-hook 'python-ts-mode-hook 'my/eglot-start)
@@ -4931,6 +5168,64 @@ If window already exist, close window and hence block ElDoc."
 ;; (add-hook 'python-mode-hook 'my/python-mode-hook)
 
 #+end_src
+**** Org source block at remote machine without "C-c '"
+#+begin_src elisp
+
+;; fix for ob-python.el to allow execute
+;; (org-babel-eval "ssh kvmka python3" "print(2)")
+
+(defun my/org-babel-python-evaluate-external-process (&rest args)
+  (print args)
+  )
+
+(advice-add 'org-babel-python-evaluate-external-process :before 'my/org-babel-python-evaluate-external-process)
+;; (defun my/org-babel-python-evaluate
+;;     (session body &optional result-type result-params preamble async)
+;;   (print (concat "session " session))
+;;   (print (concat "body " body))
+;;   (print (concat "result-type " (prin1-to-string result-type)))
+;;   (print (concat "result-params " (prin1-to-string result-params)))
+;;   (print (concat "preamble " (prin1-to-string preamble)))
+;;   (print (concat "async " (prin1-to-string async)))
+;;   (print "default-directory")
+;;   (print default-directory)
+;; )
+;; ;; (advice-add 'org-babel-python-evaluate :before #'my/org-babel-python-evaluate)
+;; (advice-remove 'org-babel-python-evaluate #'my/org-babel-python-evaluate)
+
+;; (defun my/org-babel-execute:python-advice (orig-fun &rest args)
+;;   ;; (seq-let (body params) args
+;;   ;;   (let ((dir (cdr (assq :dir params))))
+;;   ;;     (if dir
+;;   ;;         (let* ((host (substring fn 5 (1- (string-match "/" fn 5)))) ; 5 is "/ssh:" length
+;;   ;;                (org-babel-python-command (concat "ssh " host "python3")))
+
+;;   ;;           )
+;;   ;;     )
+;;   ;;   ))
+;;   ;; (let ((org-babel-python-command "ssh kvmka python3"))
+;;   ;;   (apply orig-fun args)
+;;   ;;   )
+;;     ;; (org-babel-python-evaluate-external-process
+;;     (print args)
+;;     (print default-directory)
+;;   )
+;; (advice-add 'org-babel-execute:python :around #'my/org-babel-execute:python-advice)
+;; ;; (advice-remove 'org-babel-execute:python  'my/org-babel-execute:python-advice)
+
+
+;; (defun my/org-babel-eval (orig-fun command query)
+;;   ;; (print orig-fun)
+;;   (funcall orig-fun "ssh kvmka python3" query)
+;;   )
+;; (advice-add 'org-babel-eval :around #'my/org-babel-eval)
+;; org-babel-execute:python
+;; (defun test-org-babel-execute:python(body params)
+;;   (prin1 params)
+;;   )
+;; (advice-add 'org-babel-execute:python :before #'test-org-babel-execute:python)
+
+#+end_src
 **** DONT WORKED
 #+begin_src elisp
 
@@ -5102,7 +5397,7 @@ If window already exist, close window and hence block ElDoc."
       ;; (setq c-default-style '((java-mode . "java")
       ;;                         (awk-mode . "awk")
       ;;                         (other . "free-group-style")))
-      (local-set-key "\M-." #'semantic-ia-fast-jump)
+      (keymap-local-set "M-." #'semantic-ia-fast-jump)
       ;; (setq python-indent-offset 4)
       ;; (setq-default c-basic-offset 4)
       (local-unset-key (kbd "C-M-a")) ; used for tabs ; beginning-of-defun
@@ -5171,12 +5466,12 @@ This function is called by `org-babel-execute-src-block'."
 (defun my/exec-perl ()
   "Execute this command with filename of saved buffer."
   (interactive)
-  (my/exec-language "PERLLIB=. perl"))
+  (my/exec-language "PERLLIB=. perl" (current-buffer)))
 
 (defun my/perl-mode-hook ()
   (setq flymake-no-changes-timeout 0.5)
-  (local-set-key "\C-c\C-n" 'flymake-goto-next-error)
-  (local-set-key "\C-c\C-c" 'my/exec-perl))
+  (keymap-local-set "C-c C-n" 'flymake-goto-next-error)
+  (keymap-local-set "C-c C-c" 'my/exec-perl))
 
 (add-hook 'perl-mode-hook 'flymake-mode)
 (add-hook 'perl-mode-hook 'my/perl-mode-hook)
@@ -5189,15 +5484,17 @@ This function is called by `org-babel-execute-src-block'."
 (defun my/exec-bash ()
   "Execute this command with filename of saved buffer."
   (interactive)
-  (my/exec-language "bash"))
+  (my/exec-language "bash" (current-buffer))) ; *Org Src ...
 
-;; (defun my/sh-mode-hook ()
-;;   (setq flymake-no-changes-timeout 0.5)
-;;   (local-set-key "\C-c\C-n" 'flymake-goto-next-error)
-;;   (local-set-key "\C-c\C-c" 'my/exec-bash))
+(defun my/sh-mode-hook ()
+  ;; (setq flymake-no-changes-timeout 0.5)
+  (keymap-local-set "C-c C-n" 'flymake-goto-next-error)
+  (keymap-local-set "C-c C-c" 'my/exec-bash)
+  ;; (keymap-set sh-mode-map "<remap> <sh-case>" 'my/exec-bash) ; shadow 'sh-case'
+  (keymap-local-set "C-x c" 'sh-case))
 
 ;; (add-hook 'sh-mode-hook 'flymake-mode)
-;; (add-hook 'sh-mode-hook 'my/sh-mode-hook)
+(add-hook 'sh-mode-hook 'my/sh-mode-hook)
 
 
 #+end_src
@@ -5682,9 +5979,16 @@ This function is called by `org-babel-execute-src-block'."
 
 
 (define-skeleton org-src-python
-  "org-tempo replacement"
+  "Python exec"
   ""
   "#+begin_src python :results output :exports both :session s1"
+  "\n\n"
+  "#+end_src")
+
+(define-skeleton org-src-python-remote
+  "org-tempo replacement"
+  ""
+  "#+begin_src python :results output :exports both :dir \"/ssh:host:\""
   "\n\n"
   "#+end_src")
 
@@ -5819,8 +6123,9 @@ This function is called by `org-babel-execute-src-block'."
 (define-skeleton org-src-shell-curl
   ""
   ""
-  "#+begin_src bash :shebang #!/bin/bash :results output :session s1\n"
+  "#+begin_src bash :results output\n"
   "alias curl=\"proxychains -f /home/user/proxychains.conf curl 2>/dev/null\"\n"
+  "curl | jq -M""\n"
   "#+end_src")
 ;; - now for chinese characters I use input method chinese-py-punct that have chinese-punct inside
 ;; (define-skeleton chinese-dot
@@ -5845,14 +6150,16 @@ This function is called by `org-babel-execute-src-block'."
     ("0-bar-character" "¦" nil)
     ;; ("gree" "" example)
     ;; 1 blank, shallow
-    ("1s-shallow" "" org-src-shallow)
-    ("1r-result-shallow" "" org-src-with-output)
+    ("1-shallow" "" org-src-shallow)
+    ;; ("1r-result-shallow" "" org-src-with-output)
 
     ;; 2 python
-    ("2p-python" "" org-src-python)
-    ("2i-img-python" "" org-src-python-img)
-    ("2tf-table-full-python" "" org-src-python-table-full)
-    ("2ne-noexec" "" org-src-python-no-exec)
+    ("2e-python" "" org-src-python)
+    ("2ne-python-noexec" "" org-src-python-no-exec)
+    ("2r-python-remote" "" org-src-python-remote)
+    ("2i-python-img" "" org-src-python-img)
+    ("2tf-python-table-full" "" org-src-python-table-full)
+
     ("2ta-noexec-tangle-python" "" org-src-python-no-exec-tangle)
 
     ;; ("2t" "" org-src-python-table)
@@ -6056,8 +6363,8 @@ This function is called by `org-babel-execute-src-block'."
                            ;; (define-key org-mode-map [(control tab)] 'org-insert-structure-template)
                            ;; new line
                              ;; (define-key org-mode-map [(meta j)] 'org-meta-return)
-                             (local-set-key (kbd "n") 'org-agenda-next-item)
-                             (local-set-key (kbd "k") 'org-agenda-previous-item)
+                             (keymap-local-set "n" 'org-agenda-next-item)
+                             (keymap-local-set "k" 'org-agenda-previous-item)
                              ;; (define-key (current-global-map) (kbd "C-n") 'org-agenda-next-item) ;; shadow org-agenda-capture
                              ;; (define-key (current-global-map) (kbd "C-k") 'org-agenda-previous-item) ;; shadow org-agenda-capture
                              ;; (define-key (current-global-map) (kbd "C-M-,") 'picture-movement-down)
@@ -6090,8 +6397,11 @@ This function is called by `org-babel-execute-src-block'."
     ;; do if emacs-pid == val, 5000=5sec
     ;; (print (type-of  msg))
     (if (eq (emacs-pid) val)
-        (async-shell-command (format "notify-send -i emacs 'in %s minutes: %s' ; \
-timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg)))
+        (call-process-shell-command (format "notify-send -i emacs 'in %s minutes: %s' ; \
+timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
+;;         (async-shell-command (format "notify-send -i emacs 'in %s minutes: %s' ; \
+;; timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
+        )
     )
 
 (setopt appt-disp-window-function #'my/display-msg)
@@ -6158,10 +6468,10 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg)))
 
 
 (defun my/multitran()
-  (local-set-key (kbd "C-c t e") 'my/multitran-at-pos-en )
-  (local-set-key (kbd "C-c t c") 'my/multitran-at-pos-ch )
-  (local-set-key (kbd "C-c t d") 'my/multitran-at-pos-ch-en )
-  (local-set-key (kbd "C-c t r") 'my/multitran-at-pos-ru )
+  (keymap-local-set "C-c t e" 'my/multitran-at-pos-en )
+  (keymap-local-set "C-c t c" 'my/multitran-at-pos-ch )
+  (keymap-local-set "C-c t d" 'my/multitran-at-pos-ch-en )
+  (keymap-local-set "C-c t r" 'my/multitran-at-pos-ru )
   )
 ;; org and markdown mode
 (add-hook 'org-mode-hook 'my/multitran)
@@ -6203,8 +6513,8 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg)))
 
 (add-hook 'yaml-mode-hook 'flymake-yamllint-setup)
 (add-hook 'yaml-mode-hook (lambda ()
-                            (local-set-key "\C-c\C-n" 'flymake-goto-next-error)
-                            (local-set-key "\C-c\C-k" 'flymake-goto-prev-error)
+                            (keymap-local-set "C-c C-n" 'flymake-goto-next-error)
+                            (keymap-local-set "C-c C-k" 'flymake-goto-prev-error)
                             ))
 
 ;; TODO:
@@ -6454,6 +6764,41 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg)))
 * test
 #+begin_src elisp
 
+;; - -
+
+;; (defvar number-line-overlays '()
+;;   "List of overlays for line numbers.")
+
+;; (make-variable-buffer-local 'number-line-overlays)
+
+;; (defun number-line-src-block ()
+;;   (interactive)
+;;   (save-excursion
+;;     (let* ((src-block (org-element-context))
+;;            (nlines (- (length
+;;                        (s-split
+;;                         "\n"
+;;                         (org-element-property :value src-block)))
+;;                       1)))
+;;       (goto-char (org-element-property :begin src-block))
+;;       (re-search-forward (regexp-quote (org-element-property :value src-block)))
+;;       (goto-char (match-beginning 0))
+
+;;       (loop for i from 1 to nlines
+;;             do
+;;             (beginning-of-line)
+;;             (let (ov)
+;;               (setq ov (make-overlay (point) (point)))
+;;               (overlay-put ov 'before-string (format "%3s" (number-to-string i)))
+;;               (add-to-list 'number-line-overlays ov))
+;;             (next-line))))
+
+;;   ;; now read a char to clear them
+;;   (read-key "Press a key to clear numbers.")
+;;   (mapc 'delete-overlay number-line-overlays)
+;;   (setq number-line-overlays '()))
+
+;; (number-line-src-block)
 ;; - - insert new Org item at bottom
 ;; org-beginning-of-item-list  org-end-of-item-list
 ;; org-previous-item 'org-insert-item' 'org-move-item-down'

@@ -1315,6 +1315,8 @@ Loop over `dired-listing-switches' +
     (revert-buffer)))
 #+end_src
 
+* Dired: How to filter files by extention?
+
 * How emacs behavior differ when run under root?
 C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
 - TAB is ascii C-i. ,
@@ -2261,3 +2263,23 @@ Password management in Emacs:
 - you can encrypt and decrypt files *.gpg automaticly or in Dired: https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
 - you can use "hidepw" package to just hide password on screen.
 - The standard unix password manager (or just pass) + https://github.com/emacsmirror/password-store or https://www.gnu.org/software/emacs/manual/html_node/auth/The-Unix-password-store.html
+* Eglot vs eglot-ensure
+Both can be simplified to (eglot--connect (eglot--guess-contact))
+
+eglot-server-programs holds CONTACT
+
+if you want to call eglot from Elisp: get return of (eglot--guess-contact t) and modify.
+
+Here is how you can modify *eglot--guess-contact*:
+#+begin_src elisp :results none :exports code :eval no
+(defun my/eglot-config-hack (&rest args)
+  (seq-let (managed-major-mode project class contact language-id) (car args)
+     (if (and buffer-file-name
+             (file-remote-p buffer-file-name))
+        (setq contact '("127.0.0.1" 2022))
+      ;; else "pylsp" by defalut from `eglot-server-programs' variable
+    )
+    (list managed-major-mode project class contact language-id)))
+
+(advice-add 'eglot--guess-contact :filter-return 'my/eglot-config-hack)
+#+end_src
