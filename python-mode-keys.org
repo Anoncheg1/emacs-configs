@@ -66,5 +66,5 @@ All programming modes keys:
 - C-c k	'beginning-of-defun
 - C-c n	'end-of-defun
 - C-c h	'mark-defun
-- C-c C-n	'my/go-to-next-occurrence
+- C-c C-n	'my/go-to-next-occurrence - to next word occurance or next header
 - C-c C-p	'my/go-to-prev-occurrence

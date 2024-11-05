@@ -110,6 +110,7 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - Dired: cycle sorting, not just toggle between by date / by name as it was by default.
 - Elisp: created “new line” function that insert new list sexp after list sexp or comment at current cursor position
 - theme cycling by time (circadian.el) with own theme modifications
+- fixed case when we jump to place that hidden with folded outline header
 
 TODO:
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.

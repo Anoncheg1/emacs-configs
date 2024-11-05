@@ -2537,6 +2537,27 @@ header. [rooted]"
 
 (add-hook 'outline-minor-mode-hook 'my/outline-mode-hook)
 
+(defun my/dired-do-rename (orig-fun &rest args)
+  "Dired fix for renaming a single file, it suggests the same
+ name instead of only a current directory."
+  (if (and (null (cdr (dired-get-marked-files nil args))) ; one file selected
+           (eq (length (window-list)) 1)) ; one window opened
+      (progn
+        (advice-add 'dired-dwim-target-directory :override #'my/dired-dwim-target-directory-advice)
+        (apply orig-fun args))
+    ;; else - many files selected
+    (apply orig-fun args)
+  ))
+(advice-add 'dired-do-rename :around #'my/dired-do-rename )
+
+
+(defun my/fix-xref-find-definitions (orig-fun &rest args)
+  "Fix bug when we jump to place that is hidden in folded header."
+  (outline-show-all)
+  (apply orig-fun args)
+  (outline-hide-other))
+(advice-add 'xref-find-definitions :around #'my/fix-xref-find-definitions)
+
 
 ;; - - - export tags
 ;; `org-scan-tags'
@@ -4602,20 +4623,46 @@ cursor position."
                            (match-end 0)))
               (if (not next)
                   (goto-char (1- (point))))
-              (message "Found '%s'" word))
+              (message "Found '%s'" word)
+              t)
           ;; else
-          (message "No '%s' found" word)))))
+          (message "No '%s' found" word)
+          nil))))
 
 
 (defun my/go-to-next-occurrence ()
+  "If at heading - go to next, if at word go to next same word.
+If next word was not found, go to next heading"
   (interactive)
-  ;; (if
-  (my/prevnext-occurrence t))
-  ;; (isearch-forward-symbol-at-point) (isearch-repeat-forward))
+  (if (and outline-minor-mode
+               (save-excursion
+                 (beginning-of-line)
+                 (if outline-search-function
+                     (funcall outline-search-function nil nil nil t)
+                   (looking-at outline-regexp))))
+          (outline-next-heading)
+    ;; else
+    (if (not (my/prevnext-occurrence t))
+        (if outline-minor-mode
+            (outline-next-heading)))))
+;; (isearch-forward-symbol-at-point) (isearch-repeat-forward))
 
 (defun my/go-to-prev-occurrence ()
+  "If at heading - go to prev, if at word go to prev same word.
+If prev word was not found, go to prev heading"
   (interactive)
-  (my/prevnext-occurrence nil))
+  (if (and outline-minor-mode
+               (save-excursion
+                 (beginning-of-line)
+                 (if outline-search-function
+                     (funcall outline-search-function nil nil nil t)
+                   (looking-at outline-regexp))))
+          (outline-previous-heading)
+    ;; else
+    (if (not (my/prevnext-occurrence nil))
+        (if outline-minor-mode
+            (outline-previous-heading)))))
+
   ;; (isearch-forward-symbol-at-point) (isearch-repeat-backward) (isearch-repeat-backward))
 #+end_src
 **** idle-highlight-mode
