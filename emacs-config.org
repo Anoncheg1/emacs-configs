@@ -2517,8 +2517,9 @@ header. [rooted]"
 (defun my/outline-mode-hook ()
   (print outline-regexp)
   ;; - - Problem here: outline-minor mode do not respect 'outline-regexp' and somehow reinitialize it.
-  (if (or (string-equal (file-name-nondirectory (buffer-file-name)) ".emacs")
-        (string-equal (file-name-nondirectory (buffer-file-name)) "init.el"))
+
+  (if (and (buffer-file-name) (or (string-equal (file-name-nondirectory  (buffer-file-name)) ".emacs")
+        (string-equal (file-name-nondirectory (buffer-file-name)) "init.el")))
       (setq outline-regexp ";; \\(\\-\\- \\)+"))
   ;; (setq outline-heading-end-regexp "\n")
   ;; (define-key outline-minor-mode-map (kbd "C-x i") 'outline-toggle-children) ;;
@@ -4608,6 +4609,7 @@ cursor position."
 
 (defun my/go-to-next-occurrence ()
   (interactive)
+  ;; (if
   (my/prevnext-occurrence t))
   ;; (isearch-forward-symbol-at-point) (isearch-repeat-forward))
 
