@@ -22,12 +22,11 @@
 - M-.			(xref-find-definitions) - for symbol at cursor
 - M-,			(xref-go-back)
 - C-M-,		(xref-go-forward)
-- C-M-u	backward-up-list - go to first line of current block
-- M-x pdb	Debugger
-- C-x C-a	Debugger keys prefix
+- C-M-u		backward-up-list - go to first line of current block
+- M-x pdb		Debugger
+- C-x C-a		Debugger keys prefix
 
 ## New:
-
 
 Custom common:
 - M-;			(comment-line)
@@ -37,6 +36,7 @@ Custom common:
 - C-M-u		(backward-up-list)  - by dafult
 - C-c h		(mark-defun)
 - C-c i		(demap-toggle)
+- C-c j		(mc/mark-all-like-this-dwim)
 
 Custom Python mode:
 - C-c c		(run-python) - on remote machine
@@ -53,3 +53,18 @@ Custom Eglot
 
 May be useful:
 - M-x treesit-check-indent
+
+
+Templates available with
+- M-x python-skl...
+- M-x python-skeleton...
+- and with TAB starting with “0”
+
+All programming modes keys:
+- M-;		'comment-line
+- C-;		'comment-dwim
+- C-c k	'beginning-of-defun
+- C-c n	'end-of-defun
+- C-c h	'mark-defun
+- C-c C-n	'my/go-to-next-occurrence
+- C-c C-p	'my/go-to-prev-occurrence

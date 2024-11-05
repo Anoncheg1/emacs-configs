@@ -1,5 +1,6 @@
 In “C-c ‘“ Eglot not supported.
 
+* remove:
 To edit remote use C-x C-f /ssh:sshconfigrecord:
 - C-c C-c working on remote
 
@@ -7,13 +8,58 @@ For remote, working in “C-c ‘“ and directly with C-c C-c:
 : #+begin_src python :dir "/ssh:host:"
 : #+end_src
 
-not supported:
+not supported for remote:
 : :session s1
 
+** You may use RESULT as a value in other source block
+But this will require to execute first block fully when you do C-c C-c
+ at second block. Value passed as a string.
 
+#+name: tossit
+#+begin_src python :results output :dir "/ssh:host:"
+print("String value.")
+#+end_src
 
+#+begin_src python :results output :var vv=tossit :exports both :session s1
+print(vv)
+#+end_src
 
-For troubleshooting use:
+#+begin_src python :results output :exports both :session s1
+print(vv)
+#+end_src
+
+** You may use RESULT as a value in other source block 2
+To pass value with structure use dict and JSON format.
+
+#+name: tossit2
+#+begin_src python :results output :dir "/ssh:host:"
+import json
+print(json.dumps({"x": "String value."}))
+#+end_src
+
+#+RESULTS: tossit2
+: {"x": "String value."}
+
+#+begin_src python :results output :var vv=tossit2 :exports both :session s1
+import json
+print(vv)
+vv2 = json.loads(vv)
+print(vv2)
+#+end_src
+
+#+RESULTS:
+: {"x": "String value."}
+:
+: {'x': 'String value.'}
+
+#+begin_src python :results output :exports both :session s1
+print(vv2['x'])
+#+end_src
+
+#+RESULTS:
+: String value.
+
+* For troubleshooting use:
 #+begin_src elisp :results output :exports both
 (let ((default-directory "/ssh:host:/root/"))
 (org-babel-eval "python" "import sys; print(sys.path)"))

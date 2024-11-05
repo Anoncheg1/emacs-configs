@@ -65,7 +65,7 @@
  '(org-src-preserve-indentation t)
  '(org-startup-folded t)
  '(package-selected-packages
-'(circadian demap dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search idle-highlight-mode csv-mode free-keys flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
+'(circadian dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search idle-highlight-mode csv-mode free-keys flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
  '(safe-local-variable-values '((org-image-actual-width . 500)))
  '(size-indication-mode t)
  '(speedbar-show-unknown-files t))
@@ -884,7 +884,9 @@ EXEC-FILE-COMMAND for example may be: \"PYTHONPATH=. python\"."
                     (progn
                       ;; (print exec-file-command)
                       (shell-command (concat "xdotool search emacs_" langnamestr " windowclose")) ;; alala is window name that we use to close and open again
-                      (shell-command (concat "xfce4-terminal*title \"emacs_" langnamestr "\" -e \"bash -c '" exec-file-command " " fn " ; bash ;'\"")))
+                      (async-shell-command (concat "xfce4-terminal*title \"emacs_" langnamestr "\" -e \"tmux new-session \\\"bash -c '" exec-file-command " " fn " ; bash ;'\\\"\""))
+                      ;; (shell-command (concat "xfce4-terminal*title \"emacs_" langnamestr "\" -e \"bash -c '" exec-file-command " " fn " ; bash ;'\"")))
+                      )
                     )
                   )))
 #+end_src
@@ -1030,12 +1032,20 @@ and preserve a point position."
 (global-set-key (kbd "C-р") 'delete-backward-char)
 (global-set-key (kbd "C-.") 'undo)
 
-(global-set-key (kbd "C-а") 'forward-char)
-(global-set-key (kbd "C-д") 'backward-char)
-(global-set-key (kbd "C-л") 'previous-line)
-(global-set-key (kbd "C-т") 'next-line)
-(global-set-key (kbd "C-ф") 'next-line)
-(global-set-key (kbd "C-у") 'move-end-of-line)
+;; (global-set-key (kbd "C-а") 'forward-char)
+(define-key key-translation-map (kbd "C-а") (kbd "C-f"))
+;; (global-set-key (kbd "C-д") 'backward-char)
+(define-key key-translation-map (kbd "C-д") (kbd "C-l"))
+;; (global-set-key (kbd "C-л") 'previous-line)
+(define-key key-translation-map (kbd "C-л") (kbd "C-p"))
+;; (global-set-key (kbd "C-т") 'next-line)
+(define-key key-translation-map (kbd "C-т") (kbd "C-n"))
+;; (global-set-key (kbd "C-ф") 'next-line)
+(define-key key-translation-map (kbd "C-ф") (kbd "C-a"))
+;; (global-set-key (kbd "C-у") 'move-end-of-line)
+(define-key key-translation-map (kbd "C-у") (kbd "C-e"))
+(define-key key-translation-map (kbd "C-ь") (kbd "C-m"))
+(define-key key-translation-map (kbd "C-о") (kbd "C-j"))
 #+end_src
 ** minibuffer M-x: previous command, next command
 #+begin_src elisp
@@ -1055,14 +1065,16 @@ and preserve a point position."
 ;; ^ C-k
 ;; _ C-n
 (define-key key-translation-map (kbd "C-l") (kbd "C-b")) ;; left
-(define-key key-translation-map (kbd "C-b") (kbd "C-l"))
+;; (define-key key-translation-map (kbd "C-b") (kbd "C-l")) ;; preserve for the left hand
+(define-key key-translation-map (kbd "C-t") (kbd "C-l")) ; shadow 'transpose-chars'
 (define-key key-translation-map (kbd "C-k") (kbd "C-p")) ;; up
 (define-key key-translation-map (kbd "C-p") (kbd "C-k"))
 (define-key key-translation-map (kbd "M-k") (kbd "M-p")) ;; up paragraph
 (define-key key-translation-map (kbd "M-p") (kbd "M-k"))
 (define-key key-translation-map (kbd "M-k") (kbd "M-p"))  ;; kill line
 (define-key key-translation-map (kbd "M-l") (kbd "M-b")) ;; backward-word
-(define-key key-translation-map (kbd "M-b") (kbd "M-l")) ;; downcase-word M-b now
+;; (define-key key-translation-map (kbd "M-b") (kbd "M-l")) ;; downcase-word M-b now - for left hand
+(define-key key-translation-map (kbd "M-t") (kbd "M-l")) ; shadow 'transpose-words'
 
 ;; swap go to the begining of line
 ;; (define-key key-translation-map (kbd "C-a") (kbd "M-a"))
@@ -1094,6 +1106,17 @@ and preserve a point position."
 ;;                                                  (call-interactively 'forward-sexp)
 ;;                                                  (call-interactively 'backward-sexp)))
 
+#+end_src
+*** Left hand navigation: next/previous line, and "Enter/new line"
+#+begin_src elisp
+
+(global-set-key  (kbd "C-z") #'next-line) ; rooted
+;; (define-key key-translation-map (kbd "C-z") (kbd "C-n"))
+;; (global-set-key (kbd "M-z") #'previous-line) ; shadow `zap-to-char' rooted
+(define-key key-translation-map (kbd "M-z") (kbd "C-p")) ; shadow `zap-to-char' rooted
+;; (global-set-key (kbd "C-M-a") #'previous-buffer) ; shadow beginning-of-defun
+;; (global-set-key (kbd "C-M-e") #'next-buffer) ; shadow end-of-defun
+(define-key key-translation-map (kbd "C-M-q") (kbd "RET")) ; shadow `indent-pp-sexp'
 #+end_src
 ** toggle windows split for 2 windows
 #+begin_src elisp
@@ -1482,7 +1505,7 @@ and preserve a point position."
         (call-interactively 'move-beginning-of-line))))
 
 (defun my/remapcame ()
-;; C-a should be close range, M-a long range
+  ;; C-a should be close range, M-a long range
   (keymap-local-set "C-a" 'my/begining-of-the-line)
   (keymap-local-set "M-a" 'move-beginning-of-line)
   ;; (local-set-key (kbd "C-a") )
@@ -1511,7 +1534,7 @@ and preserve a point position."
   (when isearch-mode
     (isearch-abort))
   (if (switch-to-minibuffer)
-        (minibuffer-keyboard-quit))
+      (minibuffer-keyboard-quit))
   ;; (let ((cw (selected-window)))
   ;;   (when (call-interactively 'switch-to-minibuffer)
   ;;       (minibuffer-keyboard-quit)
@@ -1681,7 +1704,9 @@ test and will kill actually."
 
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+;; (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c j") 'mc/mark-all-like-this-dwim)
+;; (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
 
 #+end_src
@@ -1876,8 +1901,11 @@ test and will kill actually."
 (setq zone-programs (remove 'zone-pgm-rat-race zone-programs))
 (setq zone-programs (remove 'zone-pgm-jitter zone-programs))
 ;; Error running timer ‘zone’: (wrong-type-argument frame-live-p #<dead frame *zone* • 0x558dc90ae248>)
+;; Error running timer ‘zone’: (wrong-type-argument frame-live-p #<dead frame *zone todo* • 0x55729dd2b6f0>)
 (setq zone-programs (remove 'zone-pgm-rotate zone-programs))
-(setq zone-programs (remove 'zone-pgm-rotate-RL-lockstep zone-programs))
+;; zone-pgm-putz-with-case zone-pgm-drip-fretfully
+
+;; (setq zone-programs (remove 'zone-pgm-rotate-RL-lockstep zone-programs))
 (setq zone-programs (remove 'zone-pgm-five-oclock-swan-dive zone-programs))
 (setq zone-programs (remove 'zone-pgm-random-life zone-programs))
 (setq zone-programs (remove 'zone-pgm-drip zone-programs))
@@ -1891,10 +1919,14 @@ test and will kill actually."
                         "zone-pgm-random-life"))
 
 (defvar my/zone-hungry '("zone-pgm-dissolve"
-                         "zone-pgm-jitter"))
+                         "zone-pgm-jitter"
+
+                         ))
 
 (defvar my/zone-demanding '("zone-pgm-rotate"
                             "zone-pgm-rotate-LR-lockstep"
+                            "zone-pgm-rotate-RL-lockstep"
+                            "zone-pgm-rotate-LR-variable"
                             "zone-pgm-rotate-RL-variable"
                             "zone-pgm-paragraph-spaz"))
 
@@ -2100,14 +2132,14 @@ run a specific program.  The program must be a member of
               (show-trailing-whitespace nil)
               ;; Make `restore' a self-disabling one-shot thunk.
               ( restore ))
-          (setq restore (lambda ()
+          (setq restore (lambda (f cf outbuf)
                           "access to cf, f and outbuff"
-                          (when ct
-                            (modify-frame-parameters
-                             f (list (cons 'cursor-type ct))))
                           (kill-buffer outbuf)
-                          (setq restore nil)))
-          (when ct
+                          (setq restore nil)
+                          (when (and ct f)
+                            (modify-frame-parameters
+                             f (list (cons 'cursor-type ct))))))
+          (when (and ct f)
             (modify-frame-parameters f '((cursor-type . (bar . 0)))))
 
           (condition-case nil
@@ -2124,17 +2156,17 @@ run a specific program.  The program must be a member of
                 (message "Zoning...sorry"))
             ((debug error) nil)
             (error
-             (funcall restore)
+             (funcall restore f ct outbuf)
              (while (not (input-pending-p))
                (message "We were zoning when we wrote %s..." pgm)
                (sit-for 3)
                (message "...here's hoping we didn't hose your buffer!")
                (sit-for 3)))
             (quit
-             (funcall restore)
+             (funcall restore f ct outbuf)
              (ding)
              (message "Zoning...sorry")))
-          (when restore (funcall restore)))))
+          (when restore (funcall restore f ct outbuf)))))
 
 #+end_src
 ** expand-region - one key for selecting everything (experiment)
@@ -2251,12 +2283,12 @@ run a specific program.  The program must be a member of
 *** save directories
 #+begin_src elisp
 
-(defun my/find-file-hook (filename &optional wildcards)
-  "Add directory that was opened with find-file commands."
-  (if (file-directory-p filename)
-      (recentf-add-file filename)))
+;; (defun my/find-file-hook (filename &optional wildcards)
+;;   "Add directory that was opened with find-file commands."
+;;   (if (file-directory-p filename)
+;;       (recentf-add-file filename)))
 
-(advice-add 'find-file :before #'my/find-file-hook)
+;; (advice-add 'find-file :before #'my/find-file-hook)
 #+end_src
 *** save only remote files
 #+begin_src elisp
@@ -2383,15 +2415,6 @@ If this window is splitted and small, just use current window."
 (with-eval-after-load 'python
   (define-key python-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `python-shell-switch-to-shell'
 #+end_src
-*** next/previous line
-#+begin_src elisp
-
-(global-set-key  (kbd "C-z") #'next-line) ; rooted
-(global-set-key (kbd "M-z") #'previous-line) ; shadow `zap-to-char' rooted
-
-;; (global-set-key (kbd "C-M-a") #'previous-buffer) ; shadow beginning-of-defun
-;; (global-set-key (kbd "C-M-e") #'next-buffer) ; shadow end-of-defun
-#+end_src
 *** messages (rooted)
 #+begin_src elisp
 
@@ -2492,17 +2515,22 @@ header. [rooted]"
 
 
 (defun my/outline-mode-hook ()
-  (setq outline-regexp ";; \\(\\-\\- \\)+")
-  (setq outline-heading-end-regexp "\n")
+  (print outline-regexp)
+  ;; - - Problem here: outline-minor mode do not respect 'outline-regexp' and somehow reinitialize it.
+  (if (or (string-equal (file-name-nondirectory (buffer-file-name)) ".emacs")
+        (string-equal (file-name-nondirectory (buffer-file-name)) "init.el"))
+      (setq outline-regexp ";; \\(\\-\\- \\)+"))
+  ;; (setq outline-heading-end-regexp "\n")
   ;; (define-key outline-minor-mode-map (kbd "C-x i") 'outline-toggle-children) ;;
   ;; (define-key outline-minor-mode-map (kbd "C-c TAB") 'outline-toggle-children) ;;
-  (keymap-local-set "<backtab>" 'outline-show-only-headings) ;; S-tab
+  (keymap-local-set "<backtab>" 'outline-cycle-buffer) ;; S-tab
   (keymap-local-set "TAB" 'my/outline-tab) ;; rooted
   (keymap-local-set "C-c C-e" 'my/outline-hide-other) ;; hides `elisp-eval-region-or-buffer'
-  (keymap-local-set "C-c TAB" 'outline-hide-body)
+  ;; (keymap-local-set "C-c TAB" 'outline-hide-body)
   ;; (define-key outline-minor-mode-map [S-tab] 'outline-show-all)
-  (outline-hide-body)
-
+  ;; (outline-hide-body)
+  (setq outline-default-state 'outline-show-only-headings)
+  (outline-apply-default-state)
   (add-hook 'isearch-mode-hook 'my/outline-header-search nil t) ;; LOCAL = t
   )
 
@@ -2710,7 +2738,7 @@ Loop over `dired-listing-switches' +
 ;; Suggest target path when copy files if there is two windows M-x split-window-* -
 (setopt dired-dwim-target 'dired-dwim-target-next)
 ;; trash
-(setopt delete-by-moving-to-trash t)
+(setopt delete-by-moving-to-trash nil)
 ;; highlight current line
 (add-hook 'dired-mode-hook #'hl-line-mode)
 
@@ -2755,11 +2783,10 @@ Loop over `dired-listing-switches' +
 *** Keys rebindings
 #+begin_src elisp
 
-(defun my/dired-unmark-one-line()
-  "BACKSPACE - dired-unmark-backward with universal argument."
-  (interactive)
-  (dired-unmark (- 1) t))
-(define-key dired-mode-map "\C-h" #'my/dired-unmark-one-line)
+#+end_src
+**** all
+#+begin_src elisp
+
 ;; just copy text
 (define-key dired-mode-map "\M-w" #'kill-ring-save)
 (define-key dired-mode-map (kbd "C-c w") #'dired-copy-filename-as-kill)
@@ -2770,11 +2797,26 @@ Loop over `dired-listing-switches' +
 (define-key dired-mode-map (kbd "<backspace>") #'dired-up-directory)
 (define-key dired-mode-map (kbd "DEL") #'dired-up-directory)
 (define-key dired-mode-map (kbd "<delete>") #'dired-up-directory)
+(define-key dired-mode-map (kbd "M-u") #'dired-unmark-all-marks) ; shadow 'dired-unmark M-U old
+(define-key dired-mode-map (kbd "M-u") #'dired-unmark-all-marks)
 
 ;; rebind ^ up
 (define-key dired-mode-map "\C-j" #'dired-up-directory) ;; shadow #'universal-argument
 ;; open shell
 (define-key dired-mode-map (kbd "M-!") (lambda () (interactive) (call-process-shell-command "xfce4-terminal -e tmux&" nil 0)))
+#+end_src
+**** my/dired-unmark-one-line
+#+begin_src elisp
+
+(defun my/dired-unmark-one-line()
+  "BACKSPACE - dired-unmark-backward with universal argument."
+  (interactive)
+  (dired-unmark (- 1) t))
+(define-key dired-mode-map "\C-h" #'my/dired-unmark-one-line)
+#+end_src
+**** C-x C-j my/dired-jump
+#+begin_src elisp
+
 ;; C-u C-x C-j
 (defun my/dired-jump (args)
   "Open Dired at left side, or just open Dired."
@@ -2786,6 +2828,28 @@ Loop over `dired-listing-switches' +
     ;; else
     (dired-jump)))
 (global-set-key (kbd "C-x C-j") #'my/dired-jump)
+
+#+end_src
+**** M-m Toggle mark with single key (selection region support)
+#+begin_src elisp
+
+(defun my/dired-toggle-marks ()
+  "Just toggle mark, line or region"
+  (interactive)
+  (if (region-active-p)
+      (dired-toggle-marks)
+    ;; else - select line and toggle mark
+    (save-excursion
+      (set-mark (line-beginning-position))
+      (end-of-line)
+      (dired-toggle-marks))
+    (forward-line) (dired-move-to-filename) ; forward line
+    ))
+
+;; (define-key dired-mode-map (kbd "m") #'my/dired-toggle-marks)
+(define-key firstly-search-dired-mode-map (kbd "M-m") #'my/dired-toggle-marks) ; shadow 'dired-mark
+
+
 
 #+end_src
 *** Use Xfce4 thumbnails 128x128
@@ -3000,27 +3064,6 @@ Loop over `dired-listing-switches' +
 ;;   (apply #'my/dired-copy-filename-as-kill args)
 ;;   )
 ;; (advice-add 'dired-copy-filename-as-kill :around #'dired-copy-filename-as-kill-advice)
-
-
-#+end_src
-*** Toggle mark with single key (selection region support)
-#+begin_src elisp
-
-(defun my/dired-toggle-marks ()
-  "Just toggle mark, line or region"
-  (interactive)
-  (if (region-active-p)
-      (dired-toggle-marks)
-    ;; else - select line and toggle mark
-    (save-excursion
-      (set-mark (line-beginning-position))
-      (end-of-line)
-      (dired-toggle-marks))
-    (forward-line) (dired-move-to-filename) ; forward line
-    ))
-
-;; (define-key dired-mode-map (kbd "m") #'my/dired-toggle-marks)
-(define-key firstly-search-dired-mode-map (kbd "C-;") #'my/dired-toggle-marks)
 
 
 #+end_src
@@ -3287,6 +3330,46 @@ Deletion flag `dired-del-marker' is used."
               ))
 (advice-add 'dired-next-line :around #'my/dired-preserve-column)
 (advice-add 'dired-previous-line :around #'my/dired-preserve-column)
+#+end_src
+*** Fix: quote filename for when there [ in name for thumbnails
+#+begin_src elisp
+
+(defun image-dired-list-tags (file)
+  "Read all tags for image FILE from the image database.
+Value is a list of all tags for FILE."
+  (message "MYYYYYYYYY")
+  (image-dired-sane-db-file)
+  (image-dired--with-db-file
+    (let (end (tags ""))
+      (when (search-forward-regexp (format "^%s" (regexp-quote file)) nil t)
+        (end-of-line)
+        (setq end (point))
+        (beginning-of-line)
+        (if (search-forward ";" end t)
+            (if (search-forward "comment:" end t)
+                (if (search-forward ";" end t)
+                    (setq tags (buffer-substring (point) end)))
+              (setq tags (buffer-substring (point) end)))))
+      (split-string tags ";"))))
+
+(defun image-dired-get-comment (file)
+  "Get comment for file FILE."
+  (image-dired-sane-db-file)
+  (image-dired--with-db-file
+    (let (end comment-beg-pos comment-end-pos comment)
+      ;; (when (search-forward-regexp (format "^%s" file) nil t)
+      (when (search-forward-regexp (format "^%s" (regexp-quote file)) nil t)
+        (end-of-line)
+        (setq end (point))
+        (beginning-of-line)
+        (when (search-forward ";comment:" end t)
+          (setq comment-beg-pos (point))
+          (if (search-forward ";" end t)
+              (setq comment-end-pos (- (point) 1))
+            (setq comment-end-pos end))
+          (setq comment (buffer-substring
+                         comment-beg-pos comment-end-pos))))
+      comment)))
 #+end_src
 ** Bookmarks
 #+begin_src elisp
@@ -3582,6 +3665,9 @@ depending on context.
         (if (eq p (point)) ; not changed
             (beginning-of-line)
           )))
+     ((eq el-type 'example-block)
+      (call-interactively #'back-to-indentation-or-beginning)
+      )
      (t
       ;; (print (org-element-at-point))
       ;; (print el-type)
@@ -3721,8 +3807,7 @@ Like (outline-hide-other) (org-reveal) but better."
   ;; (goto-char (org-babel-where-is-src-block-result))
   ;; scroll other window to the endpo
   (if (string-equal-ignore-case "python" (org-element-property :language (org-element-context)))
-      (end-of-buffer-other-window nil))
-  )
+      (end-of-buffer-other-window nil)))
 
 (defun my/indent-or-complete-org ()
   "TAB key for Org mode"
@@ -3964,7 +4049,7 @@ If not in a list don't split, open new line and indent."
                            ;; - - - disable Moving a tree to an archive file
                            (local-unset-key (kbd "C-c C-x C-s"))
                            ;; - - - jump to result of current source block - use M-} instead
-                           (keymap-local-set "C-c r" (lambda () (let ((location (org-babel-where-is-src-block-result)))
+                           (keymap-local-set "C-c r" (lambda () (interactive) (let ((location (org-babel-where-is-src-block-result)))
                                                                        (when location
                                                                          (goto-char location)))))
                            ;; - - - fix: after C-q screen stay far away from right
@@ -4008,6 +4093,9 @@ If not in a list don't split, open new line and indent."
 
 
 (add-hook 'org-mode-hook (lambda ()
+                           ;; - - org-beamer - disable
+                           (org-beamer-mode -1)
+
 
                            ;; - - link's opening with firefox C-c C-o - (org-open-at-point) calls (org-link-open) which uses the variable (org-link-parameters)
                            ;; - - Firefox can not open link :-(
@@ -4365,11 +4453,13 @@ return the value of the last statement in BODY."
             (org-babel-import-elisp-from-file tmp-file)))))))
 
 #+end_src
-*** org-beamer - disable
+*** org-beamer - disable (old)
 #+begin_src elisp
 
-(with-eval-after-load 'ox-beamer
-  (org-beamer-mode -1))
+;; (with-eval-after-load 'ox-beamer
+;;   (org-beamer-mode -1))
+
+;; (add-hook 'org-mode-hook 'my/syntax-table-elisp)
 
 #+end_src
 ** Electric quote mode for Org and Markdown modes
@@ -4481,6 +4571,54 @@ was made."
 *** all programming modes
 #+begin_src elisp
 
+#+end_src
+**** function next/prev occurrence of word
+#+begin_src elisp
+
+(defun my/prevnext-occurrence (next)
+  "Search for the next or previous occurrence of the word at the
+cursor position."
+  (if (string-match-p "[-_A-Za-z0-9]" (char-to-string (char-after (point))))
+      (let ((bound 600)
+            (word))
+        (save-excursion
+          (skip-chars-backward "-_A-Za-z0-9")
+          (setq word (buffer-substring-no-properties
+                      (point)
+                      (progn (forward-word 1) (point)))))
+        (if (save-excursion
+              (goto-char (if next
+                             (1+ (point))
+                           (1- (point))))
+              (if next
+                  (re-search-forward (concat "\\b" (regexp-quote word) "\\b")
+                                     (+ (point) bound) t)
+                (re-search-backward (concat "\\b" (regexp-quote word) "\\b")
+                                    (- (point) bound) t)))
+            (progn
+              (goto-char (if next
+                             (match-beginning 0)
+                           (match-end 0)))
+              (if (not next)
+                  (goto-char (1- (point))))
+              (message "Found '%s'" word))
+          ;; else
+          (message "No '%s' found" word)))))
+
+
+(defun my/go-to-next-occurrence ()
+  (interactive)
+  (my/prevnext-occurrence t))
+  ;; (isearch-forward-symbol-at-point) (isearch-repeat-forward))
+
+(defun my/go-to-prev-occurrence ()
+  (interactive)
+  (my/prevnext-occurrence nil))
+  ;; (isearch-forward-symbol-at-point) (isearch-repeat-backward) (isearch-repeat-backward))
+#+end_src
+**** idle-highlight-mode
+#+begin_src elisp
+
 (require 'idle-highlight-mode)
 (add-hook 'python-mode-hook 'idle-highlight-mode)
 (add-hook 'python-ts-mode-hook 'idle-highlight-mode)
@@ -4488,27 +4626,26 @@ was made."
 (add-hook 'yaml-mode-hook 'idle-highlight-mode)
 (add-hook 'emacs-lisp-mode-hook 'idle-highlight-mode)
 
-;; - - Keys
+#+end_src
+**** Keys
+#+begin_src elisp
+
 (defun my/programming-keys()
   (keymap-local-set "M-;" 'comment-line)
   (keymap-local-set "C-;" 'comment-dwim)
-  (keymap-local-set "C-c C-p" #'beginning-of-defun)
-  (keymap-local-set "C-c C-n" #'end-of-defun)
+  (keymap-local-set "C-c k" #'beginning-of-defun)
+  (keymap-local-set "C-c n" #'end-of-defun)
   (keymap-local-set "C-c h" #'mark-defun)
+  (keymap-local-set "C-c C-n" #'my/go-to-next-occurrence)
+  (keymap-local-set "C-c C-p" #'my/go-to-prev-occurrence)
   )
-
-(add-hook 'python-mode-hook 'idle-highlight-mode)
-(add-hook 'python-ts-mode-hook 'idle-highlight-mode)
-(add-hook 'c-mode-common-hook 'idle-highlight-mode)
-(add-hook 'yaml-mode-hook 'idle-highlight-mode)
-(add-hook 'emacs-lisp-mode-hook 'idle-highlight-mode)
 
 (add-hook 'python-mode-hook 'my/programming-keys)
 (add-hook 'python-ts-mode-hook 'my/programming-keys)
 (add-hook 'c-mode-common-hook 'my/programming-keys)
 (add-hook 'emacs-lisp-mode-hook 'my/programming-keys)
 #+end_src
-*** Demap - minimap - global key C-c i
+**** Demap - minimap - global key C-c i
 #+begin_src elisp
 
 (with-eval-after-load 'demap
@@ -4546,6 +4683,16 @@ was made."
                 (demap-close)
                 )))
 )
+
+#+end_src
+**** line numbers
+#+begin_src elisp
+
+(setq display-line-numbers-width 5)
+(add-hook 'python-mode-hook 'display-line-numbers-mode)
+(add-hook 'python-ts-mode-hook 'display-line-numbers-mode)
+(add-hook 'c-mode-common-hook 'display-line-numbers-mode)
+(add-hook 'emacs-lisp-mode-hook 'display-line-numbers-mode)
 
 #+end_src
 *** Elisp - Emacs-Lisp
@@ -4616,8 +4763,9 @@ list sexp or comment at current cursor position."
 #+begin_src elisp
 
 (defun my/exec-python ()
-  "Execute this command with filename of saved buffer.
-Commonly binded in Language specific mode and in *Org Src* buffer."
+  " Execute  this command  with filename  of saved  buffer.
+C-c C-c in python mode. Commonly binded in Language specific mode
+and in *Org Src* buffer."
   (interactive)
   (my/exec-language "PYTHONPATH=. python3" (current-buffer))) ; "*Org Src"...
 
@@ -4645,7 +4793,7 @@ Consider `eglot-shutdown-all' for reconnection."
   :type 'function)
 
 (defun org-eglot--org-edit-special-advice (orig-fun &rest args)
-  "Edit python src block with LSP support.
+  "`C-c '' key. Edit python src block with LSP support.
 By tangling the block and then setting the `org-edit-special'
 variable `buffer-file-name' to the absolute path.  Finally load
 eglot.  By default tangle to /tmp/tmp.py.  Source block should
@@ -4753,6 +4901,8 @@ Optional argument ARGS ."
 (defun my/python-mode-hook ()
   (interactive)
 
+  (setq fill-column 80)
+
   ;; - - - keybindings
   (keymap-local-set "C-c C-b" 'python-indent-shift-left )
   (keymap-local-set "C-c C-f" 'python-indent-shift-right ) ;; shadows python-eldoc-at-point
@@ -4788,12 +4938,14 @@ Optional argument ARGS ."
   ;; (global-eldoc-mode -1)
   ;; numbers
   ;; (eglot-ensure)
-  (display-line-numbers-mode)
+
   (column-number-mode) ; charater number of line
   ;; indentation
   (setq python-indent-offset 4)
   ;; treat underscore _ as part of word
   (superword-mode nil)
+  ;;
+  (setq-local tab-width 4)
 )
 
 (add-hook 'python-mode-hook 'my/python-mode-hook)
@@ -5046,7 +5198,7 @@ If window already exist, close window and hence block ElDoc."
 
 ;; - not used:
 ;; ;; (setq lsp-bridge-enable-completion-in-minibuffer nil)
-;; (setq acm-enable-yas t)
+;; (setq acm-enable-yas)
 ;; (setq lsp-bridge-multi-lang-server-mode-list nil)
 ;; (defun jedi-language-server
 ;; (require 'eglot-x)
@@ -5175,10 +5327,25 @@ If window already exist, close window and hence block ElDoc."
 ;; (org-babel-eval "ssh kvmka python3" "print(2)")
 
 (defun my/org-babel-python-evaluate-external-process (&rest args)
+  (print "org-babel-python-evaluate-external-process")
   (print args)
   )
 
 (advice-add 'org-babel-python-evaluate-external-process :before 'my/org-babel-python-evaluate-external-process)
+
+
+(defun my/org-babel-python-evaluate (&rest args)
+  (print "org-babel-python-evaluate")
+  (print args))
+
+(advice-add 'org-babel-python-evaluate :before 'my/org-babel-python-evaluate)
+
+
+;; (defun my/org-babel-python-evaluate (&rest args)
+;;   (print "org-babel-python-evaluate")
+;;   (print args))
+
+;; (advice-add 'org-babel-python-evaluate :before 'my/org-babel-python-evaluate)
 ;; (defun my/org-babel-python-evaluate
 ;;     (session body &optional result-type result-params preamble async)
 ;;   (print (concat "session " session))
@@ -5422,6 +5589,7 @@ If window already exist, close window and hence block ElDoc."
                                                           (setq my/exit-code (apply orig-fun args) )))
 
 (defun my/org-babel-c-evaluate (body &optional result-type result-params)
+  "my org-babel-c-evaluate"
   (let* (
          (tmp-code-file (org-babel-temp-file "c-" ".c")) ; file with code
          (tmp-output-file (org-babel-temp-file "c-")) ; output file
@@ -5446,7 +5614,7 @@ If window already exist, close window and hence block ElDoc."
         (org-babel-import-elisp-from-file tmp-output-file '(16))))))
 
 (defun org-babel-execute:c (body params)
-  "Execute a block of Perl code with Babel.
+  "Execute a block of C code with Babel.
 This function is called by `org-babel-execute-src-block'."
   (let* ((result-params (cdr (assq :result-params params)))
          (result-type (cdr (assq :result-type params)))
@@ -5615,7 +5783,7 @@ This function is called by `org-babel-execute-src-block'."
 ;; C-c m opens up Notmuch from any buffer
 (global-set-key (kbd "C-c C-m") 'notmuch)
 ;; sort order for notmuch-search
-(setq notmuch-search-oldest-first nil)
+(setq-default notmuch-search-oldest-first nil)
 
 ;; Drafts
 (setopt notmuch-draft-folder "Drafts")  ;; default: drafts
@@ -5988,7 +6156,7 @@ This function is called by `org-babel-execute-src-block'."
 (define-skeleton org-src-python-remote
   "org-tempo replacement"
   ""
-  "#+begin_src python :results output :exports both :dir \"/ssh:host:\""
+  "#+begin_src python :results output :exports both :dir \"/ssh:" _ ":\""
   "\n\n"
   "#+end_src")
 
@@ -6097,13 +6265,18 @@ This function is called by `org-babel-execute-src-block'."
   "\n"
   "cat <<EOF | post\n"
   "#dailyreport\n"
-  "😶\n"
+  "蠡\n"
   "EOF\n"
   "#+end_src")
 (define-skeleton org-src-shell
   ""
   ""
   "#+begin_src bash :results output\n"
+  "#+end_src")
+(define-skeleton org-src-shell-remote
+  ""
+  ""
+  "#+begin_src bash :results output :dir \"/ssh:" _ ":\"\n"
   "#+end_src")
 (define-skeleton org-src-shell-no-exec
   ""
@@ -6113,7 +6286,7 @@ This function is called by `org-babel-execute-src-block'."
 (define-skeleton org-src-text
   ""
   ""
-  "#+begin_src text\n"
+  "#+begin_src text" \n
   "#+end_src")
 (define-skeleton org-src-artist
   ""
@@ -6142,6 +6315,7 @@ This function is called by `org-babel-execute-src-block'."
 ;; skeleton abbrevs - Abbrev table for Org-mode
 (define-abbrev-table 'org-mode-abbrev-table
   '(
+    ;; 0 for hints and special characters
     ("0-1-shallow" "" nil)
     ("0-2-python" "" nil)
     ("0-3-shell" "" nil)
@@ -6167,6 +6341,7 @@ This function is called by `org-babel-execute-src-block'."
 
     ;; 3 shell, bash
     ("3e-shell" "" org-src-shell)
+    ("3er-shell" "" org-src-shell-remote)
     ("3ne-shell" "" org-src-shell-no-exec)
     ("3c-curl-shell" "" org-src-shell-curl)
 
@@ -6240,17 +6415,31 @@ This function is called by `org-babel-execute-src-block'."
   ""
   )
 
+
 (with-eval-after-load 'python
+  ;; they can by used by M-x python-skl-main
   (setq python-skeleton-autoinsert t) ; required by python.el
   (define-abbrev python-mode-skeleton-abbrev-table
-    "1m" "" 'python-skl-main)
+    "0m" "" 'python-skl-main)
   (define-abbrev python-mode-skeleton-abbrev-table
-    "1p" "" 'python-skl-print)
+    "0p" "" 'python-skl-print)
   (define-abbrev python-mode-skeleton-abbrev-table
-    "1o" "" 'python-skl-open)
+    "0o" "" 'python-skl-open)
   (define-abbrev python-mode-skeleton-abbrev-table
-    "1c" "" 'python-skl-class)
+    "0c" "" 'python-skl-class)
+  )
 
+(with-eval-after-load 'python-ts
+  ;; they can by used by M-x python-skl-main
+  (setq python-skeleton-autoinsert t) ; required by python.el
+  (define-abbrev python-ts-mode-abbrev-table
+    "0m" "" 'python-skl-main)
+  (define-abbrev python-ts-mode-abbrev-table
+    "0p" "" 'python-skl-print)
+  (define-abbrev python-ts-mode-abbrev-table
+    "0o" "" 'python-skl-open)
+  (define-abbrev python-ts-mode-abbrev-table
+    "0c" "" 'python-skl-class)
   )
 ;; (setq python-mode-abbrev-table python-mode-skeleton-abbrev-table)
 ;; (define-abbrev-table 'python-mode-abbrev-table
@@ -6853,7 +7042,12 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 * Local Variables for first opening
 #+begin_src elisp
 
+;; Lcocal Variables:
+;; ocutline-regexp: ";; \\(\\-\\- \\)+"
+;; ocutline-heading-end-regexp: "\n"
+;; Ecnd:
 ;; Local Variables:
+;; mode: outline-minor-mode
 ;; outline-regexp: ";; \\(\\-\\- \\)+"
 ;; outline-heading-end-regexp: "\n"
 ;; End:
