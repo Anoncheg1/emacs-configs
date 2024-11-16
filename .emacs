@@ -5,7 +5,7 @@
 ;; # C-c @ C-s  SHOW LINE       outline-show-subtree
 ;; #
 ;; #####################################
-;; -- -- Notes
+;; -- Notes
 ;; [rooted] - means tested for usage under root console.
 ;; GNU Emacs 29.2
 ;; -- -- Keys after loading this file.
@@ -824,45 +824,6 @@ to activate."
         ;; else - not at source code
         (run-hooks 'org-src-detect-out-hook)
         ))))
-;; -- Global fixes
-
-(defvar my/end-of-sentence "[.?!。]"
-  "End of sentence characters in [] regex.")
-
-(defun my/move-to-first-word ()
-  (interactive)
-    (let ((found (re-search-backward
-                  "[.?!。]" (line-beginning-position) t)))
-      (if found
-          (goto-char (match-beginning 0))
-        (goto-char (line-beginning-position)))
-      (re-search-forward "[[:alpha:]\u0400-\u04FF]+"
-                         (point-at-eol) t)
-      (goto-char (match-beginning 0))))
-
-(defun char-at-point-is-capitalized ()
-  "Check if the character at the current point position is capitalized."
-  (let ((char (char-after (point))))
-    (and (characterp char)
-         (eq (upcase char) char))))
-
-(defun my/capitalize-word (arg)
-  "Capitalize first letter at current line.
-With universal argument capitalize first letter of current word
-and preserve a point position."
-  (interactive "P")
-  (save-excursion
-    (if (not arg)
-      (my/move-to-first-word)
-      ;; else
-      (forward-word)
-      (backward-word))
-    (if (not (char-at-point-is-capitalized))
-        (capitalize-word 1))))
-
-(global-set-key "\M-c" #'my/capitalize-word)
-(global-set-key (kbd "M-с") #'my/capitalize-word) ; rus
-
 ;; -- Key Bindings
 ;; -- -- backspace
 ;; (keyboard-translate ?\C-h  ?\C-?) ;; do not work in emacsclient, required for M-x
@@ -1303,7 +1264,7 @@ and preserve a point position."
 ;; - Tab - indent region as first line
 ;; - C-u Tab - fix indentation in region - apply indentation to every line
 (global-set-key (kbd "TAB") #'my/indent-or-complete)
-;; -- -- C-a C-e M-a - move to the begining of the line
+;; -- -- Move to the begining of the line C-a C-e M-a
 (defun my/begining-of-the-line()
   "First we got to indentation, second press to actual begining."
   (interactive)
@@ -1331,6 +1292,44 @@ and preserve a point position."
 
 
 
+
+;; -- -- Capitalilize sentence M-c
+(defvar my/end-of-sentence "[.?!。]"
+  "End of sentence characters in [] regex.")
+
+(defun my/move-to-first-word ()
+  (interactive)
+    (let ((found (re-search-backward
+                  my/end-of-sentence (line-beginning-position) t)))
+      (if found
+          (goto-char (match-beginning 0))
+        (goto-char (line-beginning-position)))
+      (re-search-forward "[[:alpha:]\u0400-\u04FF]+"
+                         (point-at-eol) t)
+      (goto-char (match-beginning 0))))
+
+(defun my/char-at-point-is-capitalized ()
+  "Check if the character at the current point position is capitalized."
+  (let ((char (char-after (point))))
+    (and (characterp char)
+         (eq (upcase char) char))))
+
+(defun my/capitalize-sentence (arg)
+  "Capitalize first letter at current line.
+With universal argument capitalize first letter of current word
+and preserve a point position."
+  (interactive "P")
+  (save-excursion
+    (if (not arg)
+      (my/move-to-first-word)
+      ;; else
+      (forward-word)
+      (backward-word))
+    (if (not (my/char-at-point-is-capitalized))
+        (capitalize-word 1))))
+
+(global-set-key "\M-c" #'my/capitalize-sentence)
+(global-set-key (kbd "M-с") #'my/capitalize-sentence) ; rus
 
 ;; -- -- fix: C-q call C-q for minibuffer also
 (defun my/keyboard-quit-with-minubuffer()
@@ -1678,12 +1677,11 @@ test and will kill actually."
                             "zone-pgm-rotate-RL-variable"
                             "zone-pgm-paragraph-spaz"))
 
-(defun my/zone-call (func-call program &optional timeout)
+(defun my/zone-call (program &optional timeout)
   " Get current zone program"
-  (setq my/zone-current-program (symbol-name program))
-  (apply func-call program timeout))
+  (setq my/zone-current-program (symbol-name program)))
 
-(advice-add 'zone-call :around #'my/zone-call)
+(advice-add 'zone-call :before #'my/zone-call)
 
 (defun my/zone-sit-for-advice (func-call seconds &optional nodisp obsolete)
   "Slow down zone according to previously fetched program name."
@@ -1853,7 +1851,7 @@ run a specific program.  The program must be a member of
           (list (intern (concat "zone-pgm-" choice))))))
   (unless pgm
     (setq pgm (aref zone-programs (random (length zone-programs)))))
-    (let ((f (selected-frame))
+    (let ((fframe (selected-frame))
           (outbuf (get-buffer-create (concat "*zone " (buffer-name (current-buffer)) "*"))))
       ;; (put 'zone 'orig-buffer (current-buffer))
       ;; (save-window-excursion
@@ -1870,7 +1868,7 @@ run a specific program.  The program must be a member of
         ;; (set-window-start (selected-window) (point-min))
         ;; (set-window-point (selected-window) wp)
         (sit-for 0.500)
-        (let ((ct (and f (frame-parameter f 'cursor-type)))
+        (let ((ct (and fframe (frame-parameter fframe 'cursor-type)))
               (show-trailing-whitespace nil)
               ;; Make `restore' a self-disabling one-shot thunk.
               ( restore ))
@@ -1881,8 +1879,8 @@ run a specific program.  The program must be a member of
                           (when (and ct f)
                             (modify-frame-parameters
                              f (list (cons 'cursor-type ct))))))
-          (when (and ct f)
-            (modify-frame-parameters f '((cursor-type . (bar . 0)))))
+          (when (and ct fframe)
+            (modify-frame-parameters fframe '((cursor-type . (bar . 0)))))
 
           (condition-case nil
               (progn
@@ -1898,17 +1896,17 @@ run a specific program.  The program must be a member of
                 (message "Zoning...sorry"))
             ((debug error) nil)
             (error
-             (funcall restore f ct outbuf)
+             (funcall restore fframe ct outbuf)
              (while (not (input-pending-p))
                (message "We were zoning when we wrote %s..." pgm)
                (sit-for 3)
                (message "...here's hoping we didn't hose your buffer!")
                (sit-for 3)))
             (quit
-             (funcall restore f ct outbuf)
+             (funcall restore fframe ct outbuf)
              (ding)
              (message "Zoning...sorry")))
-          (when restore (funcall restore f ct outbuf)))))
+          (when restore (funcall restore fframe ct outbuf)))))
 
 ;; -- -- expand-region - one key for selecting everything (experiment)
 ;; (require 'expand-region)
@@ -2066,7 +2064,7 @@ If this window is splitted and small, just use current window."
 
 (global-set-key (kbd "C-x M-x") #'buffer-menu) ; rooted
 (global-set-key (kbd "C-x C-b") #'my/list-buffers-right) ; shadow `list-buffers'
-(global-set-key (kbd "C-x M-j") #'buffer-menu)
+;(global-set-key (kbd "C-x M-j") #'buffer-menu)
 
 (defun my/buffer-menu-open-wide ()
   "Open current selected item in menu after deleting other window."
@@ -2085,6 +2083,15 @@ If this window is splitted and small, just use current window."
 
 
 ;; (global-set-key (kbd "C-S-z") #'buffer-menu) ; (not rooted)
+;; -- -- -- buffer menu with Dired only.
+(defun my/buffer-menu-dired ()
+  (interactive)
+  (switch-to-buffer (list-buffers-noselect
+                     nil nil (lambda (buf)
+                               (provided-mode-derived-p (buffer-local-value 'major-mode buf) 'dired-mode)
+                               ))))
+(global-set-key (kbd "C-x M-b") #'my/buffer-menu-dired)
+
 ;; -- -- -- other-buffer [rooted]
 (defun my/other-buffer (&optional arg)
   "Switch to other buffer, ie `other-buffer' without system buffers."
@@ -2146,13 +2153,14 @@ If this window is splitted and small, just use current window."
 ;; (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 ;; (add-to-list 'major-mode-remap-alist '(bash-mode . bash-ts-mode))
 ;; -- Per Mode Configurations
-;; -- -- Outline minor mode for Elisp [rooted] (not working)
+;; -- -- Outline minor mode for Elisp, Python [rooted]
+;; -- -- -- hook and keys
 ;; same as my/org-fold-hide-other, but "sublevels 20"
 (defun my/outline-hide-other ()
   "Hide other headers and don't hide headers and text in opened."
   (interactive)
   (save-excursion
-    (outline-hide-sublevels 20) ;; hide all
+    (outline-hide-sublevels 6) ;; hide all
     (outline-show-children) ;; show headers, not shure how and wehere,
     (outline-back-to-heading t) ;; to header in depths
     (outline-show-entry) ;; show local text
@@ -2197,9 +2205,20 @@ header. [rooted]"
   (print outline-regexp)
   ;; - - Problem here: outline-minor mode do not respect 'outline-regexp' and somehow reinitialize it.
 
-  (if (and (buffer-file-name) (or (string-equal (file-name-nondirectory  (buffer-file-name)) ".emacs")
+  (when (and (buffer-file-name) (or (string-equal (file-name-nondirectory  (buffer-file-name)) ".emacs")
         (string-equal (file-name-nondirectory (buffer-file-name)) "init.el")))
-      (setq outline-regexp ";; \\(\\-\\- \\)+"))
+      (setq outline-regexp "^;; \\(\\-\\- \\)+")
+      (setq-local outline-heading-alist
+      '((";; -- " . 1)
+        (";; -- -- " . 2)
+        (";; -- -- -- " . 3)
+        (";; -- -- -- -- " . 4)
+        (";; -- -- -- -- -- " . 5)
+        (";; -- -- -- -- -- -- " . 6)))
+      )
+
+
+
   ;; (setq outline-heading-end-regexp "\n")
   ;; (define-key outline-minor-mode-map (kbd "C-x i") 'outline-toggle-children) ;;
   ;; (define-key outline-minor-mode-map (kbd "C-c TAB") 'outline-toggle-children) ;;
@@ -2212,38 +2231,71 @@ header. [rooted]"
   (setq outline-default-state 'outline-show-only-headings)
   (outline-apply-default-state)
   (add-hook 'isearch-mode-hook 'my/outline-header-search nil t) ;; LOCAL = t
+  ;; - activate outline-heading-alistheader leavels
+  (setq outline-level #'outline-level)
   )
 
 (add-hook 'outline-minor-mode-hook 'my/outline-mode-hook)
 
-(defun my/dired-do-rename (orig-fun &rest args)
-  "Dired fix for renaming a single file, it suggests the same
- name instead of only a current directory."
-  (if (and (null (cdr (dired-get-marked-files nil args))) ; one file selected
-           (eq (length (window-list)) 1)) ; one window opened
-      (progn
-        (advice-add 'dired-dwim-target-directory :override #'my/dired-dwim-target-directory-advice)
-        (apply orig-fun args))
-    ;; else - many files selected
-    (apply orig-fun args)
-  ))
-(advice-add 'dired-do-rename :around #'my/dired-do-rename )
-
-
-(defun my/fix-xref-find-definitions (orig-fun &rest args)
-  "Fix bug when we jump to place that is hidden in folded header."
+;; -- -- -- fixes for other modes
+;; -- -- -- -- C-, xref jump
+(defun my/fix-xref-outline (orig-fun &rest args)
+  "Fix bug when we jump C-, to place hidden header."
   (outline-show-all)
   (apply orig-fun args)
-  (outline-hide-other))
-(advice-add 'xref-find-definitions :around #'my/fix-xref-find-definitions)
+  ;; (outline-hide-other)
+  )
+(advice-add 'xref-find-definitions :around #'my/fix-xref-outline)
+(advice-add 'xref-go-back :around #'my/fix-xref-outline)
+;; -- -- -- -- Backtrace clicks
+(defun my/outline-help-function-def(&rest r)
+  "Fix clicking buttons in Backtrace."
+  (when outline-minor-mode
+    (outline-show-all)
+    (my/outline-hide-other)
+    ))
 
+(advice-add 'help-function-def--button-function :after #'my/outline-help-function-def)
 
-;; - - - export tags
-;; `org-scan-tags'
-;; (case-fold-search t) ;; ignore case
-;; "^ org-outline-regexp " *\\([ \t]:\\(?:" org-tag-re ":\\)+\\)?[ \t]*$"
-;; outline-level ()   "Return the depth to which a statement is nested in the outline. Point must be at the beginning of a header line.
-;; outline-hide-sublevels
+;; -- -- -- -- C-u C-SPC set-mark-command
+(defun my/outline-set-mark-command(arg)
+  "Fix clicking buttons in Backtrace."
+  (when (and (boundp 'outline-minor-mode) outline-minor-mode (and arg))
+    (outline-show-all)
+    (my/outline-hide-other)))
+
+(advice-add 'set-mark-command :after #'my/outline-set-mark-command)
+
+;; -- -- -- variant of fix for `outline-hide-other' (not used)
+;; (defun my/outline-hide-other-after (&rest r)
+;;   "Show subheaders and headers at current tree after hidding.
+;; After outline-show-entry that hide all and bottom."
+;;   ;; show all at bottom, undo
+;;   (save-excursion
+;;     (outline-flag-region (point)
+;;                          (point-max)
+;;                          nil))
+
+;;   ;; hide subtrees
+;;   (save-excursion
+;;     (outline-back-to-heading t)
+;;     (let ((level (funcall outline-level))
+;;           (level-current)
+;;           (run t))
+;;       ;; check first subheader manually, it may have deeper level.
+;;       (when (outline-next-heading)
+;;         (outline-hide-subtree)
+;;         (setq level (funcall outline-level)))
+
+;;       (while (and run (outline-next-heading))
+;;             (setq level-current (funcall outline-level))
+;;             (when (>= level level-current) ; go to up
+;;               (outline-hide-subtree)
+;;               (when (> level level-current)
+;;                 (setq level level-current))))
+;;         )))
+;; (advice-add 'outline-hide-other :after #'my/outline-hide-other-after)
+
 
 ;; -- -- calendar and holidays
 (require 'calendar)
@@ -4436,8 +4488,11 @@ Optional argument ARGS ."
   ;;   )
   ;; (setq flymake-python-pyflakes-executable "flake8")
   ;; (local-set-key "\C-c\C-n" 'flymake-goto-next-error)
-  ;; ;; errors checking
-  ;; ;; (flymake-mode)
+  ;; - - - errors checking
+  (flymake-mode) ; we use defalut python-flymake-command '("pyflakes")
+  (setq flymake-no-changes-timeout 0.5)
+  (keymap-local-set "C-'" 'flymake-goto-next-error)
+  (keymap-local-set "M-'" 'flymake-goto-prev-error)
 
   ;; - - -  other modes
   ;; (eldoc-mode -1)
@@ -4856,6 +4911,8 @@ If window already exist, close window and hence block ElDoc."
 ;;   )
 ;; (advice-add 'org-babel-execute:python :before #'test-org-babel-execute:python)
 
+;; -- -- -- -- python-check C-c C-b
+(setopt python-check-command "pylint")
 ;; -- -- -- -- DONT WORKED
 ;; (require 'lsp-mode)
 ;; (add-hook 'python-mode-hook 'lsp)
@@ -5084,7 +5141,9 @@ This function is called by `org-babel-execute-src-block'."
 
 (defun my/perl-mode-hook ()
   (setq flymake-no-changes-timeout 0.5)
-  (keymap-local-set "C-c C-n" 'flymake-goto-next-error)
+
+  (keymap-local-set "C-'" 'flymake-goto-next-error)
+  (keymap-local-set "M-'" 'flymake-goto-prev-error)
   (keymap-local-set "C-c C-c" 'my/exec-perl))
 
 (add-hook 'perl-mode-hook 'flymake-mode)
@@ -5099,7 +5158,8 @@ This function is called by `org-babel-execute-src-block'."
 
 (defun my/sh-mode-hook ()
   ;; (setq flymake-no-changes-timeout 0.5)
-  (keymap-local-set "C-c C-n" 'flymake-goto-next-error)
+  (keymap-local-set "C-'" 'flymake-goto-next-error)
+  (keymap-local-set "M-'" 'flymake-goto-prev-error)
   (keymap-local-set "C-c C-c" 'my/exec-bash)
   ;; (keymap-set sh-mode-map "<remap> <sh-case>" 'my/exec-bash) ; shadow 'sh-case'
   (keymap-local-set "C-x c" 'sh-case))
@@ -6371,6 +6431,6 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 ;; Ecnd:
 ;; Local Variables:
 ;; mode: outline-minor-mode
-;; outline-regexp: ";; \\(\\-\\- \\)+"
+;; outline-regexp: "^;; \\(\\-\\- \\)+"
 ;; outline-heading-end-regexp: "\n"
 ;; End:

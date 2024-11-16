@@ -883,6 +883,17 @@ per image link:
 
 globally:
 : (setopt org-image-actual-width 300)
+* Outline: How to jump to place that was hidden in folder outline header?
+We jump with xref-find-definitions.
+Here is solution:
+#+begin_src elisp :results none :exports code :eval no
+(defun my/fix-xref-find-definitions (orig-fun &rest args)
+  "Fix bug when we jump to place that is hidden in folded header."
+  (outline-show-all)
+  (apply orig-fun args)
+  (outline-hide-other))
+(advice-add 'xref-find-definitions :around #'my/fix-xref-find-definitions)
+#+end_src
 * Dired: how to open as a file manager
 : emacsclient -c -a emacs --eval "(dired \"$@\")"
 
