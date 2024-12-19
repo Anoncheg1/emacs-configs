@@ -11,7 +11,7 @@ This is a single config file ```.emacs``` structured with outline-mode, all othe
 
 
 # Favorite modes
-- (built-in): Org, org-agenda, Python, CC mode, Semantic, ElDoc, Dired + Bookmarks, VC, Highlight Changes, Electric Quote, dictionary.
+- (built-in): Org, org-agenda, Python, CC mode, Semantic, ElDoc, Dired + Bookmarks, VC, Highlight Changes, Electric Quote, dictionary, EasyPG.
 - (external): hidepw, free-keys, Notmuch, vlfi, dockerfile-mode, company-math, csv-mode, org-present, multiple-cursors.
 
 Python IDE for remote and local: Eglot + pylsp, demap (minimap), recentf (recent visited)
@@ -38,12 +38,16 @@ This is between console and JIKL:
 ## Org keys
 [Org keys: ./org-keys.org](org-keys.org)
 
+## Dired keys
+[Dired keys: ./dired-keys.org](dired-keys.org)
+
 ## Additional key bindings:
 - M-;		'comment-line
 - C-x C-l	'my/list-buffers-right (beffer-menu)
 - C-x y	'bookmarks
 - C-x m	'compose-mail
 - C-c w	'my/copy-link-to-clipboard, 'my/dired-copy-filename-as-kill
+- C-+/-	'text-scale-increase/decrease
 
 I changed behavior of C-a/e and M-a/e in Org mode.
 - C-a - move to the begining of the current element at the line. (For example: to the begining of the URL.)
@@ -57,8 +61,10 @@ Frames:
 - C-x 5 2 - (make-frame) (default)
 
 Buffers:
+- C-x C-l - buffers menu (default) at right
+- C-x C-j - Dired in current directory (default) at right
 - C-c M-c - *Messages* buffer
-- C-c M-z - previous buffer
+- C-c C-z - previous buffer
 - C-x ! - 'my/kill-other-buffers-and-frame-duplicates - kill not modified buffers and duplicate frames, kill not marked buffers in menu
 
 ## Email Client
@@ -111,6 +117,7 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - Elisp: created “new line” function that insert new list sexp after list sexp or comment at current cursor position
 - theme cycling by time (circadian.el) with own theme modifications
 - fixed case when we jump to place that hidden with folded outline header
+- add keybinding to swap windows "C-x M-\\"
 
 TODO:
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.
@@ -123,6 +130,10 @@ TODO:
 - Dired: simple file filter like in dired-filter, but without water (https://github.com/Fuco1/dired-hacks)
 - image-dired-thumbnail-mode or image-dired-minor-mode: C-c w, M-W and zoom.
 - replace expand-region with mark-word, mark-mark-paragraph, mark-end-of-sentence, org-mark-element, org-mark-subtree
+- fill-paragraph - if previous line ended with dot, don't fill paragraph. with paragraph-start, paragraph-separate.
+- one key for fill-paragraph, add dot at the end and capitalize.
+- smart commet with M-; for last line in Elisp to drop ))) to the next line
+- in org-mode *asd* make * less visible
 
 # bashrc
 

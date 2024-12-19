@@ -53,7 +53,7 @@
  '(org-src-preserve-indentation t)
  '(org-startup-folded t)
  '(package-selected-packages
-'(circadian dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search idle-highlight-mode csv-mode free-keys flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
+'(editorconfig selected-window-accent-mode circadian dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search idle-highlight-mode csv-mode free-keys flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
  '(safe-local-variable-values '((org-image-actual-width . 500)))
  '(size-indication-mode t)
  '(speedbar-show-unknown-files t))
@@ -136,10 +136,8 @@
 (setopt load-prefer-newer t)
 
 ;; must not have subfolders
-(add-to-list 'load-path "~/.emacs.d/contrib/lisp/package-build")
 (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ediffnw")
 (add-to-list 'load-path "~/.emacs.d/contrib/lisp")
-(add-to-list 'load-path "~/.emacs.d/contrib/lis/org-src-context.el")
 ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ob-yaml.el")
 ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ob-yamlmy.el")
 ;; ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/emacs-jedi")
@@ -150,6 +148,8 @@
 (add-to-list 'auto-mode-alist '("\\.jpg\\'" . image-mode))
 (add-to-list 'auto-mode-alist '("\\.png\\'" . image-mode))
 (add-to-list 'auto-mode-alist '("\\.gif\\'" . image-mode))
+;; YAML
+(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
 ;; ;; dont ask for unsafe local variables in knewn files
 ;; (setq inhibit-local-variables-regexps
 ;; info
@@ -271,6 +271,7 @@
 ;;        (t (user-error "Recover-file canceled")))))
 ;; -- Called externally with: emacs --eval "()"
 ;; -- -- Calendar and diary
+(require 'org-agenda)
 (defun my/agenda-split()
   "called with (call-interactively 'my/agenda-split)"
   (interactive)
@@ -287,12 +288,6 @@
   (other-window 1)
   (other-window 1)
   )
-
-;; disable holidays
-;; # Monday is the first day of the week
-(setq calendar-week-start-day 1)
-;; sort diary entries
-(add-hook 'diary-list-entries-hook 'diary-sort-entries t)
 
 ;; -- -- Open link
 ;; usage in ~/.bash_aliases: alias iaa='emacsclient --alternate-editor=emacs --create-frame --eval "(my/open-link \"file:~/nix::<<config_kernel_gentoo>>\")"'
@@ -355,16 +350,6 @@ Steps: 1) create buffer. 2) found frame with same major mode.
 ;; (my/find-file-frame "a.org")
 
 ;; -- Global Hooks
-;;; It is the opposite of fill-paragraph
-(defun unfill-paragraph () ;; not used now
-  "Takes a multi-line paragraph and makes it into a single line of text."
-  (interactive)
-  (let ((fill-column (point-max)))
-    (fill-paragraph nil)))
-
-;; (setq display-buffer-base-action '(display-buffer-in-tab))
-
-
 ;; -- -- Delete white spaces at save
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
 (add-hook 'after-save-hook (lambda ()
@@ -925,8 +910,21 @@ to activate."
 ;; (global-set-key (kbd "C-M-a") #'previous-buffer) ; shadow beginning-of-defun
 ;; (global-set-key (kbd "C-M-e") #'next-buffer) ; shadow end-of-defun
 (define-key key-translation-map (kbd "C-M-q") (kbd "RET")) ; shadow `indent-pp-sexp'
-;; -- -- toggle windows split for 2 windows
+;; -- -- Windows
+;; -- -- -- toggle windows split for 2 windows
 (global-set-key (kbd "C-x |") 'my/toggle-window-split)
+;; -- -- -- swap windows
+(defun my/swap-buffers-in-windows ()
+  "Put the buffer from the selected window in next window, and vice versa."
+  (interactive)
+  (let* ((this (selected-window))
+     (other (next-window))
+     (this-buffer (window-buffer this))
+     (other-buffer (window-buffer other)))
+    (set-window-buffer other this-buffer)
+    (set-window-buffer this other-buffer)))
+(global-set-key (kbd "C-x M-\\") 'my/swap-buffers-in-windows)
+
 
 ;; -- -- comments keys binding
 (global-set-key (kbd "M-;") 'comment-line)
@@ -1205,7 +1203,7 @@ to activate."
 
     (setq  ciw (current-indentation))
     (indent-for-tab-command) ;; indent first line
-    (message "wtf %s %s" ciw (current-indentation))
+    ;; (message "wtf %s %s" ciw (current-indentation))
     (let ((differ (- (current-indentation) ciw) )) ;; was = 1, become=4, 4-1 = 3+1 =4
       (forward-line)
       (message "l %s %s" (line-beginning-position) end)
@@ -1429,6 +1427,7 @@ Function `frame-list-z-order' used as a source for frames."
 Called from buffer-menu. Marked buffers will be ignored. C-u for
 test and will kill actually."
   (interactive "P")
+  (delete-other-windows) ; drop other windows in current frame
   (my/drop-frame-duplicates) ; drop duplicate frames by showed buffer
   (my/kill-other-buffers arg) ; drop other buffers
   (my/drop-frame-duplicates) ; drop duplicate frames - because buffers changed
@@ -1473,6 +1472,20 @@ test and will kill actually."
 
 ;; (key-chord-define-global "jj"     'my/enable-mn)
 ;; (global-set-key (kbd ";")     'my/disable-mn)
+
+;; -- -- scale text
+(global-set-key (kbd "C-+") #'text-scale-increase)
+(global-set-key (kbd "C--") #'text-scale-decrease) ; shadow negative-argument
+;; -- -- unfill-paragraph
+;; It is the opposite of fill-paragraph
+(defun my/unfill-paragraph () ;; not used now
+  "Takes a multi-line paragraph and makes it into a single line of text."
+  (interactive)
+  (let ((fill-column (point-max)))
+    (fill-paragraph nil)))
+
+(global-set-key (kbd "C-c M-q") #'unfill-paragraph)
+;; (setq display-buffer-base-action '(display-buffer-in-tab))
 
 ;; -- Global Modes
 ;; -- -- multiple-cursor
@@ -1849,6 +1862,9 @@ run a specific program.  The program must be a member of
                         zone-programs)
                        nil t)))
           (list (intern (concat "zone-pgm-" choice))))))
+  (condition-case ex
+
+
   (unless pgm
     (setq pgm (aref zone-programs (random (length zone-programs)))))
     (let ((fframe (selected-frame))
@@ -1906,7 +1922,9 @@ run a specific program.  The program must be a member of
              (funcall restore fframe ct outbuf)
              (ding)
              (message "Zoning...sorry")))
-          (when restore (funcall restore fframe ct outbuf)))))
+          (when restore (funcall restore fframe ct outbuf))))
+    (error (backtrace)))
+    )
 
 ;; -- -- expand-region - one key for selecting everything (experiment)
 ;; (require 'expand-region)
@@ -2072,6 +2090,7 @@ If this window is splitted and small, just use current window."
   (delete-other-windows)
   (call-interactively 'Buffer-menu-this-window))
 
+
 (defun my/sort-by-modified ()
   (interactive)
   (tabulated-list-sort 2))
@@ -2081,6 +2100,13 @@ If this window is splitted and small, just use current window."
             (keymap-local-set "C-j" #'my/buffer-menu-open-wide)
             (keymap-local-set "C-'" #'my/sort-by-modified)))
 
+
+(defun my/buffer-menu-restore-sort (&rest args)
+  "Restore sorting when we press C-j or C-m"
+  (setq tabulated-list-sort-key nil)
+  (tabulated-list-sort 2))
+
+(advice-add 'Buffer-menu-this-window :before 'my/buffer-menu-restore-sort)
 
 ;; (global-set-key (kbd "C-S-z") #'buffer-menu) ; (not rooted)
 ;; -- -- -- buffer menu with Dired only.
@@ -2298,21 +2324,45 @@ header. [rooted]"
 
 
 ;; -- -- calendar and holidays
-(require 'calendar)
+;; (require 'calendar)
 (require 'holidays)
+(require 'calendar)
+;; (setq calendar-view-holidays-initially-flag t) ; show holidays when first open calendar.
 
-(setopt diary-show-holidays-flag t)
-(setopt calendar-mark-holidays-flag t)
+;; (setopt diary-show-holidays-flag t) ; holidays in the diary display
+;; (setopt calendar-mark-holidays-flag t) ; mark holidays
 
 ;; download bad: https://www.feiertagskalender.ch/export.php?geo=3538&hl=en
 ;; download best https://ovodov.me/trud.ics
 ;; check https://www.consultant.ru/law/ref/calendar/proizvodstvennye/2024/
 (require 'myholidays)
+(require 'russian-calendar)
+;; ;; ;; reference https://github.com/grafov/russian-holidays
+(setq calendar-holidays (append russian-calendar-holidays
+                                  ;; - enable if you need:
+                                  russian-calendar-general-holidays
+                                  russian-calendar-orthodox-christian-holidays
+                                  russian-calendar-old-slavic-fests
+                                  russian-calendar-open-source-confs
+                                  russian-calendar-ai-confs
+                                  russian-calendar-russian-it-confs
+                                  ;; my:
+                                  myholidays-family-holidays
+                                  ))
+;; optional:
+(russian-calendar-localize)
+(russian-calendar-set-location-to-moscow)
+(russian-calendar-show-diary-holidays-in-calendar)
+(russian-calendar-enhance-calendar-movement)
+(russian-calendar-fix-list-holidays)
 
-;; reference https://github.com/grafov/russian-holidays
-(setopt calendar-holidays (append myholidays-russian-holidays
-                                  myholidays-general-holidays
-                                  myholidays-family-holidays))
+
+;;   "Christian holidays.
+;; See the documentation for `calendar-holidays' for details.")
+;; -- -- Diary
+;; sort diary entries
+(require 'diary-lib)
+(add-hook 'diary-list-entries-hook 'diary-sort-entries t)
 
 ;; -- -- firstly-search - Dired, Package menu, Buffer menu, Bookmarks;; -- -- -- loading
 (require 'firstly-search-dired)
@@ -2378,6 +2428,9 @@ header. [rooted]"
 ;;                         (seq-max pos-list)))))))
 
 ;; -- -- Dired [rooted (consider disable trashing, omit, thumbnails)]
+;; -- -- -- speedup loading (disabled)
+;; (setopt ls-lisp-use-insert-directory-program t)
+;; (setopt ls-lisp-dirs-first nil
 ;; -- -- -- ls arguments and sorting
 ;; Arguments for insert-directory-program, by default it is "ls"
 ;; -a - all
@@ -2523,7 +2576,10 @@ Loop over `dired-listing-switches' +
 ;; rebind ^ up
 (define-key dired-mode-map "\C-j" #'dired-up-directory) ;; shadow #'universal-argument
 ;; open shell
-(define-key dired-mode-map (kbd "M-!") (lambda () (interactive) (call-process-shell-command "xfce4-terminal -e tmux&" nil 0)))
+(defun mydired-open-term ()
+  (interactive)
+  (call-process-shell-command "xfce4-terminal -e tmux&" nil 0))
+(define-key dired-mode-map (kbd "M-!") 'mydired-open-term)
 ;; -- -- -- -- my/dired-unmark-one-line
 (defun my/dired-unmark-one-line()
   "BACKSPACE - dired-unmark-backward with universal argument."
@@ -2533,10 +2589,12 @@ Loop over `dired-listing-switches' +
 ;; -- -- -- -- C-x C-j my/dired-jump
 ;; C-u C-x C-j
 (defun my/dired-jump (args)
-  "Open Dired at left side, or just open Dired."
+  "Open Dired at right side, or just open Dired."
   (interactive "P")
-  (if  args
-      (split-window-horizontally))
+  (when (and (not args) (= (count-windows) 1))
+      (split-window-horizontally)
+      (print "asd")
+      (other-window 1))
   (if (derived-mode-p 'dired-mode)
       (dired "~")
     ;; else
@@ -3276,19 +3334,23 @@ depending on context.
                            (org-element-property :begin element)))
          (el-type (org-element-type element)))
     (cond
+     ;; - table
      ((and (eq el-type 'table)
            (> (point) contents-begin)
            (<= (point) contents-end))
       (call-interactively #'move-beginning-of-line)) ;; modifyed
+     ;; - src-block
      ((eq el-type 'src-block)
       (let ((p (point)))
         (call-interactively 'back-to-indentation)
         (if (eq p (point)) ; not changed
             (beginning-of-line)
           )))
+     ;; - example-block
      ((eq el-type 'example-block)
       (call-interactively #'back-to-indentation-or-beginning)
       )
+     ;; - others
      (t
       ;; (print (org-element-at-point))
       ;; (print el-type)
@@ -3503,7 +3565,17 @@ If not in a list don't split, open new line and indent."
   (if (org-in-item-p) ; if in a list
     (progn
       ;; go to the begining, before list bullet
-      (my/org-backward-close)
+      (org-backward-sentence) ;; for "::" go after "::"
+      ;; - fix for descriptive list items
+      (let* ((itemp (org-in-item-p))
+            (struct (save-excursion (goto-char itemp)
+                                    (org-list-struct)))
+            (prevs (org-list-prevs-alist struct)))
+            (when (eq (org-list-get-list-type itemp struct prevs)
+                      'descriptive)
+                ;; - descriptive list
+                (beginning-of-line)))
+      ;; (my/org-backward-close)
       ;; use special case to insert above current line
       (org-insert-item)
       ;; move down
@@ -4133,6 +4205,13 @@ was made."
 
 ;; (global-set-key (kbd "C-c C-'") #'my/streight-quote)
 
+;; -- -- Flymake
+(defun my/flymake-hook()
+  (setq flymake-no-changes-timeout 0.5)
+  (keymap-local-set "C-'" 'flymake-goto-next-error)
+  (keymap-local-set "M-'" 'flymake-goto-prev-error)
+)
+(add-hook 'flymake-mode-hook #'my/flymake-hook)
 ;; -- -- Programming modes
 ;; -- -- -- all programming modes
 ;; -- -- -- -- function next/prev occurrence of word
@@ -4600,9 +4679,6 @@ Optional argument ARGS ."
               :gopls (:usePlaceholders t)))
 
 
-;; - - flymake
-(setq flymake-no-changes-timeout 0.5)
-
 ;; - - modes for which Eglot will be activated
 (defun my/eglot-start ()
   (interactive)
@@ -4708,8 +4784,8 @@ If window already exist, close window and hence block ElDoc."
 
 ;; -- -- -- -- -- keys
 (keymap-set eglot-mode-map "M-i" #'my/eldoc) ; shadow `tab-to-tab-stop'
-(keymap-set eglot-mode-map "C-'" #'flymake-goto-next-error)
-(keymap-set eglot-mode-map "M-'" #'flymake-goto-prev-error) ; shadow `my/window-toggle-side-windows'
+;; (keymap-set eglot-mode-map "C-'" #'flymake-goto-next-error)
+;; (keymap-set eglot-mode-map "M-'" #'flymake-goto-prev-error) ; shadow `my/window-toggle-side-windows'
 (keymap-set eglot-mode-map "C-c C-e" #'eglot-rename)
 (keymap-set eglot-mode-map "C-c o" #'eglot-format)
 ;; -- -- -- -- lsp-bridge (not working)
@@ -5141,9 +5217,6 @@ This function is called by `org-babel-execute-src-block'."
 
 (defun my/perl-mode-hook ()
   (setq flymake-no-changes-timeout 0.5)
-
-  (keymap-local-set "C-'" 'flymake-goto-next-error)
-  (keymap-local-set "M-'" 'flymake-goto-prev-error)
   (keymap-local-set "C-c C-c" 'my/exec-perl))
 
 (add-hook 'perl-mode-hook 'flymake-mode)
@@ -5158,16 +5231,19 @@ This function is called by `org-babel-execute-src-block'."
 
 (defun my/sh-mode-hook ()
   ;; (setq flymake-no-changes-timeout 0.5)
-  (keymap-local-set "C-'" 'flymake-goto-next-error)
-  (keymap-local-set "M-'" 'flymake-goto-prev-error)
   (keymap-local-set "C-c C-c" 'my/exec-bash)
   ;; (keymap-set sh-mode-map "<remap> <sh-case>" 'my/exec-bash) ; shadow 'sh-case'
   (keymap-local-set "C-x c" 'sh-case))
 
-;; (add-hook 'sh-mode-hook 'flymake-mode)
 (add-hook 'sh-mode-hook 'my/sh-mode-hook)
 
-
+;; (require 'flymake-shell) ; not working idk why
+;; (add-hook 'sh-set-shell-hook 'flymake-shell-load)
+;;
+;; (require 'flymake-shellcheck) ; not working idk why
+;; (add-hook 'sh-mode-hook 'flymake-shellcheck-load)
+;;
+;;(add-hook 'sh-mode-hook 'flymake-mode)
 ;; -- -- -- HTML (testing)
 (add-hook 'html-mode-hook
           (lambda ()
@@ -5697,7 +5773,7 @@ This function is called by `org-babel-execute-src-block'."
 (define-skeleton org-src-mastadon
   ""
   ""
-  "#+begin_src bash :results output"
+  ":#+begin_src bash :results output"
   "\n"
   "source ~/.bash_aliases"
   "\n\n"
@@ -6114,6 +6190,23 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
           `(,@hidepw-patterns ,@(when hidepw-hide-first-line '("\\`\\(.*\\)$"))))
     )
   )
+;; -- -- EasyPG - GnuPG interface
+(require 'epa-file)
+;; (setf epa-pinentry-mode 'loopback)
+(setopt epa-pinentry-mode 'ask)
+;; (setf epa-pinentry-mode 'ask)
+;; (setenv "DISPLAY" "")
+(epa-file-enable)
+;; (setenv "GPG_TTY" "$(tty)")
+
+(defun my/fix-epa-file (filename &optional wildcards)
+  "Add directory that was opened with find-file commands."
+  (if (file-directory-p filename)
+      (recentf-add-file filename)))
+
+(advice-add 'find-file :before #'my/fix-epa-file)
+
+;; (setenv "GPG_AGENT_INFO" nil)
 ;; -- -- Ediff
 (require 'ediffnw)
 ;; (setopt ediff-window-setup-function #'ediff-setup-windows-plain)
@@ -6122,10 +6215,11 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 ;; (defun ediff-setup-control-buffer (ctl-buf)
 ;;   t)
 ;; -- -- YAML - yaml-mode
-(add-hook 'yaml-mode-hook 'flymake-yamllint-setup)
-(add-hook 'yaml-mode-hook (lambda ()
+(add-hook 'yaml-ts-mode-hook 'flymake-yamllint-setup)
+(add-hook 'yaml-ts-mode-hook 'flymake-mode)
+(add-hook 'yaml-ts-mode-hook (lambda ()
                             (keymap-local-set "C-c C-n" 'flymake-goto-next-error)
-                            (keymap-local-set "C-c C-k" 'flymake-goto-prev-error)
+                            (keymap-local-set "C-c C-p" 'flymake-goto-prev-error)
                             ))
 
 ;; TODO:
@@ -6148,6 +6242,43 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 ;; -- -- pinyin-isearch
 (require 'pinyin-isearch)
 (pinyin-isearch-activate-submodes)
+
+;; -- -- selected-window mode
+;; -- -- -- main
+(require 'selected-window-contrast)
+;; ;; ;; (require 'selected-window-contrast-tests)
+;; ;; ;; (ert-run-tests-interactively "selected-window-contrast-tests")
+;; ;; ;; (set-face-attribute 'mode-line-active nil :background nil :foreground nil)
+
+;; (setopt selected-window-contrast-selected-magnitude-text 1.0)
+;; (setopt selected-window-contrast-selected-magnitude-background 0.85)
+;; (setopt selected-window-contrast-not-sel-magnitude-text 2.0)
+;; (setopt selected-window-contrast-not-sel-magnitude-background 1.1)
+(setopt selected-window-contrast-selected-magnitude-text 1.0)
+(setopt selected-window-contrast-selected-magnitude-background 0.85)
+(setopt selected-window-contrast-not-sel-magnitude-text 2.0)
+(setopt selected-window-contrast-not-sel-magnitude-background 1.1)
+
+(add-hook 'buffer-list-update-hook #'selected-window-contrast-highlight-selected-window)
+;; - for case of call: $ emacsclient -c ~/file
+(add-hook 'server-after-make-frame-hook #'selected-window-contrast-highlight-selected-window)
+;; (add-hook 'server-after-make-frame-hook
+;;           (lambda ()
+;;             (run-with-idle-timer 0.01 nil #'selected-window-contrast-highlight-selected-window)))
+
+;; -- -- -- configure mode-line-active
+(progn
+  ;; - reset mode-line to default.
+  (set-face-attribute 'mode-line-active nil
+                      :background
+                      (face-attribute 'mode-line :background)
+                      :foreground
+                      (face-attribute 'mode-line :foreground))
+  ;; - set backgound color
+  ;; (set-face-attribute 'mode-line-active nil :background "cyan4")
+  ;; - increate contrast
+  (selected-window-contrast-change-modeline 0.6 0.6)
+  )
 
 ;; -- -- org-present - in development
 (defun my/modeline-hide ()
@@ -6339,6 +6470,8 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 ;; -- jupyter export test
 (require 'ox-ipynb) ; todo
 ;; -- test
+
+;; (require 'package-lint.el)
 ;; - -
 
 ;; (defvar number-line-overlays '()

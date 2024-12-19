@@ -1,203 +1,214 @@
 
 # Table of Contents
 
-1.  [Notes](#orgc145c9d)
-    1.  [Keys after loading this file.](#orgb778289)
-    2.  [List of external files](#org30b7c6b)
-2.  [Automatic Variables](#orgbe77a5b)
-3.  [Enable commands (automatc added)](#orgdce09e3)
-4.  [Proxy configuration - for what types of connections? HTTP/HTTPS?](#org3a5587f)
-5.  [gui and new version dependent configurations](#orgea9cc1b)
-6.  [Paths and file extensions, loading process](#org6b6f7df)
-7.  [Backup](#org88c158c)
-    1.  [Single or Numbered Backups.](#org3a3b5e7)
-    2.  [Auto save files "#file#" (Auto-save)](#org5e66d7b)
-        1.  [Difference and remove](#org307904a)
-        2.  [Fix not visible message about #file# exist (old)](#orga660e45)
-        3.  [Fix reciver-this-file to recover old files (old, not used)](#orgf95af4d)
-8.  [Called externally with: emacs\*eval "()"](#orgffc8a87)
-    1.  [Calendar and diary](#org04b1a77)
-    2.  [Open link](#org3145af3)
-    3.  [Find file in right frame](#orgdf744d8)
-9.  [Global Hooks](#orgbfe4576)
-    1.  [Delete white spaces at save](#orgf2d2965)
-    2.  [emacsclient file1 file2: open each file in separate window](#org88315f5)
-    3.  [ipynb](#org8d4efa2)
-    4.  [Copy current file path and line number to clipboard](#org4f48e7b)
-10. [GUI](#orgd37c981)
-    1.  [common](#orgde7cdf6)
-    2.  [Scrolling](#org78f5db7)
-    3.  [Indentation](#org1ffa550)
-    4.  [filling text, line wrapping](#orga712579)
-    5.  [Make tabs visiable](#orgeb623e6)
-    6.  [Time](#orgdd95f1c)
-    7.  [window title](#orgd01d1bc)
-    8.  [window size](#org7414144)
-    9.  [theme switching - day and night [rooted]](#org8b1bb92)
-        1.  [main](#orgb6781e8)
-        2.  [by time - circadian package](#orga2ed00b)
-    10. [add current path to modeline](#orgf6da523)
-    11. [transparecy (old, not working)](#orgb3a8b23)
-11. [Functions](#orgc766184)
-    1.  [toggle-window-split](#org46dba4c)
-    2.  [exec-language](#org872b4e4)
-    3.  [Python REPL remotely](#org1a4f550)
-    4.  [Detect Org source block](#org515a5e9)
-12. [Key Bindings](#org7fb3330)
-    1.  [backspace](#orgd698f5f)
-    2.  [russian bindings when russian layout activated](#org7d5011c)
-    3.  [minibuffer M-x: previous command, next command](#org2baabdc)
-    4.  [navigation](#org9f2cb25)
-        1.  [main](#orgcc3c2cd)
-        2.  [parenthesis: lists and sexp](#org0429423)
-        3.  [Left hand navigation: next/previous line, and "Enter/new line"](#orga05d92e)
-    5.  [toggle windows split for 2 windows](#org3324fd6)
-    6.  [comments keys binding](#orge65d793)
-    7.  [New Line](#orgfc82862)
-        1.  [main code](#org646cfc4)
-        2.  [remove space after (open-line 1) when cursor at empty line](#org1bfe792)
-    8.  [WINDOWS](#org1b7f395)
-        1.  [navigate:](#orgb7d52eb)
-        2.  [split windows](#org0749b4a)
-        3.  [other window](#org545e675)
-    9.  [keyboard layout](#org7ab2a60)
-    10. [copy and cute word](#org84e4691)
-    11. [TAB - global binding](#org3132513)
-    12. [Move to the begining of the line C-a C-e M-a](#org58b15ea)
-    13. [Capitalilize sentence M-c](#org8ae48b1)
-    14. [fix: C-q call C-q for minibuffer also](#org36ccde4)
-    15. [start open shell](#orga21f1c7)
-    16. [open config](#org29b1957)
-    17. [close all,other buffers, kill all buffers and frames](#org831b9b2)
-    18. [minor-mode experiment](#org4f19fe1)
-13. [Global Modes](#orgaad1ad6)
-    1.  [multiple-cursor](#org34a8409)
-    2.  [dumb-jump - navigation for not loaded Elisp and without TAGs](#orge86fb3f)
-    3.  [completion - vertico, marginalia](#org455231e)
-        1.  [experiment with completion](#org414d64e)
-        2.  [load and configure vertico and marginalia](#orgcc17601)
-        3.  [vertico fix Dired path selection (vertico-insert)](#org6a4e3ca)
-        4.  [vertico-directory RET for directory and delete-backward M-h](#orge0fd07f)
-    4.  [zone screensaver FOR FUN](#orgbc04581)
-        1.  [activation](#org3c892bd)
-        2.  [fix disable rats that corrupt Emacs](#org0e303d2)
-        3.  [fix speed](#org7279199)
-        4.  [fix zone-pgm-stress over-messaging](#org84ec731)
-        5.  [zone function - fix text scale or zoom](#orgdc2e7b4)
-    5.  [expand-region - one key for selecting everything (experiment)](#org97e354e)
-    6.  [when selecting text you can move without Control, only C-g stops selection mode](#org497a820)
-    7.  [dictd - english dictionary - C-c d](#org1b69d60)
-    8.  [other](#org9f96937)
-    9.  [recent [rooted]](#orgf3b01eb)
-        1.  [save directories](#orgfb119f4)
-        2.  [save only remote files](#orgf990d6a)
-        3.  [Don't remove from saved if buffer killed](#org366ea3d)
-        4.  [Activate and key](#org5df5d17)
-14. [Buffers, Windows, Buffer menu, tab-bar, tab-list [rooted]](#org5449c49)
-    1.  [Buffer menu buffer-menu - sorting(disabled)](#org6fe23c2)
-    2.  [keys](#orgf23d89f)
-        1.  [buffer menu](#orgf2bef97)
-        2.  [buffer menu with Dired only.](#orgbfa4b4d)
-        3.  [other-buffer [rooted]](#org26ff46a)
-        4.  [messages (rooted)](#org8e93e7c)
-    3.  [tab-bar-mode for buffers](#org1c699ca)
-    4.  [tab-line](#org7ca11c0)
-15. [Tree-sitter (disabled now)](#org3ad1e9e)
-16. [Per Mode Configurations](#orga2d1ff8)
-    1.  [Outline minor mode for Elisp, Python [rooted]](#org5a22cf2)
-        1.  [hook and keys](#orgfc11129)
-17. [" . 1)](#orgb3e9834)
-    1.  [" . 2)](#org6182346)
-        1.  [" . 3)](#org5970c84)
-        2.  [fixes for other modes](#org846cc7a)
-        3.  [variant of fix for \`outline-hide-other' (not used)](#org6dfbe92)
-    2.  [calendar and holidays](#org6c381a4)
-    3.  [firstly-search - Dired, Package menu, Buffer menu, Bookmarks;;\*\*\* loading](#org7deae68)
-        1.  [keys rebinding](#orgfc607e1)
-        2.  [experiment](#org012310a)
-    4.  [Dired [rooted (consider disable trashing, omit, thumbnails)]](#org3b0648e)
-        1.  [ls arguments and sorting](#orgc3a5baf)
-        2.  [Tweeks: suggest path, buffer kill, trash, hl-line](#org9a239cd)
-        3.  [Tweeks: always delete and copy recursively, confirm y-n](#org5920235)
-        4.  [Omit "." files with dired-omit-mode](#org9355e0c)
-        5.  [Keys rebindings](#org46a5f77)
-        6.  [Use Xfce4 thumbnails 128x128](#org82d7867)
-        7.  [wdired mode: allow to change permissions in C-x C-q](#org02c16fe)
-        8.  [Default external applications for file extensions](#org1b09687)
-        9.  [Additional modes: hist, navigation, icons](#org70e3c8d)
-        10. [Side window at right](#org7531522)
-        11. [Renaming single file - sugget the same name](#orge18067c)
-        12. [Copy full file path (not used)](#org7728c2b)
-        13. [Selection of region instead of marks](#org65f37bc)
-        14. [Close image with C-q](#orgc70fb5b)
-        15. [Delete marked too.](#org0baa139)
-        16. [Fix: preserve column position after up/down moving](#org958f735)
-        17. [Fix: quote filename for when there [ in name for thumbnails](#org0903e40)
-    5.  [Bookmarks](#org8a199b3)
-    6.  [complete](#orgc197b19)
-    7.  [company](#org7bb9980)
-    8.  [ORG](#org884d6b2)
-        1.  [fix fill-paragraph](#orgd970044)
-        2.  [key: meta-return](#orga06c153)
-        3.  [key: new list item with indentation](#org742b8e7)
-        4.  [keys others](#orgcb1aa9c)
-        5.  [hook executed per buffer](#org2652959)
-        6.  [redisplay inline images on source code block evaluation](#orgd4447e0)
-        7.  [fix issue with headline](#org6813390)
-        8.  [configuration](#org88210f6)
-18. [org source code inline blocks](#org9eb5fa3)
-        1.  [timeout for org-babel- \* -evaluate-external-process](#org5b487c4)
-        2.  [HTTP links will be copied to buffer](#orgc94a407)
-        3.  [fix for inline images with transparent background](#orgadcadc2)
-        4.  [fix Allow to export subtree to different files (HTML)](#org3e12c74)
-        5.  [fix BABEL SHELL: permission error](#org3bdca91)
-        6.  [org-beamer - disable (old)](#orge5d3cd6)
-    1.  [Electric quote mode for Org and Markdown modes](#orge593e46)
-        1.  ["don’t" to "don't" -  With org-src-detect-hook](#orgcd61fe1)
-        2.  ["don’t" to "don't" - With advice and \`org-src-detect-check'](#org901df82)
-        3.  [Activate electric-quote-local-mode for Org and Markdown](#org125af63)
-        4.  ["don’t" to "don't" - Inset don't with stright quite](#org6aa578d)
-    2.  [Programming modes](#org6cc74ff)
-        1.  [all programming modes](#orgbd74df6)
-        2.  [Elisp - Emacs-Lisp](#orgb3d5e50)
-        3.  [Python](#org9eea250)
-        4.  [cc mode: C/C++](#orgde30e5b)
-        5.  [Perl](#org344a5e2)
-        6.  [Bash, sh-mode](#org9eda1ab)
-        7.  [HTML (testing)](#org5ca38f6)
-    3.  [artistic](#org411f9c7)
-        1.  [minor mode short-keys](#org7e4616c)
-        2.  [active artistic mode and minor mode for short keybindings](#org18a8b09)
-        3.  [artist-mode-hook](#org81ce3ea)
-    4.  [email](#orgb822ce0)
-        1.  [notmuch](#orgbece8eb)
-        2.  [editor org-mode integration](#org6bd77ea)
-        3.  [sendmail smtpmail (working, disabled)](#org8ffb268)
-        4.  [smtpmail-multi](#orgbddd4b0)
-    5.  [skeletons(templates) for abbrev TAB completion for ORG and Diary modes](#org320705b)
-        1.  [global](#orgdd1de79)
-        2.  [Python](#org7df92a5)
-    6.  [flycheck-aspell for English](#orge7df3c4)
-    7.  [guess-languagel - ispell - (not working)](#orge533728)
-    8.  [org-agenda](#org8df64f9)
-    9.  [appt - my appt X notification system:](#org08a3d7c)
-    10. [appt - fix appt-check - message "Preparing diary&#x2026;done"](#orgf764440)
-    11. [multitran for ORG (translater)](#org365c345)
-    12. [hidepw](#org2530ac9)
-    13. [Ediff](#orgc616b33)
-    14. [YAML - yaml-mode](#org62b67e5)
-    15. [Markdown](#org0e58b0c)
-    16. [pinyin-isearch](#orgf503c20)
-    17. [org-present - in development](#org3ab4d08)
-    18. [RTAGS (old)](#org6c3e605)
-    19. [Project Management (old)](#org1bad3f1)
-19. [buffer-list (old)](#orga38b57d)
-20. [Spell checking flyspell and ispell (old)](#orge75771d)
-21. [available keys](#org2a5aa7a)
-22. [test Org navigation](#org8525b18)
-23. [jupyter export test](#org926a854)
-24. [test](#org0e849ce)
-25. [Local Variables for first opening](#org6a3dfc7)
+1.  [Notes](#orgaa39417)
+    1.  [Keys after loading this file.](#org1ee6059)
+    2.  [List of external files](#orga1a6f4a)
+2.  [Automatic Variables](#org2cb5d59)
+3.  [Enable commands (automatc added)](#orga95c290)
+4.  [Proxy configuration - for what types of connections? HTTP/HTTPS?](#org8e16d45)
+5.  [gui and new version dependent configurations](#orgb7bcd72)
+6.  [Paths and file extensions, loading process](#orgf5ba261)
+7.  [Backup](#org36bc1db)
+    1.  [Single or Numbered Backups.](#orgac4601e)
+    2.  [Auto save files "#file#" (Auto-save)](#orgebdac7d)
+        1.  [Difference and remove](#orga92999d)
+        2.  [Fix not visible message about #file# exist (old)](#orgeb1f309)
+        3.  [Fix reciver-this-file to recover old files (old, not used)](#org48912f2)
+8.  [Called externally with: emacs\*eval "()"](#org057be7a)
+    1.  [Calendar and diary](#org8ad085e)
+    2.  [Open link](#org1188edc)
+    3.  [Find file in right frame](#org23ea06c)
+9.  [Global Hooks](#orgd53b331)
+    1.  [Delete white spaces at save](#org5e77bb6)
+    2.  [emacsclient file1 file2: open each file in separate window](#orgae9e3c9)
+    3.  [ipynb](#orgd430d40)
+    4.  [Copy current file path and line number to clipboard](#org49d82da)
+10. [GUI](#org14398e5)
+    1.  [common](#org0fa6c7e)
+    2.  [Scrolling](#org7f871c2)
+    3.  [Indentation](#orgfadad61)
+    4.  [filling text, line wrapping](#org48545e2)
+    5.  [Make tabs visiable](#org0884237)
+    6.  [Time](#orgc8f21f3)
+    7.  [window title](#orgbf09e61)
+    8.  [window size](#org867b5cc)
+    9.  [theme switching - day and night [rooted]](#orgd912788)
+        1.  [main](#org513f056)
+        2.  [by time - circadian package](#org78db052)
+    10. [add current path to modeline](#orgcc69abe)
+    11. [transparecy (old, not working)](#org744eb7d)
+11. [Functions](#org79d50e3)
+    1.  [toggle-window-split](#org38b4d60)
+    2.  [exec-language](#org6a443af)
+    3.  [Python REPL remotely](#org461cace)
+    4.  [Detect Org source block](#org88175d8)
+12. [Key Bindings](#orge689c29)
+    1.  [backspace](#org1e322fc)
+    2.  [russian bindings when russian layout activated](#orgbed3080)
+    3.  [minibuffer M-x: previous command, next command](#org1d19b48)
+    4.  [navigation](#orgdbf8a85)
+        1.  [main](#org11fff37)
+        2.  [parenthesis: lists and sexp](#orgcefd29f)
+        3.  [Left hand navigation: next/previous line, and "Enter/new line"](#org15b3024)
+    5.  [Windows](#org6119863)
+        1.  [toggle windows split for 2 windows](#org813c9a2)
+        2.  [swap windows](#org7045094)
+    6.  [comments keys binding](#org22f0a5b)
+    7.  [New Line](#orgc933cc4)
+        1.  [main code](#orgd6e5066)
+        2.  [remove space after (open-line 1) when cursor at empty line](#org7b30606)
+    8.  [WINDOWS](#orgf879df8)
+        1.  [navigate:](#org3fc11ce)
+        2.  [split windows](#org252afd9)
+        3.  [other window](#org13c43b9)
+    9.  [keyboard layout](#org87d4879)
+    10. [copy and cute word](#orga9336c3)
+    11. [TAB - global binding](#orgdab1a97)
+    12. [Move to the begining of the line C-a C-e M-a](#org590eb6c)
+    13. [Capitalilize sentence M-c](#org6907a86)
+    14. [fix: C-q call C-q for minibuffer also](#orgc0a9e1b)
+    15. [start open shell](#org91fc305)
+    16. [open config](#org866004c)
+    17. [close all,other buffers, kill all buffers and frames](#orgbb5e128)
+    18. [minor-mode experiment](#orgb453f42)
+    19. [scale text](#orgee8a64e)
+    20. [unfill-paragraph](#orgf3542cc)
+13. [Global Modes](#org3a3ad8c)
+    1.  [multiple-cursor](#org2f1ee0c)
+    2.  [dumb-jump - navigation for not loaded Elisp and without TAGs](#orgd7d8e9f)
+    3.  [completion - vertico, marginalia](#orge3860b7)
+        1.  [experiment with completion](#orgfe1bc22)
+        2.  [load and configure vertico and marginalia](#orgb9c2c02)
+        3.  [vertico fix Dired path selection (vertico-insert)](#org947428b)
+        4.  [vertico-directory RET for directory and delete-backward M-h](#org31ce29f)
+    4.  [zone screensaver FOR FUN](#orgcc0104f)
+        1.  [activation](#orga925e90)
+        2.  [fix disable rats that corrupt Emacs](#org1e9c47a)
+        3.  [fix speed](#org874fde1)
+        4.  [fix zone-pgm-stress over-messaging](#orgaad79a7)
+        5.  [zone function - fix text scale or zoom](#orgf568c90)
+    5.  [expand-region - one key for selecting everything (experiment)](#org0884161)
+    6.  [when selecting text you can move without Control, only C-g stops selection mode](#org2d67838)
+    7.  [dictd - english dictionary - C-c d](#org0c80f3c)
+    8.  [other](#orga54bcab)
+    9.  [recent [rooted]](#org73924f0)
+        1.  [save directories](#org811f398)
+        2.  [save only remote files](#org17ed4f3)
+        3.  [Don't remove from saved if buffer killed](#org504c22b)
+        4.  [Activate and key](#org4800167)
+14. [Buffers, Windows, Buffer menu, tab-bar, tab-list [rooted]](#org3f74dd5)
+    1.  [Buffer menu buffer-menu - sorting(disabled)](#orgc965849)
+    2.  [keys](#orgeb48e1f)
+        1.  [buffer menu](#orgf11e9b5)
+        2.  [buffer menu with Dired only.](#orgec83eec)
+        3.  [other-buffer [rooted]](#orgdcd9292)
+        4.  [messages (rooted)](#org784cae8)
+    3.  [tab-bar-mode for buffers](#orgce6d536)
+    4.  [tab-line](#org25ce957)
+15. [Tree-sitter (disabled now)](#org06ac31e)
+16. [Per Mode Configurations](#orgeffa909)
+    1.  [Outline minor mode for Elisp, Python [rooted]](#orgac8929f)
+        1.  [hook and keys](#org1d1dedd)
+17. [" . 1)](#org7783894)
+    1.  [" . 2)](#org2c1333a)
+        1.  [" . 3)](#org864e814)
+        2.  [fixes for other modes](#org4703148)
+        3.  [variant of fix for \`outline-hide-other' (not used)](#org29b7ebb)
+    2.  [calendar and holidays](#orged0ecda)
+    3.  [Diary](#org5f284a0)
+    4.  [firstly-search - Dired, Package menu, Buffer menu, Bookmarks;;\*\*\* loading](#org0407957)
+        1.  [keys rebinding](#org981d756)
+        2.  [experiment](#org00728cd)
+    5.  [Dired [rooted (consider disable trashing, omit, thumbnails)]](#org0d2ddf1)
+        1.  [speedup loading (disabled)](#org52071d5)
+        2.  [ls arguments and sorting](#orga99d941)
+        3.  [Tweeks: suggest path, buffer kill, trash, hl-line](#orga0ee732)
+        4.  [Tweeks: always delete and copy recursively, confirm y-n](#orgfd44e83)
+        5.  [Omit "." files with dired-omit-mode](#orgac7597a)
+        6.  [Keys rebindings](#org0a33435)
+        7.  [Use Xfce4 thumbnails 128x128](#orgccf75b2)
+        8.  [wdired mode: allow to change permissions in C-x C-q](#orga0687f9)
+        9.  [Default external applications for file extensions](#org53c5278)
+        10. [Additional modes: hist, navigation, icons](#org11f04db)
+        11. [Side window at right](#orge3814af)
+        12. [Renaming single file - sugget the same name](#orge4a05ea)
+        13. [Copy full file path (not used)](#org8c35b97)
+        14. [Selection of region instead of marks](#org2e2ff06)
+        15. [Close image with C-q](#orgd371784)
+        16. [Delete marked too.](#org5ad4a6b)
+        17. [Fix: preserve column position after up/down moving](#org1fe23a9)
+        18. [Fix: quote filename for when there [ in name for thumbnails](#org600b9fb)
+    6.  [Bookmarks](#orgeb0e3c9)
+    7.  [complete](#orgcd381e4)
+    8.  [company](#org90bfaac)
+    9.  [ORG](#orgb1ca7cc)
+        1.  [fix fill-paragraph](#orgecf61ed)
+        2.  [key: meta-return](#orgb86cbc1)
+        3.  [key: new list item with indentation](#orgcaab3f3)
+        4.  [keys others](#org610dca5)
+        5.  [hook executed per buffer](#org9d38ac0)
+        6.  [redisplay inline images on source code block evaluation](#orgb99ce0a)
+        7.  [fix issue with headline](#orgc260527)
+        8.  [configuration](#orge506ef9)
+18. [org source code inline blocks](#org5ccc89a)
+        1.  [timeout for org-babel- \* -evaluate-external-process](#org2126911)
+        2.  [HTTP links will be copied to buffer](#org2cd47f9)
+        3.  [fix for inline images with transparent background](#org6559346)
+        4.  [fix Allow to export subtree to different files (HTML)](#org8cc3b0f)
+        5.  [fix BABEL SHELL: permission error](#org543b427)
+        6.  [org-beamer - disable (old)](#org3126309)
+    1.  [Electric quote mode for Org and Markdown modes](#orgc2d3cfe)
+        1.  ["don’t" to "don't" -  With org-src-detect-hook](#org15d5c45)
+        2.  ["don’t" to "don't" - With advice and \`org-src-detect-check'](#orgeda8052)
+        3.  [Activate electric-quote-local-mode for Org and Markdown](#orgd2a71e2)
+        4.  ["don’t" to "don't" - Inset don't with stright quite](#org600cc4c)
+    2.  [Flymake](#orgd99da34)
+    3.  [Programming modes](#org5cf5837)
+        1.  [all programming modes](#orgd35afe6)
+        2.  [Elisp - Emacs-Lisp](#orgbc22ca0)
+        3.  [Python](#org6854d19)
+        4.  [cc mode: C/C++](#org4f07a7a)
+        5.  [Perl](#org5b7e473)
+        6.  [Bash, sh-mode](#orge73499d)
+        7.  [HTML (testing)](#orgfbba86d)
+    4.  [artistic](#org6601f1e)
+        1.  [minor mode short-keys](#org54fd167)
+        2.  [active artistic mode and minor mode for short keybindings](#org49b2128)
+        3.  [artist-mode-hook](#org2795ae6)
+    5.  [email](#org135fb57)
+        1.  [notmuch](#orga074d2f)
+        2.  [editor org-mode integration](#org4ac21ee)
+        3.  [sendmail smtpmail (working, disabled)](#org1e949bc)
+        4.  [smtpmail-multi](#orgeb682f5)
+    6.  [skeletons(templates) for abbrev TAB completion for ORG and Diary modes](#org849d852)
+        1.  [global](#org29fe585)
+        2.  [Python](#orge1ad2a1)
+    7.  [flycheck-aspell for English](#org62e577a)
+    8.  [guess-languagel - ispell - (not working)](#org6f31c47)
+    9.  [org-agenda](#orgb9ae6e7)
+    10. [appt - my appt X notification system:](#org0f2b395)
+    11. [appt - fix appt-check - message "Preparing diary&#x2026;done"](#org7373913)
+    12. [multitran for ORG (translater)](#org059f86d)
+    13. [hidepw](#org199d31b)
+    14. [EasyPG - GnuPG interface](#org20a66f0)
+    15. [Ediff](#org6882255)
+    16. [YAML - yaml-mode](#org1c44272)
+    17. [Markdown](#org17addf9)
+    18. [pinyin-isearch](#orgcd411c1)
+    19. [selected-window mode](#org7d303a5)
+        1.  [main](#orgb66e11b)
+        2.  [configure mode-line-active](#org523b854)
+    20. [org-present - in development](#orga296824)
+    21. [RTAGS (old)](#orgee3b372)
+    22. [Project Management (old)](#org3b55354)
+19. [buffer-list (old)](#orge757e43)
+20. [Spell checking flyspell and ispell (old)](#orga9ef5a7)
+21. [available keys](#org1dec5d6)
+22. [test Org navigation](#org12c23bd)
+23. [jupyter export test](#orgfcb32b0)
+24. [test](#org2bd7855)
+25. [Local Variables for first opening](#orgd87baaa)
 
 ;; -**- mode: elisp-byte-code; eval: (outline-minor-mode 1); lexical-binding: t -**-
 ;; ##### First opening guide: ##########
@@ -209,7 +220,7 @@
 \#+end\_src
 
 
-<a id="orgc145c9d"></a>
+<a id="orgaa39417"></a>
 
 # Notes
 
@@ -218,7 +229,7 @@
     ;; GNU Emacs 29.2
 
 
-<a id="orgb778289"></a>
+<a id="org1ee6059"></a>
 
 ## Keys after loading this file.
 
@@ -229,7 +240,7 @@
     ;; [ C-c C-e ] 		- hide other headers, leave opened current
 
 
-<a id="org30b7c6b"></a>
+<a id="orga1a6f4a"></a>
 
 ## List of external files
 
@@ -244,7 +255,7 @@
     ;; .emacs.d/cotrib/lisp/myholidays.el - holidays
 
 
-<a id="orgbe77a5b"></a>
+<a id="org2cb5d59"></a>
 
 # Automatic Variables
 
@@ -278,7 +289,7 @@
      '(org-src-preserve-indentation t)
      '(org-startup-folded t)
      '(package-selected-packages
-    '(circadian dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search idle-highlight-mode csv-mode free-keys flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
+    '(editorconfig selected-window-accent-mode circadian dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search idle-highlight-mode csv-mode free-keys flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
      '(safe-local-variable-values '((org-image-actual-width . 500)))
      '(size-indication-mode t)
      '(speedbar-show-unknown-files t))
@@ -312,7 +323,7 @@
       ;;  ;; '(whitespace-trailing ((t (:extend t :background "pink"))))
 
 
-<a id="orgdce09e3"></a>
+<a id="orga95c290"></a>
 
 # Enable commands (automatc added)
 
@@ -329,7 +340,7 @@
                          ; and `package-activated-list' variable
 
 
-<a id="org3a5587f"></a>
+<a id="org8e16d45"></a>
 
 # Proxy configuration - for what types of connections? HTTP/HTTPS?
 
@@ -362,7 +373,7 @@
 ;; #+end\_src
 
 
-<a id="orgea9cc1b"></a>
+<a id="orgb7bcd72"></a>
 
 # gui and new version dependent configurations
 
@@ -375,7 +386,7 @@
     ;; (add-to-list 'Info-directory-list "/usr/local/src/elisp")
 
 
-<a id="org6b6f7df"></a>
+<a id="orgf5ba261"></a>
 
 # Paths and file extensions, loading process
 
@@ -384,10 +395,8 @@
     (setopt load-prefer-newer t)
     
     ;; must not have subfolders
-    (add-to-list 'load-path "~/.emacs.d/contrib/lisp/package-build")
     (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ediffnw")
     (add-to-list 'load-path "~/.emacs.d/contrib/lisp")
-    (add-to-list 'load-path "~/.emacs.d/contrib/lis/org-src-context.el")
     ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ob-yaml.el")
     ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ob-yamlmy.el")
     ;; ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/emacs-jedi")
@@ -398,6 +407,8 @@
     (add-to-list 'auto-mode-alist '("\\.jpg\\'" . image-mode))
     (add-to-list 'auto-mode-alist '("\\.png\\'" . image-mode))
     (add-to-list 'auto-mode-alist '("\\.gif\\'" . image-mode))
+    ;; YAML
+    (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
     ;; ;; dont ask for unsafe local variables in knewn files
     ;; (setq inhibit-local-variables-regexps
     ;; info
@@ -414,14 +425,14 @@
     ;;                     ("\\.gif\\'" . image-mode))))
 
 
-<a id="org88c158c"></a>
+<a id="org36bc1db"></a>
 
 # Backup
 
     
 
 
-<a id="org3a3b5e7"></a>
+<a id="orgac4601e"></a>
 
 ## Single or Numbered Backups.
 
@@ -434,14 +445,14 @@
     (setopt kept-new-versions 6)
 
 
-<a id="org5e66d7b"></a>
+<a id="orgebdac7d"></a>
 
 ## Auto save files "#file#" (Auto-save)
 
     
 
 
-<a id="org307904a"></a>
+<a id="orga92999d"></a>
 
 ### Difference and remove
 
@@ -463,7 +474,7 @@
           )))
 
 
-<a id="orga660e45"></a>
+<a id="orgeb1f309"></a>
 
 ### Fix not visible message about #file# exist (old)
 
@@ -490,7 +501,7 @@
     ;; (advice-add 'server-execute :after #'my/hook-fix-auto-save-was-found)
 
 
-<a id="orgf95af4d"></a>
+<a id="org48912f2"></a>
 
 ### Fix reciver-this-file to recover old files (old, not used)
 
@@ -555,18 +566,19 @@
     ;;        (t (user-error "Recover-file canceled")))))
 
 
-<a id="orgffc8a87"></a>
+<a id="org057be7a"></a>
 
 # Called externally with: emacs\*eval "()"
 
     
 
 
-<a id="org04b1a77"></a>
+<a id="org8ad085e"></a>
 
 ## Calendar and diary
 
     
+    (require 'org-agenda)
     (defun my/agenda-split()
       "called with (call-interactively 'my/agenda-split)"
       (interactive)
@@ -583,15 +595,9 @@
       (other-window 1)
       (other-window 1)
       )
-    
-    ;; disable holidays
-    ;; # Monday is the first day of the week
-    (setq calendar-week-start-day 1)
-    ;; sort diary entries
-    (add-hook 'diary-list-entries-hook 'diary-sort-entries t)
 
 
-<a id="org3145af3"></a>
+<a id="org1188edc"></a>
 
 ## Open link
 
@@ -609,7 +615,7 @@
         (org-link-open-from-string arg)))
 
 
-<a id="orgdf744d8"></a>
+<a id="org23ea06c"></a>
 
 ## Find file in right frame
 
@@ -658,22 +664,14 @@
     ;; (my/find-file-frame "a.org")
 
 
-<a id="orgbfe4576"></a>
+<a id="orgd53b331"></a>
 
 # Global Hooks
 
     
-    ;;; It is the opposite of fill-paragraph
-    (defun unfill-paragraph () ;; not used now
-      "Takes a multi-line paragraph and makes it into a single line of text."
-      (interactive)
-      (let ((fill-column (point-max)))
-        (fill-paragraph nil)))
-    
-    ;; (setq display-buffer-base-action '(display-buffer-in-tab))
 
 
-<a id="orgf2d2965"></a>
+<a id="org5e77bb6"></a>
 
 ## Delete white spaces at save
 
@@ -688,7 +686,7 @@
                                    )))
 
 
-<a id="org88315f5"></a>
+<a id="orgae9e3c9"></a>
 
 ## emacsclient file1 file2: open each file in separate window
 
@@ -715,7 +713,7 @@
     ;; (add-hook 'server-visit-hook 'server-visit-hook-custom-find)
 
 
-<a id="org8d4efa2"></a>
+<a id="orgd430d40"></a>
 
 ## ipynb
 
@@ -763,7 +761,7 @@
                    (insert "\n\n")))))))))
 
 
-<a id="org4f48e7b"></a>
+<a id="org49d82da"></a>
 
 ## Copy current file path and line number to clipboard
 
@@ -786,14 +784,14 @@
     (define-key global-map (kbd "C-c w") #'my/copy-link-to-clipboard)
 
 
-<a id="orgd37c981"></a>
+<a id="org14398e5"></a>
 
 # GUI
 
     
 
 
-<a id="orgde7cdf6"></a>
+<a id="org0fa6c7e"></a>
 
 ## common
 
@@ -826,7 +824,7 @@
     (setq echo-keystrokes 0.2)
 
 
-<a id="org78f5db7"></a>
+<a id="org7f871c2"></a>
 
 ## Scrolling
 
@@ -844,7 +842,7 @@
      )
 
 
-<a id="org1ffa550"></a>
+<a id="orgfadad61"></a>
 
 ## Indentation
 
@@ -865,7 +863,7 @@
     (setopt backward-delete-char-untabify-method 'hungry)
 
 
-<a id="orga712579"></a>
+<a id="org48545e2"></a>
 
 ## filling text, line wrapping
 
@@ -886,7 +884,7 @@
     ;; (add-hook 'text-mode-hook  'visual-line-mode)
 
 
-<a id="orgeb623e6"></a>
+<a id="org0884237"></a>
 
 ## Make tabs visiable
 
@@ -901,7 +899,7 @@
     (global-whitespace-mode)
 
 
-<a id="orgdd95f1c"></a>
+<a id="orgc8f21f3"></a>
 
 ## Time
 
@@ -910,7 +908,7 @@
     (setopt display-time-mode t)
 
 
-<a id="orgd01d1bc"></a>
+<a id="orgbf09e61"></a>
 
 ## window title
 
@@ -955,7 +953,7 @@
       ;;             "%b  (" invocation-name "@" system-name ")")))
 
 
-<a id="org7414144"></a>
+<a id="org867b5cc"></a>
 
 ## window size
 
@@ -966,14 +964,14 @@
     ;; (add-to-list 'default-frame-alist '(top    . 0))
 
 
-<a id="org8b1bb92"></a>
+<a id="orgd912788"></a>
 
 ## theme switching - day and night [rooted]
 
     
 
 
-<a id="orgb6781e8"></a>
+<a id="org513f056"></a>
 
 ### main
 
@@ -1028,7 +1026,7 @@
     (global-set-key (kbd "M-(") #'my/set-theme-white) ; ; modus-vivendi - for root
 
 
-<a id="orga2ed00b"></a>
+<a id="org78db052"></a>
 
 ### by time - circadian package
 
@@ -1056,7 +1054,7 @@
     (circadian-setup)
 
 
-<a id="orgf6da523"></a>
+<a id="orgcc69abe"></a>
 
 ## add current path to modeline
 
@@ -1070,7 +1068,7 @@
                  (list global-mode-string 'default-directory))))
 
 
-<a id="orgb3a8b23"></a>
+<a id="org744eb7d"></a>
 
 ## transparecy (old, not working)
 
@@ -1084,14 +1082,14 @@
     ;; ;; ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 
-<a id="orgc766184"></a>
+<a id="org79d50e3"></a>
 
 # Functions
 
     
 
 
-<a id="org46dba4c"></a>
+<a id="org38b4d60"></a>
 
 ## toggle-window-split
 
@@ -1127,7 +1125,7 @@
     ;;   (message "now load file with M-x load-library"))
 
 
-<a id="org872b4e4"></a>
+<a id="org6a443af"></a>
 
 ## exec-language
 
@@ -1185,7 +1183,7 @@
                       )))
 
 
-<a id="org1a4f550"></a>
+<a id="org461cace"></a>
 
 ## Python REPL remotely
 
@@ -1200,7 +1198,7 @@
         (shell-command cc )))
 
 
-<a id="org515a5e9"></a>
+<a id="org88175d8"></a>
 
 ## Detect Org source block
 
@@ -1252,14 +1250,14 @@
             ))))
 
 
-<a id="org7fb3330"></a>
+<a id="orge689c29"></a>
 
 # Key Bindings
 
     
 
 
-<a id="orgd698f5f"></a>
+<a id="org1e322fc"></a>
 
 ## backspace
 
@@ -1291,7 +1289,7 @@
     ;; (global-set-key (kbd "C-u") #'universal-argument) ; shadow `universal-argument'
 
 
-<a id="org7d5011c"></a>
+<a id="orgbed3080"></a>
 
 ## russian bindings when russian layout activated
 
@@ -1315,7 +1313,7 @@
     (define-key key-translation-map (kbd "C-о") (kbd "C-j"))
 
 
-<a id="org2baabdc"></a>
+<a id="org1d19b48"></a>
 
 ## minibuffer M-x: previous command, next command
 
@@ -1324,14 +1322,14 @@
     (define-key minibuffer-local-map (kbd "C-n") 'next-line-or-history-element) ;; C-n
 
 
-<a id="org9f2cb25"></a>
+<a id="orgdbf8a85"></a>
 
 ## navigation
 
     
 
 
-<a id="orgcc3c2cd"></a>
+<a id="org11fff37"></a>
 
 ### main
 
@@ -1357,7 +1355,7 @@
     ;; (define-key key-translation-map (kbd "M-a") (kbd "C-a"))
 
 
-<a id="org0429423"></a>
+<a id="orgcefd29f"></a>
 
 ### parenthesis: lists and sexp
 
@@ -1385,7 +1383,7 @@
     ;;                                                  (call-interactively 'backward-sexp)))
 
 
-<a id="orga05d92e"></a>
+<a id="org15b3024"></a>
 
 ### Left hand navigation: next/previous line, and "Enter/new line"
 
@@ -1399,15 +1397,39 @@
     (define-key key-translation-map (kbd "C-M-q") (kbd "RET")) ; shadow `indent-pp-sexp'
 
 
-<a id="org3324fd6"></a>
+<a id="org6119863"></a>
 
-## toggle windows split for 2 windows
+## Windows
+
+    
+
+
+<a id="org813c9a2"></a>
+
+### toggle windows split for 2 windows
 
     
     (global-set-key (kbd "C-x |") 'my/toggle-window-split)
 
 
-<a id="orge65d793"></a>
+<a id="org7045094"></a>
+
+### swap windows
+
+    
+    (defun my/swap-buffers-in-windows ()
+      "Put the buffer from the selected window in next window, and vice versa."
+      (interactive)
+      (let* ((this (selected-window))
+         (other (next-window))
+         (this-buffer (window-buffer this))
+         (other-buffer (window-buffer other)))
+        (set-window-buffer other this-buffer)
+        (set-window-buffer this other-buffer)))
+    (global-set-key (kbd "C-x M-\\") 'my/swap-buffers-in-windows)
+
+
+<a id="org22f0a5b"></a>
 
 ## comments keys binding
 
@@ -1416,14 +1438,14 @@
     (global-set-key (kbd "C-;") 'comment-dwim)
 
 
-<a id="orgfc82862"></a>
+<a id="orgc933cc4"></a>
 
 ## New Line
 
     
 
 
-<a id="org646cfc4"></a>
+<a id="orgd6e5066"></a>
 
 ### main code
 
@@ -1581,7 +1603,7 @@
     ;;     (kill-word (- arg))))
 
 
-<a id="org1bfe792"></a>
+<a id="org7b30606"></a>
 
 ### remove space after (open-line 1) when cursor at empty line
 
@@ -1600,14 +1622,14 @@
     (advice-add 'open-line :around #'my/open-line-advice)
 
 
-<a id="org1b7f395"></a>
+<a id="orgf879df8"></a>
 
 ## WINDOWS
 
     
 
 
-<a id="orgb7d52eb"></a>
+<a id="org3fc11ce"></a>
 
 ### navigate:
 
@@ -1641,7 +1663,7 @@
     ;; (global-set-key (kbd "M-c") 'yank)
 
 
-<a id="org0749b4a"></a>
+<a id="org252afd9"></a>
 
 ### split windows
 
@@ -1656,7 +1678,7 @@
     (global-set-key "\C-x2" #'my/split-window-vertically)
 
 
-<a id="org545e675"></a>
+<a id="org13c43b9"></a>
 
 ### other window
 
@@ -1671,7 +1693,7 @@
     ;; (global-set-key "\M-k"    #'delete-other-windows)
 
 
-<a id="org7ab2a60"></a>
+<a id="org87d4879"></a>
 
 ## keyboard layout
 
@@ -1692,7 +1714,7 @@
     (global-set-key (kbd "C-\\") 'toggle-xkb-layout)
 
 
-<a id="org84e4691"></a>
+<a id="orga9336c3"></a>
 
 ## copy and cute word
 
@@ -1716,7 +1738,7 @@
     (global-set-key (kbd "C-c C-w") 'my/word-cut) ; hides org-refile
 
 
-<a id="org3132513"></a>
+<a id="orgdab1a97"></a>
 
 ## TAB - global binding
 
@@ -1744,7 +1766,7 @@
     
         (setq  ciw (current-indentation))
         (indent-for-tab-command) ;; indent first line
-        (message "wtf %s %s" ciw (current-indentation))
+        ;; (message "wtf %s %s" ciw (current-indentation))
         (let ((differ (- (current-indentation) ciw) )) ;; was = 1, become=4, 4-1 = 3+1 =4
           (forward-line)
           (message "l %s %s" (line-beginning-position) end)
@@ -1805,7 +1827,7 @@
     (global-set-key (kbd "TAB") #'my/indent-or-complete)
 
 
-<a id="org58b15ea"></a>
+<a id="org590eb6c"></a>
 
 ## Move to the begining of the line C-a C-e M-a
 
@@ -1836,7 +1858,7 @@
     (add-hook 'python-ts-mode-hook 'my/remapcame)
 
 
-<a id="org8ae48b1"></a>
+<a id="org6907a86"></a>
 
 ## Capitalilize sentence M-c
 
@@ -1879,7 +1901,7 @@
     (global-set-key (kbd "M-с") #'my/capitalize-sentence) ; rus
 
 
-<a id="org36ccde4"></a>
+<a id="orgc0a9e1b"></a>
 
 ## fix: C-q call C-q for minibuffer also
 
@@ -1901,7 +1923,7 @@
     (define-key isearch-mode-map "\C-g" #'my/keyboard-quit-with-minubuffer)
 
 
-<a id="orga21f1c7"></a>
+<a id="org91fc305"></a>
 
 ## start open shell
 
@@ -1912,7 +1934,7 @@
     (global-set-key (kbd "M-!") #'my/call-process-shell-command)
 
 
-<a id="org29b1957"></a>
+<a id="org866004c"></a>
 
 ## open config
 
@@ -1923,7 +1945,7 @@
     (global-set-key (kbd "C-~") #'my/open-config)
 
 
-<a id="org831b9b2"></a>
+<a id="orgbb5e128"></a>
 
 ## close all,other buffers, kill all buffers and frames
 
@@ -2002,6 +2024,7 @@
     Called from buffer-menu. Marked buffers will be ignored. C-u for
     test and will kill actually."
       (interactive "P")
+      (delete-other-windows) ; drop other windows in current frame
       (my/drop-frame-duplicates) ; drop duplicate frames by showed buffer
       (my/kill-other-buffers arg) ; drop other buffers
       (my/drop-frame-duplicates) ; drop duplicate frames - because buffers changed
@@ -2021,7 +2044,7 @@
     (global-set-key (kbd "C-x M-p") #'my/kill-buffer-and-frame)
 
 
-<a id="org4f19fe1"></a>
+<a id="orgb453f42"></a>
 
 ## minor-mode experiment
 
@@ -2054,14 +2077,39 @@
     ;; (global-set-key (kbd ";")     'my/disable-mn)
 
 
-<a id="orgaad1ad6"></a>
+<a id="orgee8a64e"></a>
+
+## scale text
+
+    
+    (global-set-key (kbd "C-+") #'text-scale-increase)
+    (global-set-key (kbd "C--") #'text-scale-decrease) ; shadow negative-argument
+
+
+<a id="orgf3542cc"></a>
+
+## unfill-paragraph
+
+    
+    ;; It is the opposite of fill-paragraph
+    (defun my/unfill-paragraph () ;; not used now
+      "Takes a multi-line paragraph and makes it into a single line of text."
+      (interactive)
+      (let ((fill-column (point-max)))
+        (fill-paragraph nil)))
+    
+    (global-set-key (kbd "C-c M-q") #'unfill-paragraph)
+    ;; (setq display-buffer-base-action '(display-buffer-in-tab))
+
+
+<a id="org3a3ad8c"></a>
 
 # Global Modes
 
     
 
 
-<a id="org34a8409"></a>
+<a id="org2f1ee0c"></a>
 
 ## multiple-cursor
 
@@ -2076,7 +2124,7 @@
     ;; (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
 
-<a id="orge86fb3f"></a>
+<a id="orgd7d8e9f"></a>
 
 ## dumb-jump - navigation for not loaded Elisp and without TAGs
 
@@ -2088,14 +2136,14 @@
     ;; (setq dumb-jump-debug t)
 
 
-<a id="org455231e"></a>
+<a id="orge3860b7"></a>
 
 ## completion - vertico, marginalia
 
     
 
 
-<a id="org414d64e"></a>
+<a id="orgfe1bc22"></a>
 
 ### experiment with completion
 
@@ -2187,7 +2235,7 @@
     ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Basic-Completion.html
 
 
-<a id="orgcc17601"></a>
+<a id="orgb9c2c02"></a>
 
 ### load and configure vertico and marginalia
 
@@ -2205,7 +2253,7 @@
     (marginalia-mode 1)
 
 
-<a id="org6a4e3ca"></a>
+<a id="org947428b"></a>
 
 ### vertico fix Dired path selection (vertico-insert)
 
@@ -2246,7 +2294,7 @@
     ;; C-m   /u......... -> /u/usr/........
 
 
-<a id="orge0fd07f"></a>
+<a id="org31ce29f"></a>
 
 ### vertico-directory RET for directory and delete-backward M-h
 
@@ -2265,14 +2313,14 @@
     (keymap-set vertico-map "M-h" 'my/delete-backward)
 
 
-<a id="orgbc04581"></a>
+<a id="orgcc0104f"></a>
 
 ## zone screensaver FOR FUN
 
     
 
 
-<a id="org3c892bd"></a>
+<a id="orga925e90"></a>
 
 ### activation
 
@@ -2282,7 +2330,7 @@
     (zone-when-idle 120)
 
 
-<a id="org0e303d2"></a>
+<a id="org1e9c47a"></a>
 
 ### fix disable rats that corrupt Emacs
 
@@ -2300,7 +2348,7 @@
     (setq zone-programs (remove 'zone-pgm-drip zone-programs))
 
 
-<a id="org7279199"></a>
+<a id="org874fde1"></a>
 
 ### fix speed
 
@@ -2344,7 +2392,7 @@
     (advice-add 'sit-for :around #'my/zone-sit-for-advice)
 
 
-<a id="org84ec731"></a>
+<a id="orgaad79a7"></a>
 
 ### fix zone-pgm-stress over-messaging
 
@@ -2386,7 +2434,7 @@
            (sit-for 0.1)))))
 
 
-<a id="orgdc2e7b4"></a>
+<a id="orgf568c90"></a>
 
 ### zone function - fix text scale or zoom
 
@@ -2506,6 +2554,9 @@
                             zone-programs)
                            nil t)))
               (list (intern (concat "zone-pgm-" choice))))))
+      (condition-case ex
+    
+    
       (unless pgm
         (setq pgm (aref zone-programs (random (length zone-programs)))))
         (let ((fframe (selected-frame))
@@ -2563,10 +2614,12 @@
                  (funcall restore fframe ct outbuf)
                  (ding)
                  (message "Zoning...sorry")))
-              (when restore (funcall restore fframe ct outbuf)))))
+              (when restore (funcall restore fframe ct outbuf))))
+        (error (backtrace)))
+        )
 
 
-<a id="org97e354e"></a>
+<a id="org0884161"></a>
 
 ## expand-region - one key for selecting everything (experiment)
 
@@ -2604,7 +2657,7 @@
     ;; (add-hook 'org-mode-hook 'er/add-text-mode-expansions)
 
 
-<a id="org497a820"></a>
+<a id="org2d67838"></a>
 
 ## when selecting text you can move without Control, only C-g stops selection mode
 
@@ -2648,7 +2701,7 @@
     (add-hook 'deactivate-mark-hook (lambda () (myselect-mode -1)))
 
 
-<a id="org1b69d60"></a>
+<a id="org0c80f3c"></a>
 
 ## dictd - english dictionary - C-c d
 
@@ -2659,7 +2712,7 @@
     (global-set-key (kbd "C-c d") #'dictionary-lookup-definition)
 
 
-<a id="org9f96937"></a>
+<a id="orga54bcab"></a>
 
 ## other
 
@@ -2684,7 +2737,7 @@
     (setopt xref-auto-jump-to-first-xref t)
 
 
-<a id="orgf3b01eb"></a>
+<a id="org73924f0"></a>
 
 ## recent [rooted]
 
@@ -2692,7 +2745,7 @@
     (require 'recentf)
 
 
-<a id="orgfb119f4"></a>
+<a id="org811f398"></a>
 
 ### save directories
 
@@ -2705,7 +2758,7 @@
     ;; (advice-add 'find-file :before #'my/find-file-hook)
 
 
-<a id="orgf990d6a"></a>
+<a id="org17ed4f3"></a>
 
 ### save only remote files
 
@@ -2720,7 +2773,7 @@
       nil)
 
 
-<a id="org366ea3d"></a>
+<a id="org504c22b"></a>
 
 ### Don't remove from saved if buffer killed
 
@@ -2735,7 +2788,7 @@
       "Hooks used by recentf.")
 
 
-<a id="org5df5d17"></a>
+<a id="org4800167"></a>
 
 ### Activate and key
 
@@ -2747,14 +2800,14 @@
     (global-set-key (kbd "M-r") 'recentf-open-files) ; shadow `move-to-window-line-top-bottom'
 
 
-<a id="org5449c49"></a>
+<a id="org3f74dd5"></a>
 
 # Buffers, Windows, Buffer menu, tab-bar, tab-list [rooted]
 
     
 
 
-<a id="org6fe23c2"></a>
+<a id="orgc965849"></a>
 
 ## Buffer menu buffer-menu - sorting(disabled)
 
@@ -2768,14 +2821,14 @@
     ;; (add-hook 'Buffer-menu-mode-hook #'my/sort-buffer-meny-by-mode)
 
 
-<a id="orgf23d89f"></a>
+<a id="orgeb48e1f"></a>
 
 ## keys
 
     
 
 
-<a id="orgf2bef97"></a>
+<a id="orgf11e9b5"></a>
 
 ### buffer menu
 
@@ -2804,6 +2857,7 @@
       (delete-other-windows)
       (call-interactively 'Buffer-menu-this-window))
     
+    
     (defun my/sort-by-modified ()
       (interactive)
       (tabulated-list-sort 2))
@@ -2814,10 +2868,17 @@
                 (keymap-local-set "C-'" #'my/sort-by-modified)))
     
     
+    (defun my/buffer-menu-restore-sort (&rest args)
+      "Restore sorting when we press C-j or C-m"
+      (setq tabulated-list-sort-key nil)
+      (tabulated-list-sort 2))
+    
+    (advice-add 'Buffer-menu-this-window :before 'my/buffer-menu-restore-sort)
+    
     ;; (global-set-key (kbd "C-S-z") #'buffer-menu) ; (not rooted)
 
 
-<a id="orgbfa4b4d"></a>
+<a id="orgec83eec"></a>
 
 ### buffer menu with Dired only.
 
@@ -2831,7 +2892,7 @@
     (global-set-key (kbd "C-x M-b") #'my/buffer-menu-dired)
 
 
-<a id="org26ff46a"></a>
+<a id="orgdcd9292"></a>
 
 ### other-buffer [rooted]
 
@@ -2866,7 +2927,7 @@
       (define-key python-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `python-shell-switch-to-shell'
 
 
-<a id="org8e93e7c"></a>
+<a id="org784cae8"></a>
 
 ### messages (rooted)
 
@@ -2879,7 +2940,7 @@
     (global-set-key (kbd "C-c M-c") #'my/show-message-log) ; rooted
 
 
-<a id="org1c699ca"></a>
+<a id="orgce6d536"></a>
 
 ## tab-bar-mode for buffers
 
@@ -2893,7 +2954,7 @@
     ;; (setq display-buffer-alist '((".*" display-buffer-same-window)))
 
 
-<a id="org7ca11c0"></a>
+<a id="org25ce957"></a>
 
 ## tab-line
 
@@ -2910,7 +2971,7 @@
     ;; (global-set-key (kbd "C-M-e") #'tab-line-switch-to-next-tab) ; shadow end-of-defun
 
 
-<a id="org3ad1e9e"></a>
+<a id="org06ac31e"></a>
 
 # Tree-sitter (disabled now)
 
@@ -2919,21 +2980,21 @@
     ;; (add-to-list 'major-mode-remap-alist '(bash-mode . bash-ts-mode))
 
 
-<a id="orga2d1ff8"></a>
+<a id="orgeffa909"></a>
 
 # Per Mode Configurations
 
     
 
 
-<a id="org5a22cf2"></a>
+<a id="orgac8929f"></a>
 
 ## Outline minor mode for Elisp, Python [rooted]
 
     
 
 
-<a id="orgfc11129"></a>
+<a id="org1d1dedd"></a>
 
 ### hook and keys
 
@@ -2998,7 +3059,7 @@ header. [rooted]"
     '(("#+end\_src
 
 
-<a id="orgb3e9834"></a>
+<a id="org7783894"></a>
 
 # " . 1)
 
@@ -3007,7 +3068,7 @@ header. [rooted]"
 ("#+end\_src
 
 
-<a id="org6182346"></a>
+<a id="org2c1333a"></a>
 
 ## " . 2)
 
@@ -3016,7 +3077,7 @@ header. [rooted]"
 ("#+end\_src
 
 
-<a id="org5970c84"></a>
+<a id="org864e814"></a>
 
 ### " . 3)
 
@@ -3062,7 +3123,7 @@ header. [rooted]"
                 (add-hook 'outline-minor-mode-hook 'my/outline-mode-hook)
 
 
-<a id="org846cc7a"></a>
+<a id="org4703148"></a>
 
 ### fixes for other modes
 
@@ -3104,7 +3165,7 @@ header. [rooted]"
         (advice-add 'set-mark-command :after #'my/outline-set-mark-command)
 
 
-<a id="org6dfbe92"></a>
+<a id="org29b7ebb"></a>
 
 ### variant of fix for \`outline-hide-other' (not used)
 
@@ -3139,29 +3200,59 @@ header. [rooted]"
     ;; (advice-add 'outline-hide-other :after #'my/outline-hide-other-after)
 
 
-<a id="org6c381a4"></a>
+<a id="orged0ecda"></a>
 
 ## calendar and holidays
 
     
-    (require 'calendar)
+    ;; (require 'calendar)
     (require 'holidays)
+    (require 'calendar)
+    ;; (setq calendar-view-holidays-initially-flag t) ; show holidays when first open calendar.
     
-    (setopt diary-show-holidays-flag t)
-    (setopt calendar-mark-holidays-flag t)
+    ;; (setopt diary-show-holidays-flag t) ; holidays in the diary display
+    ;; (setopt calendar-mark-holidays-flag t) ; mark holidays
     
     ;; download bad: https://www.feiertagskalender.ch/export.php?geo=3538&hl=en
     ;; download best https://ovodov.me/trud.ics
     ;; check https://www.consultant.ru/law/ref/calendar/proizvodstvennye/2024/
     (require 'myholidays)
+    (require 'russian-calendar)
+    ;; ;; ;; reference https://github.com/grafov/russian-holidays
+    (setq calendar-holidays (append russian-calendar-holidays
+                                      ;; - enable if you need:
+                                      russian-calendar-general-holidays
+                                      russian-calendar-orthodox-christian-holidays
+                                      russian-calendar-old-slavic-fests
+                                      russian-calendar-open-source-confs
+                                      russian-calendar-ai-confs
+                                      russian-calendar-russian-it-confs
+                                      ;; my:
+                                      myholidays-family-holidays
+                                      ))
+    ;; optional:
+    (russian-calendar-localize)
+    (russian-calendar-set-location-to-moscow)
+    (russian-calendar-show-diary-holidays-in-calendar)
+    (russian-calendar-enhance-calendar-movement)
+    (russian-calendar-fix-list-holidays)
     
-    ;; reference https://github.com/grafov/russian-holidays
-    (setopt calendar-holidays (append myholidays-russian-holidays
-                                      myholidays-general-holidays
-                                      myholidays-family-holidays))
+    
+    ;;   "Christian holidays.
+    ;; See the documentation for `calendar-holidays' for details.")
 
 
-<a id="org7deae68"></a>
+<a id="org5f284a0"></a>
+
+## Diary
+
+    
+    ;; sort diary entries
+    (require 'diary-lib)
+    (add-hook 'diary-list-entries-hook 'diary-sort-entries t)
+
+
+<a id="org0407957"></a>
 
 ## firstly-search - Dired, Package menu, Buffer menu, Bookmarks;;\*\*\* loading
 
@@ -3177,7 +3268,7 @@ header. [rooted]"
     ;; unbind for dired-mode-map
 
 
-<a id="orgfc607e1"></a>
+<a id="org981d756"></a>
 
 ### keys rebinding
 
@@ -3194,7 +3285,7 @@ header. [rooted]"
     ;; (keymap-unset firstly-search-dired-mode-map "RET") ; for `dired-hist-tl-dired-find-file'
 
 
-<a id="org012310a"></a>
+<a id="org00728cd"></a>
 
 ### experiment
 
@@ -3241,14 +3332,23 @@ header. [rooted]"
     ;;                         (seq-max pos-list)))))))
 
 
-<a id="org3b0648e"></a>
+<a id="org0d2ddf1"></a>
 
 ## Dired [rooted (consider disable trashing, omit, thumbnails)]
 
     
 
 
-<a id="orgc3a5baf"></a>
+<a id="org52071d5"></a>
+
+### speedup loading (disabled)
+
+    
+    ;; (setopt ls-lisp-use-insert-directory-program t)
+    ;; (setopt ls-lisp-dirs-first nil
+
+
+<a id="orga99d941"></a>
 
 ### ls arguments and sorting
 
@@ -3340,7 +3440,7 @@ header. [rooted]"
     ;; (dired-sort-other -arg )
 
 
-<a id="org9a239cd"></a>
+<a id="orga0ee732"></a>
 
 ### Tweeks: suggest path, buffer kill, trash, hl-line
 
@@ -3355,7 +3455,7 @@ header. [rooted]"
     (add-hook 'dired-mode-hook #'hl-line-mode)
 
 
-<a id="org5920235"></a>
+<a id="orgfd44e83"></a>
 
 ### Tweeks: always delete and copy recursively, confirm y-n
 
@@ -3365,7 +3465,7 @@ header. [rooted]"
     (setopt dired-deletion-confirmer 'y-or-n-p)
 
 
-<a id="org9355e0c"></a>
+<a id="orgac7597a"></a>
 
 ### Omit "." files with dired-omit-mode
 
@@ -3396,7 +3496,7 @@ header. [rooted]"
     (define-key dired-mode-map "\M-h" #'my/dired-omit-switch) ; shadow describe-mode
 
 
-<a id="org46a5f77"></a>
+<a id="org0a33435"></a>
 
 ### Keys rebindings
 
@@ -3421,7 +3521,10 @@ header. [rooted]"
         ;; rebind ^ up
         (define-key dired-mode-map "\C-j" #'dired-up-directory) ;; shadow #'universal-argument
         ;; open shell
-        (define-key dired-mode-map (kbd "M-!") (lambda () (interactive) (call-process-shell-command "xfce4-terminal -e tmux&" nil 0)))
+        (defun mydired-open-term ()
+          (interactive)
+          (call-process-shell-command "xfce4-terminal -e tmux&" nil 0))
+        (define-key dired-mode-map (kbd "M-!") 'mydired-open-term)
 
 2.  my/dired-unmark-one-line
 
@@ -3437,10 +3540,12 @@ header. [rooted]"
         
         ;; C-u C-x C-j
         (defun my/dired-jump (args)
-          "Open Dired at left side, or just open Dired."
+          "Open Dired at right side, or just open Dired."
           (interactive "P")
-          (if  args
-              (split-window-horizontally))
+          (when (and (not args) (= (count-windows) 1))
+              (split-window-horizontally)
+              (print "asd")
+              (other-window 1))
           (if (derived-mode-p 'dired-mode)
               (dired "~")
             ;; else
@@ -3467,7 +3572,7 @@ header. [rooted]"
         (define-key firstly-search-dired-mode-map (kbd "M-m") #'my/dired-toggle-marks) ; shadow 'dired-mark
 
 
-<a id="org82d7867"></a>
+<a id="orgccf75b2"></a>
 
 ### Use Xfce4 thumbnails 128x128
 
@@ -3485,7 +3590,7 @@ header. [rooted]"
     (define-key dired-mode-map (kbd "C-,") #'my/thumbnails)
 
 
-<a id="org02c16fe"></a>
+<a id="orga0687f9"></a>
 
 ### wdired mode: allow to change permissions in C-x C-q
 
@@ -3494,7 +3599,7 @@ header. [rooted]"
     ;; (setopt wdired-allow-to-change-permissions t)
 
 
-<a id="org1b09687"></a>
+<a id="org53c5278"></a>
 
 ### Default external applications for file extensions
 
@@ -3512,7 +3617,7 @@ header. [rooted]"
             ))
 
 
-<a id="org70e3c8d"></a>
+<a id="org11f04db"></a>
 
 ### Additional modes: hist, navigation, icons
 
@@ -3553,7 +3658,7 @@ header. [rooted]"
         ;; (add-hook 'dired-mode-hook 'dired-icon-mode)
 
 
-<a id="org7531522"></a>
+<a id="orge3814af"></a>
 
 ### Side window at right
 
@@ -3631,7 +3736,7 @@ header. [rooted]"
         (advice-add 'dired-previous-line :after #'my/update-side-window)
 
 
-<a id="orge18067c"></a>
+<a id="orge4a05ea"></a>
 
 ### Renaming single file - sugget the same name
 
@@ -3654,7 +3759,7 @@ header. [rooted]"
     (advice-add 'dired-do-rename :around #'my/dired-do-rename )
 
 
-<a id="org7728c2b"></a>
+<a id="org8c35b97"></a>
 
 ### Copy full file path (not used)
 
@@ -3697,7 +3802,7 @@ header. [rooted]"
     ;; (advice-add 'dired-copy-filename-as-kill :around #'dired-copy-filename-as-kill-advice)
 
 
-<a id="org65f37bc"></a>
+<a id="org2e2ff06"></a>
 
 ### Selection of region instead of marks
 
@@ -3880,7 +3985,7 @@ header. [rooted]"
         (advice-add 'dired-get-marked-files :around #'my/dired-get-marked-files)
 
 
-<a id="orgc70fb5b"></a>
+<a id="orgd371784"></a>
 
 ### Close image with C-q
 
@@ -3888,7 +3993,7 @@ header. [rooted]"
     (define-key image-mode-map "\C-q" #'quit-window)
 
 
-<a id="org0baa139"></a>
+<a id="org5ad4a6b"></a>
 
 ### Delete marked too.
 
@@ -3937,7 +4042,7 @@ header. [rooted]"
     (keymap-set dired-mode-map "<remap> <dired-flag-file-deletion>" #'my/dired-flag-file-deletion)
 
 
-<a id="org958f735"></a>
+<a id="org1fe23a9"></a>
 
 ### Fix: preserve column position after up/down moving
 
@@ -3968,7 +4073,7 @@ header. [rooted]"
     (advice-add 'dired-previous-line :around #'my/dired-preserve-column)
 
 
-<a id="org0903e40"></a>
+<a id="org600b9fb"></a>
 
 ### Fix: quote filename for when there [ in name for thumbnails
 
@@ -4011,7 +4116,7 @@ header. [rooted]"
           comment)))
 
 
-<a id="org8a199b3"></a>
+<a id="orgeb0e3c9"></a>
 
 ## Bookmarks
 
@@ -4026,7 +4131,7 @@ header. [rooted]"
     (add-hook 'bookmark-bmenu-mode-hook #'hl-line-mode)
 
 
-<a id="orgc197b19"></a>
+<a id="orgcd381e4"></a>
 
 ## complete
 
@@ -4034,7 +4139,7 @@ header. [rooted]"
     (setq completions-max-height 10)
 
 
-<a id="org7bb9980"></a>
+<a id="org90bfaac"></a>
 
 ## company
 
@@ -4077,14 +4182,14 @@ header. [rooted]"
     (add-hook 'org-mode-hook #'company-mode) ; company-capf
 
 
-<a id="org884d6b2"></a>
+<a id="orgb1ca7cc"></a>
 
 ## ORG
 
     
 
 
-<a id="orgd970044"></a>
+<a id="orgecf61ed"></a>
 
 ### fix fill-paragraph
 
@@ -4176,7 +4281,7 @@ header. [rooted]"
                 (save-excursion (org-fill-paragraph))))))
 
 
-<a id="orga06c153"></a>
+<a id="orgb86cbc1"></a>
 
 ### key: meta-return
 
@@ -4199,7 +4304,7 @@ header. [rooted]"
                    (indent-relative-first-indent-point))))))
 
 
-<a id="org742b8e7"></a>
+<a id="orgcaab3f3"></a>
 
 ### key: new list item with indentation
 
@@ -4245,7 +4350,7 @@ header. [rooted]"
           (org-list-repair))))
 
 
-<a id="orgcb1aa9c"></a>
+<a id="org610dca5"></a>
 
 ### keys others
 
@@ -4316,19 +4421,23 @@ header. [rooted]"
                                (org-element-property :begin element)))
              (el-type (org-element-type element)))
         (cond
+         ;; - table
          ((and (eq el-type 'table)
                (> (point) contents-begin)
                (<= (point) contents-end))
           (call-interactively #'move-beginning-of-line)) ;; modifyed
+         ;; - src-block
          ((eq el-type 'src-block)
           (let ((p (point)))
             (call-interactively 'back-to-indentation)
             (if (eq p (point)) ; not changed
                 (beginning-of-line)
               )))
+         ;; - example-block
          ((eq el-type 'example-block)
           (call-interactively #'back-to-indentation-or-beginning)
           )
+         ;; - others
          (t
           ;; (print (org-element-at-point))
           ;; (print el-type)
@@ -4543,7 +4652,17 @@ header. [rooted]"
       (if (org-in-item-p) ; if in a list
         (progn
           ;; go to the begining, before list bullet
-          (my/org-backward-close)
+          (org-backward-sentence) ;; for "::" go after "::"
+          ;; - fix for descriptive list items
+          (let* ((itemp (org-in-item-p))
+                (struct (save-excursion (goto-char itemp)
+                                        (org-list-struct)))
+                (prevs (org-list-prevs-alist struct)))
+                (when (eq (org-list-get-list-type itemp struct prevs)
+                          'descriptive)
+                    ;; - descriptive list
+                    (beginning-of-line)))
+          ;; (my/org-backward-close)
           ;; use special case to insert above current line
           (org-insert-item)
           ;; move down
@@ -4721,7 +4840,7 @@ header. [rooted]"
                                ))
 
 
-<a id="org2652959"></a>
+<a id="org9d38ac0"></a>
 
 ### hook executed per buffer
 
@@ -4821,7 +4940,7 @@ header. [rooted]"
                                ))
 
 
-<a id="orgd4447e0"></a>
+<a id="orgb99ce0a"></a>
 
 ### redisplay inline images on source code block evaluation
 
@@ -4830,7 +4949,7 @@ header. [rooted]"
     (add-hook 'org-ctrl-c-ctrl-c-hook 'org-redisplay-inline-images)
 
 
-<a id="org6813390"></a>
+<a id="orgc260527"></a>
 
 ### fix issue with headline
 
@@ -4845,7 +4964,7 @@ header. [rooted]"
     ;; )
 
 
-<a id="org88210f6"></a>
+<a id="orge506ef9"></a>
 
 ### configuration
 
@@ -4890,7 +5009,7 @@ header. [rooted]"
       ;; (require 'org-tempo)
 
 
-<a id="org9eb5fa3"></a>
+<a id="org5ccc89a"></a>
 
 # org source code inline blocks
 
@@ -4945,7 +5064,7 @@ header. [rooted]"
     ) ;; end
 
 
-<a id="org5b487c4"></a>
+<a id="org2126911"></a>
 
 ### timeout for org-babel- \* -evaluate-external-process
 
@@ -4995,12 +5114,12 @@ header. [rooted]"
     ;; org-babel-execute:python
 
 
-<a id="orgc94a407"></a>
+<a id="org2cd47f9"></a>
 
 ### HTTP links will be copied to buffer
 
 
-<a id="orgadcadc2"></a>
+<a id="org6559346"></a>
 
 ### fix for inline images with transparent background
 
@@ -5028,7 +5147,7 @@ header. [rooted]"
     (setopt org-inline-image-background "#ffffff")
 
 
-<a id="org3e12c74"></a>
+<a id="org8cc3b0f"></a>
 
 ### fix Allow to export subtree to different files (HTML)
 
@@ -5048,7 +5167,7 @@ header. [rooted]"
     ;; (advice-add 'org-html-export-to-html :around #'my/org-html-export-to-html-all-subtrees)
 
 
-<a id="org3bdca91"></a>
+<a id="org543b427"></a>
 
 ### fix BABEL SHELL: permission error
 
@@ -5136,7 +5255,7 @@ header. [rooted]"
                 (org-babel-import-elisp-from-file tmp-file)))))))
 
 
-<a id="orge5d3cd6"></a>
+<a id="org3126309"></a>
 
 ### org-beamer - disable (old)
 
@@ -5147,14 +5266,14 @@ header. [rooted]"
     ;; (add-hook 'org-mode-hook 'my/syntax-table-elisp)
 
 
-<a id="orge593e46"></a>
+<a id="orgc2d3cfe"></a>
 
 ## Electric quote mode for Org and Markdown modes
 
     
 
 
-<a id="orgcd61fe1"></a>
+<a id="org15d5c45"></a>
 
 ### "don’t" to "don't" -  With org-src-detect-hook
 
@@ -5182,7 +5301,7 @@ header. [rooted]"
     ;;             ))
 
 
-<a id="org901df82"></a>
+<a id="orgeda8052"></a>
 
 ### "don’t" to "don't" - With advice and \`org-src-detect-check'
 
@@ -5201,7 +5320,7 @@ header. [rooted]"
     (advice-add 'electric-quote-post-self-insert-function :around #'my/quote-advice)
 
 
-<a id="org125af63"></a>
+<a id="orgd2a71e2"></a>
 
 ### Activate electric-quote-local-mode for Org and Markdown
 
@@ -5217,7 +5336,7 @@ header. [rooted]"
                 (electric-quote-local-mode t)))
 
 
-<a id="org6aa578d"></a>
+<a id="org600cc4c"></a>
 
 ### "don’t" to "don't" - Inset don't with stright quite
 
@@ -5264,14 +5383,27 @@ was made."
         ;; (global-set-key (kbd "C-c C-'") #'my/streight-quote)
 
 
-<a id="org6cc74ff"></a>
+<a id="orgd99da34"></a>
+
+## Flymake
+
+    
+    (defun my/flymake-hook()
+      (setq flymake-no-changes-timeout 0.5)
+      (keymap-local-set "C-'" 'flymake-goto-next-error)
+      (keymap-local-set "M-'" 'flymake-goto-prev-error)
+    )
+    (add-hook 'flymake-mode-hook #'my/flymake-hook)
+
+
+<a id="org5cf5837"></a>
 
 ## Programming modes
 
     
 
 
-<a id="orgbd74df6"></a>
+<a id="orgd35afe6"></a>
 
 ### all programming modes
 
@@ -5425,7 +5557,7 @@ was made."
         (add-hook 'emacs-lisp-mode-hook 'display-line-numbers-mode)
 
 
-<a id="orgb3d5e50"></a>
+<a id="orgbc22ca0"></a>
 
 ### Elisp - Emacs-Lisp
 
@@ -5486,7 +5618,7 @@ was made."
         (add-hook 'emacs-lisp-mode-hook 'my/elisp-keys)
 
 
-<a id="org9eea250"></a>
+<a id="org6854d19"></a>
 
 ### Python
 
@@ -5787,9 +5919,6 @@ was made."
                           :gopls (:usePlaceholders t)))
             
             
-            ;; - - flymake
-            (setq flymake-no-changes-timeout 0.5)
-            
             ;; - - modes for which Eglot will be activated
             (defun my/eglot-start ()
               (interactive)
@@ -5908,8 +6037,8 @@ was made."
     
             
             (keymap-set eglot-mode-map "M-i" #'my/eldoc) ; shadow `tab-to-tab-stop'
-            (keymap-set eglot-mode-map "C-'" #'flymake-goto-next-error)
-            (keymap-set eglot-mode-map "M-'" #'flymake-goto-prev-error) ; shadow `my/window-toggle-side-windows'
+            ;; (keymap-set eglot-mode-map "C-'" #'flymake-goto-next-error)
+            ;; (keymap-set eglot-mode-map "M-'" #'flymake-goto-prev-error) ; shadow `my/window-toggle-side-windows'
             (keymap-set eglot-mode-map "C-c C-e" #'eglot-rename)
             (keymap-set eglot-mode-map "C-c o" #'eglot-format)
 
@@ -6231,7 +6360,7 @@ was made."
         ;; (setenv "PATH" (concat (expand-file-name "~/.local/bin:") (getenv "PATH")))
 
 
-<a id="orgde30e5b"></a>
+<a id="org4f07a7a"></a>
 
 ### cc mode: C/C++
 
@@ -6359,7 +6488,7 @@ was made."
               (cdr (assq :rowname-names params)) (cdr (assq :rownames params))))))
 
 
-<a id="org344a5e2"></a>
+<a id="org5b7e473"></a>
 
 ### Perl
 
@@ -6371,16 +6500,13 @@ was made."
     
     (defun my/perl-mode-hook ()
       (setq flymake-no-changes-timeout 0.5)
-    
-      (keymap-local-set "C-'" 'flymake-goto-next-error)
-      (keymap-local-set "M-'" 'flymake-goto-prev-error)
       (keymap-local-set "C-c C-c" 'my/exec-perl))
     
     (add-hook 'perl-mode-hook 'flymake-mode)
     (add-hook 'perl-mode-hook 'my/perl-mode-hook)
 
 
-<a id="org9eda1ab"></a>
+<a id="orge73499d"></a>
 
 ### Bash, sh-mode
 
@@ -6392,17 +6518,22 @@ was made."
     
     (defun my/sh-mode-hook ()
       ;; (setq flymake-no-changes-timeout 0.5)
-      (keymap-local-set "C-'" 'flymake-goto-next-error)
-      (keymap-local-set "M-'" 'flymake-goto-prev-error)
       (keymap-local-set "C-c C-c" 'my/exec-bash)
       ;; (keymap-set sh-mode-map "<remap> <sh-case>" 'my/exec-bash) ; shadow 'sh-case'
       (keymap-local-set "C-x c" 'sh-case))
     
-    ;; (add-hook 'sh-mode-hook 'flymake-mode)
     (add-hook 'sh-mode-hook 'my/sh-mode-hook)
+    
+    ;; (require 'flymake-shell) ; not working idk why
+    ;; (add-hook 'sh-set-shell-hook 'flymake-shell-load)
+    ;;
+    ;; (require 'flymake-shellcheck) ; not working idk why
+    ;; (add-hook 'sh-mode-hook 'flymake-shellcheck-load)
+    ;;
+    ;;(add-hook 'sh-mode-hook 'flymake-mode)
 
 
-<a id="org5ca38f6"></a>
+<a id="orgfbba86d"></a>
 
 ### HTML (testing)
 
@@ -6414,14 +6545,14 @@ was made."
                 (set (make-local-variable 'sgml-basic-offset) 4)))
 
 
-<a id="org411f9c7"></a>
+<a id="org6601f1e"></a>
 
 ## artistic
 
     
 
 
-<a id="org7e4616c"></a>
+<a id="org54fd167"></a>
 
 ### minor mode short-keys
 
@@ -6475,7 +6606,7 @@ was made."
     ;;     )
 
 
-<a id="org18a8b09"></a>
+<a id="org49b2128"></a>
 
 ### active artistic mode and minor mode for short keybindings
 
@@ -6487,7 +6618,7 @@ was made."
     (global-set-key (kbd "C-x C-a") 'artist-mode) ;; and artist-mode
 
 
-<a id="org81ce3ea"></a>
+<a id="org2795ae6"></a>
 
 ### artist-mode-hook
 
@@ -6517,14 +6648,14 @@ was made."
     (add-hook 'artist-mode-hook 'my/artist-mode-hook)
 
 
-<a id="orgb822ce0"></a>
+<a id="org135fb57"></a>
 
 ## email
 
     
 
 
-<a id="orgbece8eb"></a>
+<a id="orga074d2f"></a>
 
 ### notmuch
 
@@ -6777,7 +6908,7 @@ was made."
         ;; (add-hook 'notmuch-search-hook 'my/notmuch-sent-hook)
 
 
-<a id="org6bd77ea"></a>
+<a id="org4ac21ee"></a>
 
 ### editor org-mode integration
 
@@ -6787,7 +6918,7 @@ was made."
     ;; (add-hook 'mail-mode-hook 'turn-on-orgstruct)  ;; not working
 
 
-<a id="org8ffb268"></a>
+<a id="org1e949bc"></a>
 
 ### sendmail smtpmail (working, disabled)
 
@@ -6807,7 +6938,7 @@ was made."
     ;; (setq send-mail-function 'smtpmail-send-it)
 
 
-<a id="orgbddd4b0"></a>
+<a id="orgeb682f5"></a>
 
 ### smtpmail-multi
 
@@ -6842,14 +6973,14 @@ was made."
     ;; (setopt user-mail-address "vitsmallboy@hotmail.com")
 
 
-<a id="org320705b"></a>
+<a id="org849d852"></a>
 
 ## skeletons(templates) for abbrev TAB completion for ORG and Diary modes
 
     
 
 
-<a id="orgdd1de79"></a>
+<a id="org29fe585"></a>
 
 ### global
 
@@ -7008,7 +7139,7 @@ was made."
     (define-skeleton org-src-mastadon
       ""
       ""
-      "#+begin_src bash :results output"
+      ":#+begin_src bash :results output"
       "\n"
       "source ~/.bash_aliases"
       "\n\n"
@@ -7148,7 +7279,7 @@ was made."
     (setq skeleton-end-newline nil)
 
 
-<a id="org7df92a5"></a>
+<a id="orge1ad2a1"></a>
 
 ### Python
 
@@ -7213,7 +7344,7 @@ was made."
     ;;     ("init" "" )))
 
 
-<a id="orge7df3c4"></a>
+<a id="org62e577a"></a>
 
 ## flycheck-aspell for English
 
@@ -7273,7 +7404,7 @@ was made."
     (global-set-key (kbd "C-c 3") #'my/ispell-flycheck-ru)
 
 
-<a id="orge533728"></a>
+<a id="org6f31c47"></a>
 
 ## guess-languagel - ispell - (not working)
 
@@ -7293,7 +7424,7 @@ was made."
     ;; (add-hook 'guess-language-after-detection-functions #'my-custom-function)
 
 
-<a id="org8df64f9"></a>
+<a id="orgb9ae6e7"></a>
 
 ## org-agenda
 
@@ -7340,7 +7471,7 @@ was made."
                                ))
 
 
-<a id="org08a3d7c"></a>
+<a id="org0f2b395"></a>
 
 ## appt - my appt X notification system:
 
@@ -7394,7 +7525,7 @@ was made."
     (appt-activate t)
 
 
-<a id="orgf764440"></a>
+<a id="org7373913"></a>
 
 ## appt - fix appt-check - message "Preparing diary&#x2026;done"
 
@@ -7406,7 +7537,7 @@ was made."
                     (apply orig-fun args))))
 
 
-<a id="org365c345"></a>
+<a id="org059f86d"></a>
 
 ## multitran for ORG (translater)
 
@@ -7454,7 +7585,7 @@ was made."
     ;; (defconst multitran-url "https://89.108.112.70")
 
 
-<a id="org2530ac9"></a>
+<a id="org199d31b"></a>
 
 ## hidepw
 
@@ -7470,7 +7601,30 @@ was made."
       )
 
 
-<a id="orgc616b33"></a>
+<a id="org20a66f0"></a>
+
+## EasyPG - GnuPG interface
+
+    
+    (require 'epa-file)
+    ;; (setf epa-pinentry-mode 'loopback)
+    (setopt epa-pinentry-mode 'ask)
+    ;; (setf epa-pinentry-mode 'ask)
+    ;; (setenv "DISPLAY" "")
+    (epa-file-enable)
+    ;; (setenv "GPG_TTY" "$(tty)")
+    
+    (defun my/fix-epa-file (filename &optional wildcards)
+      "Add directory that was opened with find-file commands."
+      (if (file-directory-p filename)
+          (recentf-add-file filename)))
+    
+    (advice-add 'find-file :before #'my/fix-epa-file)
+    
+    ;; (setenv "GPG_AGENT_INFO" nil)
+
+
+<a id="org6882255"></a>
 
 ## Ediff
 
@@ -7483,15 +7637,16 @@ was made."
     ;;   t)
 
 
-<a id="org62b67e5"></a>
+<a id="org1c44272"></a>
 
 ## YAML - yaml-mode
 
     
-    (add-hook 'yaml-mode-hook 'flymake-yamllint-setup)
-    (add-hook 'yaml-mode-hook (lambda ()
+    (add-hook 'yaml-ts-mode-hook 'flymake-yamllint-setup)
+    (add-hook 'yaml-ts-mode-hook 'flymake-mode)
+    (add-hook 'yaml-ts-mode-hook (lambda ()
                                 (keymap-local-set "C-c C-n" 'flymake-goto-next-error)
-                                (keymap-local-set "C-c C-k" 'flymake-goto-prev-error)
+                                (keymap-local-set "C-c C-p" 'flymake-goto-prev-error)
                                 ))
     
     ;; TODO:
@@ -7505,7 +7660,7 @@ was made."
     ;;   ))
 
 
-<a id="org0e58b0c"></a>
+<a id="org17addf9"></a>
 
 ## Markdown
 
@@ -7517,7 +7672,7 @@ was made."
                                     (toggle-truncate-lines nil)))
 
 
-<a id="orgf503c20"></a>
+<a id="orgcd411c1"></a>
 
 ## pinyin-isearch
 
@@ -7526,7 +7681,60 @@ was made."
     (pinyin-isearch-activate-submodes)
 
 
-<a id="org3ab4d08"></a>
+<a id="org7d303a5"></a>
+
+## selected-window mode
+
+    
+
+
+<a id="orgb66e11b"></a>
+
+### main
+
+    
+    (require 'selected-window-contrast)
+    ;; ;; ;; (require 'selected-window-contrast-tests)
+    ;; ;; ;; (ert-run-tests-interactively "selected-window-contrast-tests")
+    ;; ;; ;; (set-face-attribute 'mode-line-active nil :background nil :foreground nil)
+    
+    ;; (setopt selected-window-contrast-selected-magnitude-text 1.0)
+    ;; (setopt selected-window-contrast-selected-magnitude-background 0.85)
+    ;; (setopt selected-window-contrast-not-sel-magnitude-text 2.0)
+    ;; (setopt selected-window-contrast-not-sel-magnitude-background 1.1)
+    (setopt selected-window-contrast-selected-magnitude-text 1.0)
+    (setopt selected-window-contrast-selected-magnitude-background 0.85)
+    (setopt selected-window-contrast-not-sel-magnitude-text 2.0)
+    (setopt selected-window-contrast-not-sel-magnitude-background 1.1)
+    
+    (add-hook 'buffer-list-update-hook #'selected-window-contrast-highlight-selected-window)
+    ;; - for case of call: $ emacsclient -c ~/file
+    (add-hook 'server-after-make-frame-hook #'selected-window-contrast-highlight-selected-window)
+    ;; (add-hook 'server-after-make-frame-hook
+    ;;           (lambda ()
+    ;;             (run-with-idle-timer 0.01 nil #'selected-window-contrast-highlight-selected-window)))
+
+
+<a id="org523b854"></a>
+
+### configure mode-line-active
+
+    
+    (progn
+      ;; - reset mode-line to default.
+      (set-face-attribute 'mode-line-active nil
+                          :background
+                          (face-attribute 'mode-line :background)
+                          :foreground
+                          (face-attribute 'mode-line :foreground))
+      ;; - set backgound color
+      ;; (set-face-attribute 'mode-line-active nil :background "cyan4")
+      ;; - increate contrast
+      (selected-window-contrast-change-modeline 0.6 0.6)
+      )
+
+
+<a id="orga296824"></a>
 
 ## org-present - in development
 
@@ -7593,7 +7801,7 @@ was made."
     )
 
 
-<a id="org6c3e605"></a>
+<a id="orgee3b372"></a>
 
 ## RTAGS (old)
 
@@ -7610,7 +7818,7 @@ was made."
     ;; )
 
 
-<a id="org1bad3f1"></a>
+<a id="org3b55354"></a>
 
 ## Project Management (old)
 
@@ -7624,7 +7832,7 @@ was made."
     ;; )
 
 
-<a id="orga38b57d"></a>
+<a id="orge757e43"></a>
 
 # buffer-list (old)
 
@@ -7708,7 +7916,7 @@ was made."
     ;; (add-hook 'python-mode-hook 'my-python-hooks)
 
 
-<a id="orge75771d"></a>
+<a id="orga9ef5a7"></a>
 
 # Spell checking flyspell and ispell (old)
 
@@ -7722,7 +7930,7 @@ was made."
     ;; (setq-default ispell-program-name "aspell")
 
 
-<a id="org2a5aa7a"></a>
+<a id="org1dec5d6"></a>
 
 # available keys
 
@@ -7732,7 +7940,7 @@ was made."
     ;; C-.
 
 
-<a id="org8525b18"></a>
+<a id="org12c23bd"></a>
 
 # test Org navigation
 
@@ -7756,7 +7964,7 @@ was made."
     ;;              '("b" sbr-org-backward-heading-or-item))
 
 
-<a id="org926a854"></a>
+<a id="orgfcb32b0"></a>
 
 # jupyter export test
 
@@ -7764,11 +7972,13 @@ was made."
     (require 'ox-ipynb) ; todo
 
 
-<a id="org0e849ce"></a>
+<a id="org2bd7855"></a>
 
 # test
 
     
+    
+    ;; (require 'package-lint.el)
     ;; - -
     
     ;; (defvar number-line-overlays '()
@@ -7854,7 +8064,7 @@ was made."
     ;;
 
 
-<a id="org6a3dfc7"></a>
+<a id="orgd87baaa"></a>
 
 # Local Variables for first opening
 

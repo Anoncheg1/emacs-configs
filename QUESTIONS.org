@@ -1601,6 +1601,36 @@ There is variable *split-width-threshold* for that, if "(window-width
 * GUI: How to sort buffers in buffer menu by most visited?
 You can use recentf-mode and add:
 : (add-hook 'buffer-list-update-hook #'recentf-track-opened-file)
+* GUI: How to highlight selected window?
+It is impossible to highlight borders around window “fragile” per window.
+
+Alternatives:
+1) Highlight modeline:
+: (set-face-attribute 'mode-line-active nil :background "cyan4")
+Back to default:
+: (set-face-attribute 'mode-line-active nil :background (face-attribute 'mode-line :background))
+
+2) You can highlight cursor:
+: (global-hl-line-mode 1)
+: ;; underline the current line
+: (set-face-attribute hl-line-face nil :underline t)
+
+3) You can change background color:
+#+begin_src elisp :results none :exports code :eval no
+(defun highlight-selected-window ()
+  "Highlight selected window with a different background color."
+  (walk-windows (lambda (w)
+                  (unless (eq w (selected-window))
+                    (with-current-buffer (window-buffer w)
+                      (buffer-face-set '(:background "#111"))))))
+  (buffer-face-set 'default))
+;; (remove-hook 'buffer-list-update-hook 'highlight-selected-window)
+(add-hook 'window-configuration-change-hook 'highlight-selected-window)
+(add-hook 'window-state-change-hook #'highlight-selected-window)
+#+end_src
+
+4) Mode that remove fragile:
+- https://github.com/captainflasmr/selected-window-accent-mode
 * How to kill all buffers and duplicate frames?
 In this solution we define exceptions, lowercase them, after that we
  get (buffer-list) and filter with our exceptions, system, alive and
@@ -2274,6 +2304,8 @@ Password management in Emacs:
 - you can encrypt and decrypt files *.gpg automaticly or in Dired: https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
 - you can use "hidepw" package to just hide password on screen.
 - The standard unix password manager (or just pass) + https://github.com/emacsmirror/password-store or https://www.gnu.org/software/emacs/manual/html_node/auth/The-Unix-password-store.html
+* TODO Create interactive function that ask for file location
+: (call-interactively #'find-file-other-frame)
 * Eglot vs eglot-ensure
 Both can be simplified to (eglot--connect (eglot--guess-contact))
 

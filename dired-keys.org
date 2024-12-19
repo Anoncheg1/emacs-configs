@@ -1,0 +1,11 @@
+# Dired keys
+- M-O		side window for image and switch to image
+- M-'		close/show side window (works at Dired and at Image window)
+- C-c w	copy file name
+- M-u		unmark all
+- C-j		up directory
+- M-!		open terminal at current path
+- M-RET	browse-url-of-dired-file - open with default OS app
+- RET		dired-find-file - open in Emacs
+- &		dired-do-async-shell-command (dired-aux). All at parallel:  “mupdf galerians4.png&mupdf galerians31.png”
+- !		dired-do-shell-command (dired-aux). One by one: “mupdf galerians4.png ; mupdf galerians31.png”
