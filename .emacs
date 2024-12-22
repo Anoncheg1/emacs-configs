@@ -468,8 +468,11 @@ Steps: 1) create buffer. 2) found frame with same major mode.
 ;; default scratch buffer mode
 (setopt initial-major-mode 'org-mode)
 
-;; minibuffer delay for F1 and C-x
-(setq echo-keystrokes 0.2)
+;; -- -- simple
+(setopt idle-update-delay 0.2) ; 0.5
+(setopt delete-active-region nil) ; C-h will not delete region it it is active
+(setopt mark-ring-max 32) ; 16
+(setopt global-mark-ring-max 32) ; 16
 ;; -- -- Scrolling
 (setopt
  ;; smooth scrolling
@@ -490,16 +493,20 @@ Steps: 1) create buffer. 2) found frame with same major mode.
 ;; (set-window-fringes (selected-window) 14 0)
 
 ;; no tabs by default, useful for artist-mode
-(setopt indent-tabs-mode nil)
+(setopt indent-tabs-mode nil) ; t by default
 
-;; Tab indentation + completion (according to the mode's settings):
-(setopt tab-always-indent 'complete)
-(add-to-list 'completion-styles 'initials t)
+;; Tab indentation + completion
+(setopt tab-always-indent 'complete) ; t by default
 
 ;; Make the backspace properly erase the tab instead of
 ;; removing 1 space at a time.
 (setopt backward-delete-char-untabify-method 'hungry)
 
+;; -- -- minibuffer
+;; (add-to-list 'completion-styles 'initials t) ; E.g. can complete M-x lch to list-command-history
+
+;; minibuffer delay for F1 and C-x
+(setq echo-keystrokes 0.2)
 ;; -- -- filling text, line wrapping
 ;; - display fill-column
 (setopt global-display-fill-column-indicator-mode t)
@@ -736,6 +743,27 @@ to activate."
         ;; else - not at source code
         (run-hooks 'org-src-detect-out-hook)
         ))))
+;; -- -- Autocomplete
+(defun my/autocomplete ()
+  "Autocomplete word.
+1) Check that we are at the end at the word,
+2) expand-abbrev,
+3) company-complete.
+4) completion-at-point"
+  (when (and (not (bolp)) ; not begining of the line
+             (let ((syn-b (syntax-class (syntax-after (- (point) 1))))
+                   (syn-c (syntax-class (syntax-after (point)))))
+               (and (memql syn-b '(2 3 1)) ; before some word [2 - normal words, 1 - #, 3 - +
+                    (memql syn-c '(0 5 12)) ; at (2 12) white space or ")"
+                    )))
+    (cond
+     ((and (message "expand")
+           (expand-abbrev)))
+     ((and (message "ok4 lets try company")
+           company-mode
+           (company-complete)))
+      (t (message "completion-at-point")
+         (completion-at-point)))))
 ;; -- Key Bindings
 ;; -- -- backspace
 ;; (keyboard-translate ?\C-h  ?\C-?) ;; do not work in emacsclient, required for M-x
@@ -977,7 +1005,7 @@ to activate."
 ;; (global-set-key (kbd "C-M-o") #'open-next-line) ;; hides split-line
 
 ;; continue comment at next line
-(global-set-key (kbd "<M-return>") 'default-indent-new-line )
+(global-set-key (kbd "<M-return>") 'default-indent-new-line)
 
 ;;   C-u
 ;; (global-set-key (kbd "C-u") 'backward-kill-line)  ;; like in console ; shade C-u keychain
@@ -1139,7 +1167,6 @@ to activate."
   ))
 
 
-
 (defun apply-command-to-region (command)
   "Apply FUNCTION to each line in the region."
   (let ((start (region-beginning)) (end (region-end)))
@@ -1152,8 +1179,9 @@ to activate."
           (beginning-of-line)
           )))))
 
-(defun my/indent-or-complete (arg)
-  "TAB key
+(defun my/indent-or-complete (arg) ; old, replaced by indent-for-tab-command
+  "TAB key (old)
+
 1) if region selection - indent
 2) if character at the middle of the line - indent
 3) if at the begining of the line: try expand-abbrev
@@ -1186,9 +1214,6 @@ to activate."
          (message "failedc")
          )))
 
-;; - Tab - indent region as first line
-;; - C-u Tab - fix indentation in region - apply indentation to every line
-(global-set-key (kbd "TAB") #'my/indent-or-complete)
 ;; -- -- Move to the begining of the line C-a C-e M-a
 (defun my/begining-of-the-line()
   "First we got to indentation, second press to actual begining."
@@ -2107,13 +2132,58 @@ If this window is splitted and small, just use current window."
 ;; (add-to-list 'major-mode-remap-alist '(bash-mode . bash-ts-mode))
 ;; -- Per Mode Configurations
 ;; -- -- Outline minor mode for Elisp, Python [rooted]
+;; -- -- -- count depth function
+(defun my/outline-get-depth ()
+  (let (r (p (point-max)))
+    (dolist (c '(0 1 2 3 4 5 6 7 8))
+      (if (/= p 0) ; stop factor
+          (save-excursion
+            (outline-up-heading c)
+            (when (< (point) p)
+              (setq r c)
+              (if (= (point) p)
+                  (setq p 0) ; stop
+                ;; else
+                (setq p (point)))))))
+    (+ 1 r)
+    ))
+;; -- -- -- TAB key - indent.el configuration
+(defvar my/indent-line-function-original)
+
+(defun my/outline-tab ()
+  "compare full line at cursor position with outline template for
+header. [rooted]"
+  (if (string-match outline-regexp
+                (buffer-substring (line-beginning-position)
+                                  (line-end-position)))
+      (outline-toggle-children)
+    ;; else
+    (indent--funcall-widened my/indent-line-function-original)
+    ;; (let ((old-indent (current-indentation)))
+    ;;   (lisp-indent-line)
+    ;;   ;; - align
+    ;;   (let ((syn (syntax-class (syntax-after (point)))))
+    ;;     (if (and (zerop (- (current-indentation) old-indent))
+    ;;              (memql syn '(2 4 5)))
+    ;;         (or (indent--default-inside-comment)
+    ;;             (indent--funcall-widened 'indent-relative))
+    ;;       ))
+    ;; )
+    ))
+
+(defun my/outline-mode-hook1 ()
+  (setq-local my/indent-line-function-original indent-line-function)
+  (setq-local indent-line-function #'my/outline-tab))
+
+(add-hook 'outline-minor-mode-hook 'my/outline-mode-hook1)
+
 ;; -- -- -- hook and keys
 ;; same as my/org-fold-hide-other, but "sublevels 20"
 (defun my/outline-hide-other ()
   "Hide other headers and don't hide headers and text in opened."
   (interactive)
   (save-excursion
-    (outline-hide-sublevels 6) ;; hide all
+    (outline-hide-sublevels 7) ;; hide all
     (outline-show-children) ;; show headers, not shure how and wehere,
     (outline-back-to-heading t) ;; to header in depths
     (outline-show-entry) ;; show local text
@@ -2124,21 +2194,24 @@ If this window is splitted and small, just use current window."
         (outline-up-heading 1 t) ;; go upper
         )))
 
-(defun my/outline-tab ()
+(defun my/outline-tab-old ()
   "compare full line at cursor position with outline template for
 header. [rooted]"
   (interactive)
-  (if (and (and (boundp 'outline-minor-mode) outline-minor-mode) ; if outline is active
+  (if (and (and (boundp 'outline-minor-mode)
+                outline-minor-mode) ; if outline is active
            ;; and regex match line
            (string-match outline-regexp (buffer-substring (line-beginning-position) (line-end-position))))
       (outline-toggle-children)
     ;; else
+    ;; (call-interactively #'indent-for-tab-command)
+    ;; else
     (if (fboundp 'my/indent-or-complete)
         (progn
-          (print "here")
+          (print "here my")
           (call-interactively 'my/indent-or-complete))
       ; else
-      (print "here2")
+      (print "outline default")
       (call-interactively 'indent-for-tab-command))
     ))
 
@@ -2158,25 +2231,27 @@ header. [rooted]"
   (print outline-regexp)
   ;; - - Problem here: outline-minor mode do not respect 'outline-regexp' and somehow reinitialize it.
 
-  (when (and (buffer-file-name) (or (string-equal (file-name-nondirectory  (buffer-file-name)) ".emacs")
-        (string-equal (file-name-nondirectory (buffer-file-name)) "init.el")))
-      (setq outline-regexp "^;; \\(\\-\\- \\)+")
-      (setq-local outline-heading-alist
-      '((";; -- " . 1)
-        (";; -- -- " . 2)
-        (";; -- -- -- " . 3)
-        (";; -- -- -- -- " . 4)
-        (";; -- -- -- -- -- " . 5)
-        (";; -- -- -- -- -- -- " . 6)))
-      )
-
+  (if (and (buffer-file-name) (or (string-equal (file-name-nondirectory  (buffer-file-name)) ".emacs")
+                                  (string-equal (file-name-nondirectory (buffer-file-name)) "init.el")))
+      (progn
+       (setq-local outline-regexp "^;; \\(\\-\\- \\)+")
+       (setq-local outline-heading-alist
+                   '((";; -- " . 1)
+                     (";; -- -- " . 2)
+                     (";; -- -- -- " . 3)
+                     (";; -- -- -- -- " . 4)
+                     (";; -- -- -- -- -- " . 5)
+                     (";; -- -- -- -- -- -- " . 6))))
+    ;; else - for programming modes where only one level required
+    (setq-local outline-heading-alist
+                (list (cons outline-regexp 1)))
+    )
 
 
   ;; (setq outline-heading-end-regexp "\n")
   ;; (define-key outline-minor-mode-map (kbd "C-x i") 'outline-toggle-children) ;;
   ;; (define-key outline-minor-mode-map (kbd "C-c TAB") 'outline-toggle-children) ;;
   (keymap-local-set "<backtab>" 'outline-cycle-buffer) ;; S-tab
-  (keymap-local-set "TAB" 'my/outline-tab) ;; rooted
   (keymap-local-set "C-c C-e" 'my/outline-hide-other) ;; hides `elisp-eval-region-or-buffer'
   ;; (keymap-local-set "C-c TAB" 'outline-hide-body)
   ;; (define-key outline-minor-mode-map [S-tab] 'outline-show-all)
@@ -2186,6 +2261,10 @@ header. [rooted]"
   (add-hook 'isearch-mode-hook 'my/outline-header-search nil t) ;; LOCAL = t
   ;; - activate outline-heading-alistheader leavels
   (setq outline-level #'outline-level)
+  ;; - TAB key
+
+  ;; (keymap-local-set "TAB" 'my/outline-tab) ;; rooted - wrong
+
   )
 
 (add-hook 'outline-minor-mode-hook 'my/outline-mode-hook)
@@ -2194,26 +2273,30 @@ header. [rooted]"
 ;; -- -- -- -- C-, xref jump
 (defun my/fix-xref-outline (orig-fun &rest args)
   "Fix bug when we jump C-, to place hidden header."
-  (outline-show-all)
   (apply orig-fun args)
-  ;; (outline-hide-other)
-  )
+  (when (bound-and-true-p outline-minor-mode)
+    ;; (outline-show-all)
+    ;; (outline-hide-other)
+    (outline-hide-sublevels 7)
+    (outline-show-entry)
+    ))
+
 (advice-add 'xref-find-definitions :around #'my/fix-xref-outline)
 (advice-add 'xref-go-back :around #'my/fix-xref-outline)
 ;; -- -- -- -- Backtrace clicks
 (defun my/outline-help-function-def(&rest r)
   "Fix clicking buttons in Backtrace."
-  (when outline-minor-mode
+  (when (bound-and-true-p outline-minor-mode)
     (outline-show-all)
-    (my/outline-hide-other)
-    ))
+    (my/outline-hide-other)))
 
 (advice-add 'help-function-def--button-function :after #'my/outline-help-function-def)
 
 ;; -- -- -- -- C-u C-SPC set-mark-command
 (defun my/outline-set-mark-command(arg)
   "Fix clicking buttons in Backtrace."
-  (when (and (boundp 'outline-minor-mode) outline-minor-mode (and arg))
+  (when (and (bound-and-true-p outline-minor-mode)
+             arg)
     (outline-show-all)
     (my/outline-hide-other)))
 
@@ -2250,6 +2333,17 @@ header. [rooted]"
 ;; (advice-add 'outline-hide-other :after #'my/outline-hide-other-after)
 
 
+;; -- -- -- fix for goto-line
+(defun my/goto-line-advice (orig-fun &rest args)
+  "Fix to unwrap outline.
+Double call, first call set cursor at wrapped line, second at
+unwrapped."
+  (when (bound-and-true-p outline-minor-mode)
+    (apply orig-fun args)
+    (outline-show-entry))
+  (apply orig-fun args))
+
+(advice-add 'goto-line :around #'my/goto-line-advice)
 ;; -- -- calendar and holidays
 ;; (require 'calendar)
 (require 'holidays)
@@ -3130,7 +3224,7 @@ Value is a list of all tags for FILE."
   (bookmark-save))
 (define-key (current-global-map) (kbd "C-x Y") #'my/bookmark-set)
 (add-hook 'bookmark-bmenu-mode-hook #'hl-line-mode)
-;; -- -- complete
+;; -- -- complete - TODO
 (setq completions-max-height 10)
 ;; -- -- company
 (require 'company)
@@ -3171,7 +3265,6 @@ Value is a list of all tags for FILE."
 (add-hook 'org-mode-hook #'company-mode) ; company-capf
 ;; -- -- ORG
 ;; -- -- -- fix fill-paragraph
-
 
 (defun my/org-current-line-is-a-list ()
   "Non-nil if line is a list."
@@ -3315,6 +3408,30 @@ Value is a list of all tags for FILE."
       (org-shiftmetaright)
       (widen)
       (org-list-repair))))
+;; -- -- -- key: TAB
+(defun my/org-tab ()
+  "compare full line at cursor position with outline template for
+header. [rooted]"
+(let ((el-type (org-element-type (org-element-at-point))))
+  (cond ;; - org and at the header
+   ((member el-type (list 'headline 'table-row))
+      (message "header or table row")
+      (org-cycle))
+    ((eq el-type 'src-block)
+     (org-cycle)
+     (hilit-chg-clear)
+     (message "srcblocktab")
+     )
+    ; for text
+    (t (my/autocomplete))
+    )))
+
+(defun my/org-mode-hook1 ()
+  (setq-local indent-line-function #'my/org-tab)
+  (setq-local indent-region-function #'org-cycle))
+
+(add-hook 'org-mode-hook #'my/org-mode-hook1)
+
 ;; -- -- -- keys others
 ;; We bind org-forward-sentence and org-backward-sentence to
 ;; C-e and C-e, and make it simplier.
@@ -3540,30 +3657,6 @@ Like (outline-hide-other) (org-reveal) but better."
   (if (string-equal-ignore-case "python" (org-element-property :language (org-element-context)))
       (end-of-buffer-other-window nil)))
 
-(defun my/indent-or-complete-org ()
-  "TAB key for Org mode"
-  (interactive)
-  (let ((el-type (org-element-type (org-element-at-point))))
-    (cond ;; - org and at the header
-     ((org-match-line org-outline-regexp)
-      ;; body
-      (message "org header")
-      (call-interactively 'org-cycle))
-    ((eq el-type 'table-row)
-     ;; body
-     (message "indetaborg")
-     (call-interactively 'org-cycle)
-     )
-    ((eq el-type 'src-block)
-     (org-cycle)
-     (hilit-chg-clear)
-     (message "srcblocktab")
-     )
-    (t
-     (call-interactively 'my/indent-or-complete))
-     )))
-
-
 (defun my/org-new-line-indented()
   "go there: open next line split, with indentation"
   (interactive)
@@ -3694,8 +3787,8 @@ If not in a list don't split, open new line and indent."
                            ;; (setq company-backends '( company-capf company-keywords company-files company-dabbrev ))
                            ;; (setq company-backends '(  company-files company-dabbrev )) ; company-keywords company-capf
                            ;; (setq company-backends '(company-math-symbols-unicode company-keywords company-files company-abbrev company-dabbrev))
-                           (keymap-local-set "TAB" 'my/indent-or-complete-org)
-                           ;; (keymap-local-set "TAB") 'indent-for-tab-command)
+                           ;; (keymap-local-set "TAB" 'my/indent-or-complete-org)
+                           (keymap-local-set "TAB" 'indent-for-tab-command)
 
                            ;; - - hide other
                            (keymap-local-set "C-c C-e" 'my/org-fold-hide-other) ;; hides org-export-dispatch
@@ -4042,7 +4135,6 @@ If not in a list don't split, open new line and indent."
 
 
 ;; org-babel-execute:python
-;; -- -- -- HTTP links will be copied to buffer
 ;; -- -- -- fix for inline images with transparent background
 (defcustom org-inline-image-background nil
   "The color used as the default background for inline images.
@@ -4193,18 +4285,18 @@ return the value of the last statement in BODY."
 ;;             (add-to-list 'post-command-hook 'org-src-detect--post-command)
 ;;             ))
 ;; -- -- -- "don’t" to "don't" - With advice and `org-src-detect-check'
-(defun my/quote-advice (orig-fun &rest args)
-  "If it is Org mode and we are in source code block, then we ignore
-`electric-quote-post-self-insert-function' function.
-For words like: don't - insert stright apostrophe instead of '’'."
-  (if (derived-mode-p 'org-mode)
-    (unless (org-src-detect-check)
-      (apply orig-fun args))
-    ;; else
-    (apply orig-fun args)))
+;; (defun my/quote-advice (orig-fun &rest args)
+;;   "If it is Org mode and we are in source code block, then we ignore
+;; `electric-quote-post-self-insert-function' function.
+;; For words like: don't - insert stright apostrophe instead of '’'."
+;;   (if (derived-mode-p 'org-mode)
+;;     (unless (org-src-detect-check)
+;;       (apply orig-fun args))
+;;     ;; else
+;;     (apply orig-fun args)))
 
 
-(advice-add 'electric-quote-post-self-insert-function :around #'my/quote-advice)
+;; (advice-add 'electric-quote-post-self-insert-function :around #'my/quote-advice)
 
 ;; -- -- -- Activate electric-quote-local-mode for Org and Markdown
 (setq electric-quote-context-sensitive t) ;; two '' to one "
@@ -4330,19 +4422,10 @@ If prev word was not found, go to prev heading"
             (outline-previous-heading)))))
 
   ;; (isearch-forward-symbol-at-point) (isearch-repeat-backward) (isearch-repeat-backward))
-;; -- -- -- -- idle-highlight-mode
-(require 'idle-highlight-mode)
-(add-hook 'python-mode-hook	#'idle-highlight-mode)
-(add-hook 'python-ts-mode-hook	#'idle-highlight-mode)
-(add-hook 'c-mode-common-hook	#'idle-highlight-mode)
-;; (add-hook 'yaml-mode-hook 'idle-highlight-mode)
-(add-hook 'yaml-ts-mode-hook	#'idle-highlight-mode)
-(add-hook 'emacs-lisp-mode-hook #'idle-highlight-mode)
-
 ;; -- -- -- -- Keys
 (defun my/programming-keys()
-  (keymap-local-set "M-;" 'comment-line)
-  (keymap-local-set "C-;" 'comment-dwim)
+  (keymap-local-set "M-;" #'comment-line)
+  (keymap-local-set "C-;" #'comment-dwim)
   (keymap-local-set "C-c k" #'beginning-of-defun)
   (keymap-local-set "C-c n" #'end-of-defun)
   (keymap-local-set "C-c h" #'mark-defun)
@@ -4354,6 +4437,16 @@ If prev word was not found, go to prev heading"
 (add-hook 'python-ts-mode-hook	#'my/programming-keys)
 (add-hook 'c-mode-common-hook	#'my/programming-keys)
 (add-hook 'emacs-lisp-mode-hook #'my/programming-keys)
+
+;; -- -- -- -- idle-highlight-mode
+(require 'idle-highlight-mode)
+(add-hook 'python-mode-hook	#'idle-highlight-mode)
+(add-hook 'python-ts-mode-hook	#'idle-highlight-mode)
+(add-hook 'c-mode-common-hook	#'idle-highlight-mode)
+;; (add-hook 'yaml-mode-hook 'idle-highlight-mode)
+(add-hook 'yaml-ts-mode-hook	#'idle-highlight-mode)
+(add-hook 'emacs-lisp-mode-hook #'idle-highlight-mode)
+
 ;; -- -- -- -- Demap - minimap - global key C-c i
 (with-eval-after-load 'demap
   ;; - config
@@ -4399,7 +4492,7 @@ If prev word was not found, go to prev heading"
 (add-hook 'python-ts-mode-hook	#'display-line-numbers-mode)
 (add-hook 'c-mode-common-hook	#'display-line-numbers-mode)
 (add-hook 'emacs-lisp-mode-hook #'display-line-numbers-mode)
-(add-hook 'yaml-mode-hook	#'display-line-numbers-mode)
+;; (add-hook 'yaml-mode-hook	#'display-line-numbers-mode)
 (add-hook 'yaml-ts-mode-hook	#'display-line-numbers-mode)
 
 ;; -- -- -- Elisp - Emacs-Lisp
@@ -4589,16 +4682,16 @@ Optional argument ARGS ."
 
 ;; -- -- -- -- python-mode-hook
 (defun my/python-mode-hook ()
-  (interactive)
+  ;; (interactive)
 
   (setq fill-column 80)
 
   ;; - - - keybindings
-  (keymap-local-set "C-c C-b" 'python-indent-shift-left )
-  (keymap-local-set "C-c C-f" 'python-indent-shift-right ) ;; shadows python-eldoc-at-point
-  (keymap-local-set "C-c C-c" 'my/exec-python)
-  (keymap-local-set "C-c c" 'run-python) ; open REPL on remote machine too
-  (keymap-local-set "C-c C-o" 'python-sort-imports)
+  (keymap-local-set "C-c C-b" #'python-indent-shift-left )
+  (keymap-local-set "C-c C-f" #'python-indent-shift-right ) ;; shadows python-eldoc-at-point
+  (keymap-local-set "C-c C-c" #'my/exec-python)
+  (keymap-local-set "C-c c"   #'run-python) ; open REPL on remote machine too
+  (keymap-local-set "C-c C-o" #'python-sort-imports)
 
   ;; (keymap-local-set "C-M-l" 'backward-sexp)
   ;; (keymap-local-set "C-M-f" 'forward-sexp)
@@ -4643,8 +4736,8 @@ Optional argument ARGS ."
 
 (add-hook 'python-mode-hook #'my/python-mode-hook)
 (add-hook 'python-ts-mode-hook #'my/python-mode-hook)
-(add-hook 'python-mode-hook #'flymake-mode
-(add-hook 'python-ts-mode-hook #'flymake-mode
+(add-hook 'python-mode-hook #'flymake-mode)
+(add-hook 'python-ts-mode-hook #'flymake-mode)
 
 ;; Org babel command for python
 ;; use: .bashrc: ln -fs /usr/local/bin/python3.11 /usr/bin/python
@@ -5828,20 +5921,7 @@ This function is called by `org-babel-execute-src-block'."
 (define-skeleton org-src-mastadon
   ""
   ""
-  ":#+begin_src bash :results output"
-  "\n"
-  "source ~/.bash_aliases"
-  "\n\n"
-  "# delete"
-  "\n\n"
-  "post \"\n😶\""
-  "\n"
-  "#+end_src")
-
-(define-skeleton org-src-mastadon2
-  ""
-  ""
-  "#+begin_src bash :results output\n"
+  ":#+begin_src bash :results output\n"
   "source ~/.bash_aliases\n"
   "\n"
   "# delete\n"
@@ -5932,7 +6012,7 @@ This function is called by `org-babel-execute-src-block'."
     ("4y-yaml" "" org-src-yaml)
     ("4s-sqlit" "" org-src-sqlite)
     ("4j-julia" "" org-src-julia)
-    ("4m-mastadon" "" org-src-mastadon2)
+    ("4m-mastadon" "" org-src-mastadon)
     ("4t-text" "" org-src-text)
     ("4a-artist" "" org-src-artist)
     ("4pne-perl" "" org-src-perl-no-exec)
@@ -6272,10 +6352,9 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 ;; -- -- YAML - yaml-mode
 (add-hook 'yaml-ts-mode-hook 'flymake-yamllint-setup)
 (add-hook 'yaml-ts-mode-hook 'flymake-mode)
-(add-hook 'yaml-ts-mode-hook (lambda ()
-                            (keymap-local-set "C-c C-n" 'flymake-goto-next-error)
-                            (keymap-local-set "C-c C-p" 'flymake-goto-prev-error)
-                            ))
+(add-hook 'yaml-ts-mode-hook
+          (lambda ()
+            (setq-local tab-width 2)))
 
 ;; TODO:
 ;; (defun yaml-fill-paragraph (&optional justify region)
@@ -6330,6 +6409,7 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
   ;; (set-face-attribute 'mode-line-active nil :background "cyan4")
   ;; - increate contrast
   (selected-window-contrast-change-modeline 0.6 0.6)
+  ;; (selected-window-contrast-change-window 2.0 1.1)
   )
 
 ;; -- -- org-present - in development
