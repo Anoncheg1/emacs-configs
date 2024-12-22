@@ -17,6 +17,7 @@ by default:
 -
 * Others
 - M-q		'my/fill-paragraph
+- C-c M-q	'unfill-paragraph
 - C-'/M-'	'org-shiftright/'org-shiftleft - switch bullets of lists
 - C-c C-f/l	‘org-shiftmetaright/org-shiftmetaleft - move items of list left/right
 - M-n/k	‘my/org-backward-paragraph/'my/org-forward-paragraph

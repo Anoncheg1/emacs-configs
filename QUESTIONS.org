@@ -2253,7 +2253,7 @@ two ways:
 There is already exist circadian.el package
  https://github.com/GuidoSchmidt/circadian.el for 1. approach.
 
-* Solution with circadian.el
+* Themes: How to set theme by time. Solution with circadian.el
 Here is modification that run our function instead of just change theme:
 
 #+begin_src elisp :results none :exports code :eval no
@@ -2292,13 +2292,42 @@ I need 3-4 themes switching by time + cycling based on custom functions.
   - Loop though available color theme
 - theme-buffet - change theme every 30 min or 2 hoursn
 
-
 ** circadian.el main functions
 - (circadian-themes-parse) sort “circadian-themes” by time
 - (circadian-a-earlier-b-p time1 time2) - return time1 < time2
 - (circadian-string-to-time time) - split string “HH:MM” to (HH MM)
 - (setq circadian-next-timer (run-at-time next-time nil #'circadian-enable-theme next-theme)
 - (circadian-filter-inactivate-themes) - find next time to run
+** How to set theme by sunrise and sunset.
+Yes, Emacs can calculate time by season and geographic location.
+#+begin_src elisp :results none :exports code :eval no
+(require 'solar)
+(setq calendar-latitude 55.7565408)
+(setq calendar-longitude 37.6149202)
+(setq calendar-location-name "your location")
+(setq calendar-time-zone 0) ; UTC
+
+(require 'circadian)
+(let* ((dat (solar-sunrise-sunset (calendar-current-date)))
+         (sunrise-time (apply #'solar-time-string (car dat)))
+         (sunset-time (apply #'solar-time-string (cadr dat)))
+         (sunrise (car dat))
+         (sunrise-3 (list (- (car sunrise) 3) (cdr sunrise)))
+         (sunrise+3 (list (+ (car sunrise) 3) (cdr sunrise)))
+         (sunset (cadr dat))
+         (sunset-3 (list (- (car sunset) 3) (cdr sunset)))
+         (sunset+3 (list (+ (car sunset) 3) (cdr sunset)))
+         (sunrise-3-time (apply #'solar-time-string sunrise-3))
+         (sunrise+3-time (apply #'solar-time-string sunrise+3))
+         (sunset-3-time (apply #'solar-time-string sunset-3))
+         (sunset+3-time (apply #'solar-time-string sunset+3)))
+  (setq circadian-themes (list
+                           (cons sunrise-3-time 'wombat)
+                           (cons sunrise+3-time 'tango)
+                           (cons sunset-time  'adwaita)
+                           (cons sunset+3-time  'tango))))
+(circadian-setup)
+#+end_src
 * Password management
 Password management in Emacs:
 - you can encrypt and decrypt files *.gpg automaticly or in Dired: https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources

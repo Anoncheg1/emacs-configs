@@ -316,7 +316,7 @@
 #+begin_src elisp
 
 #+end_src
-** Calendar and diary
+** Agenda and diary
 #+begin_src elisp
 
 (require 'org-agenda)
@@ -329,12 +329,12 @@
   (other-window 1)
   (org-cycle-agenda-files)
   (other-window 1)
-  (split-window-below)
-  (other-window 1)
+  ;; (split-window-below)
+  ;; (other-window 1)
   ;; (switch-to-buffer "diary")
   ;; (diary-show
-  (other-window 1)
-  (other-window 1)
+  ;; (other-window 1)
+  ;; (other-window 1)
   )
 
 #+end_src
@@ -565,6 +565,7 @@ Steps: 1) create buffer. 2) found frame with same major mode.
 ** Indentation
 #+begin_src elisp
 
+;; We don't change `tab-width' at global scale.
 ;; padding from edge of window
 ;; (setq-default left-margin-width 14 right-margin-width 14)
 ;; (set-window-fringes (selected-window) 14 0)
@@ -674,89 +675,6 @@ Steps: 1) create buffer. 2) found frame with same major mode.
 ;; (add-to-list 'default-frame-alist '(top    . 0))
 
 
-#+end_src
-** theme switching - day and night [rooted]
-#+begin_src elisp
-
-#+end_src
-*** main
-#+begin_src elisp
-
-(defun my/load-theme (themes)
-  "Load THEMES properly by disabling the previous themes first."
-  (mapc #'disable-theme custom-enabled-themes)
-  (mapc (lambda (x)(load-theme x t))
-        (reverse themes))
-  (setq custom-enabled-themes themes))
-
-(defun my/dark-common()
-  (custom-set-faces
-   '(highlight-changes ((t (:foreground "hot pink" :weight bold :background nil))))
-   ;; '(highlight-changes-delete ((t (:foreground "red"))))
-   '(whitespace-tab ((t (:foreground "PaleVioletRed4"))))
-   '(whitespace-trailing ((t (:extend t :background "dark red"))))
-   )
-  )
-
-(defun my/set-theme-dark ()
-  "Theme 1."
-  (interactive)
-  (my/load-theme '(manoj-dark wombat))
-  (my/dark-common)
-  )
-
-(defun my/set-theme-middle ()
-  "Theme 2."
-  (interactive)
-  (my/load-theme '(wombat manoj-dark))
-  (my/dark-common))
-
-
-(defun my/set-theme-white ()
-  "Theme 3."
-  (interactive)
-  ;; (my/load-theme nil)
-  (my/load-theme '(tsdh-light)) ; theme name
-  (custom-set-faces
-   '(highlight-changes ((t (:background nil :foreground "maroon" :weight bold))))
-   ;; '(highlight-changes-delete ((t (:foreground "red"))))
-   ;; '(whitespace-tab ((t (:foreground "hot pink"))))
-   '(whitespace-trailing ((t (:extend t :background "pink")))))
-  )
-
-;; enable themes - darker
-(global-set-key (kbd "M-_") #'my/set-theme-dark)
-;; enable themes - middle ; shadow `insert-parentheses'
-(global-set-key (kbd "M-)") #'my/set-theme-middle) ; modus-operandi - for root
-;; disable themes - white ; shadow `move-past-close-and-reindent'
-(global-set-key (kbd "M-(") #'my/set-theme-white) ; ; modus-vivendi - for root
-
-
-#+end_src
-*** by time - circadian package
-#+begin_src elisp
-
-;; - load circadian https://github.com/GuidoSchmidt/circadian.el
-(require 'circadian)
-
-;; - circadian basic config
-(setq circadian-themes '(("00:00" . my/set-theme-dark)
-                         ("02:00"   . my/set-theme-middle)
-                         ("06:00"  . my/set-theme-white)
-                         ("12:00"  . my/set-theme-white)
-                         ("17:00"   . my/set-theme-middle)
-                         ("20:00" . my/set-theme-dark)))
-
-;; - override function that activate theme to our
-(defun my/circadian-enable-theme (theme)
-    "Call function instead of just set theme."
-    (funcall theme)
-    (setq circadian-next-timer nil)
-    (circadian-schedule))
-
-(advice-add 'circadian-enable-theme :override #'my/circadian-enable-theme)
-;; - activate circadian
-(circadian-setup)
 #+end_src
 ** add current path to modeline
 #+begin_src elisp
@@ -2734,6 +2652,136 @@ header. [rooted]"
 
 ;;   "Christian holidays.
 ;; See the documentation for `calendar-holidays' for details.")
+#+end_src
+** theme switching - day and night [rooted]
+#+begin_src elisp
+
+#+end_src
+*** main
+#+begin_src elisp
+
+(defun my/load-theme (themes)
+  "Load THEMES properly by disabling the previous themes first."
+  (mapc #'disable-theme custom-enabled-themes)
+  (mapc (lambda (x)(load-theme x t))
+        (reverse themes))
+  (setq custom-enabled-themes themes))
+
+(defun my/dark-common()
+  (custom-set-faces
+   '(highlight-changes ((t (:foreground "hot pink" :weight bold :background nil))))
+   ;; '(highlight-changes-delete ((t (:foreground "red"))))
+   '(whitespace-tab ((t (:foreground "PaleVioletRed4"))))
+   '(whitespace-trailing ((t (:extend t :background "dark red"))))
+   )
+  )
+
+(defun my/set-theme-dark ()
+  "Theme 1."
+  (interactive)
+  (my/load-theme '(manoj-dark wombat))
+  (my/dark-common)
+  )
+
+(defun my/set-theme-middle ()
+  "Theme 2."
+  (interactive)
+  (my/load-theme '(wombat manoj-dark))
+  (my/dark-common))
+
+
+(defun my/set-theme-white ()
+  "Theme 3."
+  (interactive)
+  ;; (my/load-theme nil)
+  (my/load-theme '(tsdh-light)) ; theme name
+  (custom-set-faces
+   '(highlight-changes ((t (:background nil :foreground "maroon" :weight bold))))
+   ;; '(highlight-changes-delete ((t (:foreground "red"))))
+   ;; '(whitespace-tab ((t (:foreground "hot pink"))))
+   '(whitespace-trailing ((t (:extend t :background "pink")))))
+  )
+
+;; enable themes - darker
+(global-set-key (kbd "M-_") #'my/set-theme-dark)
+;; enable themes - middle ; shadow `insert-parentheses'
+(global-set-key (kbd "M-)") #'my/set-theme-middle) ; modus-operandi - for root
+;; disable themes - white ; shadow `move-past-close-and-reindent'
+(global-set-key (kbd "M-(") #'my/set-theme-white) ; ; modus-vivendi - for root
+
+
+#+end_src
+*** circadian package - theme switchin by time (require calendar longitude configuration)
+#+begin_src elisp
+
+;; - load circadian https://github.com/GuidoSchmidt/circadian.el
+(require 'circadian)
+(require 'solar)
+
+;; (defun my/get-sun-times()
+;;   (let* ((dat (solar-sunrise-sunset (calendar-current-date)))
+;;          (sunrise-time (apply #'solar-time-string (car dat)))
+;;          (sunset-time (apply #'solar-time-string (cadr dat)))
+;;          (sunrise (car dat))
+;;          (sunrise-3 (list (- (car sunrise) 3) (cdr sunrise)))
+;;          (sunrise+3 (list (+ (car sunrise) 3) (cdr sunrise)))
+;;          (sunset (cadr dat))
+;;          (sunset-3 (list (- (car sunset) 3) (cdr sunset)))
+;;          (sunset+3 (list (+ (car sunset) 3) (cdr sunset)))
+;;          (sunrise-3-time (apply #'solar-time-string sunrise-3))
+;;          (sunrise+3-time (apply #'solar-time-string sunrise+3))
+;;          (sunset-3-time (apply #'solar-time-string sunset-3))
+;;          (sunset+3-time (apply #'solar-time-string sunset+3))
+;;          )
+;;     (list sunrise-time sunset-time sunrise-time sunrise+3-time sunset-3-time sunset+3-time)
+;;     ))
+
+;; - circadian basic config
+;; (setq circadian-themes '(("00:00" . my/set-theme-dark)
+;;                          ("02:00"   . my/set-theme-middle)
+;;                          ("06:00"  . my/set-theme-white)
+;;                          ("12:00"  . my/set-theme-white)
+;;                          ("17:00"   . my/set-theme-middle)
+;;                          ("20:00" . my/set-theme-dark)))
+(let* ((dat (solar-sunrise-sunset (calendar-current-date)))
+         (sunrise-time (apply #'solar-time-string (car dat)))
+         ;; (sunset-time (apply #'solar-time-string (cadr dat)))
+         (sunrise (car dat))
+         (sunrise-3 (list (- (- (car sunrise) 3) 3) (cdr sunrise))) ; + convert to UTC+0
+         (sunrise+3 (list (- (+ (car sunrise) 3) 3) (cdr sunrise))) ; + convert to UTC+0
+         (sunset (cadr dat))
+         (sunset-3 (list (- (- (car sunset) 3) 3) (cdr sunset))) ; + convert to UTC+0
+         (sunset+3 (list (- (+ (car sunset) 3) 3) (cdr sunset))) ; + convert to UTC+0
+         (sunset-c (list (- (car sunset) 3) (cdr sunset))) ; + convert to UTC+0
+         (sunrise-3-time (apply #'solar-time-string sunrise-3))
+         (sunrise+3-time (apply #'solar-time-string sunrise+3))
+         (sunset-3-time (apply #'solar-time-string sunset-3))
+         (sunset+3-time (apply #'solar-time-string sunset+3))
+         (sunset-c-time (apply #'solar-time-string sunset-c))
+         )
+  (message "Theme switching times:")
+  (message (concat "- middle:\t" sunrise-3-time))
+  (message (concat "- white:\t" sunrise+3-time))
+  (message (concat "- middle:\t" sunset-c-time))
+  (message (concat "- black:\t" sunset+3-time))
+  (setq circadian-themes (list
+                           (cons sunrise-3-time #'my/set-theme-middle)
+                           (cons sunrise+3-time #'my/set-theme-white)
+                           (cons sunset-c-time  #'my/set-theme-middle)
+                           (cons sunset+3-time  #'my/set-theme-dark)))
+  )
+
+;; - override function that activate theme to our
+(defun my/circadian-enable-theme (theme)
+    "Call function instead of just set theme."
+    (funcall theme)
+    (setq circadian-next-timer nil)
+    (circadian-schedule))
+
+(advice-add 'circadian-enable-theme :override #'my/circadian-enable-theme)
+;; - activate circadian
+(circadian-setup)
+
 #+end_src
 ** Diary
 #+begin_src elisp
@@ -4860,11 +4908,12 @@ If prev word was not found, go to prev heading"
 #+begin_src elisp
 
 (require 'idle-highlight-mode)
-(add-hook 'python-mode-hook 'idle-highlight-mode)
-(add-hook 'python-ts-mode-hook 'idle-highlight-mode)
-(add-hook 'c-mode-common-hook 'idle-highlight-mode)
-(add-hook 'yaml-mode-hook 'idle-highlight-mode)
-(add-hook 'emacs-lisp-mode-hook 'idle-highlight-mode)
+(add-hook 'python-mode-hook	#'idle-highlight-mode)
+(add-hook 'python-ts-mode-hook	#'idle-highlight-mode)
+(add-hook 'c-mode-common-hook	#'idle-highlight-mode)
+;; (add-hook 'yaml-mode-hook 'idle-highlight-mode)
+(add-hook 'yaml-ts-mode-hook	#'idle-highlight-mode)
+(add-hook 'emacs-lisp-mode-hook #'idle-highlight-mode)
 
 #+end_src
 **** Keys
@@ -4880,10 +4929,10 @@ If prev word was not found, go to prev heading"
   (keymap-local-set "C-c C-p" #'my/go-to-prev-occurrence)
   )
 
-(add-hook 'python-mode-hook 'my/programming-keys)
-(add-hook 'python-ts-mode-hook 'my/programming-keys)
-(add-hook 'c-mode-common-hook 'my/programming-keys)
-(add-hook 'emacs-lisp-mode-hook 'my/programming-keys)
+(add-hook 'python-mode-hook	#'my/programming-keys)
+(add-hook 'python-ts-mode-hook	#'my/programming-keys)
+(add-hook 'c-mode-common-hook	#'my/programming-keys)
+(add-hook 'emacs-lisp-mode-hook #'my/programming-keys)
 #+end_src
 **** Demap - minimap - global key C-c i
 #+begin_src elisp
@@ -4910,7 +4959,9 @@ If prev word was not found, go to prev heading"
                             (demap-open)))
   (add-hook 'c-mode-hook (lambda ()
                             (keymap-local-set "C-c i" #'demap-toggle)))
-  (add-hook 'yaml-mode-hook (lambda ()
+  ;; (add-hook 'yaml-mode-hook (lambda ()
+  ;;                           (keymap-local-set "C-c i" #'demap-toggle)))
+  (add-hook 'yaml-ts-mode-hook (lambda ()
                             (keymap-local-set "C-c i" #'demap-toggle)))
   (add-hook 'emacs-lisp-mode-hook (lambda ()
                             (keymap-local-set "C-c i" #'demap-toggle)))
@@ -4929,10 +4980,12 @@ If prev word was not found, go to prev heading"
 #+begin_src elisp
 
 (setq display-line-numbers-width 5)
-(add-hook 'python-mode-hook 'display-line-numbers-mode)
-(add-hook 'python-ts-mode-hook 'display-line-numbers-mode)
-(add-hook 'c-mode-common-hook 'display-line-numbers-mode)
-(add-hook 'emacs-lisp-mode-hook 'display-line-numbers-mode)
+(add-hook 'python-mode-hook	#'display-line-numbers-mode)
+(add-hook 'python-ts-mode-hook	#'display-line-numbers-mode)
+(add-hook 'c-mode-common-hook	#'display-line-numbers-mode)
+(add-hook 'emacs-lisp-mode-hook #'display-line-numbers-mode)
+(add-hook 'yaml-mode-hook	#'display-line-numbers-mode)
+(add-hook 'yaml-ts-mode-hook	#'display-line-numbers-mode)
 
 #+end_src
 *** Elisp - Emacs-Lisp
@@ -4991,8 +5044,8 @@ list sexp or comment at current cursor position."
   (keymap-local-set "C-j" #'my/insert-new-sexp))
 
 ;; ;; hook executed per buffer
-(add-hook 'emacs-lisp-mode-hook 'my/syntax-table-elisp)
-(add-hook 'emacs-lisp-mode-hook 'my/elisp-keys)
+(add-hook 'emacs-lisp-mode-hook #'my/syntax-table-elisp)
+(add-hook 'emacs-lisp-mode-hook #'my/elisp-keys)
 
 #+end_src
 *** Python
@@ -5171,10 +5224,10 @@ Optional argument ARGS ."
   ;; (setq flymake-python-pyflakes-executable "flake8")
   ;; (local-set-key "\C-c\C-n" 'flymake-goto-next-error)
   ;; - - - errors checking
-  (flymake-mode) ; we use defalut python-flymake-command '("pyflakes")
-  (setq flymake-no-changes-timeout 0.5)
-  (keymap-local-set "C-'" 'flymake-goto-next-error)
-  (keymap-local-set "M-'" 'flymake-goto-prev-error)
+  ;; (flymake-mode) ; we use defalut python-flymake-command '("pyflakes")
+  ;; (setq flymake-no-changes-timeout 0.5)
+  ;; (keymap-local-set "C-'" 'flymake-goto-next-error)
+  ;; (keymap-local-set "M-'" 'flymake-goto-prev-error)
 
   ;; - - -  other modes
   ;; (eldoc-mode -1)
@@ -5191,8 +5244,10 @@ Optional argument ARGS ."
   (setq-local tab-width 4)
 )
 
-(add-hook 'python-mode-hook 'my/python-mode-hook)
-(add-hook 'python-ts-mode-hook 'my/python-mode-hook)
+(add-hook 'python-mode-hook #'my/python-mode-hook)
+(add-hook 'python-ts-mode-hook #'my/python-mode-hook)
+(add-hook 'python-mode-hook #'flymake-mode
+(add-hook 'python-ts-mode-hook #'flymake-mode
 
 ;; Org babel command for python
 ;; use: .bashrc: ln -fs /usr/local/bin/python3.11 /usr/bin/python
@@ -7024,12 +7079,9 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 (setopt selected-window-contrast-not-sel-magnitude-text 2.0)
 (setopt selected-window-contrast-not-sel-magnitude-background 1.1)
 
-(add-hook 'buffer-list-update-hook #'selected-window-contrast-highlight-selected-window)
-;; - for case of call: $ emacsclient -c ~/file
-(add-hook 'server-after-make-frame-hook #'selected-window-contrast-highlight-selected-window)
-;; (add-hook 'server-after-make-frame-hook
-;;           (lambda ()
-;;             (run-with-idle-timer 0.01 nil #'selected-window-contrast-highlight-selected-window)))
+(add-hook 'buffer-list-update-hook #'selected-window-contrast-highlight-selected-window-timeout1)
+;; - additional timeout for case of call: $ emacsclient -c ~/file
+(add-hook 'server-after-make-frame-hook #'selected-window-contrast-highlight-selected-window-timeout2)
 
 #+end_src
 *** configure mode-line-active
