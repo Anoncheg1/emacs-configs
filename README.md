@@ -11,8 +11,8 @@ This is a single config file ```.emacs``` structured with outline-mode, all othe
 
 
 # Favorite modes
-- (built-in): Org, org-agenda, Python, CC mode, Semantic, ElDoc, Dired + Bookmarks, VC, Highlight Changes, Electric Quote, dictionary, EasyPG.
-- (external): hidepw, free-keys, Notmuch, vlfi, dockerfile-mode, company-math, csv-mode, org-present, multiple-cursors.
+- (built-in): Org, org-agenda, Python, CC mode, Semantic, ElDoc, Dired + Bookmarks, VC, Highlight Changes, Electric Quote, dictionary, EasyPG, calendar, holidays.
+- (external): hidepw, free-keys, Notmuch, company-math, csv-mode, multiple-cursors, circadian, vlfi, org-present, dockerfile-mode.
 
 Python IDE for remote and local: Eglot + pylsp, demap (minimap), recentf (recent visited)
 
@@ -51,14 +51,7 @@ This is between console and JIKL:
 
 I changed behavior of C-a/e and M-a/e in Org mode.
 - C-a - move to the begining of the current element at the line. (For example: to the begining of the URL.)
-- M-e - move to the begining of the line.
-
-Windows:
-- C-o - my/other-window-or-split
-
-Frames:
-- M-[/] - (other-frame -1/1)
-- C-x 5 2 - (make-frame) (default)
+- M-a - move to the begining of the line.
 
 Buffers:
 - C-x C-l - buffers menu (default) at right
@@ -67,6 +60,12 @@ Buffers:
 - C-c C-z - previous buffer
 - C-x ! - 'my/kill-other-buffers-and-frame-duplicates - kill not modified buffers and duplicate frames, kill not marked buffers in menu
 
+Windows:
+- C-o - my/other-window-or-split
+
+Frames (not used, acttually):
+- M-[/] - (other-frame -1/1)
+- C-x 5 2 - (make-frame) (default)
 ## Email Client
 isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 
@@ -93,7 +92,6 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - add timeout for C-c C-c execute source block in Org mode, per language.
 - Jump to Org-mode src-block's result and key to open session in window
 - fixed recover autosaved #file# that is older: show message and own my/recover-this file.
-- indent region line by line
 - after M-q fill-paragraph cursor stays far away from left - I surrounder call with (save-excursion...
 - org-fill-paragraph don't respect language of source block to find language specific fill-column, I added additional key C-u TAB for that.
 - C-u C-SPC don't unwrap Org headers when jump, just like org-goto. advice added.
@@ -119,6 +117,7 @@ isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 - fixed case when we jump to place that hidden with folded outline header
 - add keybinding to swap windows "C-x M-\\"
 
+
 TODO:
 - if two Dired buffers opened and M-o used to open file in other window, path switch to other in Dired window.
 - clear Hightlight changed after Undo if buffer is not modified.
@@ -134,6 +133,7 @@ TODO:
 - one key for fill-paragraph, add dot at the end and capitalize.
 - smart commet with M-; for last line in Elisp to drop ))) to the next line
 - in org-mode *asd* make * less visible
+- create package to monitor proxy status, analyse everything about proxy in Emacs.
 
 # bashrc
 
