@@ -1,6 +1,6 @@
 In “C-c ‘“ Eglot not supported.
 
-* remove:
+* Remote:
 To edit remote use C-x C-f /ssh:sshconfigrecord:
 - C-c C-c working on remote
 

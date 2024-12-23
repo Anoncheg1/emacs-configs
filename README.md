@@ -29,7 +29,7 @@ This is between console and JIKL:
 ## New line
 [New line rebinding: ./new-line-rebinding.org](new-line-rebinding.org)
 
-## Detele backward (C-u in console)
+## Delete backward (C-u in console)
 - C-h 'delete-backward-char
 - M-h 'backward-kill-word
 - C-p 'kill-line (forward)
