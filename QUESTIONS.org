@@ -883,6 +883,30 @@ per image link:
 
 globally:
 : (setopt org-image-actual-width 300)
+* Org: Smooth up and down movement element by element
+#+begin_src elisp :results none :exports code :eval no
+(defun my/org-next-item ()
+  (interactive)
+  (condition-case _
+      (org-next-item)
+    (error
+     (org-forward-element))))
+
+(defun my/org-previous-item ()
+  (interactive)
+  (condition-case _
+      (org-previous-item)
+    (error
+     (org-backward-element))))
+
+(add-hook 'org-mode-hook (lambda ()
+                           ;; - - - C-c n
+                           (keymap-local-set "C-c n" #'org-next-visible-heading) ; shadow org-forward-heading-same-level
+                           (keymap-local-set "C-c k" #'org-previous-visible-heading) ; shadow org-forward-heading-same-level
+                           (keymap-local-set "C-c C-n" #'my/org-next-item) ; shadow org-next-visible-heading
+                           (keymap-local-set "C-c C-p" #'my/org-previous-item) ; org-previous-visible-heading
+                           ))
+#+end_src
 * Outline: How to jump to place that was hidden in folder outline header?
 We jump with xref-find-definitions.
 Here is solution:
@@ -1328,6 +1352,63 @@ Loop over `dired-listing-switches' +
 
 * Dired: How to filter files by extention?
 
+* Dired: How to compare directoris?
+There is two commands:
+- ediff-directories
+- diff-buffers
+
+Dired “=” keys don't comare buffers or directories by default.
+** To make Dired compare directoris
+#+begin_src elisp :results none :exports code :eval no
+(defun my/diff-advice (orig-fun &rest args) ; not used
+  "Called from `dired-diff'."
+  (seq-let (old new switches no-async) args
+    (if (and old new)
+        ;; (eq (type-of (current-buffer)) 'buffer)
+      (if (and (eq (type-of old) 'string)
+               (eq (type-of new) 'string)
+               (file-directory-p old)
+               (file-directory-p new))
+            (diff-buffers (dired-noselect old)
+                          (dired-noselect new))
+          ;; else
+          (apply orig-fun args)
+          )
+      ;; else
+      (apply orig-fun args)
+    )))
+;; (advice-add 'diff :around #'my/diff-advice)
+#+end_src
+** To make Dired compare Buffers if there is 2 opended.
+#+begin_src elisp :results none :exports code :eval no
+(defun my/dired-diff ()
+  "Ask to compare buffers with directories."
+  (interactive)
+  (let* ((wn (next-window nil 'nomini (selected-frame)))
+         (wnb (window-buffer wn))
+         (ws (selected-window))
+         (wsb (current-buffer)) ; ws buffer
+         (switches-current dired-actual-switches))
+    (print (list wnb wsb (equal wnb wsb)))
+    (if (or (equal wnb wsb)
+            (not (with-current-buffer wnb
+                   (eq major-mode 'dired-mode)))
+            (not (yes-or-no-p "Compare windows?")))
+        ;; - default compare files
+        (call-interactively 'dired-diff)
+      ;; - else - two windows
+      ;; - 1) sort both buffers equally
+      (when (not (string-equal (with-current-buffer wnb
+                                 dired-actual-switches)
+                               switches-current))
+        (when (yes-or-no-p "Sort equally?")
+          (with-current-buffer wnb
+            (dired-sort-other switches-current))))
+      ;; - 2) diff-buffers
+      (diff-buffers wnb wsb))))
+
+(define-key dired-mode-map (kbd "=") #'my/dired-diff)
+#+end_src
 * How emacs behavior differ when run under root?
 C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
 - TAB is ascii C-i. ,
@@ -1838,6 +1919,38 @@ It will be better to add dependent logic to :set function after setting variable
          (if value ; don't forget to check that symbol is what you need
              (print "we are here")))
 #+end_src
+* Elisp: How to go to begining of next parenthesis?
+#+begin_src elisp :results none :exports code :eval no
+(defun my/forward-sexp (arg)
+       (interactive "p")
+       (condition-case _
+          (let ((ar2 (if (> arg 0)
+                      1
+                      ;; else
+                      -1)))
+            (goto-char (or (scan-sexps (point) ar2) (buffer-end ar2)))
+            (if (= arg 1) ; called without C-u
+                (progn ; go to begining of next sexp
+                 (if (goto-char (scan-sexps (point) ar2))
+                     (goto-char (scan-sexps (point) -1))
+                     (goto-char (buffer-end arg)))
+                ;; else - for backward only
+                (backward-prefix-chars))))
+        (scan-error (user-error (if (> arg 0)
+                                    "No next sexp"
+                                  "No previous sexp")))))
+
+(defun my/elisp-keys()
+  (keymap-local-set "C-M-f" #'my/forward-sexp) ; shadow `forward-sexp')
+   ;; or
+  (keymap-local-set "C-M-f" (lambda () (interactive)
+                                       (call-interactively 'forward-sexp)
+                                       (call-interactively 'forward-sexp)
+                                       (call-interactively 'backward-sexp))))
+(add-hook 'emacs-lisp-mode-hook #'my/elisp-keys)
+
+#+end_src
+
 * Ediff: How to get rid of switching to "control buffer"?
 Ediff create control buffer that have ediff-mode-map that is not available in "variants" files.
 
@@ -2268,7 +2381,8 @@ Here is modification that run our function instead of just change theme:
 ;; - Replace function that activate theme
 (defun my/circadian-enable-theme (theme)
     "Call function instead of just set theme."
-    (funcall theme))
+    (funcall theme)
+(setq circadian-next-timer nil))
 
 (advice-add 'circadian-enable-theme :override #'my/circadian-enable-theme)
 ;; - Activate circadian

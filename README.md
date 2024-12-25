@@ -134,6 +134,7 @@ TODO:
 - smart commet with M-; for last line in Elisp to drop ))) to the next line
 - in org-mode *asd* make * less visible
 - create package to monitor proxy status, analyse everything about proxy in Emacs.
+- in expand-region use tree-sitter
 
 # bashrc
 

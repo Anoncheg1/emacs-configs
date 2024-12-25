@@ -1,11 +1,10 @@
 * Heading navigation keys:
-- C-c p	'org-backward-heading-same-level - C-c C-b by default
-- C-c n	'org-forward-heading-same-level - C-c C-f by default
+- C-c k	'org-previous-visible-heading - C-c C-b by default org-forward-heading-same-level
+- C-c n	'org-next-visible-heading - C-c C-f by default org-forward-heading-same-level
+- C-c n/k	'my/org-next-item - combination of org-next-item + org-forward-element
 - C-c C-e	'my/org-fold-hide-other - Hide other headers
 
 by default:
-- C-c C-p up heading ignore level
-- C-c C-n down heading ignore level
 - C-c C-u to upper heading.
 
 * Programming
