@@ -37,6 +37,10 @@ This is between console and JIKL:
 
 ## Org keys
 [Org keys: ./org-keys.org](org-keys.org)
+[Org programming keys: ./org-programming.org](org-programming.org)
+
+## Programming keys (common)
+[Programming keys: ./programming-keys.org](programming-keys.org)
 
 ## Dired keys
 [Dired keys: ./dired-keys.org](dired-keys.org)
@@ -56,8 +60,9 @@ I changed behavior of C-a/e and M-a/e in Org mode.
 Buffers:
 - C-x C-l - buffers menu (default) at right
 - C-x C-j - Dired in current directory (default) at right
+- C-M-a/e - tab-line move right, move left
 - C-c M-c - *Messages* buffer
-- C-c C-z - previous buffer
+- C-c C-z - previous buffer, with respect to tab-line
 - C-x ! - 'my/kill-other-buffers-and-frame-duplicates - kill not modified buffers and duplicate frames, kill not marked buffers in menu
 
 Windows:
@@ -69,8 +74,7 @@ Frames (not used, acttually):
 ## Email Client
 isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 
-# Org notes
-[./org-programming.org](org-programming.org)
+
 # Solved troubles:
 - set Scrolling as in modern IDEs
 - set backup directory for saving ~files

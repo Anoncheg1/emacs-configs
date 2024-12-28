@@ -6,6 +6,9 @@
 
 by default:
 - C-c C-u to upper heading.
+* lists
+- C-'/M-'	'org-shiftright/'org-shiftleft - switch bullets of lists
+- C-c C-f/l	‘org-shiftmetaright/org-shiftmetaleft - move items of list left/right
 
 * Programming
 - C-c SPC	org-babel-mark-block
@@ -17,10 +20,10 @@ by default:
 * Others
 - M-q		'my/fill-paragraph
 - C-c M-q	'unfill-paragraph
-- C-'/M-'	'org-shiftright/'org-shiftleft - switch bullets of lists
-- C-c C-f/l	‘org-shiftmetaright/org-shiftmetaleft - move items of list left/right
+
 - M-n/k	‘my/org-backward-paragraph/'my/org-forward-paragraph
 - M-,		'org-mark-ring-goto Go back from links
-- C-c e	'org-export-dispatch
-- C-c d	'dictionary-lookup-definition
+- C-x C-o e	'org-export-dispatch
+- C-x C-o d	'dictionary-lookup-definition
+- C-x C-o f	'org-footnote-action
 - C-c !	insert date, like: [2024-12-06 Fri]
