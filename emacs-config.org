@@ -1,24 +1,28 @@
 ; -*- mode: emacs-lisp; eval: (outline-minor-mode 1); lexical-binding: t -*-
+;; ^ for opening this file with loaded this config
 ;; ##### First opening guide: ##########
 ;; #
 ;; # C-c @ C-t  PREPARE         outline-hide-body
 ;; # C-c @ C-s  SHOW LINE       outline-show-subtree
 ;; #
 ;; #####################################
+
 #+end_src
 * Notes
 #+begin_src elisp
 
-;; [rooted] - means tested for usage under root console.
-;; GNU Emacs 29.2
+;; + outline connfiguration for first opening at the bottom
+;; + [rooted] - means tested for usage under root console.
+;; + GNU Emacs 29.4
+
 #+end_src
 ** Keys after loading this file.
 #+begin_src elisp
 
-;; [ TAB ] 			- show, hide header.
-;; [ Shift+TAB ] (backtab) 	- hide all, show only headers
-;; [ C-c TAB ] 		- hide all, show only headers
-;; [ C-c C-e ] 		- hide other headers, leave opened current
+;; [ TAB ] 			        - show, hide header.
+;; [ Shift+TAB ] (backtab) [ C-c TAB ] 	- hide all, show only headers
+;; [ C-c C-e ] 		                - hide other headers, leave current
+
 #+end_src
 ** List of external files
 #+begin_src elisp
@@ -454,6 +458,92 @@ We expand firstly because `find-file' change default-directory."
       (split-window-right)
       (other-window 1)
       (find-file file))))
+
+#+end_src
+* Global TAB key indent.el indent-for-tab-command replacement
+#+begin_src elisp
+
+(defun my/indent-for-tab-command-step-2-insert-tab (arg)
+  "Insert a tab character if necessary."
+  (when (or (eq indent-line-function 'indent-to-left-margin)
+             (and (not tab-always-indent)
+                  (or (> (current-column) (current-indentation))
+                      (eq this-command last-command))))
+    (insert-tab arg)))
+
+(defun my/indent-for-tab-command-step-3-indent-line (arg)
+  "Indent the current line using the indent-line-function.
+Should return non-nil if indentation occur of arrempt was made.
+`indent-line-function' should return 'noindent to signal that it
+is batter to do something other here, but not indent."
+  (let ((old-tick (buffer-chars-modified-tick))
+        (old-point (point))
+        (old-indent (current-indentation))
+        (indnet-ret (indent--funcall-widened indent-line-function)))
+    (or (not (eq indnet-ret 'noindent))
+        (indent--default-inside-comment)
+        (when (or (<= (current-column) (current-indentation))
+                  (not (eq tab-always-indent 'complete)))
+          (indent--funcall-widened (default-value 'indent-line-function))))
+    ;; - Return non-nil that signal that indentation occured or was
+    ;; - attempt of it
+    (or (eq indnet-ret 'noindent)
+        (not (eql old-point (point)))
+        (not (eql old-tick (buffer-chars-modified-tick))))))
+
+
+(defun my/indent-for-tab-command-step-4-completion (arg)
+  "Perform completion if necessary."
+  (when (and (eq tab-always-indent 'complete)
+
+             (or (eq last-command this-command)
+                 (let ((syn (syntax-class (syntax-after (point)))))
+                   (pcase tab-first-completion
+                     ('nil t)
+                     ('eol (eolp))
+                     ('word (not (eql 2 syn)))
+                     ('word-or-paren (not (memq syn '(2 4 5))))
+                     ('word-or-paren-or-punct (not (memq syn '(2 4 5 1))))))))
+    (completion-at-point)))
+
+(defun my/indent-for-tab-command-step-5-rigid-indent (arg)
+  "Rigidly indent the following sexp if a prefix argument was given."
+  (when arg
+    (let ((end-marker
+           (save-excursion
+             (forward-line 0) (forward-sexp) (point-marker)))
+          (indentation-change (- (current-indentation) old-indent)))
+      (save-excursion
+        (forward-line 1)
+        (when (and (not (zerop indentation-change))
+                   (< (point) end-marker))
+          (indent-rigidly (point) end-marker indentation-change))))))
+
+(defcustom my/indent-for-tab-command-steps
+  (list
+   'my/indent-for-tab-command-step-2-insert-tab
+   'my/indent-for-tab-command-step-3-indent-line
+   'my/indent-for-tab-command-step-4-completion
+   'my/indent-for-tab-command-step-5-rigid-indent)
+  "List of steps to perform in the indent-for-tab-command function."
+  :type '(repeat function)
+  :group 'indent-for-tab-command)
+
+;; Redefine the main function to use the
+(defun my/indent-for-tab-command (arg)
+  "Indent the current line or region, or insert a tab, as appropriate.
+Steps excuted sucessess."
+  (interactive "P")
+  (if (use-region-p)
+      ;; Indent the region if it's active.
+      (indent-region (region-beginning) (region-end))
+    ;; else
+    (seq-find (lambda(step)
+                ;; (print step)
+                (funcall step arg))
+              my/indent-for-tab-command-steps)))
+
+(advice-add 'indent-for-tab-command :override #'my/indent-for-tab-command)
 
 #+end_src
 * Global Hooks
@@ -2726,7 +2816,7 @@ header. [rooted]"
   (if (and (buffer-file-name) (or (string-equal (file-name-nondirectory  (buffer-file-name)) ".emacs")
                                   (string-equal (file-name-nondirectory (buffer-file-name)) "init.el")))
       (progn
-       (setq-local outline-regexp "^;; \\(\\-\\- \\)+")
+       (setq-local outline-regexp ";; \\-\\- ")
        (setq-local outline-heading-alist
                    '(("#+end_src
 * " . 1)
@@ -6251,96 +6341,6 @@ If window already exist, close window and hence block ElDoc."
 ;; (advice-add 'org-babel-execute:python :before #'test-org-babel-execute:python)
 
 #+end_src
-**** TAB key indent.el
-#+begin_src elisp
-
-;; Define the main steps as separate functions
-(defun my/indent-for-tab-command-step-1-region-indent (arg)
-  "Indent the region if it's active."
-  (when (use-region-p)
-    (indent-region (region-beginning) (region-end))))
-
-(defun my/indent-for-tab-command-step-2-insert-tab (arg)
-  "Insert a tab character if necessary."
-  (when (or (eq indent-line-function 'indent-to-left-margin)
-             (and (not tab-always-indent)
-                  (or (> (current-column) (current-indentation))
-                      (eq this-command last-command))))
-    (insert-tab arg)))
-
-(defun my/indent-for-tab-command-step-3-indent-line (arg)
-  "Indent the current line using the indent-line-function.
-Should return non-nil if indentation occur of arrempt was made.
-`indent-line-function' should return 'noindent to signal that it
-is batter to do something other here, but not indent."
-  (let ((old-tick (buffer-chars-modified-tick))
-        (old-point (point))
-        (old-indent (current-indentation))
-        (indnet-ret (indent--funcall-widened indent-line-function)))
-    (or (not (eq indnet-ret 'noindent))
-        (indent--default-inside-comment)
-        (when (or (<= (current-column) (current-indentation))
-                  (not (eq tab-always-indent 'complete)))
-          (indent--funcall-widened (default-value 'indent-line-function))))
-    ;; - Return non-nil that signal that indentation occured or was
-    ;; - attempt of it
-    (or (eq indnet-ret 'noindent)
-        (not (eql old-point (point)))
-        (not (eql old-tick (buffer-chars-modified-tick))))))
-
-
-(defun my/indent-for-tab-command-step-4-completion (arg)
-  "Perform completion if necessary."
-  (when (and (eq tab-always-indent 'complete)
-
-             (or (eq last-command this-command)
-                 (let ((syn (syntax-class (syntax-after (point)))))
-                   (pcase tab-first-completion
-                     ('nil t)
-                     ('eol (eolp))
-                     ('word (not (eql 2 syn)))
-                     ('word-or-paren (not (memq syn '(2 4 5))))
-                     ('word-or-paren-or-punct (not (memq syn '(2 4 5 1))))))))
-    (completion-at-point)))
-
-(defun my/indent-for-tab-command-step-5-rigid-indent (arg)
-  "Rigidly indent the following sexp if a prefix argument was given."
-  (when arg
-    (let ((end-marker
-           (save-excursion
-             (forward-line 0) (forward-sexp) (point-marker)))
-          (indentation-change (- (current-indentation) old-indent)))
-      (save-excursion
-        (forward-line 1)
-        (when (and (not (zerop indentation-change))
-                   (< (point) end-marker))
-          (indent-rigidly (point) end-marker indentation-change))))))
-
-;; Allow the user to customize the steps
-(defcustom my/indent-for-tab-command-steps
-  (list
-   'my/indent-for-tab-command-step-1-region-indent
-   'my/indent-for-tab-command-step-2-insert-tab
-   'my/indent-for-tab-command-step-3-indent-line
-   'my/indent-for-tab-command-step-4-completion
-   'my/indent-for-tab-command-step-5-rigid-indent)
-  "List of steps to perform in the indent-for-tab-command function."
-  :type '(repeat function)
-  :group 'indent-for-tab-command)
-
-;; Redefine the main function to use the customizable steps
-(defun my/indent-for-tab-command (arg)
-  "Indent the current line or region, or insert a tab, as appropriate."
-  (interactive "P")
-  (seq-find (lambda(step)
-              ;; (print step)
-              (funcall step arg))
-            my/indent-for-tab-command-steps))
-
-(advice-add 'indent-for-tab-command :override #'my/indent-for-tab-command)
-
-
-#+end_src
 **** TAB key fix - python indent line
 #+begin_src elisp
 
@@ -8070,12 +8070,12 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 * Local Variables for first opening
 #+begin_src elisp
 
-;; Lcocal Variables:
-;; ocutline-regexp: ";; \\(\\-\\- \\)+"
-;; ocutline-heading-end-regexp: "\n"
-;; Ecnd:
-;; Local Variables:
-;; mode: outline-minor-mode
-;; outline-regexp: "^;; \\(\\-\\- \\)+"
-;; outline-heading-end-regexp: "\n"
-;; End:
+;; V for opening this file without this config
+;; Local variables:
+;; eval: (progn (setq outline-regexp ";; \\-\\- ")
+;;              (outline-minor-mode 1)
+;;              (outline-hide-body))
+;; eval: (setq-local indent-line-function #'outline-show-subtree)
+;; outline-regexp: ";; \\-\\- "
+;; coding: utf-8
+;; end:
