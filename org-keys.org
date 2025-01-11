@@ -1,7 +1,5 @@
 * Heading navigation keys:
-- C-c k	'org-previous-visible-heading - C-c C-b by default org-forward-heading-same-level
-- C-c n	'org-next-visible-heading - C-c C-f by default org-forward-heading-same-level
-- C-c n/k	'my/org-next-item - combination of org-next-item + org-forward-element
+- M-n/k	'my/org-next-item - combination of org-next-item + org-forward-element
 - C-c C-e	'my/org-fold-hide-other - Hide other headers
 
 by default:
@@ -21,7 +19,6 @@ by default:
 - M-q		'my/fill-paragraph
 - C-c M-q	'unfill-paragraph
 
-- M-n/k	‘my/org-backward-paragraph/'my/org-forward-paragraph
 - M-,		'org-mark-ring-goto Go back from links
 - C-x C-o e	'org-export-dispatch
 - C-x C-o d	'dictionary-lookup-definition

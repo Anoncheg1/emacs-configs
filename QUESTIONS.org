@@ -2046,6 +2046,14 @@ Ediff files:
 Ediff customization guides:
 - https://oremacs.com/2015/01/17/setting-up-ediff/
 - http://yummymelon.com/devnull/using-ediff-in-2023.html
+* Troubleshooting: *ERROR*: End of file during parsing
+You missed “)” or syntax error in CLI arguments.
+
+no need to use emacs as alternative editor, you can just use an empty string, in this case it runs emacs daemon if needed
+
+# *ERROR*: X windows are not in use or not initialized
+# *ERROR*: Unknown terminal type
+Frame was not created, use ~emacsclient --create-frame~
 * TODO How to use holidays?
 Configure holidays.el by hands at the begining of every year.
 * Telega: How to add custom notification on new message?

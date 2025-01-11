@@ -286,7 +286,8 @@
   (other-window 1)
   (org-cycle-agenda-files)
   (other-window 1)
-  ;; (split-window-below)
+  (split-window-below)
+  (calendar)
   ;; (other-window 1)
   ;; (switch-to-buffer "diary")
   ;; (diary-show
@@ -328,31 +329,74 @@
 ;;           (switch-to-buffer b))
 ;;       ;; else
 ;;       (switch-to-buffer-other-frame b))))
-(defun my/find-file-frame (filename)
+;;
+;;
+
+(defun my/find-file-frame (file-name)
   "Open file in frame with the same mode buffer. If no frame was
 found the new one will be created. Used with `tab-line-mode'
 with (setopt tab-line-tabs-function 'tab-line-tabs-mode-buffers).
 Steps: 1) create buffer. 2) found frame with same major mode.
 3) select buffer in that frame and raise it."
   (raise-frame (selected-frame)) ; fix bug of cmd --eval
-  (let* ((b (find-file-noselect filename))
-         ;; ((mode . frame) ...)
-         (mf (mapcar (lambda (x) (with-current-buffer (car x) (cons major-mode (cdr x))))
-                     (seq-filter (lambda (x) (car x)) ; filter nil
-                                 ;; ((buffer . frame)...)
-                                 (mapcar  (lambda (x)  (cons (window-buffer (frame-root-window x)) x))
-                                          (frame-list-z-order)))))
-         (f (cdr (with-current-buffer b
-             (seq-find (lambda (x) (derived-mode-p (car x))) mf)))))
-    (if f
-        (progn
-          (select-frame f)
-          (switch-to-buffer b)
-          (raise-frame f))
+  ;; find buffer by filename
+  (let* ((fname (expand-file-name file-name))
+         (b (seq-find (lambda (b)
+                        (and
+                         (/= (aref (buffer-name b) 0) ?\s) ; not system buffers
+                         (buffer-live-p b) ; ensure alive
+                         (string-equal (buffer-file-name b)
+                                       (expand-file-name file-name))))
+            (buffer-list)))
+         mf
+         f)
+    (if b
+        (switch-to-buffer-other-frame b)
       ;; else
-      (switch-to-buffer-other-frame b))
+      (find-file file-name)
+      )
+    ;; (when b
+    ;;   ;; find frame somehow
+    ;;   ;; (setq mf (mapcar (lambda (x) (with-current-buffer (car x) (cons major-mode (cdr x))))
+    ;;   ;;                  (seq-filter (lambda (x) (car x)) ; filter nil
+    ;;   ;;                              ;; ((buffer . frame)...)
+    ;;   ;;                              (mapcar  (lambda (x)  (cons (window-buffer (frame-root-window x)) x))
+    ;;   ;;                                       (frame-list-z-order)))))
+    ;;   ;; (setq f (cdr (with-current-buffer b
+    ;;   ;;                (seq-find (lambda (x) (derived-mode-p (car x))) mf))))
+    ;;   (setq mf (mapcar (lambda (x) (cons (buffer-file-name (car x)) (cdr x)))
+    ;;                    (seq-filter (lambda (x) (car x)) ; filter nil
+    ;;                                ;; ((buffer . frame)...)
+    ;;                                (mapcar  (lambda (x)  (cons (window-buffer (frame-root-window x)) x))
+    ;;                                         (frame-list-z-order)))))
+    ;;   (setq f (cdr (seq-find (lambda (x) (string-equal (car x) file-name)) mf)))
+    ;;   )
+    ;; (print (list "frame" f))
+    ;; (if f
+    ;;     (progn
+    ;;       ;; (print (list "frame" f))
+    ;;       (select-frame f)
+    ;;       (switch-to-buffer b)
+    ;;       (raise-frame f))
+    ;;   ;; else
+    ;;   (switch-to-buffer-other-frame b))
     ))
 ;; (my/find-file-frame "a.org")
+;; -- -- Open multiple files in splitted windows
+(defun my/open-files-in-windows (files)
+  "Open each file in FILES in a new window.
+FILES is a single string with pathes separated by white space.
+We expand firstly because `find-file' change default-directory."
+  (let ((expanded-files (mapcar (lambda (file)
+                                  (expand-file-name file default-directory))
+                                (split-string files))))
+    ;; (switch-to-buffer-other-frame
+     (find-file (car expanded-files))
+     ;; )
+    (dolist (file (cdr expanded-files))
+      (split-window-right)
+      (other-window 1)
+      (find-file file))))
 
 ;; -- Global Hooks
 ;; -- -- Delete white spaces at save
@@ -769,12 +813,14 @@ to activate."
     (cond
      ((and (message "expand")
            (expand-abbrev)))
-     ((and (message "ok4 lets try company")
-           company-mode
+     ((and company-mode
+           (message "ok4 lets try company")
            (company-complete)))
       (t (message "completion-at-point")
          (completion-at-point)))))
 ;; -- Key Bindings
+;; -- -- yank
+(global-set-key "\M-c" #'yank)
 ;; -- -- backspace
 ;; (keyboard-translate ?\C-h  ?\C-?) ;; do not work in emacsclient, required for M-x
 ;; backward-delete-char-untabify
@@ -1251,7 +1297,7 @@ to activate."
 
 
 ;; -- -- Capitalilize sentence M-c
-(defvar my/end-of-sentence "[.?!。]"
+(defvar my/end-of-sentence "[.?!。“]"
   "End of sentence characters in [] regex.")
 
 (defun my/move-to-first-word ()
@@ -1285,8 +1331,9 @@ and preserve a point position."
     (if (not (my/char-at-point-is-capitalized))
         (capitalize-word 1))))
 
-(global-set-key "\M-c" #'my/capitalize-sentence)
-(global-set-key (kbd "M-с") #'my/capitalize-sentence) ; rus
+(global-set-key (kbd "C-x x c") #'my/capitalize-sentence)
+(global-set-key "\M-C" #'my/capitalize-sentence)
+;; (global-set-key (kbd "M-с") #'my/capitalize-sentence) ; rus
 
 ;; -- -- fix: C-q call C-q for minibuffer also
 (defun my/keyboard-quit-with-minubuffer()
@@ -1446,12 +1493,15 @@ test and will kill actually."
 (global-set-key (kbd "C-c M-q") #'unfill-paragraph)
 ;; (setq display-buffer-base-action '(display-buffer-in-tab))
 
+;; -- -- revert buffer
+(global-set-key (kbd "C-c r r") #'revert-buffer)
 ;; -- -- open temp file
 (defun my/open-temp-file ()
   (interactive)
   (let ((da (string-trim-right (shell-command-to-string "date -I"))))
     (find-file (concat "~/tmp/emacs-file" da ".org"))))
 (global-set-key (kbd "C-c e") #'my/open-temp-file) ; org-export-dispatch
+
 
 ;; -- Global Modes
 ;; -- -- multiple-cursor
@@ -2123,26 +2173,45 @@ If this window is splitted and small, just use current window."
 (global-set-key (kbd "C-x M-b") #'my/buffer-menu-dired)
 
 ;; -- -- -- other-buffer [rooted]
+(setq my/ignored-system-buffers '("*Buffer List*"))
+
+(defun my/find-buffer-predicate (b) ; get first good one
+  (and
+   (/= (aref (buffer-name b) 0) ?\s) ; not system buffers
+   (buffer-live-p b) ; ensure alive
+   (not (member (buffer-name b)
+                my/ignored-system-buffers)))) ; not filtered
+
 (defun my/other-buffer (&optional arg)
-  "Switch to other buffer, ie `other-buffer' without system buffers."
-  (interactive)
+  "Switch to other buffer, ie `other-buffer' without system buffers.
+If ARG provided switch to double-previous buffer."
+  (interactive "P")
   (if (bound-and-true-p my/tab-line-previous-buffer)
       (progn
         (switch-to-buffer my/tab-line-previous-buffer)
         (setq my/tab-line-previous-buffer nil))
     ;; - else
     ;; (previous-buffer)
-    (let ((ignored-system-buffers '("*Buffer List*"))) ; "*Messages*"
-      (switch-to-buffer
-       (seq-find (lambda (b) ; get first good one
-                   (and
-                    (/= (aref (buffer-name b) 0) ?\s)
-                    (buffer-live-p b)
-                    (not (member (buffer-name b)
-                                 ignored-system-buffers))))
-                 (cdr (buffer-list)))))
-    ))
-
+    (let* ((bufs (cdr (buffer-list)))
+          (ignored-system-buffers )
+          (prev-buf (seq-find #'my/find-buffer-predicate
+                              bufs))
+          ) ; "*Messages*"
+      (if arg
+          ;; - find double previous
+          (progn
+            (setq bufs (seq-remove (lambda (b) (eq b prev-buf))
+                                   bufs))
+            (setq prev-buf
+                  (seq-find #'my/find-buffer-predicate
+                            bufs))
+                ))
+        ;; - else
+        (switch-to-buffer prev-buf)
+        )))
+(defun my/other-buffer2 ()
+  (interactive)
+  (my/other-buffer t))
 ;; (defun my/other-buffer ()
 ;;   "alternative implementation."
 ;;   (interactive)
@@ -2152,12 +2221,13 @@ If this window is splitted and small, just use current window."
 
 ;; (global-set-key "\C-o" #'other-window) ; shadow 'open-line
 (global-set-key (kbd "C-c C-z") #'my/other-buffer)
-(with-eval-after-load 'org
-  (define-key org-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `org-add-note'
-(with-eval-after-load 'sh-script
-  (define-key sh-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `sh-show-shell'
-(with-eval-after-load 'python
-  (define-key python-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `python-shell-switch-to-shell'
+(global-set-key (kbd "C-c M-x") #'my/other-buffer2)
+;; (with-eval-after-load 'org
+;;   (define-key org-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `org-add-note'
+;; (with-eval-after-load 'sh-script
+;;   (define-key sh-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `sh-show-shell'
+;; (with-eval-after-load 'python ; not working
+;;   (define-key python-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `python-shell-switch-to-shell'
 ;; -- -- -- messages (rooted)
 (defun my/show-message-log ()
   (interactive)
@@ -2221,9 +2291,9 @@ header. [rooted]"
         ;; (setq-local tab-always-indent t)
         )
 
-   ;; else
+   ;; else - restore
    (if (bound-and-true-p my/indent-line-function-original)
-    (setq indent-line-function my/indent-line-function-original))
+    (setq-local indent-line-function my/indent-line-function-original))
    ;; (setq-local tab-always-indent (default-value tab-always-indent))
   )
    ; do not call (completion-at-point) after indent
@@ -2522,11 +2592,12 @@ with functions."
    '(whitespace-trailing ((t (:extend t :background "pink")))))
   )
 
-;; enable themes - darker
+;; - enable themes - darker
 (global-set-key (kbd "M-_") #'my/set-theme-dark)
-;; enable themes - middle ; shadow `insert-parentheses'
+;; - enable themes - middle ; shadow `insert-parentheses'
 (global-set-key (kbd "M-)") #'my/set-theme-middle) ; modus-operandi - for root
-;; disable themes - white ; shadow `move-past-close-and-reindent'
+;; - disable themes - white ; shadow `move-past-close-and-reindent'
+;; - not working for Dired, because binded to dired-mark-sexp
 (global-set-key (kbd "M-(") #'my/set-theme-white) ; ; modus-vivendi - for root
 
 
@@ -2613,11 +2684,20 @@ with functions."
 (setopt selected-window-contrast-selected-magnitude-text 1.0)
 (setopt selected-window-contrast-selected-magnitude-background 0.9)
 (setopt selected-window-contrast-not-sel-magnitude-text 2.0)
-(setopt selected-window-contrast-not-sel-magnitude-background 1.1)
+(setopt selected-window-contrast-not-sel-magnitude-background 1.05)
 
 (add-hook 'buffer-list-update-hook #'selected-window-contrast-highlight-selected-window-timeout1)
 ;; - additional timeout for case of call: $ emacsclient -c ~/file
 (add-hook 'server-after-make-frame-hook #'selected-window-contrast-highlight-selected-window-timeout2)
+
+;; (defun testa()
+;;   (print "sss")
+;;   )
+;; (remove-hook 'buffer-list-update-hook #'testa)
+;; (remove-hook 'window-state-change-hook #'testa)
+
+;; (remove-hook 'window-state-change-hook #'selected-window-contrast-highlight-selected-window-timeout1)
+;; (remove-hook 'window-configuration-change-hook #'testa 'local)
 
 ;; -- -- -- -- configure mode-line-active
 (progn
@@ -2636,10 +2716,14 @@ with functions."
 
 
 ;; -- -- Diary
-;; sort diary entries
+;; -- -- -- sort diary entries
 (require 'diary-lib)
 (add-hook 'diary-list-entries-hook 'diary-sort-entries t)
+;; -- -- -- Tab key indentation
+(defun my/diary-mode-hook()
+  (setq-local indent-line-function #'my/autocomplete))
 
+(add-hook 'diary-mode-hook 'my/diary-mode-hook)
 ;; -- -- firstly-search - Dired, Package menu, Buffer menu, Bookmarks;; -- -- -- loading
 (require 'firstly-search-dired)
 (require 'firstly-search-package)
@@ -3664,23 +3748,33 @@ header. [rooted]"
 
 (defun my/org-next-item ()
   (interactive)
-  (condition-case _
-      (org-next-item)
-    (error
-     (org-forward-element))))
+  (if (org-at-heading-p)
+      (next-line)
+    ;; - else
+    (condition-case _
+        (org-next-item)
+      (error
+       (org-forward-element)))))
 
 (defun my/org-previous-item ()
   (interactive)
-  (condition-case _
-      (org-previous-item)
-    (error
-     (org-backward-element))))
+  (if (org-at-heading-p)
+      (previous-line)
+    ;; - else
+    (condition-case _
+        (org-previous-item)
+      (error
+       (org-backward-element)))))
 
+;; (add-hook 'org-mode-hook (lambda ()
+;;                            (keymap-local-set "C-c n" #'org-next-visible-heading) ; shadow org-forward-heading-same-level
+;;                            (keymap-local-set "C-c k" #'org-previous-visible-heading) ; shadow org-forward-heading-same-level
+;;                            (keymap-local-set "C-c C-n" #'my/org-next-item) ; shadow org-next-visible-heading
+;;                            (keymap-local-set "C-c C-p" #'my/org-previous-item) ; org-previous-visible-heading
+;;                            ))
 (add-hook 'org-mode-hook (lambda ()
-                           (keymap-local-set "C-c n" #'org-next-visible-heading) ; shadow org-forward-heading-same-level
-                           (keymap-local-set "C-c k" #'org-previous-visible-heading) ; shadow org-forward-heading-same-level
-                           (keymap-local-set "C-c C-n" #'my/org-next-item) ; shadow org-next-visible-heading
-                           (keymap-local-set "C-c C-p" #'my/org-previous-item) ; org-previous-visible-heading
+                           (keymap-local-set "M-p" 'my/org-previous-item)
+                           (keymap-local-set "M-n" 'my/org-next-item)
                            ))
 ;; -- -- -- keys others
 ;; We bind org-forward-sentence and org-backward-sentence to
@@ -3835,36 +3929,36 @@ depending on context.
 ;;   )
 
 
-(defun my/org-backward-paragraph ()
-  "fix to skip whole list"
-  (interactive)
-  (let ((element (org-element-at-point)))
-    (pcase (org-element-type element)
-      (`item ;; get first element of a list
-       (let ((newp (car (car (org-list-parents-alist (org-list-struct))))))
-         (if (eq newp (point)) ;; if at same point use old
-             (call-interactively 'org-backward-paragraph)
-           (goto-char newp)))
-       )
-      ;; other:
-      (_ (call-interactively 'org-backward-paragraph)))))
+;; (defun my/org-backward-paragraph ()
+;;   "fix to skip whole list"
+;;   (interactive)
+;;   (let ((element (org-element-at-point)))
+;;     (pcase (org-element-type element)
+;;       (`item ;; get first element of a list
+;;        (let ((newp (car (car (org-list-parents-alist (org-list-struct))))))
+;;          (if (eq newp (point)) ;; if at same point use old
+;;              (call-interactively 'org-backward-paragraph)
+;;            (goto-char newp)))
+;;        )
+;;       ;; other:
+;;       (_ (call-interactively 'org-backward-paragraph)))))
 
-(defun my/org-forward-paragraph ()
-  "fix to skip whole list"
-  (interactive)
-  (let ((element (org-element-at-point)))
-    (pcase (org-element-type element)
-      (`item ;; get first element of a list
-       (let ((newp (car (car (last (org-list-parents-alist (org-list-struct)))))))
-         (if (eq newp (point))
-             (call-interactively 'org-forward-paragraph)
-           (goto-char newp)))
-       )
-      ;; other:
-      (_ (call-interactively 'org-forward-paragraph))
-      )
-    )
-  )
+;; (defun my/org-forward-paragraph ()
+;;   "fix to skip whole list"
+;;   (interactive)
+;;   (let ((element (org-element-at-point)))
+;;     (pcase (org-element-type element)
+;;       (`item ;; get first element of a list
+;;        (let ((newp (car (car (last (org-list-parents-alist (org-list-struct)))))))
+;;          (if (eq newp (point))
+;;              (call-interactively 'org-forward-paragraph)
+;;            (goto-char newp)))
+;;        )
+;;       ;; other:
+;;       (_ (call-interactively 'org-forward-paragraph))
+;;       )
+;;     )
+;;   )
 
 (defun my/org-header-search ()
   (if isearch-regexp
@@ -4030,9 +4124,9 @@ If not in a list don't split, open new line and indent."
                            (keymap-local-set "C-e" 'my/org-forward-close)
                            (keymap-local-set "C-a" 'my/org-backward-close)
 
-                           ;; - - - up down - paragraph
-                           (keymap-local-set "M-p" 'my/org-backward-paragraph)
-                           (keymap-local-set "M-n" 'my/org-forward-paragraph)
+                           ;; ;; - - - up down - paragraph
+                           ;; (keymap-local-set "M-p" 'my/org-backward-paragraph)
+                           ;; (keymap-local-set "M-n" 'my/org-forward-paragraph)
 
 
                            ;; - - back from link C-c & -> M-,
@@ -4134,9 +4228,9 @@ If not in a list don't split, open new line and indent."
                            ;; - - - disable Moving a tree to an archive file
                            (local-unset-key (kbd "C-c C-x C-s"))
                            ;; - - - jump to result of current source block - use M-} instead
-                           (keymap-local-set "C-c r" (lambda () (interactive) (let ((location (org-babel-where-is-src-block-result)))
-                                                                       (when location
-                                                                         (goto-char location)))))
+                           ;; (keymap-local-set "C-c r" (lambda () (interactive) (let ((location (org-babel-where-is-src-block-result)))
+                           ;;                                             (when location
+                           ;;                                               (goto-char location)))))
                            ;; - - - fix: after C-q screen stay far away from right
                            (keymap-local-set "M-q" #'my/org-fill-paragraph)
                            ;; - - - Python source block redisplay image after block execution if inlineimages is on
@@ -4683,9 +4777,9 @@ If prev word was not found, go to prev heading"
 (defun my/programming-keys()
   (keymap-local-set "M-;" #'comment-line)
   (keymap-local-set "C-;" #'comment-dwim)
-  (keymap-local-set "C-c k" #'beginning-of-defun)
+  (keymap-local-set "C-c k" #'outline-previous-heading)
   (keymap-local-set "C-c n" #'outline-next-heading) ; end-of-defun
-  (keymap-local-set "C-c h" #'outline-previous-heading) ; mark-defun
+  (keymap-local-set "C-c h" #'mark-defun) ; mark-defun
   (keymap-local-set "C-c C-n" #'my/go-to-next-occurrence) ; or to next sexp
   (keymap-local-set "C-c C-p" #'my/go-to-prev-occurrence) ; or to next sexp
   )
@@ -4703,6 +4797,8 @@ If prev word was not found, go to prev heading"
 ;; (add-hook 'yaml-mode-hook 'idle-highlight-mode)
 (add-hook 'yaml-ts-mode-hook	#'idle-highlight-mode)
 (add-hook 'emacs-lisp-mode-hook #'idle-highlight-mode)
+(add-hook 'sh-mode		#'idle-highlight-mode)
+(add-hook 'ebuild-mode		#'idle-highlight-mode)
 
 ;; -- -- -- -- Demap - minimap - global key C-c i
 (with-eval-after-load 'demap
@@ -4751,6 +4847,8 @@ If prev word was not found, go to prev heading"
 (add-hook 'emacs-lisp-mode-hook #'display-line-numbers-mode)
 ;; (add-hook 'yaml-mode-hook	#'display-line-numbers-mode)
 (add-hook 'yaml-ts-mode-hook	#'display-line-numbers-mode)
+(add-hook 'ebuild-mode		#'display-line-numbers-mode)
+(add-hook 'sh-mode		#'display-line-numbers-mode)
 
 ;; -- -- -- Elisp - Emacs-Lisp
 ;; -- -- -- -- new line key - open new list sexp
@@ -4992,6 +5090,8 @@ Optional argument ARGS ."
   (keymap-local-set "C-c C-c" #'my/exec-python)
   (keymap-local-set "C-c c"   #'run-python) ; open REPL on remote machine too
   (keymap-local-set "C-c C-o" #'python-sort-imports)
+  (keymap-local-set "C-c C-z" #'my/other-buffer) ; shadow python-shell-switch-to-shell
+
 
   ;; (keymap-local-set "C-M-l" 'backward-sexp)
   ;; (keymap-local-set "C-M-f" 'forward-sexp)
@@ -5436,6 +5536,147 @@ If window already exist, close window and hence block ElDoc."
 ;;   )
 ;; (advice-add 'org-babel-execute:python :before #'test-org-babel-execute:python)
 
+;; -- -- -- -- TAB key indent.el
+;; Define the main steps as separate functions
+(defun my/indent-for-tab-command-step-1-region-indent (arg)
+  "Indent the region if it's active."
+  (when (use-region-p)
+    (indent-region (region-beginning) (region-end))))
+
+(defun my/indent-for-tab-command-step-2-insert-tab (arg)
+  "Insert a tab character if necessary."
+  (when (or (eq indent-line-function 'indent-to-left-margin)
+             (and (not tab-always-indent)
+                  (or (> (current-column) (current-indentation))
+                      (eq this-command last-command))))
+    (insert-tab arg)))
+
+(defun my/indent-for-tab-command-step-3-indent-line (arg)
+  "Indent the current line using the indent-line-function.
+Should return non-nil if indentation occur of arrempt was made.
+`indent-line-function' should return 'noindent to signal that it
+is batter to do something other here, but not indent."
+  (let ((old-tick (buffer-chars-modified-tick))
+        (old-point (point))
+        (old-indent (current-indentation))
+        (indnet-ret (indent--funcall-widened indent-line-function)))
+    (or (not (eq indnet-ret 'noindent))
+        (indent--default-inside-comment)
+        (when (or (<= (current-column) (current-indentation))
+                  (not (eq tab-always-indent 'complete)))
+          (indent--funcall-widened (default-value 'indent-line-function))))
+    ;; - Return non-nil that signal that indentation occured or was
+    ;; - attempt of it
+    (or (eq indnet-ret 'noindent)
+        (not (eql old-point (point)))
+        (not (eql old-tick (buffer-chars-modified-tick))))))
+
+
+(defun my/indent-for-tab-command-step-4-completion (arg)
+  "Perform completion if necessary."
+  (when (and (eq tab-always-indent 'complete)
+
+             (or (eq last-command this-command)
+                 (let ((syn (syntax-class (syntax-after (point)))))
+                   (pcase tab-first-completion
+                     ('nil t)
+                     ('eol (eolp))
+                     ('word (not (eql 2 syn)))
+                     ('word-or-paren (not (memq syn '(2 4 5))))
+                     ('word-or-paren-or-punct (not (memq syn '(2 4 5 1))))))))
+    (completion-at-point)))
+
+(defun my/indent-for-tab-command-step-5-rigid-indent (arg)
+  "Rigidly indent the following sexp if a prefix argument was given."
+  (when arg
+    (let ((end-marker
+           (save-excursion
+             (forward-line 0) (forward-sexp) (point-marker)))
+          (indentation-change (- (current-indentation) old-indent)))
+      (save-excursion
+        (forward-line 1)
+        (when (and (not (zerop indentation-change))
+                   (< (point) end-marker))
+          (indent-rigidly (point) end-marker indentation-change))))))
+
+;; Allow the user to customize the steps
+(defcustom my/indent-for-tab-command-steps
+  (list
+   'my/indent-for-tab-command-step-1-region-indent
+   'my/indent-for-tab-command-step-2-insert-tab
+   'my/indent-for-tab-command-step-3-indent-line
+   'my/indent-for-tab-command-step-4-completion
+   'my/indent-for-tab-command-step-5-rigid-indent)
+  "List of steps to perform in the indent-for-tab-command function."
+  :type '(repeat function)
+  :group 'indent-for-tab-command)
+
+;; Redefine the main function to use the customizable steps
+(defun my/indent-for-tab-command (arg)
+  "Indent the current line or region, or insert a tab, as appropriate."
+  (interactive "P")
+  (seq-find (lambda(step)
+              ;; (print step)
+              (funcall step arg))
+            my/indent-for-tab-command-steps))
+
+(advice-add 'indent-for-tab-command :override #'my/indent-for-tab-command)
+
+
+;; -- -- -- -- TAB key fix - python indent line
+;; (defun my/python-indent-line-function (orig-fun &rest args)
+;;   ;; - if not at the begining of line
+;;   (if (and (not (bolp)) ; not begining of the line
+;;            (let ((syn-b (syntax-class (syntax-after (- (point) 1))))
+;;                  (syn-c (syntax-class (syntax-after (point)))))
+;;              (and (memql syn-b '(2 3 1)) ; before some word [2 - normal words, 1 - #, 3 - +
+;;                   (memql syn-c '(0 5 12)) ; at (2 12) white space or ")"
+;;                   )))
+;;       'noindent ; return false
+;;     ;; else - at beginin of line - indent
+;;     (apply orig-fun args)))
+;; (advice-add 'my/python-indent-line-function :around
+;;             #'python-indent-line-function)
+;; -- -- -- -- TAB key fix - not complete if we are at begining of line
+(defun my/indent-for-tab-command-step-4-completion2 (arg)
+  (when (and (not (bolp)) ; not begining of the line
+                (let ((syn-b (syntax-class (syntax-after (- (point) 1))))
+                      (syn-c (syntax-class (syntax-after (point)))))
+                  (and (memql syn-b '(2 3 1)) ; before some word [2 - normal words, 1 - #, 3 - +
+                       (memql syn-c '(0 5 12)) ; at (2 12) white space or ")"
+                       )))
+    (funcall #'my/indent-for-tab-command-step-4-completion arg)))
+
+(setq my/indent-for-tab-command-steps
+      (list
+       'my/indent-for-tab-command-step-1-region-indent
+       'my/indent-for-tab-command-step-2-insert-tab
+       'my/indent-for-tab-command-step-3-indent-line
+       'my/indent-for-tab-command-step-4-completion2
+       'my/indent-for-tab-command-step-5-rigid-indent))
+
+;; -- -- -- -- TAB key fix - python-info-dedenter-opening-block-message
+(defun my/python-indent-line (&optional previous)
+  "Internal implementation of `python-indent-line-function'.
+Use the PREVIOUS level when argument is non-nil, otherwise indent
+to the maximum available level.  When indentation is the minimum
+possible and PREVIOUS is non-nil, cycle back to the maximum
+level."
+  (let ((follow-indentation-p
+         ;; Check if point is within indentation.
+         (and (<= (line-beginning-position) (point))
+              (>= (+ (line-beginning-position)
+                     (current-indentation))
+                  (point)))))
+    (save-excursion
+      (indent-line-to
+       (python-indent-calculate-indentation previous))
+      ;; (python-info-dedenter-opening-block-message)
+      )
+    (when follow-indentation-p
+      (back-to-indentation))))
+
+(advice-add 'python-indent-line :override #'my/python-indent-line)
 ;; -- -- -- -- python-check C-c C-b
 (setopt python-check-command "pylint")
 ;; -- -- -- -- DONT WORKED
