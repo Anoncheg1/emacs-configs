@@ -19,7 +19,7 @@
 ** Keys after loading this file.
 #+begin_src elisp
 
-;; [ TAB ] 			        - show, hide header.
+;; [ TAB ] 			        	- show, hide header.
 ;; [ Shift+TAB ] (backtab) [ C-c TAB ] 	- hide all, show only headers
 ;; [ C-c C-e ] 		                - hide other headers, leave current
 
@@ -35,7 +35,11 @@
 ;; .authinfo - notmuch credentials and password
 ;; .tramp_history - file, (not valuable)
 ;; .emacs.d/cotrib/lisp/myholidays.el - holidays
-
+;;Email:
+;; ~/notmuch-*.sh
+;; /usr/local/bin/email_notmuch_perm.sh
+;; /home/email
+;;
 #+end_src
 * Automatic Variables
 #+begin_src elisp
@@ -46,22 +50,31 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ansi-color-faces-vector
-[default default default italic underline success warning error])
+   [default default default italic underline success warning error])
  '(auto-compression-mode nil)
  '(auto-encryption-mode nil)
  '(c-default-style
-'((c-mode . "stroustrup")
-(java-mode . "java")
-(awk-mode . "awk")
-(other . "gnu")))
+   '((c-mode . "stroustrup")
+     (java-mode . "java")
+     (awk-mode . "awk")
+     (other . "gnu")))
  '(custom-enabled-themes '(wombat manoj-dark))
  '(delete-selection-mode t)
  '(display-time-mode t)
  '(global-eldoc-mode -1)
  '(inhibit-startup-screen t)
  '(menu-bar-mode nil)
+ '(mml-secure-key-preferences
+   '((OpenPGP
+      (sign
+       ("user@mail.com" "7850B0B5E3F536601D2E6A9DE1C43E074A047699"))
+      (encrypt))
+     (CMS
+      (sign)
+      (encrypt))))
  '(mouse-wheel-mode nil)
- '(org-agenda-files '("~/.emacs.d/todo.org"))
+ '(org-agenda-files
+   '("~/docsmy_short/modified/python" "/home/user/.emacs.d/todo.org"))
  '(org-hide-leading-stars t)
  '(org-image-actual-width '(300))
  '(org-link-descriptive nil)
@@ -69,7 +82,7 @@
  '(org-src-preserve-indentation t)
  '(org-startup-folded t)
  '(package-selected-packages
-'(editorconfig selected-window-accent-mode circadian dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search idle-highlight-mode csv-mode free-keys flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
+   '(python-insert-docstring htmlize editorconfig selected-window-accent-mode circadian dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search idle-highlight-mode csv-mode free-keys flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
  '(safe-local-variable-values '((org-image-actual-width . 500)))
  '(size-indication-mode t)
  '(speedbar-show-unknown-files t))
@@ -123,7 +136,7 @@
 (require 'socks)
 (setq url-gateway-method 'socks)
 (setq socks-password "")
-(setq socks-server '("Default server" "127.0.0.1" 9090 5)) ;; M-x customize socks
+(setq socks-server '("Default server" "127.0.0.1" 1082 5)) ;; M-x customize socks
 ;; (url-proxy-services
 ;; test proxy:
 (require 'url)
@@ -168,11 +181,23 @@
 ;; - Package Management
 (setopt load-prefer-newer t)
 
+
+(defun my/remove-from-load-path (str)
+  "Remove paths containing 'alegro' from load-path."
+  (setq load-path
+        (cl-remove-if
+         (lambda (path)
+           (and (stringp path)
+                (string-match-p str path)))
+         load-path)))
+
+;; Apply the function to clear load-path
+;; (setq load-path (my/remove-from-load-path "telega"))
+
+
 ;; must not have subfolders
-(add-to-list 'load-path "~/.emacs.d/contrib/lisp/ediffnw")
-(add-to-list 'load-path "~/.emacs.d/contrib/lisp")
-;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ob-yaml.el")
-;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/ob-yamlmy.el")
+(add-to-list 'load-path "~/.emacs.d/mylisp")
+(add-to-list 'load-path "~/.emacs.d/mylisp/ediffnw")
 ;; ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/emacs-jedi")
 ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/lsp-bridge")
 ;; conf-mode for /etc
@@ -408,10 +433,13 @@ Steps: 1) create buffer. 2) found frame with same major mode.
             (buffer-list)))
          mf
          f)
+    ;; (print (list "b" b))
     (if b
         (switch-to-buffer-other-frame b)
       ;; else
-      (find-file file-name)
+      ;; (print "wtf")
+      ;; (fra
+      (find-file-other-frame file-name)
       )
     ;; (when b
     ;;   ;; find frame somehow
@@ -438,7 +466,8 @@ Steps: 1) create buffer. 2) found frame with same major mode.
     ;;       (raise-frame f))
     ;;   ;; else
     ;;   (switch-to-buffer-other-frame b))
-    ))
+    )
+  nil)
 ;; (my/find-file-frame "a.org")
 #+end_src
 ** Open multiple files in splitted windows
@@ -451,99 +480,224 @@ We expand firstly because `find-file' change default-directory."
   (let ((expanded-files (mapcar (lambda (file)
                                   (expand-file-name file default-directory))
                                 (split-string files))))
+    (print expanded-files)
     ;; (switch-to-buffer-other-frame
-     (find-file (car expanded-files))
+    (find-file (car expanded-files))
      ;; )
     (dolist (file (cdr expanded-files))
       (split-window-right)
       (other-window 1)
+      (print (list "file" file))
       (find-file file))))
 
 #+end_src
 * Global TAB key indent.el indent-for-tab-command replacement
 #+begin_src elisp
 
-(defun my/indent-for-tab-command-step-2-insert-tab (arg)
-  "Insert a tab character if necessary."
-  (when (or (eq indent-line-function 'indent-to-left-margin)
-             (and (not tab-always-indent)
-                  (or (> (current-column) (current-indentation))
-                      (eq this-command last-command))))
-    (insert-tab arg)))
 
-(defun my/indent-for-tab-command-step-3-indent-line (arg)
-  "Indent the current line using the indent-line-function.
-Should return non-nil if indentation occur of arrempt was made.
-`indent-line-function' should return 'noindent to signal that it
-is batter to do something other here, but not indent."
-  (let ((old-tick (buffer-chars-modified-tick))
-        (old-point (point))
-        (old-indent (current-indentation))
-        (indnet-ret (indent--funcall-widened indent-line-function)))
-    (or (not (eq indnet-ret 'noindent))
-        (indent--default-inside-comment)
-        (when (or (<= (current-column) (current-indentation))
-                  (not (eq tab-always-indent 'complete)))
-          (indent--funcall-widened (default-value 'indent-line-function))))
-    ;; - Return non-nil that signal that indentation occured or was
-    ;; - attempt of it
-    (or (eq indnet-ret 'noindent)
-        (not (eql old-point (point)))
-        (not (eql old-tick (buffer-chars-modified-tick))))))
+;; (save-excursion (forward-line 1)
+;;                 (overlays-in (line-beginning-position) (line-end-position)))
+
+;; (defun my/indent-for-tab-command-step-1-indent-region (arg)
+;;   "Indent the region if it is activated.
+;; If a numeric prefix is given, indent to that column."
+;;   (when (use-region-p)
+;;     (indent-region (region-beginning) (region-end) arg)))
 
 
-(defun my/indent-for-tab-command-step-4-completion (arg)
-  "Perform completion if necessary."
-  (when (and (eq tab-always-indent 'complete)
+;; (defun my/indent-for-tab-command-step-2-insert-tab (arg)
+;;   "Insert a tab character if necessary."
+;;   (when (or (eq indent-line-function 'indent-to-left-margin)
+;;              (and (not tab-always-indent)
+;;                   (or (> (current-column) (current-indentation))
+;;                       (eq this-command last-command))))
+;;     (insert-tab arg)))
 
-             (or (eq last-command this-command)
-                 (let ((syn (syntax-class (syntax-after (point)))))
-                   (pcase tab-first-completion
-                     ('nil t)
-                     ('eol (eolp))
-                     ('word (not (eql 2 syn)))
-                     ('word-or-paren (not (memq syn '(2 4 5))))
-                     ('word-or-paren-or-punct (not (memq syn '(2 4 5 1))))))))
-    (completion-at-point)))
+;; (defmacro my/count-overlays-next-line ()
+;;   "Count the number of overlays in the next line."
+;;   `(length (save-excursion
+;;              (forward-line 1)
+;;              (overlays-in (line-beginning-position) (line-end-position)))))
 
-(defun my/indent-for-tab-command-step-5-rigid-indent (arg)
-  "Rigidly indent the following sexp if a prefix argument was given."
-  (when arg
-    (let ((end-marker
-           (save-excursion
-             (forward-line 0) (forward-sexp) (point-marker)))
-          (indentation-change (- (current-indentation) old-indent)))
-      (save-excursion
-        (forward-line 1)
-        (when (and (not (zerop indentation-change))
-                   (< (point) end-marker))
-          (indent-rigidly (point) end-marker indentation-change))))))
 
-(defcustom my/indent-for-tab-command-steps
-  (list
-   'my/indent-for-tab-command-step-2-insert-tab
-   'my/indent-for-tab-command-step-3-indent-line
-   'my/indent-for-tab-command-step-4-completion
-   'my/indent-for-tab-command-step-5-rigid-indent)
-  "List of steps to perform in the indent-for-tab-command function."
-  :type '(repeat function)
-  :group 'indent-for-tab-command)
+;; (defun my/indent-for-tab-command-step-3-indent-line (arg)
+;;   "Indent the current line using the `indent-line-function'.
+;; Halt execution if `indent-line-function' returns 'noindent."
+;;   (let ((old-tick (buffer-chars-modified-tick))
+;;         (old-point (point))
+;;         ;; (old-overlays (my/count-overlays-next-line)) ; for outlines
+;;         (indent-res (indent--funcall-widened indent-line-function)))
+;;     (unless (eq indent-res 'noindent)
+;;       (or (indent--default-inside-comment) ; should return True
+;;           (when
+;;               ;; (and (/= old-overlays (my/count-overlays-next-line))
+;;                      (or (<= (current-column) (current-indentation))
+;;                          (not (eq tab-always-indent 'complete)))
+;;             (indent--funcall-widened (default-value 'indent-line-function)))))
+;;     ;; - Return non-nil that signal that indentation occured or was
+;;     ;; - attempt of it
+;;     (or (eq indent-res 'noindent) ; halted with 'noindent ;; succeeded or
+;;         (not (eql old-point (point))) ; moved
+;;         (not (eql old-tick (buffer-chars-modified-tick))) ; modified
+;;         ;; (/= old-overlays (my/count-overlays-next-line)) ; folded
+;;         )))
 
-;; Redefine the main function to use the
-(defun my/indent-for-tab-command (arg)
-  "Indent the current line or region, or insert a tab, as appropriate.
-Steps excuted sucessess."
-  (interactive "P")
-  (if (use-region-p)
-      ;; Indent the region if it's active.
-      (indent-region (region-beginning) (region-end))
-    ;; else
-    (seq-find (lambda(step)
-                ;; (print step)
-                (funcall step arg))
-              my/indent-for-tab-command-steps)))
 
-(advice-add 'indent-for-tab-command :override #'my/indent-for-tab-command)
+;; (defun my/indent-for-tab-command-step-4-completion (arg)
+;;   "Perform completion if necessary based on nearby characters."
+;;   (when (and (eq tab-always-indent 'complete)
+
+;;              (or (eq last-command this-command)
+;;                  (let ((syn (syntax-class (syntax-after (point)))))
+;;                    (pcase tab-first-completion
+;;                      ('nil t)
+;;                      ('eol (eolp))
+;;                      ('word (not (eql 2 syn)))
+;;                      ('word-or-paren (not (memq syn '(2 4 5))))
+;;                      ('word-or-paren-or-punct (not (memq syn '(2 4 5 1))))))))
+;;     (completion-at-point)))
+
+;; (defun my/indent-for-tab-command-step-5-rigid-indent (arg)
+;;   "Rigidly indent the following sexp if a prefix argument was given."
+;;   (when arg
+;;     (let ((end-marker
+;;            (save-excursion
+;;              (forward-line 0) (forward-sexp) (point-marker)))
+;;           (indentation-change (- (current-indentation) old-indent)))
+;;       (save-excursion
+;;         (forward-line 1)
+;;         (when (and (not (zerop indentation-change))
+;;                    (< (point) end-marker))
+;;           (indent-rigidly (point) end-marker indentation-change))))))
+
+;; (defcustom my/indent-for-tab-command-steps
+;;   (list
+;;    'my/indent-for-tab-command-step-1-indent-region
+;;    'my/indent-for-tab-command-step-2-insert-tab
+;;    'my/indent-for-tab-command-step-3-indent-line
+;;    'my/indent-for-tab-command-step-4-completion
+;;    'my/indent-for-tab-command-step-5-rigid-indent)
+;;   "List of steps to perform in the indent-for-tab-command function."
+;;   :type '(repeat function)
+;;   :group 'indent-for-tab-command)
+
+;; ;; Redefine the main function to use the
+;; (defun my/indent-for-tab-command (arg)
+;;   "Indent the current line or region, or insert a tab, as appropriate.
+;; Steps excuted sucessess."
+;;   (interactive "P")
+;;   (seq-find (lambda(step)
+;;               (print step)
+;;               (funcall step arg))
+;;             my/indent-for-tab-command-steps))
+
+;; (advice-add 'indent-for-tab-command :override #'my/indent-for-tab-command)
+#+end_src
+* Global TAB key fix region-indent
+#+begin_src elisp
+
+(require 'indent) ; my
+
+(defun my/indent-region (start end &optional column)
+  "Indent each nonblank line in the region.
+A numeric prefix argument specifies a column: indent each line to that column.
+
+With no prefix argument, the command chooses one of these methods and
+indents all the lines with it:
+
+  1) If `indent-region-function' is non-nil, call that function
+     to indent the region.
+  2) Indent each line via `indent-according-to-mode'.
+
+Called from a program, START and END specify the region to indent.
+If the third argument COLUMN is an integer, it specifies the
+column to indent to; if it is nil, use one of the three methods above."
+  (interactive "r\nP")
+  (cond
+   ;; If a numeric prefix is given, indent to that column.
+   (column
+    (setq column (prefix-numeric-value column))
+    (save-excursion
+      (goto-char end)
+      (setq end (point-marker))
+      (goto-char start)
+      (or (bolp) (forward-line 1))
+      (while (< (point) end)
+	(delete-region (point) (progn (skip-chars-forward " \t") (point)))
+	(or (eolp)
+	    (indent-to column 0))
+        (forward-line 1))
+      (move-marker end nil)))
+   ;; Use indent-region-function is available.
+   (indent-region-function
+    (save-restriction
+      (widen)
+      (funcall indent-region-function start end)))
+   ;; Else, use a default implementation that calls indent-line-function on
+   ;; each line.
+   (t
+    (save-restriction
+      (widen)
+      (indent-region-line-by-line start end))))
+  ;; In most cases, reindenting modifies the buffer, but it may also
+  ;; leave it unmodified, in which case we have to deactivate the mark
+  ;; by hand.
+  (setq deactivate-mark t))
+
+;; del fill-prefix case
+(advice-add 'indent-region :override #'my/indent-region)
+
+#+end_src
+* Global TAB key helping functions
+#+begin_src elisp
+
+;; (defun my/indent-python (start end)
+(defun my/indent-region-like-first (start end)
+  "Indent all lines like first.
+Apply `indent-according-to-mode' to the first line.
+And indent rigidly others."
+  (print "my/indent-region-like-first")
+  (deactivate-mark t)
+  (save-excursion
+    (goto-char start)
+    (beginning-of-line)
+    (let ((ciw (current-indentation))
+          (cl (count-lines start end)))
+      (indent-according-to-mode nil) ;; indent first line
+      (when (> cl 1)
+        (let ((differ (- (current-indentation) ciw) ) ; was = 1, become=4, 4-1 = 3+1 =4
+              (end (save-excursion (forward-line (1- cl))
+                                   (line-end-position))))
+          ;; (print (list "diff" (point) end differ))
+          (indent-rigidly (point) end differ))))))
+
+
+;; not used
+(defun my/apply-command-to-region (command)
+  "Apply FUNCTION to each line in the region."
+  (let ((start (region-beginning)) (end (region-end)))
+    (save-excursion
+      (save-restriction
+        (goto-char start)
+        (while (<= (point) (+ end 2))
+          (funcall command)
+          (forward-line 1)
+          (beginning-of-line)
+          )))))
+
+;; (defun my/detect-folding-after-function ()
+;;   "Detect if folding was made on the next line after a function call using overlay-put."
+;;   (let ((current-line (line-number-at-pos))
+;;         (next-line-start (save-excursion (forward-line 1) (line-beginning-position)))
+;;         (next-line-end (save-excursion (forward-line 1) (line-end-position) ))
+;;         (folding-detected nil))
+;;     (save-excursion
+;;       (forward-line 1)  ; Move to the next line
+;;       (let ((overlays (overlays-in next-line-start next-line-end)))
+;;         (if overlays
+;;             (message "Folding detected on the next line")
+;;           (message "No folding detected on the next line"))
+;;         folding-detected))))
 
 #+end_src
 * Global Hooks
@@ -968,26 +1122,32 @@ VENV-PATH is /some/path/venv ."
     (message cc)
     (shell-command cc )))
 #+end_src
-** Detect Org source block
+** Detect Org source block and language
 #+begin_src elisp
 
 (defvar org-src-detect--last-post-command-position 0
   "Holds the cursor position from the last run of post-command-hooks.")
 
-(defun org-src-detect-check ()
+(defun my/org-src-detect-check ()
   "Return t if cursor at src-block, fixed-width or comment line.
 Based on `org-edit-src-code'."
   (let* ((element (org-element-at-point))
          (el-type (org-element-type element))
          (line (buffer-substring-no-properties
                 (line-beginning-position)
-                (line-end-position))))
+                (line-end-position)))
+         (lang (org-element-property :language element))
+         )
      (if (or
           (string-match-p "^: " line) ; 'fixed-width
           (string-match-p "^#" line) ; 'comments and other org
           (and (memq el-type '(example-block src-block))
                (org-src--on-datum-p element)))
-         t)))
+
+         (if lang
+             lang
+           ;; else
+           t))))
 
 (defcustom org-src-detect-in-hook nil
   "Hook run at every cursor movement in source block or comment line."
@@ -1010,7 +1170,7 @@ to activate."
     (setq org-src-detect--last-post-command-position (point))
     ;; - run hooks
     (if (derived-mode-p 'org-mode)
-      (if (org-src-detect-check)
+      (if (my/org-src-detect-check)
           ;; at source code!
           (run-hooks 'org-src-detect-in-hook)
         ;; else - not at source code
@@ -1026,11 +1186,13 @@ to activate."
 2) expand-abbrev,
 3) company-complete.
 4) completion-at-point"
+  (print "my/autocomplete")
   (when (and (not (bolp)) ; not begining of the line
              (let ((syn-b (syntax-class (syntax-after (- (point) 1))))
                    (syn-c (syntax-class (syntax-after (point)))))
                (and (memql syn-b '(2 3 1)) ; before some word [2 - normal words, 1 - #, 3 - +
-                    (memql syn-c '(0 5 12)) ; at (2 12) white space or ")"
+                    (or (eq syn-c nil) ; end of buffer
+                        (memql syn-c '(0 5 12))) ; at (2 12) white space or ")"
                     )))
     (cond
      ((and (message "expand")
@@ -1038,10 +1200,10 @@ to activate."
      ((and company-mode
            (message "ok4 lets try company")
            (company-complete)))
-      (t (message "completion-at-point")
+      (t (message "completion-at-point func")
          (completion-at-point)))))
 #+end_src
-* Key Bindings
+* Global Key Bindings
 #+begin_src elisp
 
 #+end_src
@@ -1059,7 +1221,19 @@ to activate."
 ;; backspace at search
 (define-key isearch-mode-map "\C-h" #'isearch-delete-char) ; delete character during search C-s
 
-(global-set-key (kbd "M-h") #'backward-kill-word)  ; redefine mark-paragraph and org-mark-element
+
+(defun my/backward-kill-word-region()
+  "Linux console C-w + kill-region - decide intelligently."
+  (interactive)
+  (let ((beg (mark))
+        (end (point)))
+    (if (region-active-p)
+        (kill-region beg end)
+      ;; else
+      (call-interactively #'backward-kill-word))))
+
+(global-set-key (kbd "C-w") #'my/backward-kill-word-region) ; shadow kill-region
+                                     ;; "M-h"   ; redefine mark-paragraph and org-mark-element
 ;; (global-set-key (kbd "C-c h") #'backward-kill-sentence)
 ;; (global-set-key (kbd "M-h") 'backward-kill-word)  ; redefine mark-paragraph
 
@@ -1490,73 +1664,42 @@ to activate."
 ;;   (string-match-p "\\`\\s-*$" (thing-at-point 'line)))
 
 
-(defun my/indent-python ()
-  " indent-according-to-mode first line, and others"
-  (let ((beg (or (and (use-region-p) (region-beginning)) (line-beginning-position)))
-        (end (or (and (use-region-p) (region-end)) (line-end-position)))
-        (ciw))
-    ;; deactivate and go to begining
-    (deactivate-mark t)
-    (goto-char beg)
-    (beginning-of-line)
-
-    (setq  ciw (current-indentation))
-    (indent-for-tab-command) ;; indent first line
-    ;; (message "wtf %s %s" ciw (current-indentation))
-    (let ((differ (- (current-indentation) ciw) )) ;; was = 1, become=4, 4-1 = 3+1 =4
-      (forward-line)
-      (message "l %s %s" (line-beginning-position) end)
-      (if (<= (line-beginning-position) end) ;; if not end of region
-          (indent-rigidly (point) end differ))) ;; indent other lines as the first one
-  ))
 
 
-(defun apply-command-to-region (command)
-  "Apply FUNCTION to each line in the region."
-  (let ((start (region-beginning)) (end (region-end)))
-    (save-excursion
-      (save-restriction
-        (goto-char start)
-        (while (<= (point) (+ end 2))
-          (funcall command)
-          (forward-line 1)
-          (beginning-of-line)
-          )))))
+;; (defun my/indent-or-complete (arg) ; old, replaced by indent-for-tab-command
+;;   "TAB key (old)
 
-(defun my/indent-or-complete (arg) ; old, replaced by indent-for-tab-command
-  "TAB key (old)
+;; 1) if region selection - indent
+;; 2) if character at the middle of the line - indent
+;; 3) if at the begining of the line: try expand-abbrev
+;; 4) company
+;; 5) completion-at-point"
+;;   (interactive "P")
+;;   ;; (indent-for-tab-command arg) ;; cycle line
+;;   (cond ((bound-and-true-p myselect-mode) ;; if region selected or (use-region-p)
+;;          (message "ok1 region")
+;;          (if arg
+;;              (my/apply-command-to-region 'indent-according-to-mode) ;; fix indentation in region
+;;            ;; else
+;;            (my/indent-region-like-first) ;; indent as first line
+;;            ))
 
-1) if region selection - indent
-2) if character at the middle of the line - indent
-3) if at the begining of the line: try expand-abbrev
-4) company
-5) completion-at-point"
-  (interactive "P")
-  ;; (indent-for-tab-command arg) ;; cycle line
-  (cond ((bound-and-true-p myselect-mode) ;; if region selected or (use-region-p)
-         (message "ok1 region")
-         (if arg
-             (apply-command-to-region 'indent-according-to-mode) ;; fix indentation in region
-           ;; else
-           (my/indent-python) ;; indent as first line
-           ))
-
-        ;; 2)
-        ((not (or (looking-back "\\." 1) (looking-at "\\_>"))) ;; if character before cursor is last one of a word or dot (.)
-         ;; - at the middle of the line:
-         (message "ok2 middle of line")
-         (execute-extended-command nil "indent-for-tab-command" nil) ; cycle line
-         ;; (command-execute 'indent-for-tab-command) ; cycly with tab for python org-src blocks did not working with this!
-         )
-        ;; 3) else - at the begining of the line
-        ((and (message "ok3 begining") (expand-abbrev))) ;; try abbrev first
-        ;; 4) if company mode enabled
-        ((and (message "ok4 lets try company")
-              company-mode
-              (company-complete)))
-        ((and (message "ok5") (not (completion-at-point)))
-         (message "failedc")
-         )))
+;;         ;; 2)
+;;         ((not (or (looking-back "\\." 1) (looking-at "\\_>"))) ;; if character before cursor is last one of a word or dot (.)
+;;          ;; - at the middle of the line:
+;;          (message "ok2 middle of line")
+;;          (execute-extended-command nil "indent-for-tab-command" nil) ; cycle line
+;;          ;; (command-execute 'indent-for-tab-command) ; cycly with tab for python org-src blocks did not working with this!
+;;          )
+;;         ;; 3) else - at the begining of the line
+;;         ((and (message "ok3 begining") (expand-abbrev))) ;; try abbrev first
+;;         ;; 4) if company mode enabled
+;;         ((and (message "ok4 lets try company")
+;;               company-mode
+;;               (company-complete)))
+;;         ((and (message "ok5") (not (completion-at-point)))
+;;          (message "failedc")
+;;          )))
 
 #+end_src
 ** Move to the begining of the line C-a C-e M-a
@@ -1594,7 +1737,7 @@ to activate."
 ** Capitalilize sentence M-c
 #+begin_src elisp
 
-(defvar my/end-of-sentence "[.?!。“]"
+(defvar my/end-of-sentence "[.?!。“|]"
   "End of sentence characters in [] regex.")
 
 (defun my/move-to-first-word ()
@@ -1631,6 +1774,19 @@ and preserve a point position."
 (global-set-key (kbd "C-x x c") #'my/capitalize-sentence)
 (global-set-key "\M-C" #'my/capitalize-sentence)
 ;; (global-set-key (kbd "M-с") #'my/capitalize-sentence) ; rus
+
+#+end_src
+** lowercase word M-l - fix
+#+begin_src elisp
+
+(defun my/downcase-word()
+  "Downcase current word."
+  (interactive)
+  (save-excursion
+    (backward-word nil)
+    (downcase-word 1)))
+
+(global-set-key "\M-l" #'my/downcase-word)
 
 #+end_src
 ** fix: C-q call C-q for minibuffer also
@@ -2421,36 +2577,40 @@ run a specific program.  The program must be a member of
 
 (require 'recentf)
 #+end_src
-*** save directories
+*** fix: save recent list
 #+begin_src elisp
 
-;; (defun my/find-file-hook (filename &optional wildcards)
-;;   "Add directory that was opened with find-file commands."
-;;   (if (file-directory-p filename)
-;;       (recentf-add-file filename)))
+(defun my/find-file-hook (filename &optional wildcards)
+  "Add directory that was opened with find-file commands."
+  (if (or (file-directory-p filename)
+          (file-remote-p filename))
+      ;; (recentf-add-file filename)
+      (recentf-save-list)
+      ))
 
-;; (advice-add 'find-file :before #'my/find-file-hook)
+(advice-add 'find-file :after #'my/find-file-hook)
 #+end_src
 *** save only remote files
 #+begin_src elisp
 
-(defun recentf-track-opened-file ()
+(defun my/recentf-track-opened-file ()
   "Insert the name of the file just opened or written into the recent list."
   (if (and buffer-file-name
-           (file-remote-p buffer-file-name))
+           (or (file-directory-p buffer-file-name)
+               (file-remote-p buffer-file-name)))
        (recentf-add-file buffer-file-name)
     )
   ;; Must return nil because it is run from `write-file-functions'.
   nil)
-
+;; (advice-add 'recentf-track-opened-file :override #'my/recentf-track-opened-file)
 #+end_src
 *** Don't remove from saved if buffer killed
 #+begin_src elisp
 
 (defconst recentf-used-hooks
   '(
-    (find-file-hook       recentf-track-opened-file)
-    (write-file-functions recentf-track-opened-file)
+    (find-file-hook       my/recentf-track-opened-file)
+    (write-file-functions my/recentf-track-opened-file)
     ;; (kill-buffer-hook     recentf-track-closed-file)
     (kill-emacs-hook      recentf-save-list)
     )
@@ -2464,6 +2624,448 @@ run a specific program.  The program must be a member of
 ;; (setq recentf-max-saved-items 25)
 ;; (add-hook 'buffer-list-update-hook #'recentf-track-opened-file)
 (global-set-key (kbd "M-r") 'recentf-open-files) ; shadow `move-to-window-line-top-bottom'
+
+#+end_src
+** abbrev
+#+begin_src elisp
+
+#+end_src
+*** fix - allow abbrev expansion for any characters like "```"
+#+begin_src elisp
+
+(defun custom-forward-word (&optional arg)
+  "Move point forward ARG words (backward if ARG is negative).
+Words are delimited only by spaces, tabs, and newlines."
+  (interactive "^p")
+  (let ((arg (or arg 1)))
+    (if (>= arg 0)
+        (dotimes (_ arg t)
+          (skip-chars-forward " \t\n")
+          (if (eobp) (return nil))
+          (skip-chars-forward "^ \t\n"))
+      (custom-backward-word (- arg)))))
+
+(defun custom-backward-word (&optional arg)
+  "Move point backward ARG words (forward if ARG is negative).
+Words are delimited only by spaces, tabs, and newlines."
+  (interactive "^p")
+  (let ((arg (or arg 1)))
+    (if (>= arg 0)
+        (dotimes (_ arg t)
+          (skip-chars-backward " \t\n")
+          (if (bobp) (return nil))
+          (skip-chars-backward "^ \t\n"))
+      (custom-forward-word (- arg)))))
+
+
+(defun my/abbrev--before-point-fix ()
+  "Try and find an abbrev before point.  Return it if found, nil otherwise."
+  (unless (eq abbrev-start-location-buffer (current-buffer))
+    (setq abbrev-start-location nil))
+
+  (let ((tables (abbrev--active-tables))
+        (pos (point))
+        start end name res)
+
+    (if abbrev-start-location
+        (progn
+          (setq start abbrev-start-location)
+          (setq abbrev-start-location nil)
+          ;; Remove the hyphen inserted by `abbrev-prefix-mark'.
+          (when (and (< start (point-max))
+                     (eq (char-after start) ?-))
+            (delete-region start (1+ start))
+            (setq pos (1- pos)))
+          (skip-syntax-backward " ")
+          (setq end (point))
+          (when (> end start)
+            (setq name (buffer-substring start end))
+            (goto-char pos)               ; Restore point.
+            (list (abbrev-symbol name tables) name start end)))
+
+      (while (and tables (not (car res)))
+        (let* ((table (pop tables))
+               (enable-fun (abbrev-table-get table :enable-function)))
+          (setq tables (append (abbrev-table-get table :parents) tables))
+          (setq res
+                (and (or (not enable-fun) (funcall enable-fun))
+                     (let ((re (abbrev-table-get table :regexp)))
+                       (if (null re)
+                           ;; We used to default `re' to "\\<\\(\\w+\\)\\W*"
+                           ;; but when words-include-escapes is set, that
+                           ;; is not right and fixing it is boring.
+                           (let ((lim (point)))
+                             (custom-backward-word 1)
+                             (setq start (point))
+                             (custom-forward-word 1)
+                             (setq end (min (point) lim)))
+                         (when (looking-back re (line-beginning-position))
+                           (setq start (match-beginning 1))
+                           (setq end   (match-end 1)))))
+                     (setq name  (buffer-substring start end))
+                     (let ((abbrev (abbrev--symbol name table)))
+                       (when abbrev
+                         (setq enable-fun (abbrev-get abbrev :enable-function))
+                         (and (or (not enable-fun) (funcall enable-fun))
+                              ;; This will also look it up in parent tables.
+                              ;; This is not on purpose, but it seems harmless.
+                              (list abbrev name start end))))))
+          ;; Restore point.
+          (goto-char pos)))
+      res)))
+(advice-add 'abbrev--before-point :override #'my/abbrev--before-point-fix)
+
+#+end_src
+*** skeletons(templates) for abbrev TAB completion for ORG and Diary modes
+#+begin_src elisp
+
+#+end_src
+**** global
+#+begin_src elisp
+
+(define-skeleton example
+  "Template example."
+  "" "greetings!"
+  )
+(define-skeleton org-src-sqlite
+  "Allow to input name."
+  ""
+  "#+name: " _ "\n"
+  "#+begin_src sqlite :db /tmp/test-sqlite.db :colnames yes :exports both\n"
+  "\n"
+  "#+end_src"
+  )
+(define-skeleton org-src-shallow
+  "Allow to input language."
+  ""
+  "#+begin_src " _ "\n"
+  "\n"
+  "#+end_src"
+  )
+(define-skeleton org-src-with-output
+  "Allow to input language."
+  ""
+  "#+begin_src " _ " :results output :exports both"
+  "\n\n"
+  "#+end_src"
+  )
+(define-skeleton org-src-elisp-shallow
+  "no exec"
+  ""
+  "#+begin_src elisp :results none :exports code :eval no"
+  "\n\n"
+  "#+end_src")
+
+(define-skeleton org-src-elisp-no-exec
+  "exec"
+  ""
+  "#+begin_src elisp :results none :exports code :eval no"
+  "\n\n"
+  "#+end_src")
+
+(define-skeleton org-src-elisp-no-exec
+  "exec"
+  ""
+  "#+begin_src elisp :results none :exports code :eval no"
+  "\n\n"
+  "#+end_src")
+
+(define-skeleton org-src-elisp-with-output
+  "exec"
+  ""
+  "#+begin_src elisp :results output :exports both"
+  "\n\n"
+  "#+end_src")
+
+
+(define-skeleton org-src-python
+  "Python exec"
+  ""
+  "#+begin_src python :results output :exports both :session s1"
+  "\n\n"
+  "#+end_src")
+
+(define-skeleton org-src-python-remote
+  "org-tempo replacement"
+  ""
+  "#+begin_src python :results output :exports both :dir \"/ssh:" _ ":\""
+  "\n\n"
+  "#+end_src")
+
+(define-skeleton org-src-python-no-exec
+  "Tangle C-c C-v C-t org-babel-tangle."
+  ""
+  "#+begin_src python :results none :exports code :eval no\n"
+  "\n"
+  "#+end_src")
+
+(define-skeleton org-src-python-no-exec-tangle
+  "Tangle C-c C-v C-t org-babel-tangle."
+  ""
+  "#+begin_src python :tangle /tmp/out.py :results none :exports code :eval no\n"
+  "\n"
+  "#+end_src")
+
+(define-skeleton org-src-python-img
+  "org-tempo replacement"
+  ""
+  "#+begin_src python :results file graphics :exports both :file ./autoimgs/a.png :session s1""\n"
+  "import matplotlib.pyplot as plt""\n"
+  "plt.savefig('./autoimgs/a.png')""\n"
+  "plt.close()""\n"
+  "#+end_src")
+
+(define-skeleton org-src-python-table-full
+  "org-tempo replacement"
+  ""
+  "#+tblname: data_table""\n"
+  "| |""\n"
+  "|-""\n"
+  "\n\n"
+  "#+name: ""\n"
+  "#+header: :prologue from tabulate import tabulate""\n"
+  "#+begin_src python :results value raw :exports both :var data=data_table :session s1""\n"
+  "import pandas as pd""\n"
+  "\n"
+  "def pd2org(df_to_table):""\n"
+  "    return tabulate(df_to_table, headers=df_to_table.columns, tablefmt='orgtbl')""\n"
+  "\n"
+  "df = pd.DataFrame(data, columns=['column_name'])""\n"
+  "df['column_name'] = df.acidity.str.extract('(?P<digit>([-+])?\d+(.\d+)?)')['column_name'].astype(float)""\n"
+  "pd2org(df.describe())""\n"
+  "#+end_src")
+(define-skeleton org-src-perl-exec
+  "normal"
+  ""
+  "#+begin_src perl :results output :exports both\n"
+  "\n"
+  "#+end_src")
+(define-skeleton org-src-perl-no-exec
+  "Tangle C-c C-v C-t org-babel-tangle."
+  ""
+  "#+begin_src perl :tangle /tmp/a.pl :results none :exports code :eval no\n"
+  "\n"
+  "#+end_src")
+(define-skeleton org-src-mastodon
+  "2m"
+  ""
+  "#+begin_src shell :results output :noweb yes\n"
+  "<<post_delete>>\n"
+  "post \"\n" _ "\"\n"
+  "#+end_src")
+(define-skeleton org-src-mastodon-old
+  "2m"
+  ""
+  "#+begin_src bash :results output\n"
+  ". ~/.bash_aliases\n"
+  "post \"\n" _ "\"\n"
+  "#+end_src")
+(define-skeleton org-src-julia
+  "julia"
+  ""
+  "#+begin_src julia :results output :exports both :session s1\n"
+  "#+end_src")
+(define-skeleton org-src-yaml
+  "julia"
+  ""
+  "#+begin_src yaml :results output pp\n"
+  "#+end_src")
+(define-skeleton diary-warntime
+  "warntime for appt, diary"
+  "" "## warntime 12")
+
+(define-skeleton org-src-mastadon
+  ""
+  ""
+  ":#+begin_src bash :results output\n"
+  "source ~/.bash_aliases\n"
+  "\n"
+  "# delete\n"
+  "\n"
+  "cat <<EOF | post\n"
+  "#dailyreport\n"
+  "蠡\n"
+  "EOF\n"
+  "#+end_src")
+(define-skeleton org-src-shell
+  ""
+  ""
+  "#+begin_src bash :results output\n"
+  "#+end_src")
+(define-skeleton org-src-shell-remote
+  ""
+  ""
+  "#+begin_src bash :results output :dir \"/ssh:" _ ":\"\n"
+  "#+end_src")
+(define-skeleton org-src-shell-no-exec
+  ""
+  ""
+  "#+begin_src bash :eval no :exports code :results none\n"
+  "#+end_src")
+(define-skeleton org-src-text
+  ""
+  ""
+  "#+begin_src text" \n
+  "#+end_src")
+(define-skeleton org-src-artist
+  ""
+  ""
+  "#+begin_src artist\n"
+  "#+end_src")
+(define-skeleton org-src-shell-curl
+  ""
+  ""
+  "#+begin_src bash :results output\n"
+  "alias curl=\"proxychains -f /home/user/proxychains.conf curl 2>/dev/null\"\n"
+  "curl | jq -M""\n"
+  "#+end_src")
+;; - now for chinese characters I use input method chinese-py-punct that have chinese-punct inside
+;; (define-skeleton chinese-dot
+;;   ""
+;;   "" -1 "。")
+;; (define-skeleton chinese-comma
+;;   ""
+;;   "" -1 "，")
+;; (define-skeleton chinese-ecomma
+;;   ""
+;;   "" -1 "、")
+
+
+;; skeleton abbrevs - Abbrev table for Org-mode
+(define-abbrev-table 'org-mode-abbrev-table
+  '(
+    ;; 0 for hints and special characters
+    ("0-1-shallow" "" nil)
+    ("0-2-python" "" nil)
+    ("0-3-shell" "" nil)
+    ("0-4-others" "" nil)
+    ("0-6-lisp" "" nil)
+    ("0-bar-character" "¦" nil)
+    ;; ("gree" "" example)
+    ;; 1 blank, shallow
+    ("1-shallow" "" org-src-shallow)
+    ("```" "" org-src-shallow)
+    ;; ("1r-result-shallow" "" org-src-with-output)
+
+    ;; 2 python
+    ("2e-python" "" org-src-python)
+    ("2ne-python-noexec" "" org-src-python-no-exec)
+    ("2r-python-remote" "" org-src-python-remote)
+    ("2i-python-img" "" org-src-python-img)
+    ("2tf-python-table-full" "" org-src-python-table-full)
+
+    ("2ta-noexec-tangle-python" "" org-src-python-no-exec-tangle)
+
+    ;; ("2t" "" org-src-python-table)
+    ;; ("2m-mastodon-python" "" org-src-mastodon)
+
+    ;; 3 shell, bash
+    ("3e-shell" "" org-src-shell)
+    ("3er-shell" "" org-src-shell-remote)
+    ("3ne-shell" "" org-src-shell-no-exec)
+    ("3c-curl-shell" "" org-src-shell-curl)
+
+    ;; 4 for others
+    ("4y-yaml" "" org-src-yaml)
+    ("4s-sqlit" "" org-src-sqlite)
+    ("4j-julia" "" org-src-julia)
+    ("4m-mastadon" "" org-src-mastadon)
+    ("4t-text" "" org-src-text)
+    ("4a-artist" "" org-src-artist)
+    ("4pne-perl" "" org-src-perl-no-exec)
+    ("4pe-perl" "" org-src-perl-exec)
+
+
+    ;; 6 lisp
+    ("6ne-lisp" "" org-src-elisp-no-exec)
+    ("6e-lisp" "" org-src-elisp-with-output)
+
+    ("bar-character" "¦" nil) ; C-x 8 RET 00A6 BROKEN BAR.
+    ;; - now for chinese characters I use input method chinese-py-punct that have chinese-punct inside
+    ;; (".." "" chinese-dot) ;; or use: C-x 8 RET IDEOGRAPHIC FULL STOP
+
+    ;; (".." "。" nil) ;; or use: C-x 8 RET IDEOGRAPHIC FULL STOP
+    ;; ;; ("," "" chinese-comma) ;; ，
+    ;; ("," "，" nil) ;; ，
+    ;; ;; (",," "" chinese-ecomma) ;; Enumeration comma 、
+    ;; (",," "、" nil) ;; Enumeration comma 、
+    ;; ("\"\"" "《》" nil)
+    ("ru" "" (lambda () (activate-input-method "russian-computer")))
+    ("ут" "" (lambda () (activate-input-method nil)))
+    ("zh" "" (lambda () (activate-input-method "chinese-sisheng")))
+    ("en" "" (lambda () (activate-input-method nil)))
+    ))
+
+(define-abbrev-table 'diary-mode-abbrev-table
+  '(
+    ("war" "" diary-warntime)
+    ))
+
+(setq save-abbrevs nil) ;; do not prompt to save abbrevs
+(setq skeleton-end-newline nil)
+#+end_src
+**** Python
+#+begin_src elisp
+
+;; https://github.com/cstrap/python-snippets/blob/master/snippets/base.json
+;; https://gist.github.com/andreberg/d3876b82f9f33343862534df96ed2906
+(define-skeleton python-skl-main
+  "template"
+  ""
+  "def main()" _ \n
+  "if __name__ == \"__main__\":" \n
+  "main()")
+
+(define-skeleton python-skl-print
+  "template"
+  ""
+  "print(\"" _ "\")")
+
+(define-skeleton python-skl-open
+  "template"
+  ""
+  "with open(\"" _ "\", \"r\") as f:" \n)
+
+(define-skeleton python-skl-class
+  "template"
+  ""
+  "class " _ ":" \n
+  "\"\"\" \"\"\"" \n
+  "def __init__(self, ):" \n
+  ""
+  )
+
+
+(with-eval-after-load 'python
+  ;; they can by used by M-x python-skl-main
+  (setq python-skeleton-autoinsert t) ; required by python.el
+  (define-abbrev python-mode-skeleton-abbrev-table
+    "0m" "" 'python-skl-main)
+  (define-abbrev python-mode-skeleton-abbrev-table
+    "0p" "" 'python-skl-print)
+  (define-abbrev python-mode-skeleton-abbrev-table
+    "0o" "" 'python-skl-open)
+  (define-abbrev python-mode-skeleton-abbrev-table
+    "0c" "" 'python-skl-class)
+  )
+
+(with-eval-after-load 'python-ts
+  ;; they can by used by M-x python-skl-main
+  (setq python-skeleton-autoinsert t) ; required by python.el
+  (define-abbrev python-ts-mode-abbrev-table
+    "0m" "" 'python-skl-main)
+  (define-abbrev python-ts-mode-abbrev-table
+    "0p" "" 'python-skl-print)
+  (define-abbrev python-ts-mode-abbrev-table
+    "0o" "" 'python-skl-open)
+  (define-abbrev python-ts-mode-abbrev-table
+    "0c" "" 'python-skl-class)
+  )
+;; (setq python-mode-abbrev-table python-mode-skeleton-abbrev-table)
+;; (define-abbrev-table 'python-mode-abbrev-table
+;;   '(
+;;     ("init" "" )))
+
 
 #+end_src
 * Buffers, Windows, Buffer menu, tab-bar, tab-list [rooted]
@@ -2653,7 +3255,7 @@ If ARG provided switch to double-previous buffer."
 
 ;; (global-set-key "\C-o" #'other-window) ; shadow 'open-line
 (global-set-key (kbd "C-c C-z") #'my/other-buffer)
-(global-set-key (kbd "C-c M-x") #'my/other-buffer2)
+(global-set-key (kbd "C-c C-a") #'my/other-buffer2) ; with argument
 ;; (with-eval-after-load 'org
 ;;   (define-key org-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `org-add-note'
 ;; (with-eval-after-load 'sh-script
@@ -2716,10 +3318,13 @@ header. [rooted]"
   (if (string-match outline-regexp
                 (buffer-substring (line-beginning-position)
                                   (line-end-position)))
-
-      (outline-toggle-children)
-    ;; else
+      (progn
+        (outline-toggle-children)
+      'noindent ; stop TAB sequence
+      )
+    ;; else - not header
     (indent--funcall-widened my/indent-line-function-original)
+
     ;; (indent--funcall-widened (default-value 'indent-line-function)) ; my/indent-line-function-original
     ;; (let ((old-indent (current-indentation)))
     ;;   (lisp-indent-line)
@@ -2731,18 +3336,25 @@ header. [rooted]"
     ;;             (indent--funcall-widened 'indent-relative))
     ;;       ))
     ;; )
-    ))
+    )
+  )
 
 (defun my/outline-minor-mode-hook1 ()
   (if outline-minor-mode
-      (progn
-        (setq-local my/indent-line-function-original indent-line-function)
-        (setq-local indent-line-function #'my/outline-tab)
-        ;; (setq-local tab-always-indent t)
+    (progn
+      ;; - restore after applying "Local variables" for this config
+      (if (and (buffer-file-name) (or (string-equal (file-name-nondirectory  (buffer-file-name)) ".emacs")
+                                      (string-equal (file-name-nondirectory (buffer-file-name)) "init.el")))
+          (setq-local indent-line-function #'lisp-indent-line)
         )
 
-   ;; else - restore
-   (if (bound-and-true-p my/indent-line-function-original)
+      (setq-local my/indent-line-function-original indent-line-function)
+      (setq-local indent-line-function #'my/outline-tab)
+      ;; (setq-local tab-always-indent t)
+      )
+
+    ;; else - restore
+      (if (bound-and-true-p my/indent-line-function-original)
     (setq-local indent-line-function my/indent-line-function-original))
    ;; (setq-local tab-always-indent (default-value tab-always-indent))
   )
@@ -2753,6 +3365,36 @@ header. [rooted]"
 (add-hook 'outline-minor-mode-hook 'my/outline-minor-mode-hook1)
 ;; (remove-hook 'outline-minor-mode-hook 'my/outline-mode-hook1)
 
+#+end_src
+*** add C-u C-w behavior to copy only headers
+#+begin_src elisp
+
+(defun my/outline-copy-outline-headers (beg end &optional delete)
+  "Copy outline headers between BEG and END that match `outline-regexp`.
+Also copies lines before the first top-level outline.
+If universal argument is set, only copy headers and pre-outline content.
+Otherwise, copy all content using `buffer-substring--filter`.
+Activated in outline-mode init hook."
+  (if current-prefix-arg
+      (let* ((content (buffer-substring-no-properties beg end))
+             (lines (split-string content "\n" nil))
+             (first-outline-index (catch 'found
+                                    (let ((index 0))
+                                      (dolist (line lines)
+                                        (when (string-match-p outline-regexp line)
+                                          (throw 'found index))
+                                        (setq index (1+ index)))
+                                      nil)))
+             (pre-outline (if first-outline-index
+                              (butlast lines (- (length lines) first-outline-index))
+                            lines))
+             (headers (delq nil (mapcar (lambda (line)
+                                          (when (string-match-p outline-regexp line)
+                                            (concat line " ...")))
+                                        lines))))
+        (string-join (append pre-outline headers) "\n"))
+    ;; else - no prefix
+    (buffer-substring--filter beg end delete)))
 #+end_src
 *** hook and keys
 #+begin_src elisp
@@ -2842,9 +3484,14 @@ header. [rooted]"
 ****** " . 6))))
 #+begin_src elisp
 
-    ;; else - for `outline-it' and for programming modes where only one level required
-    (setq-local outline-heading-alist
-                (list (cons outline-regexp 1)))
+    ;; else
+    (if (bound-and-true-p  outline-it-heading-alist)
+        ;; for `outline-it-python'
+        (setq-local outline-heading-alist outline-it-heading-alist)
+
+        ;; else - for programming modes where only one level required
+        (setq-local outline-heading-alist
+                    (list (cons outline-regexp 1))))
     )
 
 
@@ -2864,6 +3511,9 @@ header. [rooted]"
   ;; - TAB key
 
   ;; (keymap-local-set "TAB" 'my/outline-tab) ;; rooted - wrong
+  ;;
+  ;; - Add behavior of C-u C-w to copy only headers
+  (setq-local filter-buffer-substring-function #'my/outline-copy-outline-headers)
 
   )
 
@@ -2974,8 +3624,12 @@ with functions."
   (setq-local outline-regexp "")
   (outline-minor-mode -1)
   (setq-local outline-regexp outline-r)
-  (outline-minor-mode 1)
-)
+  (outline-minor-mode 1))
+
+(defun outline-it-python ()
+  (interactive)
+  (setq-local outline-it-heading-alist '(("class" . 1) ("def" . 2)))
+  (outline-it "^class\\|.* def "))
 
 #+end_src
 ** calendar and holidays
@@ -3167,13 +3821,24 @@ with functions."
   )
 
 ;; - override function that activate theme to our
+
+(setq circadian-verbose nil) ; debug
+
 (defun my/circadian-enable-theme (theme)
-    "Call function instead of just set theme."
+    "Call function instead of just `load-theme'."
+    ;; Clear existing themes:
     (funcall theme)
-    (setq circadian-next-timer nil)
-    (circadian-schedule))
+    ; - because `run-at-time' simetimes activated immediately IDK why
+    (when (not (eq custom-enabled-themes theme))
+      (if (not (equal nil circadian-next-timer)) ; just in case
+          (cancel-timer circadian-next-timer))
+      (setq custom-enabled-themes theme)
+      (setq circadian-next-timer nil)
+      (circadian-schedule) ;; set circadian-next-timer
+    ))
 
 (advice-add 'circadian-enable-theme :override #'my/circadian-enable-theme)
+;; (advice-remove 'circadian-enable-theme #'my/circadian-enable-theme)
 ;; - activate circadian
 (circadian-setup)
 
@@ -3200,8 +3865,10 @@ with functions."
 (setopt selected-window-contrast-not-sel-magnitude-background 1.05)
 
 (add-hook 'buffer-list-update-hook #'selected-window-contrast-highlight-selected-window-timeout1)
+;; (remove-hook 'buffer-list-update-hook #'selected-window-contrast-highlight-selected-window-timeout1)
 ;; - additional timeout for case of call: $ emacsclient -c ~/file
 (add-hook 'server-after-make-frame-hook #'selected-window-contrast-highlight-selected-window-timeout2)
+;; (remove-hook 'server-after-make-frame-hook #'selected-window-contrast-highlight-selected-window-timeout2)
 
 ;; (defun testa()
 ;;   (print "sss")
@@ -3226,7 +3893,7 @@ with functions."
   ;; - set backgound color
   ;; (set-face-attribute 'mode-line-active nil :background "cyan4")
   ;; - increate contrast
-  (selected-window-contrast-change-modeline 0.6 0.6)
+
   ;; (selected-window-contrast-change-window 2.0 1.1)
   )
 
@@ -3633,7 +4300,7 @@ Loop over `dired-listing-switches' +
 ;; dired-guess-shell-alist-user is empty by default
 (setopt dired-guess-shell-alist-user
       '(("\\.\\(flac\\|mp3\\|mp4\\)$" "mpv *")
-        ("\\.pdf$" "mupdf")
+        ("\\.pdf$" "evince")
         ("\\.png$" "mupdf")
         ("\\.jpg$" "mupdf")
         ("\\.html$" "./firef")
@@ -4182,7 +4849,11 @@ Value is a list of all tags for FILE."
 #+begin_src elisp
 
 #+end_src
-*** fix fill-paragraph
+*** functions
+#+begin_src elisp
+
+#+end_src
+**** fix fill-paragraph
 #+begin_src elisp
 
 
@@ -4238,9 +4909,10 @@ Value is a list of all tags for FILE."
       (call-interactively 'fill-paragraph)
       (setq fill-paragraph-function saved-fill-paragraph-function))
     ;; else - at list item
-    (let ((fill-prefix (if (org-in-item-p) nil
-                         ;; else
-                         fill-prefix)))
+    (let ((fill-prefix (if (org-in-item-p)
+                           nil
+                           ;; else
+                           fill-prefix)))
       ;; region - skip code blocks
       (if (and region transient-mark-mode mark-active
                (not (eq (region-beginning) (region-end))))
@@ -4271,7 +4943,7 @@ Value is a list of all tags for FILE."
             (save-excursion (org-fill-paragraph))))))
 
 #+end_src
-*** key: meta-return
+**** key: meta-return
 #+begin_src elisp
 
 (defun my/org-meta-return()
@@ -4287,12 +4959,21 @@ Value is a list of all tags for FILE."
      ((org-at-table-p) (call-interactively 'org-table-wrap-region))
      ;; list
      ((org-in-item-p) (org-insert-item)) ; insert line above current if cursor at the begining of the line
+     ;; header - if we use (electric-newline-and-maybe-indent) - highlighting are breaked, we fix this here
+     ((org-at-heading-p)
+      (if (or (bolp) (eolp))
+          (newline)
+        ;; else
+        (org-newline-and-indent)
+        (let ((line-start (line-beginning-position))
+              (line-end (line-end-position)))
+          (set-text-properties line-start line-end nil))))
      ;; others
      (t (progn (newline)
                (indent-relative-first-indent-point))))))
 
 #+end_src
-*** key: new list item with indentation
+**** key: new list item with indentation
 #+begin_src elisp
 
 (defun my/current-line-blank ()
@@ -4335,6 +5016,114 @@ Value is a list of all tags for FILE."
       (widen)
       (org-list-repair))))
 #+end_src
+**** fix BABEL SHELL: permission error
+#+begin_src elisp
+
+;; (setq org-babel-temporary-directory "/var/tmp/babel")
+(defun org-babel-sh-evaluate (session body &optional params stdin cmdline)
+  "Pass BODY to the Shell process in BUFFER.
+If RESULT-TYPE equals `output' then return a list of the outputs
+of the statements in BODY, if RESULT-TYPE equals `value' then
+return the value of the last statement in BODY."
+  (let* ((shebang (cdr (assq :shebang params)))
+         (results-params (cdr (assq :result-params params)))
+         (value-is-exit-status
+          (or (and
+               (equal '("replace") results-params)
+               (not org-babel-shell-results-defaults-to-output))
+              (member "value" results-params)))
+         (results
+          (cond
+           ((or stdin cmdline)         ; external shell script w/STDIN
+            (let ((script-file (org-babel-temp-file "sh-script-"))
+                  (stdin-file (org-babel-temp-file "sh-stdin-"))
+                  (padline (not (string= "no" (cdr (assq :padline params))))))
+              (with-temp-file script-file
+                (when shebang (insert shebang "\n"))
+                (when padline (insert "\n"))
+                (insert body))
+              (set-file-modes script-file #o755)
+              (with-temp-file stdin-file (insert (or stdin "")))
+              (with-temp-buffer
+                (with-connection-local-variables
+                 (print (list #'process-file
+                        (if shebang (file-local-name script-file)
+                          shell-file-name)
+                        stdin-file
+                        (current-buffer)
+                        nil
+                        (if shebang (when cmdline (list cmdline))
+                          (list shell-command-switch
+                                (concat (file-local-name script-file)  " " cmdline)))))
+                 (apply #'process-file
+                        (if shebang (file-local-name script-file)
+                          shell-file-name)
+                        stdin-file
+                        (current-buffer)
+                        nil
+                        (if shebang (when cmdline (list cmdline))
+                          (list shell-command-switch
+                                (concat (file-local-name script-file)  " " cmdline)))))
+                (buffer-string))))
+           (session                     ; session evaluation
+            (mapconcat
+             #'org-babel-sh-strip-weird-long-prompt
+             (mapcar
+              #'org-trim
+              (butlast ; Remove eoe indicator
+               (org-babel-comint-with-output
+                   (session org-babel-sh-eoe-output t body)
+                 (insert (org-trim body) "\n"
+                         org-babel-sh-eoe-indicator)
+                 (comint-send-input nil t))
+               ;; Remove `org-babel-sh-eoe-indicator' output line.
+               1))
+             "\n"))
+           ;; External shell script, with or without a predefined
+           ;; shebang.
+           ((org-string-nw-p shebang)
+            (let ((script-file (org-babel-temp-file "sh-script-"))
+                  (padline (not (equal "no" (cdr (assq :padline params))))))
+              (with-temp-file script-file
+                (insert shebang "\n")
+                (when padline (insert "\n"))
+                (insert body))
+              (set-file-modes script-file #o755)
+              (org-babel-eval script-file "")))
+           (t (org-babel-eval shell-file-name (org-trim body))))))
+    (when (and results value-is-exit-status)
+      (setq results (car (reverse (split-string results "\n" t)))))
+    (when results
+      (let ((result-params (cdr (assq :result-params params))))
+        (org-babel-result-cond result-params
+          results
+          (let ((tmp-file (org-babel-temp-file "sh-")))
+            (with-temp-file tmp-file (insert results))
+            (org-babel-import-elisp-from-file tmp-file)))))))
+
+
+#+end_src
+*** key: TAB chain
+#+begin_src elisp
+
+(defun my/org-mode-hook1 ()
+  ;; (setq-local indent-line-function #'my/org-tab)
+  ;; - indent-region-function -> my/indent-region-like-first -> indent-according-to-mode -> indent-line-function -> org-indent-line
+  (setq-local indent-region-function #'my/indent-region-like-first)
+  (setq-local indent-for-tab-steps
+              (list
+               'indent-for-tab-step-1-region-to-column
+               ;; 'indent-for-tab-step-2-region-fill-prefix
+               'indent-for-tab-step-3-region-indent-lines
+               'my/indent-for-tab-step-31-header ; toggle header
+               'indent-for-tab-step-4-insert-tab
+               'indent-for-tab-step-5-indent-line
+               'my/indent-for-tab-step-6-completion-org
+               )))
+
+(add-hook 'org-mode-hook #'my/org-mode-hook1)
+
+#+end_src
 *** key: TAB
 #+begin_src elisp
 
@@ -4342,67 +5131,131 @@ Value is a list of all tags for FILE."
 ;; (defun myaa ()
 ;;   "Stop exection of org-cycle to prevent recursion."
 ;;   t)
-(add-hook 'org-tab-before-tab-emulation-hook 't)
+;; (add-hook 'org-tab-before-tab-emulation-hook 't)
 
 (defun my/org-tab ()
   "compare full line at cursor position with outline template for
 header. [rooted]"
-(let* ((eap (org-element-at-point))
-       (el-type (org-element-type eap))
-       (org-cycle-emulate-tab nil))
-  (cond ;; - org and at the header
-   ((member el-type (list 'headline 'table-row))
+  (print "my/org-tab")
+  (let* ((eap (org-element-context)) ; org-element-at-point
+         (el-type (org-element-type eap))
+         (org-cycle-emulate-tab nil))
+    (cond
+     ;; - Header or table
+     ((member el-type (list 'headline 'table-row))
       (message "header or table row")
-      (org-cycle))
-    ((eq el-type 'src-block)
-     (message "srcblocktab")
-     (let ((lang (org-element-property :language eap)))
-       ;; - if not at the begining of line
-       (if (and (not (bolp)) ; not begining of the line
-                (let ((syn-b (syntax-class (syntax-after (- (point) 1))))
-                      (syn-c (syntax-class (syntax-after (point)))))
-                  (and (memql syn-b '(2 3 1)) ; before some word [2 - normal words, 1 - #, 3 - +
-                       (memql syn-c '(0 5 12)) ; at (2 12) white space or ")"
-                       )))
-           (cond
-            ((string-equal "elisp" lang)
-             (add-hook 'completion-at-point-functions
-                       #'elisp-completion-at-point nil 'local)
-             (completion-at-point)
-             (remove-hook 'completion-at-point-functions
-                          #'elisp-completion-at-point
-                          ;; 'local
-                          )
+      (org-cycle)
+      'noindent) ; halt
+     ;; - Source block
+     ((eq el-type 'src-block)
+      (message "srcblocktab")
+      (let ((lang (org-element-property :language eap)))
+        ;; - not at the begining of line
+        (if (and (not (bolp)) ; not begining of the line
+                 (let ((syn-b (syntax-class (syntax-after (- (point) 1))))
+                       (syn-c (syntax-class (syntax-after (point)))))
+                   (and (memql syn-b '(2 3 1)) ; before some word [2 - normal words, 1 - #, 3 - +
+                        (memql syn-c '(0 5 12)) ; at (2 12) white space or ")"
+                        )))
+            ;; if - not begining of the line
+            (cond
+             ((string-equal "elisp" lang)
+              (add-hook 'completion-at-point-functions
+                        #'elisp-completion-at-point nil 'local)
+              (let ((res (completion-at-point)))
+                (remove-hook 'completion-at-point-functions
+                             #'elisp-completion-at-point
+                             ;; 'local
+                             )))
+             ((string-equal "python" lang) ;; work?
+              (add-hook 'completion-at-point-functions
+                        #'python-shell-completion-at-point nil 'local)
+              (let ((res (completion-at-point)))
+                (remove-hook 'completion-at-point-functions
+                             #'python-shell-completion-at-point
+                             ;; 'local
+                             )))
              ;; - TODO: add more languages
              )
-            ((string-equal "python" lang) ;; work?
-             (add-hook 'completion-at-point-functions
-                       #'python-shell-completion-at-point nil 'local)
-             (completion-at-point)
-             (remove-hook 'completion-at-point-functions
-                          #'python-shell-completion-at-point
-                          ;; 'local
-                          )
-             )
-            ;; - TODO: add more languages
-            )
 
-         ;; - else - at the begining of the line
-         (org-indent-line)
-         (hilit-chg-clear) ; TODO: narrow with (org-src--edit-element
-         )
-     ;; (org-cycle)
-     ;; (hilit-chg-clear)
-     ))
-    ;; - for text
-    (t (my/autocomplete))
-    )))
+          ;; - else - at the begining of the line
+          (org-indent-line)
+          (hilit-chg-clear) ; TODO: narrow with (org-src--edit-element
+          )
+        ;; (org-cycle)
+        ;; (hilit-chg-clear)
+        ))
+     ;; - for text
+     ;; (t (if (my/autocomplete)
+     ;;        'noindent)
+     ;;    )
+     )))
 
-(defun my/org-mode-hook1 ()
-  (setq-local indent-line-function #'my/org-tab)
-  (setq-local indent-region-function #'org-cycle))
+(defun my/indent-for-tab-step-31-header (&optional arg)
+  "Toggle header or table row.
+If argument was given, don't toggle header.
+"
+  (when (and (not arg)
+           (member (org-element-type (org-element-at-point))
+                   (list 'headline 'table-row)))
+    (message "header or table row")
+    (org-cycle)
+    'noindent))
 
-(add-hook 'org-mode-hook #'my/org-mode-hook1)
+(defun my/indent-for-tab-step-6-completion-org (&optional arg)
+  "Perform completion if necessary based on nearby characters."
+  (when (and (eq tab-always-indent 'complete)
+             (or (eq last-command this-command)
+                 (let ((syn (syntax-class (syntax-after (point)))))
+                   (pcase tab-first-completion
+                     ('nil t)
+                     ('eol (eolp))
+                     ('word (not (eql 2 syn)))
+                     ('word-or-paren (not (memq syn '(2 4 5))))
+                     ('word-or-paren-or-punct (not (memq syn '(2 4 5 1))))))))
+    (add-hook 'completion-at-point-functions #'pcomplete-completions-at-point nil 'local)
+    (add-hook 'completion-at-point-functions #'comint--complete-file-name-data nil 'local) ; comint-dynamic-complete-filename
+    (let* ((eap (org-element-context)) ; org-element-at-point
+           (el-type (org-element-type eap)))
+      ;; - if in source block
+      (if (eq el-type 'src-block)
+        (let ((lang (org-element-property :language eap)))
+          (message "srcblocktab")
+          (cond
+             ((string-equal "elisp" lang)
+              (add-hook 'completion-at-point-functions
+                        #'elisp-completion-at-point nil 'local)
+              (let ((res (completion-at-point)))
+                (remove-hook 'completion-at-point-functions
+                             #'elisp-completion-at-point
+                             'local
+                             )))
+             ((string-equal "python" lang)
+              (add-hook 'completion-at-point-functions
+                        #'python-shell-completion-at-point nil 'local)
+              (let ((res (completion-at-point)))
+                (remove-hook 'completion-at-point-functions
+                             #'python-shell-completion-at-point
+                             'local
+                             )))
+             ;; - TODO: add more languages
+             ))
+        ;; else - if not on header use hippie expander
+        (let ((old-tick (buffer-chars-modified-tick)))
+          (or        ;; (call-interactively 'company-complete-selection)
+                     ;; (call-interactively 'company-complete-common)
+                     (company-manual-begin)
+                     ;; (call-interactively 'company-complete)
+              company-candidates
+              (not (eql old-tick (buffer-chars-modified-tick)))
+              (completion-at-point)))))
+    (remove-hook 'completion-at-point-functions #'pcomplete-completions-at-point 'local)
+    (remove-hook 'completion-at-point-functions #'comint--complete-file-name-data 'local)))
+
+
+#+end_src
+*** key: TAB: complete-at-point backends (not used because shadowed by company)
+#+begin_src elisp
 
 #+end_src
 *** key: Smooth up and down movement element by element
@@ -4436,8 +5289,10 @@ header. [rooted]"
 ;;                            (keymap-local-set "C-c C-p" #'my/org-previous-item) ; org-previous-visible-heading
 ;;                            ))
 (add-hook 'org-mode-hook (lambda ()
-                           (keymap-local-set "M-p" 'my/org-previous-item)
-                           (keymap-local-set "M-n" 'my/org-next-item)
+                           (keymap-local-set "M-p" 'org-previous-visible-heading) ; my/org-previous-item
+                           (keymap-local-set "M-n" 'org-next-visible-heading) ; my/org-next-item
+                           (keymap-local-set "C-c C-p" 'my/org-previous-item)
+                           (keymap-local-set "C-c C-n" 'my/org-next-item)
                            ))
 #+end_src
 *** keys others
@@ -4445,58 +5300,59 @@ header. [rooted]"
 
 ;; We bind org-forward-sentence and org-backward-sentence to
 ;; C-e and C-e, and make it simplier.
-(defun my/org-forward-close (&optional _arg)
-  "Go to end of sentence, or end of table field.
-This will call `forward-sentence' or `org-table-end-of-field',
-depending on context."
-  (interactive)
-  (if (and (org-at-heading-p)
-           (save-restriction (skip-chars-forward " \t") (not (eolp))))
-      (save-restriction
-        (narrow-to-region (line-beginning-position) (line-end-position))
-        (call-interactively #'forward-sentence)) ;;modifyed move-end-of-line
-    (let* ((element (org-element-at-point))
-           (contents-begin (org-element-property :contents-begin element))
-           (contents-begin (if contents-begin
-                               contents-begin
-                             ;; else
-                             (org-element-property :begin element)))
-           (contents-end (org-element-property :contents-end element))
-           (contents-end (if contents-end
-                               contents-end
-                             ;; else
-                             (org-element-property :begin element)))
-           (table (org-element-lineage element '(table) t)))
-      (if (and table
-               (>= (point) contents-begin)
-               (< (point) contents-end))
-              (call-interactively #'move-end-of-line) ;; modifyed
-        ;; else
-        (save-restriction
-          (when (and contents-end
-                     (> (point-max) contents-end)
-                     ;; Skip blank lines between elements.
-                     (< (org-element-property :end element)
-                        (save-excursion (goto-char contents-end)
-                                        (skip-chars-forward " \r\t\n"))))
-            (narrow-to-region contents-begin
-                              contents-end))
-          ;; End of heading is considered as the end of a sentence.
-          (let ((sentence-end (concat (sentence-end) "\\|^\\*+ .*$")))
-            (call-interactively #'move-end-of-line))))))) ;; modifyed
+;; (defun my/org-forward-close (&optional _arg)
+;;   "Go to end of sentence, or end of table field.
+;; This will call `forward-sentence' or `org-table-end-of-field',
+;; depending on context."
+;;   (interactive)
+;;   (if (and (org-at-heading-p)
+;;            (save-restriction (skip-chars-forward " \t") (not (eolp))))
+;;       (save-restriction
+;;         (narrow-to-region (line-beginning-position) (line-end-position))
+;;         (call-interactively #'forward-sentence)) ;;modifyed move-end-of-line
+;;     (let* ((element (org-element-at-point))
+;;            (contents-begin (org-element-property :contents-begin element))
+;;            (contents-begin (if contents-begin
+;;                                contents-begin
+;;                              ;; else
+;;                              (org-element-property :begin element)))
+;;            (contents-end (org-element-property :contents-end element))
+;;            (contents-end (if contents-end
+;;                                contents-end
+;;                              ;; else
+;;                              (org-element-property :begin element)))
+;;            (table (org-element-lineage element '(table) t)))
+;;       (if (and table
+;;                (>= (point) contents-begin)
+;;                (< (point) contents-end))
+;;               (call-interactively #'move-end-of-line) ;; modifyed
+;;         ;; else
+;;         (save-restriction
+;;           (when (and contents-end
+;;                      (> (point-max) contents-end)
+;;                      ;; Skip blank lines between elements.
+;;                      (< (org-element-property :end element)
+;;                         (save-excursion (goto-char contents-end)
+;;                                         (skip-chars-forward " \r\t\n"))))
+;;             (narrow-to-region contents-begin
+;;                               contents-end))
+;;           ;; End of heading is considered as the end of a sentence.
+;;           (let ((sentence-end (concat (sentence-end) "\\|^\\*+ .*$")))
+;;             (call-interactively #'move-end-of-line))))))) ;; modifyed
 
-(defun back-to-indentation-or-beginning ()
-  (interactive)
-  (if (= (point) (progn (back-to-indentation) (- (point) 1))) ;; -1 because of  "(there is a bug)" see below
-      (beginning-of-line)))
+;; (defun back-to-indentation-or-beginning ()
+;;   (interactive)
+;;   (if (= (point) (progn (back-to-indentation) (- (point) 1))) ;; -1 because of  "(there is a bug)" see below
+;;       (beginning-of-line)))
 
-(defun my/org-backward-close (&optional _arg)
+(defun my/org-backward-close (&optional _arg forward-flag)
   "Go to beginning of sentence, or beginning of table field.
 This will call `backward-sentence' or `org-table-beginning-of-field',
 depending on context.
 (org-element-type (org-element-at-point))"
   (interactive)
   (let* ((element (org-element-at-point))
+         (contents-begin (org-element-property :contents-begin (org-element-at-point)))
          (contents-begin (org-element-property :contents-begin element))
          (contents-begin (if contents-begin
                              contents-begin
@@ -4507,52 +5363,102 @@ depending on context.
                              contents-end
                            ;; else
                            (org-element-property :begin element)))
-         (el-type (org-element-type element)))
+         (el-type (org-element-type element))
+         ;; (line-num (line-number-at-pos (point)))
+         (point-before (point))
+         )
+    ;; (print (list el-type (point) contents-begin contents-end))
+    ;; - - behavior for different current element
     (cond
      ;; - table
-     ((and (eq el-type 'table)
-           (> (point) contents-begin)
+     ((and (or (eq el-type 'table-row) (eq el-type 'table))
+           ;; (>= (point) (1- contents-begin))
            (<= (point) contents-end))
-      (call-interactively #'move-beginning-of-line)) ;; modifyed
+      (let ((org-table-automatic-realign nil))
+
+        (if forward-flag
+            ;; if next field at other line go to end of line
+            (if (save-excursion (re-search-forward "|" (line-end-position 1) t)
+                                 (re-search-forward "|" (line-end-position 1) t))
+                (call-interactively #'org-table-end-of-field)
+              ;; else
+              (end-of-line))
+          ;; else
+          ;; if next field at other line go to end of line
+          (if (save-excursion (re-search-backward "|" (line-beginning-position 1) t)
+                              (re-search-backward "|" (line-beginning-position 1) t))
+              (call-interactively #'org-table-beginning-of-field)
+            ;; else
+            (beginning-of-line)))))
      ;; - src-block
      ((eq el-type 'src-block)
-      (let ((p (point)))
+      (if forward-flag
+          ;; (progn
+          ;;   (call-interactively #'end-of-line)
+          ;;   (if (eq p (point)) ; not changed
+          ;;       (call-interactively #'end-of-line)
+          ;;     )
+          (call-interactively #'end-of-line)
+        ;; else
         (call-interactively 'back-to-indentation)
-        (if (eq p (point)) ; not changed
-            (beginning-of-line)
-          )))
+        (if (= point-before (point)) ; not changed
+            (beginning-of-line))))
      ;; - example-block
      ((eq el-type 'example-block)
-      (call-interactively #'back-to-indentation-or-beginning)
-      )
+      (if forward-flag
+          (call-interactively #'end-of-line)
+        ;; else
+        (call-interactively #'back-to-indentation))) ; back-to-indentation-or-beginning
      ;; - others
      (t
       ;; (print (org-element-at-point))
       ;; (print el-type)
-      (call-interactively #'backward-char) ;; required if we at the end of header. (there is a bug)
-      (save-restriction
-        (when (and contents-begin
-                   (< (point-min) contents-begin)
-                   (>= (point) contents-begin)
-                   (not (eq el-type 'fixed-width)))
-          (narrow-to-region contents-begin
-                            contents-end))
-        (call-interactively #'back-to-indentation-or-beginning))
-      )) ;; if
+      ;; (call-interactively #'backward-char) ;; required if we at the end of header. (there is a bug)
+      (if forward-flag
+          (if (and contents-end
+                   (< point-before contents-end)
+                   (<= contents-end (line-end-position)))
+
+              (progn ; (print (list "asd1" point-before contents-end))
+              (goto-char contents-end))
+            ;; else
+            (call-interactively #'end-of-line))
+        ;; else
+        (if (and contents-begin
+                 ;; (< (point-min) contents-begin)
+                 (> (point) contents-begin)
+                 (>= contents-begin (line-beginning-position))
+                 ;; (not (eq el-type 'fixed-width))
+                 )
+            ;; (narrow-to-region contents-begin
+            ;;                   contents-end)
+
+            (goto-char contents-begin)
+          ;; (skip-chars-backward " \r\t\n")
+          ;; else
+          (call-interactively #'back-to-indentation) ; back-to-indentation-or-beginning
+          (if (= (point) point-before)
+              (call-interactively #'beginning-of-line)))
+        ;; (call-interactively #'back-to-indentation-or-beginning)
+
+      )))
     ))
 
+(defun my/org-forward-close (&optional _arg)
+  (interactive)
+  (my/org-backward-close _arg t))
 
-(define-minor-mode fix-org-goto-mode
-                             "Allow to exit from search with arrows."
-                             :lighter " fix-goto"
-                             :keymap (let ((map (make-sparse-keymap)))
-                                       (define-key map (kbd "C-f") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'org-goto-ret)()))
-                                       (define-key map (kbd "C-b") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'backward-char)())) ;; C-l
-                                       (define-key map (kbd "C-n") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'next-line)()))
-                                       (define-key map (kbd "C-p") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'kill-line)())) ;; C-k
-                                       (define-key map (kbd "C-a") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'my/org-backward-close)()))
-                                       (define-key map (kbd "C-e") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'my/org-forward-close)()))
-                                       map))
+;; (define-minor-mode fix-org-goto-mode
+;;                              "Allow to exit from search with arrows."
+;;                              :lighter " fix-goto"
+;;                              :keymap (let ((map (make-sparse-keymap)))
+;;                                        (define-key map (kbd "C-f") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'org-goto-ret)()))
+;;                                        (define-key map (kbd "C-b") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'backward-char)())) ;; C-l
+;;                                        (define-key map (kbd "C-n") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'next-line)()))
+;;                                        (define-key map (kbd "C-p") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'kill-line)())) ;; C-k
+;;                                        (define-key map (kbd "C-a") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'my/org-backward-close)()))
+;;                                        (define-key map (kbd "C-e") (lambda () (interactive) (call-interactively 'org-goto-ret) (call-interactively 'my/org-forward-close)()))
+;;                                        map))
 
 (defun my/org-tab-text ()
   "Expand abbrevs with TAB key and don't break org-cycle.
@@ -4782,14 +5688,16 @@ If not in a list don't split, open new line and indent."
                            ;; begin of line:
                            ;; (define-key key-translation-map (kbd "M-a") (kbd "M-m"))
                            ;; (define-key key-translation-map (kbd "M-m") (kbd "M-a"))
-                           (keymap-local-set "M-h" 'backward-kill-word)
+                           ;; (keymap-local-set "M-h" 'backward-kill-word) ; shadow mark paragraph
                            ;; (define-key org-mode-map (kbd "M-h") 'backward-kill-word) ; redefine org-mark-element
 
                            ;; (keymap-local-set "C-c SPC" 'org-babel-mark-block)
 
                            ;; - - - C-e should be short and M-e should be long
-                           (keymap-local-set "M-e" 'org-forward-sentence)
-                           (keymap-local-set "M-a" 'org-backward-sentence)
+                           ;; (keymap-local-set "M-e" 'org-forward-sentence)
+                           ;; (keymap-local-set "M-a" 'org-backward-sentence)
+                           (keymap-local-set "M-a" 'org-beginning-of-line)
+                           (keymap-local-set "M-e" 'org-end-of-line)
                            (keymap-local-set "C-e" 'my/org-forward-close)
                            (keymap-local-set "C-a" 'my/org-backward-close)
 
@@ -4904,6 +5812,10 @@ If not in a list don't split, open new line and indent."
                            (keymap-local-set "M-q" #'my/org-fill-paragraph)
                            ;; - - - Python source block redisplay image after block execution if inlineimages is on
                            (keymap-local-set "C-c C-c" #'my/org-ctrl-c-ctrl-c)
+                           ;; - - - Other buffer
+                           (keymap-local-set "C-c C-Z" #'my/other-buffer) ; shadow `org-add-note'
+                           (keymap-local-set "C-c C-a" #'my/other-buffer2) ; shadow `org-attach'
+
 
 
 
@@ -5126,8 +6038,10 @@ If not in a list don't split, open new line and indent."
   ;; (setq company-backends '(  company-files company-dabbrev )) ; company-keywords company-capf
   ;; (setq company-backends '(company-math-symbols-unicode company-keywords company-files company-abbrev company-dabbrev))
 ) ;; end
+
+
 #+end_src
-*** timeout for org-babel- * -evaluate-external-process
+*** timeout for org-babel- * -evaluate-external-process (old)
 #+begin_src elisp
 
 ;; (setq python-shell-interpreter "timout"
@@ -5217,92 +6131,6 @@ When nil, use the default face background."
 ;; (advice-add 'org-html-export-to-html :around #'my/org-html-export-to-html-all-subtrees)
 
 #+end_src
-*** fix BABEL SHELL: permission error
-#+begin_src elisp
-
-;; (setq org-babel-temporary-directory "/var/tmp/babel")
-(defun org-babel-sh-evaluate (session body &optional params stdin cmdline)
-  "Pass BODY to the Shell process in BUFFER.
-If RESULT-TYPE equals `output' then return a list of the outputs
-of the statements in BODY, if RESULT-TYPE equals `value' then
-return the value of the last statement in BODY."
-  (let* ((shebang (cdr (assq :shebang params)))
-         (results-params (cdr (assq :result-params params)))
-         (value-is-exit-status
-          (or (and
-               (equal '("replace") results-params)
-               (not org-babel-shell-results-defaults-to-output))
-              (member "value" results-params)))
-         (results
-          (cond
-           ((or stdin cmdline)         ; external shell script w/STDIN
-            (let ((script-file (org-babel-temp-file "sh-script-"))
-                  (stdin-file (org-babel-temp-file "sh-stdin-"))
-                  (padline (not (string= "no" (cdr (assq :padline params))))))
-              (with-temp-file script-file
-                (when shebang (insert shebang "\n"))
-                (when padline (insert "\n"))
-                (insert body))
-              (set-file-modes script-file #o755)
-              (with-temp-file stdin-file (insert (or stdin "")))
-              (with-temp-buffer
-                (with-connection-local-variables
-                 (print (list #'process-file
-                        (if shebang (file-local-name script-file)
-                          shell-file-name)
-                        stdin-file
-                        (current-buffer)
-                        nil
-                        (if shebang (when cmdline (list cmdline))
-                          (list shell-command-switch
-                                (concat (file-local-name script-file)  " " cmdline)))))
-                 (apply #'process-file
-                        (if shebang (file-local-name script-file)
-                          shell-file-name)
-                        stdin-file
-                        (current-buffer)
-                        nil
-                        (if shebang (when cmdline (list cmdline))
-                          (list shell-command-switch
-                                (concat (file-local-name script-file)  " " cmdline)))))
-                (buffer-string))))
-           (session                     ; session evaluation
-            (mapconcat
-             #'org-babel-sh-strip-weird-long-prompt
-             (mapcar
-              #'org-trim
-              (butlast ; Remove eoe indicator
-               (org-babel-comint-with-output
-                   (session org-babel-sh-eoe-output t body)
-                 (insert (org-trim body) "\n"
-                         org-babel-sh-eoe-indicator)
-                 (comint-send-input nil t))
-               ;; Remove `org-babel-sh-eoe-indicator' output line.
-               1))
-             "\n"))
-           ;; External shell script, with or without a predefined
-           ;; shebang.
-           ((org-string-nw-p shebang)
-            (let ((script-file (org-babel-temp-file "sh-script-"))
-                  (padline (not (equal "no" (cdr (assq :padline params))))))
-              (with-temp-file script-file
-                (insert shebang "\n")
-                (when padline (insert "\n"))
-                (insert body))
-              (set-file-modes script-file #o755)
-              (org-babel-eval script-file "")))
-           (t (org-babel-eval shell-file-name (org-trim body))))))
-    (when (and results value-is-exit-status)
-      (setq results (car (reverse (split-string results "\n" t)))))
-    (when results
-      (let ((result-params (cdr (assq :result-params params))))
-        (org-babel-result-cond result-params
-          results
-          (let ((tmp-file (org-babel-temp-file "sh-")))
-            (with-temp-file tmp-file (insert results))
-            (org-babel-import-elisp-from-file tmp-file)))))))
-
-#+end_src
 *** org-beamer - disable (old)
 #+begin_src elisp
 
@@ -5341,7 +6169,7 @@ return the value of the last statement in BODY."
 ;;             (add-to-list 'post-command-hook 'org-src-detect--post-command)
 ;;             ))
 #+end_src
-*** "don’t" to "don't" - With advice and `org-src-detect-check'
+*** "don’t" to "don't" - With advice and `my/org-src-detect-check'
 #+begin_src elisp
 
 ;; (defun my/quote-advice (orig-fun &rest args)
@@ -5349,7 +6177,7 @@ return the value of the last statement in BODY."
 ;; `electric-quote-post-self-insert-function' function.
 ;; For words like: don't - insert stright apostrophe instead of '’'."
 ;;   (if (derived-mode-p 'org-mode)
-;;     (unless (org-src-detect-check)
+;;     (unless (my/org-src-detect-check)
 ;;       (apply orig-fun args))
 ;;     ;; else
 ;;     (apply orig-fun args)))
@@ -5394,8 +6222,12 @@ return the value of the last statement in BODY."
 
 (defun my/inhibit-paired-quote ()
   "Inhibit pairing for words like don't.
+If one of them returns non-nil, electric quote
+substitution is inhibited.
 For single quote \' and if it is after text and no opening quote
 was made."
+  ;; - inhibit in programming modes
+
   (if (eq last-command-event ?\')
       (if (my/previous-char-is-text)
           (not (search-backward-for-character))
@@ -5413,6 +6245,26 @@ was made."
 
 ;; (global-set-key (kbd "C-c C-'") #'my/streight-quote)
 
+#+end_src
+*** don't quote in source block of programming languages
+#+begin_src elisp
+
+;; (defun my/inhibit-paired-quote-org-programming ()
+;;   "Inhibit pairing in Org source block for programming languages. "
+;;   (let ((lang (my/org-src-detect-check)))
+;;     (if  ;; (member-ignore-case lang ("bash" "python" "sh" "shell" "lisp"))
+;;         t)))
+
+(add-hook 'electric-quote-inhibit-functions #'my/org-src-detect-check)
+#+end_src
+*** C-u/M-1 should disable electric quote
+#+begin_src elisp
+
+(defun my/electric-quote-inhibit()
+ "if this function return Non-nil, don't activate electric-quoting."
+ current-prefix-arg)
+
+(add-hook 'electric-quote-inhibit-functions #'my/electric-quote-inhibit)
 #+end_src
 ** Flymake
 #+begin_src elisp
@@ -5438,7 +6290,7 @@ was made."
 (defun my/prevnext-occurrence (next)
   "Search for the next or previous occurrence of the word at the
 cursor position."
-  (if (string-match-p "[-_A-Za-z0-9]" (char-to-string (char-after (point))))
+  (when (and (char-after (point)) (string-match-p "[-_A-Za-z0-9]" (char-to-string (char-after (point)))))
       (let ((bound 600)
             (word))
         (save-excursion
@@ -5495,9 +6347,9 @@ If prev word was not found, go to prev heading"
                  (if outline-search-function
                      (funcall outline-search-function nil nil nil t)
                    (looking-at outline-regexp))))
-          (outline-previous-heading)
+          (outline-previous-heading) ; at header
     ;; else
-    (if (not (my/prevnext-occurrence nil))
+    (unless (my/prevnext-occurrence nil)
         (if outline-minor-mode
             (outline-previous-heading)))))
 
@@ -5589,7 +6441,11 @@ If prev word was not found, go to prev heading"
 ;; (add-hook 'yaml-mode-hook	#'display-line-numbers-mode)
 (add-hook 'yaml-ts-mode-hook	#'display-line-numbers-mode)
 (add-hook 'ebuild-mode		#'display-line-numbers-mode)
-(add-hook 'sh-mode		#'display-line-numbers-mode)
+;; (add-hook 'sh-mode		#'display-line-numbers-mode)
+;; (add-hook 'shell-script-mode	#'display-line-numbers-mode)
+(add-hook 'sh-base-mode-hook	#'display-line-numbers-mode)
+
+
 
 #+end_src
 *** Elisp - Emacs-Lisp
@@ -5689,7 +6545,7 @@ list sexp or comment at current cursor position."
 
 (defun my/elisp-keys()
   (keymap-local-set "M-i" #'describe-symbol) ; shadow `tab-to-tab-stop'
-  (keymap-local-set "C-M-f" #'my/forward-sexp) ; shadow `forward-sexp'
+  ;; (keymap-local-set "C-M-f" #'my/forward-sexp) ; shadow `forward-sexp'
   ;; (keymap-local-set "C-j" #'my/insert-new-sexp)
   )
 
@@ -5838,8 +6694,29 @@ Optional argument ARGS ."
 ;; )
 
 #+end_src
-**** python-mode-hook
+**** keys
 #+begin_src elisp
+
+  ;; (keymap-local-set "C-c C-b" #'python-indent-shift-left )
+  ;; (keymap-local-set "C-c C-f" #'python-indent-shift-right ) ;; shadows python-eldoc-at-point
+  ;; (keymap-local-set "C-c C-c" #'my/exec-python)
+  ;; (keymap-local-set "C-c c"   #'run-python) ; open REPL on remote machine too
+  ;; (keymap-local-set "C-c C-o" #'python-sort-imports)
+  ;; (keymap-local-set "C-c C-z" #'my/other-buffer) ; shadow python-shell-switch-to-shell
+
+(define-key python-mode-map (kbd "C-c C-b") #'python-indent-shift-left )
+(define-key python-mode-map (kbd "C-c C-f") #'python-indent-shift-right ) ;; shadows python-eldoc-at-point
+(define-key python-mode-map (kbd "C-c C-c") #'my/exec-python)
+(define-key python-mode-map (kbd "C-c c")   #'run-python) ; open REPL on remote machine too
+(define-key python-mode-map (kbd "C-c C-o") #'python-sort-imports)
+(define-key python-mode-map (kbd "C-c C-z") #'my/other-buffer) ; shadow python-shell-switch-to-shell
+;; (define-key python-mode-map (kbd "C-c C-z") #'my/other-buffer)
+#+end_src
+**** configuration and python-mode-hook
+#+begin_src elisp
+
+(setopt python-indent-offset 4)
+(setopt python-indent-def-block-scale 1)
 
 (defun my/python-mode-hook ()
   ;; (interactive)
@@ -5889,7 +6766,8 @@ Optional argument ARGS ."
 
   (column-number-mode) ; charater number of line
   ;; indentation
-  (setq python-indent-offset 4)
+
+
   ;; treat underscore _ as part of word
   (superword-mode nil)
   ;;
@@ -5971,7 +6849,7 @@ Optional argument ARGS ."
 **** Eglot - for LSP
 #+begin_src elisp
 
-#+end_src
+      #+end_src
 ***** main
 #+begin_src elisp
 
@@ -5999,6 +6877,8 @@ Optional argument ARGS ."
 (setq-default eglot-workspace-configuration
             '(:pylsp (:plugins (:jedi_completion (:include_params t
                                                   :fuzzy t)
+                                :jedi_hover (:enabled nil)
+                                :jedi_signature_help (:enabled nil)
                                 :pylint (:enabled :json-false)
                                 ))
               :gopls (:usePlaceholders t)))
@@ -6006,28 +6886,33 @@ Optional argument ARGS ."
 
 ;; - - modes for which Eglot will be activated
 (defun my/eglot-start ()
+  "Configure Eglot before starting."
   (interactive)
-  (eglot-shutdown-all) ; two connection to same file is not allowed
-  (print (list "Eglot:" buffer-file-name default-directory))
+  ;; (eglot-shutdown-all) ; two connection to same file is not allowed
+  ;; (print (list "Eglot:" buffer-file-name default-directory))
   (if (and buffer-file-name
            (file-remote-p buffer-file-name))
-      (setq eglot-server-programs
+      (setq-local eglot-server-programs
              '((python-ts-mode . ("127.0.0.1" 2087))
                (python-mode . ("127.0.0.1" 2087))
                ))
     ;; else - Local
-    (setq eglot-server-programs
+    (setq-local eglot-server-programs
           '((python-ts-mode . ("pylsp"))
             (python-mode . ("pylsp"))
             ))
     )
-    (eglot-ensure)
-    ;; (eglot)
+  (setq-local eglot-ignored-server-capabilities '(:hoverProvider
+                                                  :signatureHelpProvider
+                                                  :documentHighlightProvider))
+  ;; (eglot-ensure)
+  ;; (eglot)
 
-    ;; - ElDoc: remove `eldoc-display-in-echo-area' to disable echo areo
-    (setq eldoc-display-functions
+  ;; - ElDoc: remove `eldoc-display-in-echo-area' to disable echo area
+  (setq-local eldoc-display-functions
           '(eldoc-display-in-buffer))
-
+  ;; disable semantic
+  (semantic-mode -1)
   )
 
 (defun my/eglot-config-hack (&rest args)
@@ -6041,7 +6926,7 @@ Optional argument ARGS ."
 
 (advice-add 'eglot--guess-contact :filter-return 'my/eglot-config-hack)
 
-;; (add-hook 'python-mode-hook 'my/eglot-start)
+(add-hook 'python-mode-hook 'my/eglot-start)
 ;; (add-hook 'python-ts-mode-hook 'my/eglot-start)
 #+end_src
 ***** remote bin
@@ -6075,7 +6960,7 @@ Optional argument ARGS ."
 
 
 ;; (advice-add 'eldoc-print-current-symbol-info :around 'my/eldoc-use-side-window)
-#+end_src
+   #+end_src
 ****** activation hook
 #+begin_src elisp
 
@@ -6341,7 +7226,11 @@ If window already exist, close window and hence block ElDoc."
 ;; (advice-add 'org-babel-execute:python :before #'test-org-babel-execute:python)
 
 #+end_src
-**** TAB key fix - python indent line
+**** TAB key
+#+begin_src elisp
+
+#+end_src
+***** python indent line
 #+begin_src elisp
 
 ;; (defun my/python-indent-line-function (orig-fun &rest args)
@@ -6358,28 +7247,35 @@ If window already exist, close window and hence block ElDoc."
 ;; (advice-add 'my/python-indent-line-function :around
 ;;             #'python-indent-line-function)
 #+end_src
-**** TAB key fix - not complete if we are at begining of line
+***** complete - where to allow
 #+begin_src elisp
 
-(defun my/indent-for-tab-command-step-4-completion2 (arg)
+(require 'indent) ; my
+(defun my/indent-for-tab-step-6-completion-python (arg)
+  (print "my/indent-for-tab-step-6-completion-python")
   (when (and (not (bolp)) ; not begining of the line
                 (let ((syn-b (syntax-class (syntax-after (- (point) 1))))
                       (syn-c (syntax-class (syntax-after (point)))))
                   (and (memql syn-b '(2 3 1)) ; before some word [2 - normal words, 1 - #, 3 - +
-                       (memql syn-c '(0 5 12)) ; at (2 12) white space or ")"
+                       (memql syn-c '(0 4 5 12 1)) ; at (2 12) white space or ")" 0 - space, 4 - [, 1 - :
                        )))
-    (funcall #'my/indent-for-tab-command-step-4-completion arg)))
+    (funcall #'indent-for-tab-step-6-completion arg)))
 
-(setq my/indent-for-tab-command-steps
-      (list
-       'my/indent-for-tab-command-step-1-region-indent
-       'my/indent-for-tab-command-step-2-insert-tab
-       'my/indent-for-tab-command-step-3-indent-line
-       'my/indent-for-tab-command-step-4-completion2
-       'my/indent-for-tab-command-step-5-rigid-indent))
+(defun my/python-mode-setindent-hook ()
+  (setq-local indent-for-tab-steps
+              (list
+               'indent-for-tab-step-1-region-to-column
+               'indent-for-tab-step-2-region-fill-prefix
+               'indent-for-tab-step-3-region-indent-lines
+               'indent-for-tab-step-4-insert-tab
+               'indent-for-tab-step-5-indent-line
+               'my/indent-for-tab-step-6-completion-python
+               )))
 
+(add-hook 'python-mode-hook #'my/python-mode-setindent-hook)
+(add-hook 'python-ts-mode-hook #'my/python-mode-setindent-hook)
 #+end_src
-**** TAB key fix - python-info-dedenter-opening-block-message
+***** python-info-dedenter-opening-block-message
 #+begin_src elisp
 
 (defun my/python-indent-line (&optional previous)
@@ -6403,6 +7299,68 @@ level."
       (back-to-indentation))))
 
 (advice-add 'python-indent-line :override #'my/python-indent-line)
+#+end_src
+***** indent-region
+#+begin_src elisp
+
+;; - default #'python-indent-region is not working
+(add-hook 'python-mode-hook (lambda()
+                              (setq-local indent-region-function
+                                          #'my/indent-region-like-first))) ;; #'indent-region-line-by-line
+#+end_src
+***** complete-at-point without Eglot
+#+begin_src elisp
+
+;; (setq-local dabbrev-check-all-buffers nil)
+;; (setq-local dabbrev-backward-only t)
+#+end_src
+****** fix buffer error
+#+begin_src elisp
+
+;; (require 'dabbrev)
+;; (setq-local completion-at-point-functions '(dabbrev-capf)) ; Error: completion--some: Selecting deleted buffer
+(defun my/dabbrev--find-expansion-fix (abbrev direction ignore-case)
+    "(setq completion-at-point-functions '(dabbrev-capf))
+dabbrev--find-expansion(\"f\" -1 t)"
+    (when (not (buffer-live-p dabbrev--last-buffer))
+               (setq dabbrev--last-buffer
+                     (pop dabbrev--friend-buffer-list)
+                     ))
+      )
+(advice-add 'dabbrev--find-expansion :before #'my/dabbrev--find-expansion-fix)
+
+;; (advice-remove 'dabbrev--find-expansion #'my/dabbrev--find-expansion-fix)
+;; (dabbrev--find-all-expansions "f" t) ;
+;; Debugger entered--Lisp error: (error "Selecting deleted buffer")
+  ;; dabbrev--find-expansion("f" -1 t)
+  ;; dabbrev--find-all-expansions("f" t)
+  ;; eval((dabbrev--find-all-expansions "f" t) t)
+  ;; eval-expression((dabbrev--find-all-expansions "f" t) nil nil 127)
+  ;; funcall-interactively(eval-expression (dabbrev--find-all-expansions "f" t) nil nil 127)
+  ;; call-interactively(eval-expression nil nil)
+  ;; command-execute(eval-expression)
+
+#+end_src
+****** fix "no found"
+#+begin_src elisp
+
+;; completion--some: No dynamic expansion for "fil" found in this-buffer
+;; taged from `dabbrev-completion'
+(defun my/dabbrev-capf()
+  (dabbrev--reset-global-variables)
+)
+(advice-add 'dabbrev-capf :before #'my/dabbrev-capf)
+#+end_src
+****** enable dynamic completion
+#+begin_src elisp
+
+(require 'dabbrev)
+(add-hook 'python-mode-hook
+          (lambda ()
+            (add-hook 'completion-at-point-functions
+                      #'dabbrev-capf nil t)
+
+            ))
 #+end_src
 **** python-check C-c C-b
 #+begin_src elisp
@@ -6759,35 +7717,35 @@ This function is called by `org-babel-execute-src-block'."
 
 
 
-(global-set-key (kbd "C-x C-a") 'artist-mode) ;; and artist-mode
+;; (global-set-key (kbd "C-x C-a") 'artist-mode) ;; and artist-mode
 
-#+end_src
+;; #+end_src
 *** artist-mode-hook
 #+begin_src elisp
 
-(defun my/artist-mode-hook ()
-  ;; show shape while stretching, drawing (default on)
-  ;; to disable changing buffer during drawing:
-  (setq artist-rubber-banding nil)
+;; (defun my/artist-mode-hook ()
+;;   ;; show shape while stretching, drawing (default on)
+;;   ;; to disable changing buffer during drawing:
+;;   (setq artist-rubber-banding nil)
 
-  ;; text mode
-  (define-key artist-mode-map (kbd "M-;") (lambda () (interactive) (call-interactively 'my/short-keys)))
+;;   ;; text mode
+;;   (define-key artist-mode-map (kbd "M-;") (lambda () (interactive) (call-interactively 'my/short-keys)))
 
-  ;; default just line
-  (artist-select-op-line)
-)
+;;   ;; default just line
+;;   (artist-select-op-line)
+;; )
 
-(defun my/artist-no-rb-set-point2-advice(x y)
-    ())
-;; do not insert anything when set second point for rectangle
-;; (setq artist-second-char nil) ;; cause "artist-second-char nil" error message
-;; (advice-add 'artist-no-rb-set-point2 :override #'(lambda (x y) ()) )
-(advice-add 'artist-no-rb-set-point2 :override #'my/artist-no-rb-set-point2-advice )
+;; (defun my/artist-no-rb-set-point2-advice(x y)
+;;     ())
+;; ;; do not insert anything when set second point for rectangle
+;; ;; (setq artist-second-char nil) ;; cause "artist-second-char nil" error message
+;; ;; (advice-add 'artist-no-rb-set-point2 :override #'(lambda (x y) ()) )
+;; (advice-add 'artist-no-rb-set-point2 :override #'my/artist-no-rb-set-point2-advice )
 
-;; (advice-add 'artist-mode :before (lambda (&rest args) (call-interactively #'my/short-keys) ))
-(advice-add 'artist-mode :after (lambda (&rest args) (call-interactively #'my/short-keys) ))
+;; ;; (advice-add 'artist-mode :before (lambda (&rest args) (call-interactively #'my/short-keys) ))
+;; (advice-add 'artist-mode :after (lambda (&rest args) (call-interactively #'my/short-keys) ))
 
-(add-hook 'artist-mode-hook 'my/artist-mode-hook)
+;; (add-hook 'artist-mode-hook 'my/artist-mode-hook)
 
 #+end_src
 ** email
@@ -7047,6 +8005,45 @@ This function is called by `org-babel-execute-src-block'."
 ;; (add-hook 'notmuch-search-hook 'my/notmuch-sent-hook)
 
 #+end_src
+**** automatic send reply message
+#+begin_src elisp
+
+#+end_src
+***** catch buffer name
+#+begin_src elisp
+
+(defvar my/send-email-buffer-name)
+
+(defun my/notmuch-mua-pop-to-buffer (name switch-function)
+  "Get buffer name."
+  (print "heeehhee")
+  (setq my/send-email-buffer-name name))
+
+(advice-add 'notmuch-mua-pop-to-buffer :before #'my/notmuch-mua-pop-to-buffer)
+
+#+end_src
+***** send
+#+begin_src elisp
+
+;; (my/send-email-mloil "/home/email/Filtered_icecleared_oil_2025_01_17.xlsx")
+;;  emacs*batch*eval '(message "asd")'
+;;  (notmuch-show-get-message-id)
+(defun my/send-email-mloil (file)
+  "Reply output to sender."
+  (let ((query-string "id:AM9P193MB16818F84D2E6193D9DBD759C8AEC2@AM9P193MB1681.EURP193.PROD.OUTLOOK.COM")
+        (sender "user@mail.com")
+        (reply-all nil)
+        (duplicate nil)
+        ;;
+        (type "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        (description "Fitered iceclea")
+        (disposition "attachment"))
+    (notmuch-mua-reply query-string sender reply-all duplicate)
+    (insert "This is automatic replay with \"Filtered\" output file in attachment.\n")
+    (mml-attach-file file type description disposition)
+    (message-send)))
+
+#+end_src
 *** editor org-mode integration
 #+begin_src elisp
 
@@ -7105,355 +8102,6 @@ This function is called by `org-babel-execute-src-block'."
 (setopt user-mail-address "user@mail.com")
 ;; (setopt user-mail-address "vitsmallboy@hotmail.com")
 
-#+end_src
-** skeletons(templates) for abbrev TAB completion for ORG and Diary modes
-#+begin_src elisp
-
-#+end_src
-*** global
-#+begin_src elisp
-
-(define-skeleton example
-  "Template example."
-  "" "greetings!"
-  )
-(define-skeleton org-src-sqlite
-  "Allow to input name."
-  ""
-  "#+name: " _ "\n"
-  "#+begin_src sqlite :db /tmp/test-sqlite.db :colnames yes :exports both\n"
-  "\n"
-  "#+end_src"
-  )
-(define-skeleton org-src-shallow
-  "Allow to input language."
-  ""
-  "#+begin_src " _ "\n"
-  "\n"
-  "#+end_src"
-  )
-(define-skeleton org-src-with-output
-  "Allow to input language."
-  ""
-  "#+begin_src " _ " :results output :exports both"
-  "\n\n"
-  "#+end_src"
-  )
-(define-skeleton org-src-elisp-shallow
-  "no exec"
-  ""
-  "#+begin_src elisp :results none :exports code :eval no"
-  "\n\n"
-  "#+end_src")
-
-(define-skeleton org-src-elisp-no-exec
-  "exec"
-  ""
-  "#+begin_src elisp :results none :exports code :eval no"
-  "\n\n"
-  "#+end_src")
-
-(define-skeleton org-src-elisp-no-exec
-  "exec"
-  ""
-  "#+begin_src elisp :results none :exports code :eval no"
-  "\n\n"
-  "#+end_src")
-
-(define-skeleton org-src-elisp-with-output
-  "exec"
-  ""
-  "#+begin_src elisp :results output :exports both"
-  "\n\n"
-  "#+end_src")
-
-
-(define-skeleton org-src-python
-  "Python exec"
-  ""
-  "#+begin_src python :results output :exports both :session s1"
-  "\n\n"
-  "#+end_src")
-
-(define-skeleton org-src-python-remote
-  "org-tempo replacement"
-  ""
-  "#+begin_src python :results output :exports both :dir \"/ssh:" _ ":\""
-  "\n\n"
-  "#+end_src")
-
-(define-skeleton org-src-python-no-exec
-  "Tangle C-c C-v C-t org-babel-tangle."
-  ""
-  "#+begin_src python :results none :exports code :eval no\n"
-  "\n"
-  "#+end_src")
-
-(define-skeleton org-src-python-no-exec-tangle
-  "Tangle C-c C-v C-t org-babel-tangle."
-  ""
-  "#+begin_src python :tangle /tmp/out.py :results none :exports code :eval no\n"
-  "\n"
-  "#+end_src")
-
-(define-skeleton org-src-python-img
-  "org-tempo replacement"
-  ""
-  "#+begin_src python :results file graphics :exports both :file ./autoimgs/a.png :session s1""\n"
-  "import matplotlib.pyplot as plt""\n"
-  "plt.savefig('./autoimgs/a.png')""\n"
-  "plt.close()""\n"
-  "#+end_src")
-
-(define-skeleton org-src-python-table-full
-  "org-tempo replacement"
-  ""
-  "#+tblname: data_table""\n"
-  "| |""\n"
-  "|-""\n"
-  "\n\n"
-  "#+name: ""\n"
-  "#+header: :prologue from tabulate import tabulate""\n"
-  "#+begin_src python :results value raw :exports both :var data=data_table :session s1""\n"
-  "import pandas as pd""\n"
-  "\n"
-  "def pd2org(df_to_table):""\n"
-  "    return tabulate(df_to_table, headers=df_to_table.columns, tablefmt='orgtbl')""\n"
-  "\n"
-  "df = pd.DataFrame(data, columns=['column_name'])""\n"
-  "df['column_name'] = df.acidity.str.extract('(?P<digit>([-+])?\d+(.\d+)?)')['column_name'].astype(float)""\n"
-  "pd2org(df.describe())""\n"
-  "#+end_src")
-(define-skeleton org-src-perl-exec
-  "normal"
-  ""
-  "#+begin_src perl :results output :exports both\n"
-  "\n"
-  "#+end_src")
-(define-skeleton org-src-perl-no-exec
-  "Tangle C-c C-v C-t org-babel-tangle."
-  ""
-  "#+begin_src perl :tangle /tmp/a.pl :results none :exports code :eval no\n"
-  "\n"
-  "#+end_src")
-(define-skeleton org-src-mastodon
-  "2m"
-  ""
-  "#+begin_src shell :results output :noweb yes\n"
-  "<<post_delete>>\n"
-  "post \"\n" _ "\"\n"
-  "#+end_src")
-(define-skeleton org-src-mastodon-old
-  "2m"
-  ""
-  "#+begin_src bash :results output\n"
-  ". ~/.bash_aliases\n"
-  "post \"\n" _ "\"\n"
-  "#+end_src")
-(define-skeleton org-src-julia
-  "julia"
-  ""
-  "#+begin_src julia :results output :exports both :session s1\n"
-  "#+end_src")
-(define-skeleton org-src-yaml
-  "julia"
-  ""
-  "#+begin_src yaml :results output pp\n"
-  "#+end_src")
-(define-skeleton diary-warntime
-  "warntime for appt, diary"
-  "" "## warntime 12")
-
-(define-skeleton org-src-mastadon
-  ""
-  ""
-  ":#+begin_src bash :results output\n"
-  "source ~/.bash_aliases\n"
-  "\n"
-  "# delete\n"
-  "\n"
-  "cat <<EOF | post\n"
-  "#dailyreport\n"
-  "蠡\n"
-  "EOF\n"
-  "#+end_src")
-(define-skeleton org-src-shell
-  ""
-  ""
-  "#+begin_src bash :results output\n"
-  "#+end_src")
-(define-skeleton org-src-shell-remote
-  ""
-  ""
-  "#+begin_src bash :results output :dir \"/ssh:" _ ":\"\n"
-  "#+end_src")
-(define-skeleton org-src-shell-no-exec
-  ""
-  ""
-  "#+begin_src bash :eval no :exports code :results none\n"
-  "#+end_src")
-(define-skeleton org-src-text
-  ""
-  ""
-  "#+begin_src text" \n
-  "#+end_src")
-(define-skeleton org-src-artist
-  ""
-  ""
-  "#+begin_src artist\n"
-  "#+end_src")
-(define-skeleton org-src-shell-curl
-  ""
-  ""
-  "#+begin_src bash :results output\n"
-  "alias curl=\"proxychains -f /home/user/proxychains.conf curl 2>/dev/null\"\n"
-  "curl | jq -M""\n"
-  "#+end_src")
-;; - now for chinese characters I use input method chinese-py-punct that have chinese-punct inside
-;; (define-skeleton chinese-dot
-;;   ""
-;;   "" -1 "。")
-;; (define-skeleton chinese-comma
-;;   ""
-;;   "" -1 "，")
-;; (define-skeleton chinese-ecomma
-;;   ""
-;;   "" -1 "、")
-
-
-;; skeleton abbrevs - Abbrev table for Org-mode
-(define-abbrev-table 'org-mode-abbrev-table
-  '(
-    ;; 0 for hints and special characters
-    ("0-1-shallow" "" nil)
-    ("0-2-python" "" nil)
-    ("0-3-shell" "" nil)
-    ("0-4-others" "" nil)
-    ("0-6-lisp" "" nil)
-    ("0-bar-character" "¦" nil)
-    ;; ("gree" "" example)
-    ;; 1 blank, shallow
-    ("1-shallow" "" org-src-shallow)
-    ;; ("1r-result-shallow" "" org-src-with-output)
-
-    ;; 2 python
-    ("2e-python" "" org-src-python)
-    ("2ne-python-noexec" "" org-src-python-no-exec)
-    ("2r-python-remote" "" org-src-python-remote)
-    ("2i-python-img" "" org-src-python-img)
-    ("2tf-python-table-full" "" org-src-python-table-full)
-
-    ("2ta-noexec-tangle-python" "" org-src-python-no-exec-tangle)
-
-    ;; ("2t" "" org-src-python-table)
-    ;; ("2m-mastodon-python" "" org-src-mastodon)
-
-    ;; 3 shell, bash
-    ("3e-shell" "" org-src-shell)
-    ("3er-shell" "" org-src-shell-remote)
-    ("3ne-shell" "" org-src-shell-no-exec)
-    ("3c-curl-shell" "" org-src-shell-curl)
-
-    ;; 4 for others
-    ("4y-yaml" "" org-src-yaml)
-    ("4s-sqlit" "" org-src-sqlite)
-    ("4j-julia" "" org-src-julia)
-    ("4m-mastadon" "" org-src-mastadon)
-    ("4t-text" "" org-src-text)
-    ("4a-artist" "" org-src-artist)
-    ("4pne-perl" "" org-src-perl-no-exec)
-    ("4pe-perl" "" org-src-perl-exec)
-
-
-    ;; 6 lisp
-    ("6ne-lisp" "" org-src-elisp-no-exec)
-    ("6e-lisp" "" org-src-elisp-with-output)
-
-    ("bar-character" "¦" nil) ; C-x 8 RET 00A6 BROKEN BAR.
-    ;; - now for chinese characters I use input method chinese-py-punct that have chinese-punct inside
-    ;; (".." "" chinese-dot) ;; or use: C-x 8 RET IDEOGRAPHIC FULL STOP
-
-    ;; (".." "。" nil) ;; or use: C-x 8 RET IDEOGRAPHIC FULL STOP
-    ;; ;; ("," "" chinese-comma) ;; ，
-    ;; ("," "，" nil) ;; ，
-    ;; ;; (",," "" chinese-ecomma) ;; Enumeration comma 、
-    ;; (",," "、" nil) ;; Enumeration comma 、
-    ;; ("\"\"" "《》" nil)
-    ("ru" "" (lambda () (activate-input-method "russian-computer")))
-    ("ут" "" (lambda () (activate-input-method nil)))
-    ("zh" "" (lambda () (activate-input-method "chinese-sisheng")))
-    ("en" "" (lambda () (activate-input-method nil)))
-    ))
-
-(define-abbrev-table 'diary-mode-abbrev-table
-  '(
-    ("war" "" diary-warntime)
-    ))
-
-(setq save-abbrevs nil) ;; do not prompt to save abbrevs
-(setq skeleton-end-newline nil)
-#+end_src
-*** Python
-#+begin_src elisp
-
-;; https://github.com/cstrap/python-snippets/blob/master/snippets/base.json
-;; https://gist.github.com/andreberg/d3876b82f9f33343862534df96ed2906
-(define-skeleton python-skl-main
-  "template"
-  ""
-  "def main()" _ \n
-  "if __name__ == \"__main__\":" \n
-  "main()")
-
-(define-skeleton python-skl-print
-  "template"
-  ""
-  "print(\"" _ "\")")
-
-(define-skeleton python-skl-open
-  "template"
-  ""
-  "with open(\"" _ "\", \"r\") as f:" \n)
-
-(define-skeleton python-skl-class
-  "template"
-  ""
-  "class " _ ":" \n
-  "\"\"\" \"\"\"" \n
-  "def __init__(self, ):" \n
-  ""
-  )
-
-
-(with-eval-after-load 'python
-  ;; they can by used by M-x python-skl-main
-  (setq python-skeleton-autoinsert t) ; required by python.el
-  (define-abbrev python-mode-skeleton-abbrev-table
-    "0m" "" 'python-skl-main)
-  (define-abbrev python-mode-skeleton-abbrev-table
-    "0p" "" 'python-skl-print)
-  (define-abbrev python-mode-skeleton-abbrev-table
-    "0o" "" 'python-skl-open)
-  (define-abbrev python-mode-skeleton-abbrev-table
-    "0c" "" 'python-skl-class)
-  )
-
-(with-eval-after-load 'python-ts
-  ;; they can by used by M-x python-skl-main
-  (setq python-skeleton-autoinsert t) ; required by python.el
-  (define-abbrev python-ts-mode-abbrev-table
-    "0m" "" 'python-skl-main)
-  (define-abbrev python-ts-mode-abbrev-table
-    "0p" "" 'python-skl-print)
-  (define-abbrev python-ts-mode-abbrev-table
-    "0o" "" 'python-skl-open)
-  (define-abbrev python-ts-mode-abbrev-table
-    "0c" "" 'python-skl-class)
-  )
-;; (setq python-mode-abbrev-table python-mode-skeleton-abbrev-table)
-;; (define-abbrev-table 'python-mode-abbrev-table
-;;   '(
-;;     ("init" "" )))
 #+end_src
 ** flycheck-aspell for English
 #+begin_src elisp
@@ -7578,8 +8226,11 @@ This function is called by `org-babel-execute-src-block'."
 #+begin_src elisp
 
 ;; notify-send in by first emacs process
+;; Require:
+;; emerge*ask xfce4-notifyd libnotify-notify-send
+;; export DBUS_SESSION_BUS_ADDRESS=$(grep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME xfce4-session)/environ | cut -d= -f2- | tr -d '\0')
 
-(defvar my/duration (* 50 1000)) ; 50 seconds - of-notify-showing
+;; (defvar my/duration (* 50 1000)) ; 50 seconds - of-notify-showing
 (defvar my/repeat 20) ; seconds
 
 
@@ -7596,11 +8247,10 @@ This function is called by `org-babel-execute-src-block'."
     ;; (print (type-of  msg))
     (if (eq (emacs-pid) val)
         (call-process-shell-command (format "notify-send -i emacs 'in %s minutes: %s' ; \
-timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
+timeout -k 1 1 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 ;;         (async-shell-command (format "notify-send -i emacs 'in %s minutes: %s' ; \
 ;; timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
-        )
-    )
+        ))
 
 (setopt appt-disp-window-function #'my/display-msg)
 
@@ -7760,6 +8410,180 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 (pinyin-isearch-activate-submodes)
 
 #+end_src
+** Org Presentations - help functions
+#+begin_src elisp
+
+;; (when (re-search-forward "\\[\\[file:\\([^]]+\\)\\]\\]" nil t)
+;;   (substring-no-properties (match-string 1)))
+
+
+(defun my/org-organize-links-and-files ()
+  "Organize files linked in the current Org buffer.
+For each [[file:]] link, create a folder named after the current buffer
+in the same directory, move the linked file there, and update the link."
+  (interactive)
+  (let* ((current-file (buffer-file-name))
+         (current-dir (file-name-directory current-file))
+         (buffer-name (file-name-base current-file))
+         (new-folder (expand-file-name buffer-name current-dir)))
+
+    ;; Create the new folder if it doesn't exist
+    (unless (file-exists-p new-folder)
+      (make-directory new-folder))
+
+    ;; Search for file links and process them
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "\\[\\[file:\\([^]]+\\)\\]\\]" nil t)
+        (let* ((file-path (substring-no-properties (match-string 1)))
+               (file-name (file-name-nondirectory file-path))
+               (new-path (expand-file-name file-name new-folder)))
+          (print (list file-path file-name new-path))
+
+          ;; Move the file
+          (when (and (not (string-equal file-path new-path)) ; not processed
+                     (file-exists-p file-path) ; exist
+                     )
+            (condition-case nil
+                (rename-file file-path new-path)
+              (error
+               ;; This will run if any error occurs
+               (copy-file file-path new-path)))
+
+            ;; Update the link
+            (replace-match (concat "[[file:" (file-relative-name new-path current-dir) "]]")))
+          ))))
+
+  (message "Files organized and links updated."))
+
+(defun my/org-remove-org-navigation-lines ()
+  "Remove navigation lines from the current buffer."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (not (eobp))
+      (let ((line (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+        (if (or (and (string-prefix-p "[[" line)
+                     (string-suffix-p "][<< Previous]]" line))
+                (and (string-prefix-p "| [[" line)
+                     (string-suffix-p "][Next >>]]" line)))
+            (delete-region (line-beginning-position) (1+ (line-end-position)))
+          (forward-line 1))))))
+
+
+(defun my/aspect-remove-repeated-header ()
+  "Remove header repeat at next line of header."
+  (interactive)
+  (while (not (eobp))
+    ;; - to next heading
+    (let ((regexp (concat "^" (org-get-limited-outline-regexp))))
+      (re-search-forward regexp nil :move))
+    ;; - get header name
+    (let ((p1 (point))
+          p2
+          header)
+      (when (search-forward "<<" (line-end-position) t)
+        (setq p2 (- (point) 3))
+        (setq header (buffer-substring-no-properties p1 p2))
+        (forward-line)
+        (print header)
+        (when (search-forward (concat " *" header "* ") (line-end-position) t)
+          (replace-match "" t t))
+        ))))
+
+
+;; (defun my/org-insert-subheader-if-needed (&optional subheader-name min-lines)
+;;   "Insert subheader if there are more than MIN-LINES lines between headers.
+;; SUBHEADER-NAME is the name of the subheader to insert (default 'base').
+;; MIN-LINES is the minimum number of lines required to insert a subheader (default 5)."
+;;   (interactive)
+;;   (let ((subheader-name (or subheader-name "base"))
+;;         (min-lines (or min-lines 5)))
+;;     (org-with-wide-buffer
+;;      (goto-char (point-min))
+;;      (while (outline-next-heading)
+;;        (let* ((current-header-pos (point))
+;;               (current-level (org-outline-level))
+;;               (next-header-pos (save-excursion
+;;                                  (outline-next-heading)
+;;                                  (point)))
+;;               (lines-between (1- (count-lines current-header-pos next-header-pos))))
+;;          (when (> lines-between min-lines)
+;;            (save-excursion
+;;              (forward-line 1)
+;;              (unless (looking-at-p (concat (regexp-quote (make-string (1+ current-level) ?*))
+;;                                            " "
+;;                                            (regexp-quote subheader-name)))
+;;                (insert (make-string (1+ current-level) ?*) " " subheader-name "\n")))))))))
+
+
+(defun my/org-insert-subheader-if-needed (&optional subheader-name min-lines)
+  "Insert subheader after headers with more than MIN-LINES and a sub-header.
+SUBHEADER-NAME is the name of the subheader to insert (default 'base').
+MIN-LINES is the minimum number of lines required (default 3)."
+  (interactive)
+  (unless (derived-mode-p 'org-mode)
+    (user-error "Not in an Org mode buffer"))
+  (let ((subheader-name (or subheader-name "base"))
+        (min-lines (or min-lines 7)))
+    (org-with-wide-buffer
+     (while (not (eobp))
+       (let ((regexp (concat "^" (org-get-limited-outline-regexp))))
+         (when (re-search-forward regexp nil :move)
+           ;; (print "wasd")
+           (let* ((level (org-outline-level))
+                  (content-end (save-excursion
+                                 (outline-next-heading)
+                                 (point)))
+                  (content-lines (- (line-number-at-pos content-end)
+                                    (line-number-at-pos (point))
+                                    1))
+                  (has-subheader (save-excursion
+                                   (end-of-line)
+                                   (let ((regexp (concat "^" (org-get-limited-outline-regexp))))
+                                     (when (re-search-forward regexp nil :move)
+                                       (> (org-outline-level) level))))))
+             (when (and (> content-lines min-lines) has-subheader)
+             ;; (print (concat (make-string (1+ level) ?*) " " subheader-name "\n"))
+             ;; (print subheader-name)
+             ;; (forward-line 1)
+               (end-of-line)
+               (insert (concat "\n" (make-string (1+ level) ?*) " " subheader-name))
+               )
+           )
+          ))))))
+
+(defun my/org-insert-header-before-tab-links (&optional subheader-name)
+  "Insert Org header before sequences of more than three tab links in the current buffer."
+  (interactive)
+  (let ((tab-links-regex "^\\[\\[[^]]+\\]\\[[^]]+\\]\\]$")
+        (subheader-name (or subheader-name "base-links"))
+        )
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward tab-links-regex nil t)
+        (let ((sequence-start (match-beginning 0))
+              (link-count 1)
+              sequence-end)
+          ;; at the end of link
+          (save-excursion
+            (forward-line 2)
+            (while (looking-at tab-links-regex)
+              (setq link-count (1+ link-count))
+              (forward-line 2))
+            (setq sequence-end (point))
+            (when (> link-count 3)
+              (goto-char sequence-start)
+              (let ((header-level (org-outline-level)))
+                (insert (concat (make-string header-level ?*) " " subheader-name "\n"))
+                ;; (setq sequence-end (point))
+                )))
+          ;; at the beging of the line
+          (goto-char sequence-end))
+        (forward-line 1)))))
+
+
+#+end_src
 ** org-present - in development
 #+begin_src elisp
 
@@ -7850,6 +8674,123 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 ;;   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 ;;   (setq projectile-project-search-path '(  ("~/sources/" . 1)))
 ;; )
+#+end_src
+* fix for org-export-data that allow to see where export stops (not active)
+#+begin_src elisp
+
+
+;; (defun org-export-data (data info)
+;;   "Convert DATA into current back-end format.
+
+;; DATA is a parse tree, an element or an object or a secondary
+;; string.  INFO is a plist holding export options.
+
+;; Return a string."
+;;   (or (gethash data (plist-get info :exported-data))
+;;       ;; Handle broken links according to
+;;       ;; `org-export-with-broken-links'.
+;;       (cl-macrolet
+;; 	  ((broken-link-handler
+;; 	    (&rest body)
+;; 	    `(condition-case err
+;; 		 (progn ,@body)
+;; 	       (org-link-broken
+;; 		(pcase (plist-get info :with-broken-links)
+;; 		  (`nil (user-error "Unable to resolve link: %S" (nth 1 err)))
+;; 		  (`mark (org-export-data
+;; 			  (format "[BROKEN LINK: %s]" (nth 1 err)) info))
+;; 		  (_ nil))))))
+;; 	(let* ((type (org-element-type data))
+;; 	       (parent (org-export-get-parent data))
+;; 	       (results
+;; 		(cond
+;; 		 ;; Ignored element/object.
+;; 		 ((memq data (plist-get info :ignore-list)) nil)
+;;                  ;; Raw code.
+;;                  ((eq type 'raw) (car (org-element-contents data)))
+;; 		 ;; Plain text.
+;; 		 ((eq type 'plain-text)
+;; 		  (org-export-filter-apply-functions
+;; 		   (plist-get info :filter-plain-text)
+;; 		   (let ((transcoder (org-export-transcoder data info)))
+;; 		     (if transcoder (funcall transcoder data info) data))
+;; 		   info))
+;; 		 ;; Secondary string.
+;; 		 ((not type)
+;; 		  (mapconcat (lambda (obj) (org-export-data obj info)) data ""))
+;; 		 ;; Element/Object without contents or, as a special
+;; 		 ;; case, headline with archive tag and archived trees
+;; 		 ;; restricted to title only.
+;; 		 ((or (not (org-element-contents data))
+;; 		      (and (eq type 'headline)
+;; 			   (eq (plist-get info :with-archived-trees) 'headline)
+;; 			   (org-element-property :archivedp data)))
+;; 		  (let ((transcoder (org-export-transcoder data info)))
+;; 		    (or (and (functionp transcoder)
+;;                              (if (eq type 'link)
+;; 			         (broken-link-handler
+;; 			          (funcall transcoder data nil info))
+;;                                (funcall transcoder data nil info)))
+;; 			;; Export snippets never return a nil value so
+;; 			;; that white spaces following them are never
+;; 			;; ignored.
+;; 			(and (eq type 'export-snippet) ""))))
+;; 		 ;; Element/Object with contents.
+;; 		 (t
+;; 		  (let ((transcoder (org-export-transcoder data info)))
+;; 		    (when transcoder
+;; 		      (let* ((greaterp (memq type org-element-greater-elements))
+;; 			     (objectp
+;; 			      (and (not greaterp)
+;; 				   (memq type org-element-recursive-objects)))
+;; 			     (contents
+;; 			      (mapconcat
+;; 			       (lambda (element) (org-export-data element info))
+;; 			       (org-element-contents
+;; 				(if (or greaterp objectp) data
+;; 				  ;; Elements directly containing
+;; 				  ;; objects must have their indentation
+;; 				  ;; normalized first.
+;; 				  (org-element-normalize-contents
+;; 				   data
+;; 				   ;; When normalizing first paragraph
+;; 				   ;; of an item or
+;; 				   ;; a footnote-definition, ignore
+;; 				   ;; first line's indentation.
+;; 				   (and
+;; 				    (eq type 'paragraph)
+;; 				    (memq (org-element-type parent)
+;; 					  '(footnote-definition item))
+;; 				    (eq (car (org-element-contents parent))
+;; 					data)
+;; 				    (eq (org-element-property :pre-blank parent)
+;; 					0)))))
+;; 			       "")))
+;; 			(broken-link-handler
+;; 			 (funcall transcoder data
+;; 				  (if (not greaterp) contents
+;; 				    (org-element-normalize-string contents))
+;; 				  info)))))))))
+;; 	  ;; Final result will be memoized before being returned.
+;; 	  (puthash
+;; 	   data
+;; 	   (cond
+;; 	    ((not results) "")
+;; 	    ((memq type '(nil org-data plain-text raw)) results)
+;; 	    ;; Append the same white space between elements or objects
+;; 	    ;; as in the original buffer, and call appropriate filters.
+;; 	    (t
+;; 	     (org-export-filter-apply-functions
+;; 	      (plist-get info (intern (format ":filter-%s" type)))
+;; 	      (let ((blank (or (org-element-property :post-blank data) 0)))
+;; 		(if (eq (org-element-class data parent) 'object)
+;; 		    (concat results (make-string blank ?\s))
+;; 		  (concat (org-element-normalize-string results)
+;; 			  (make-string blank ?\n))))
+;; 	      info)))
+;; 	   (plist-get info :exported-data))))))
+
+
 #+end_src
 * buffer-list (old)
 #+begin_src elisp
@@ -7974,10 +8915,29 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 * jupyter export test
 #+begin_src elisp
 
-(require 'ox-ipynb) ; todo
+;; (require 'ox-ipynb) ; todo
 #+end_src
-* test
+* other
 #+begin_src elisp
+
+;; (setq filter-buffer-substring-function #'buffer-substring--filter)
+
+;; (defun buffer-substring--filter (beg end &optional delete)
+;;   "Default function to use for `filter-buffer-substring-function'.
+;; Its arguments and return value are as specified for `filter-buffer-substring'.
+;; Also respects the obsolete wrapper hook `filter-buffer-substring-functions'
+;; (see `with-wrapper-hook' for details about wrapper hooks).
+;; No filtering is done unless a hook says to."
+;;   (subr--with-wrapper-hook-no-warnings
+;;     filter-buffer-substring-functions (beg end delete)
+;;     (cond
+;;      (delete
+;;       (save-excursion
+;;         (goto-char beg)
+;;         (delete-and-extract-region beg end)))
+;;      (t
+;;       (buffer-substring beg end)))))
+
 
 
 ;; (require 'package-lint.el)
@@ -8073,9 +9033,10 @@ timeout -k 1 2 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 ;; V for opening this file without this config
 ;; Local variables:
 ;; eval: (progn (setq outline-regexp ";; \\-\\- ")
+;;              (setq-local indent-line-function #'outline-show-subtree)
 ;;              (outline-minor-mode 1)
 ;;              (outline-hide-body))
-;; eval: (setq-local indent-line-function #'outline-show-subtree)
 ;; outline-regexp: ";; \\-\\- "
 ;; coding: utf-8
 ;; end:
+(put 'downcase-region 'disabled nil)

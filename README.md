@@ -31,7 +31,7 @@ This is between console and JIKL:
 
 ## Delete backward (C-u in console)
 - C-h 'delete-backward-char
-- M-h 'backward-kill-word
+- C-w 'backward-kill-word
 - C-p 'kill-line (forward)
 - M-p 'my/kill-line-backward
 
@@ -52,8 +52,10 @@ This is between console and JIKL:
 - C-x m	'compose-mail
 - C-c w	'my/copy-link-to-clipboard, 'my/dired-copy-filename-as-kill
 - C-+/-	'text-scale-increase/decrease
-- M-C and C-x x c 'my/capitalize-sentence
 - M-c		'yank
+- M-C and C-x x c 'my/capitalize-sentence
+- C-x C-t	'downcase-region
+- M-l		'my/downcase-word
 
 I changed behavior of C-a/e and M-a/e in Org mode.
 - C-a - move to the begining of the current element at the line. (For example: to the begining of the URL.)
