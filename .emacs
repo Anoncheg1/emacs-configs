@@ -70,7 +70,7 @@
  '(org-src-preserve-indentation t)
  '(org-startup-folded t)
  '(package-selected-packages
-   '(python-insert-docstring htmlize editorconfig selected-window-accent-mode circadian dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search idle-highlight-mode csv-mode free-keys flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
+   '(jinja2-mode python-insert-docstring htmlize editorconfig circadian dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search idle-highlight-mode csv-mode free-keys flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
  '(safe-local-variable-values '((org-image-actual-width . 500)))
  '(size-indication-mode t)
  '(speedbar-show-unknown-files t))
@@ -643,6 +643,16 @@ And indent rigidly others."
                                      (call-interactively 'highlight-changes-mode)
                                      )
                                )))
+;; -- -- Delete white spaces at after undo if not changes
+(defun my/after-undo (&optional arg)
+  (if (and highlight-changes-mode (not (buffer-modified-p)))
+      (progn
+        (call-interactively 'highlight-changes-mode)
+        (call-interactively 'highlight-changes-mode)
+        )))
+
+(advice-add 'undo :after #'my/after-undo)
+
 ;; -- -- emacsclient file1 file2: open each file in separate window
 ;; (defvar server-visit-files-custom-find:buffer-count)
 ;; (defadvice server-visit-files
@@ -1867,7 +1877,7 @@ test and will kill actually."
 (defun vertico-insert (&optional exit-flag)
   "Insert current candidate in minibuffer."
   (interactive)
-  (when (> vertico--total 0)
+  (if (> vertico--total 0)
     (let ((vertico--index (max 0 vertico--index)))
       (if exit-flag ; - RET
           (insert (prog1
@@ -1891,19 +1901,26 @@ test and will kill actually."
 ;; Enter /u......... -> /u/usr/........
 ;; C-m   /u......... -> /u/usr/........
 
-;; -- -- -- vertico-directory RET for directory and delete-backward M-h
-(require 'vertico-directory)
-;; - Enter select and enter
-(keymap-set vertico-map "RET" #'vertico-directory-enter)
-;; - up directory
-(defun my/delete-backward ()
+;; -- -- -- delete-backward M-h
+(defun my/vertico-delete-backward ()
   (interactive)
   (if (eq 'file (vertico--metadata-get 'category))
       (vertico-directory-up)
   ;; else
   (call-interactively #'backward-kill-word)))
 
-(keymap-set vertico-map "M-h" 'my/delete-backward)
+;; -- -- -- my vertico simple input
+(defun my/vertico-simple-input ()
+  (interactive)
+  (minibuffer-beginning-of-buffer)
+  (exit-minibuffer))
+;; -- -- -- vertico keymap
+(require 'vertico-directory)
+;; - Enter select and enter
+(keymap-set vertico-map "RET" #'vertico-directory-enter)
+(keymap-set vertico-map "M-m" #'my/vertico-simple-input)
+(keymap-set vertico-map "C-j" #'my/vertico-simple-input)
+(keymap-set vertico-map "M-h" #'vertico-delete-backward)
 
 ;; -- -- zone screensaver FOR FUN
 ;; -- -- -- activation
@@ -3267,9 +3284,12 @@ with functions."
 (defun my/load-theme (themes)
   "Load THEMES properly by disabling the previous themes first."
   (mapc #'disable-theme custom-enabled-themes)
+  ;; (mapc (lambda (x)(load-theme x t))
+  ;;       (reverse '(wombat manoj-dark)))
   (mapc (lambda (x)(load-theme x t))
         (reverse themes))
-  (setq custom-enabled-themes themes))
+  ;; (setq custom-enabled-themes themes)
+  )
 
 (defun my/dark-common()
   (custom-set-faces
@@ -3278,6 +3298,7 @@ with functions."
    '(whitespace-tab ((t (:foreground "PaleVioletRed4"))))
    '(whitespace-trailing ((t (:extend t :background "dark red"))))
    )
+  (set-face-attribute 'mode-line-active nil :background "black" :foreground "gray")
   )
 
 (defun my/set-theme-dark ()
@@ -3304,6 +3325,7 @@ with functions."
    ;; '(highlight-changes-delete ((t (:foreground "red"))))
    ;; '(whitespace-tab ((t (:foreground "hot pink"))))
    '(whitespace-trailing ((t (:extend t :background "pink")))))
+  (set-face-attribute 'mode-line-active nil :background "white" :foreground "maroon")
   )
 
 ;; - enable themes - darker
@@ -3385,7 +3407,7 @@ with functions."
     (when (not (eq custom-enabled-themes theme))
       (if (not (equal nil circadian-next-timer)) ; just in case
           (cancel-timer circadian-next-timer))
-      (setq custom-enabled-themes theme)
+      ;; (setq custom-enabled-themes theme)
       (setq circadian-next-timer nil)
       (circadian-schedule) ;; set circadian-next-timer
     ))
@@ -3412,9 +3434,11 @@ with functions."
 (setopt selected-window-contrast-not-sel-magnitude-background 1.05)
 
 (add-hook 'buffer-list-update-hook #'selected-window-contrast-highlight-selected-window-timeout1)
+(add-hook 'server-after-make-frame-hook #'selected-window-contrast-highlight-selected-window-timeout2)
+
 ;; (remove-hook 'buffer-list-update-hook #'selected-window-contrast-highlight-selected-window-timeout1)
 ;; - additional timeout for case of call: $ emacsclient -c ~/file
-(add-hook 'server-after-make-frame-hook #'selected-window-contrast-highlight-selected-window-timeout2)
+
 ;; (remove-hook 'server-after-make-frame-hook #'selected-window-contrast-highlight-selected-window-timeout2)
 
 ;; (defun testa()

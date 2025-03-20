@@ -67,6 +67,7 @@ Buffers:
 - C-M-a/e - tab-line move right, move left
 - C-c M-c - *Messages* buffer
 - C-c C-z - previous buffer, with respect to tab-line
+- C-c C-a - previous previous buffer
 - C-x ! - 'my/kill-other-buffers-and-frame-duplicates - kill not modified buffers and duplicate frames, kill not marked buffers in menu
 
 Windows:
@@ -143,6 +144,7 @@ TODO:
 - in org-mode *asd* make * less visible
 - create package to monitor proxy status, analyse everything about proxy in Emacs.
 - in expand-region use tree-sitter
+- C-j not working in firstly-search
 
 # bashrc
 
