@@ -1,4 +1,4 @@
-* Keys: How to use C-h as backspace as it works in console?
+* Keys: How to use C-h as backspace as it works in console?ired
 : (define-key (current-global-map) (kbd "C-h") 'delete-backward-char)
 backspace at search
 : (define-key isearch-mode-map "\C-h" #'isearch-delete-char) ; delete character during search C-s
@@ -428,6 +428,60 @@ To activate:
 There is fzf command line utility and integration with Emacs https://github.com/bling/fzf.el
 
 and there is implementation in pure Emacs: https://www.masteringemacs.org/article/fuzzy-finding-emacs-instead-of-fzf
+* How to open file with emacs daemon from bash?
+to use:
+: $ e /path/to/file
+
+Add to ~/.bash_aliases or ~/.bashrc:
+#+begin_src elisp :results output :exports both
+e() {
+    # ;; start a server if is not running
+    if [ -z "$ed" ] ; then
+        emacs --daemon
+    fi
+    # ;; (find-file used with --create-frame because without it
+    # ;; if you close buffer with that file frame will be closed too.
+    if [[ -z "$@" ]] ; then # no file was given
+        emacsclient --create-frame --eval "(find-file \"~/tmp/emacs-file$(date -I).org\")" &
+    elif [[ -d "$@" ]] ; then # if file exist and is a directory
+        emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$@"\"))"
+    elif [[ -n "$DISPLAY" ]] ; then # if under X
+    # # elif [ -e "$@" ] ; then # if file exist
+        if [[ -z "$(ps aux | grep emacsclient | grep create-frame)" ]] ; then
+            emacsclient --alternate-editor=emacs --create-frame --eval "(find-file \"$@\")" > /dev/null &
+        else # if frame already exist
+            emacsclient --alternate-editor=emacs --eval "(my/find-file-frame \"$@\")" &
+        fi
+    else # under console
+        emacsclient -c -a emacs "$@"
+    fi
+}
+#+end_src
+
+* How to evaluate code block remotely?
+For Org Babel in #+BEGIN_SRC there is a header argument :dir
+: :dir /scp:dand@yakuba.princeton.edu:
+https://orgmode.org/manual/Environment-of-a-Code-Block.html
+* Automatic curly quotation marks “” (instead of "") and ‘’ (instead of '')
+#+begin_src elisp :results none :exports code :eval no
+(setopt electric-quote-context-sensitive t)
+(setopt electric-quote-replace-double t)
+(add-hook 'org-mode-hook 'electric-quote-local-mode)
+#+end_src
+
+Sadly, conflict with #+begin_src #+end_src blocks with Python.
+use https://codeberg.org/Anoncheg/org-src-detect
+
+* How to open file “wser/newtab/asrouter.ftl:86” with line number?
+#+begin_src bash :eval no :exports code :results none
+call_emacs() {
+    # echo "Usage: $FUNCNAME <filepath>:<linenumber>" >&2; return 1;
+    if [[ "$1" =~ ^(.+):([0-9]+):?$ ]]; then
+        emacsclient -c -a emacs "$1"
+    fi
+    emacsclient -c -a emacs +"${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}"
+}
+#+end_src
 * paragraph.el: How to prevent fill-paragraph in Org mode to indent source block according to language
 How to force fill-paragraph to use just local fill-column and don't use babel?
 
@@ -606,36 +660,6 @@ We add advice after buffer of zoom creation and before call of
     (text-scale-increase v))
   (apply func-call program timeout))
 (advice-add 'zone-call :around #'my/zone-call-scalefix)
-#+end_src
-
-* How to open file with emacs daemon from bash?
-to use:
-: $ e /path/to/file
-
-Add to ~/.bash_aliases or ~/.bashrc:
-#+begin_src elisp :results output :exports both
-e() {
-    # ;; start a server if is not running
-    if [ -z "$ed" ] ; then
-        emacs --daemon
-    fi
-    # ;; (find-file used with --create-frame because without it
-    # ;; if you close buffer with that file frame will be closed too.
-    if [[ -z "$@" ]] ; then # no file was given
-        emacsclient --create-frame --eval "(find-file \"~/tmp/emacs-file$(date -I).org\")" &
-    elif [[ -d "$@" ]] ; then # if file exist and is a directory
-        emacsclient -c -a emacs --eval "(pop-to-buffer-same-window (dired-noselect \""$@"\"))"
-    elif [[ -n "$DISPLAY" ]] ; then # if under X
-    # # elif [ -e "$@" ] ; then # if file exist
-        if [[ -z "$(ps aux | grep emacsclient | grep create-frame)" ]] ; then
-            emacsclient --alternate-editor=emacs --create-frame --eval "(find-file \"$@\")" > /dev/null &
-        else # if frame already exist
-            emacsclient --alternate-editor=emacs --eval "(my/find-file-frame \"$@\")" &
-        fi
-    else # under console
-        emacsclient -c -a emacs "$@"
-    fi
-}
 #+end_src
 
 * Org: How to go to the first item in Org-mode list and fix org-backward-paragraph?
@@ -1351,7 +1375,24 @@ Loop over `dired-listing-switches' +
 #+end_src
 
 * Dired: How to filter files by extention?
+To mark all mp4 files:
 
+Apprach 1)
+: M-x find-name-dired
+
+Apprach 2)
+M-x find-dired-with-command
+** Apprach 3) with kill “hiding”
+1) Mark mp4 (dired-mark-files-regexp)
+: % m
+: \.mp4
+2) Invert (dired-toggle-marks)
+: t
+3) Kill “hide” files (dired-do-kill-lines)
+: k
+
+** sort after filtering?
+Only Apprach 3) allow sorting.
 * Dired: How to compare directoris?
 There is two commands:
 - ediff-directories
@@ -2103,19 +2144,6 @@ With universal argument Capitalize first letter at current line."
         (capitalize-word 1))))
 (global-set-key "\M-c" #'my/capitalize-word)
 #+end_src
-* How to evaluate code block remotely?
-For Org Babel in #+BEGIN_SRC there is a header argument :dir
-: :dir /scp:dand@yakuba.princeton.edu:
-https://orgmode.org/manual/Environment-of-a-Code-Block.html
-* Automatic curly quotation marks “” (instead of "") and ‘’ (instead of '')
-#+begin_src elisp :results none :exports code :eval no
-(setopt electric-quote-context-sensitive t)
-(setopt electric-quote-replace-double t)
-(add-hook 'org-mode-hook 'electric-quote-local-mode)
-#+end_src
-
-Sadly, conflict with #+begin_src #+end_src blocks with Python.
-use https://codeberg.org/Anoncheg/org-src-detect
 * How to inhibit paired quotation for words like don't 1990's?
 You can add your function to electric-quote-inhibit-functions, that
  should detect such exceptions.
