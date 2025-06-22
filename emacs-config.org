@@ -54,9 +54,7 @@
  '(auto-compression-mode nil)
  '(auto-encryption-mode nil)
  '(c-default-style
-   '((c-mode . "stroustrup")
-     (java-mode . "java")
-     (awk-mode . "awk")
+   '((c-mode . "stroustrup") (java-mode . "java") (awk-mode . "awk")
      (other . "gnu")))
  '(custom-enabled-themes '(wombat manoj-dark))
  '(delete-selection-mode t)
@@ -67,14 +65,11 @@
  '(mml-secure-key-preferences
    '((OpenPGP
       (sign
-       ("user@mail.com" "7850B0B5E3F536601D2E6A9DE1C43E074A047699"))
+       ("user@mail.com" ""))
       (encrypt))
-     (CMS
-      (sign)
-      (encrypt))))
+     (CMS (sign) (encrypt))))
  '(mouse-wheel-mode nil)
- '(org-agenda-files
-   '("~/docsmy_short/modified/python" "/home/user/.emacs.d/todo.org"))
+ '(org-agenda-files '("/home/g/.emacs.d/todo.org"))
  '(org-hide-leading-stars t)
  '(org-image-actual-width '(300))
  '(org-link-descriptive nil)
@@ -82,7 +77,18 @@
  '(org-src-preserve-indentation t)
  '(org-startup-folded t)
  '(package-selected-packages
-   '(jinja2-mode python-insert-docstring htmlize editorconfig circadian dockerfile-mode ox-html5slide org-inline-anim epresent org-present rainbow-identifiers dired-duplicates marginalia vertico multiple-cursors tab-bar-buffers diredc elpher command-log-mode pinyin-search idle-highlight-mode csv-mode free-keys flycheck-aspell lua-mode julia-mode json-mode hidepw multitran company-math flycheck flymake-python-pyflakes company-jedi ob-http company-restclient vlf markdown-mode ggtags projectile flymake-yamllint smtpmail-multi))
+   '(circadian command-log-mode company company-jedi company-math
+               company-restclient csv-mode dired-duplicates diredc
+               dockerfile-mode editorconfig elpher epresent flycheck
+               flycheck-aspell flymake-python-pyflakes
+               flymake-yamllint free-keys ggtags hidepw htmlize
+               idle-highlight-mode jinja2-mode json-mode julia-mode
+               lua-mode marginalia markdown-mode multiple-cursors
+               multitran ob-http org-inline-anim org-present
+               ox-html5slide pinyin-isearch pinyin-search projectile
+               python-insert-docstring rainbow-identifiers
+               russian-calendar selected-window-contrast
+               smtpmail-multi tab-bar-buffers vertico vlf))
  '(safe-local-variable-values '((org-image-actual-width . 500)))
  '(size-indication-mode t)
  '(speedbar-show-unknown-files t))
@@ -130,19 +136,75 @@
 (package-initialize) ; use `package-load-list' variable, dafault: (all)
                      ; and `package-activated-list' variable
 #+end_src
-* Proxy configuration - for what types of connections? HTTP/HTTPS?
+* Network
 #+begin_src elisp
 
-(require 'socks)
-(setq url-gateway-method 'socks)
-(setq socks-password "")
-(setq socks-server '("Default server" "127.0.0.1" 1082 5)) ;; M-x customize socks
-;; (url-proxy-services
-;; test proxy:
+#+end_src
+** url-http configuration
+#+begin_src elisp
+
+(require 'url)
+(setopt url-privacy-level '(email os lastloc))
+;; (setopt url-privacy-level '(email os lastloc))
+
+;; (setq url-debug '(all))
+;; (setq url-debug t)
+;; (setq url-debug '(http))
+(setq url-debug nil)
+#+end_src
+** Proxy configuration - for what types of connections? HTTP/HTTPS?
+#+begin_src elisp
+
+
+#+end_src
+*** url-gateway-method - works for HTTP only
+#+begin_src elisp
+
+;; (require 'socks)
+;; (setq url-gateway-method 'socks) ; http only
+;; (setq socks-password "")
+;; (setq socks-server '("Default server" "127.0.0.1" 1082 5)) ;; M-x customize socks
+#+end_src
+*** url-proxy-services per protocol
+#+begin_src elisp
+
+;; (setopt url-proxy-services
+;;       '(("http"  . "socks://localhost:1082")   ;; Direct HTTP traffic through SOCKS
+;;         ("https" . "socks://localhost:1082")  ;; Direct HTTPS traffic through SOCKS
+;;         ("ftp"   . "socks://localhost:1082")   ;; Direct FTP traffic through SOCKS
+;;         ("socks"   . "localhost:1082")   ;; Direct FTP traffic through SOCKS
+;;         ;; Add more schemes if needed
+;;         ;; If your SOCKS proxy requires authentication, it's typically handled
+;;         ;; by `socks-server-user` and `socks-server-password` in conjunction,
+;;         ;; or the proxy itself handles it transparently.
+;;         ;; Note: `url-proxy-services` doesn't directly support user/pass in the URL for SOCKS.
+;;         ))
+;; (setq url-proxy-locator
+;;       (lambda (url host)
+;;         "SOCKS localhost:1082"))
+;; (set-re url-proxy-locator)
+(setq url-proxy-locator 'url-default-find-proxy-for-url)
+#+end_src
+*** test proxy:
+#+begin_src elisp
+
 (require 'url)
 (require 'url-vars)
 (require 'browse-url)
-(defun my/testproxy ()
+(defun my/testproxy-https ()
+  "HTTP connect to DNS ipinfo.io"
+  (let (
+        ;; (url-mime-accept-string "application/xml")
+        (url-request-extra-headers
+         '(("User-Agent" . "curl/8.7.1")
+           ("Accept" . "*/*")))
+        (url "https://ipinfo.io/ip")
+        )
+  (display-buffer (url-retrieve-synchronously "https://ipinfo.io/ip"))
+  ))
+
+(defun my/testproxy-http ()
+  "HTTP connect to DNS ipinfo.io"
   (let (
         ;; (url-mime-accept-string "application/xml")
         (url-request-extra-headers
@@ -175,10 +237,139 @@
 ;; (add-to-list 'Info-directory-list "/usr/local/src/elisp")
 
 #+end_src
-* Paths and file extensions, loading process
+*** socks proxy for TLS (not used)
 #+begin_src elisp
 
-;; - Package Management
+;; - just copy of file:/usr/share/emacs/30.1/lisp/net/gnutls.el::154
+#+end_src
+** blocking and monitoring
+#+begin_src elisp
+
+#+end_src
+*** monitorning connections
+#+begin_src elisp
+
+(defun my-make-network-process-advice (orig-fun &rest args)
+  (message "make-network-process called with args: %S" args)
+  (apply orig-fun args))
+
+(advice-add 'make-network-process :around #'my-make-network-process-advice)
+#+end_src
+*** test socks-open-network-stream
+#+begin_src elisp
+
+;; (defun my/socks-open-network-stream-deb (&rest args)
+;;   (print "in my/socks-open-network-stream-deb")
+;;   (print args)
+;; )
+;; (advice-add 'socks-open-network-stream :before #'my/socks-open-network-stream-deb)
+
+
+#+end_src
+*** blocking all connections
+#+begin_src elisp
+
+;; (defun dummy-process-create (name buffer-name)
+;;   "Create a minimal dummy process with NAME in BUFFER-NAME, ensuring no internet access."
+;;   (let ((proc-buffer (get-buffer-create buffer-name))
+;;         (proc (make-process :name name
+;;                            :buffer buffer-name
+;;                            :command '("true") ; No-op command, no network
+;;                            :noquery t)))
+;;     (with-current-buffer proc-buffer
+;;       (erase-buffer)
+;;       (insert "Dummy process created\n"))
+;;     (process-put proc 'dummy-state 'created)
+;;     proc))
+(require 'socks)
+
+(defvar my-network-whitelist-http '("localhost" "127.0.0.1" "ipinfo.io")) ; "smtpmail"?
+(defvar my-network-whitelist-https '("localhost" "127.0.0.1" "ipinfo.io" "api.together.xyz"))
+
+(defun my/make-network-process-advice (orig-fun &rest args)
+  "Pass smtpmail to socks and block everything other."
+  (let ((name (plist-get args :name)) ; "socks" for socks-open-network-stream
+        (buffer (plist-get args :buffer))
+        (host (plist-get args :host))
+        (service (plist-get args :service))
+        proc
+        )
+    (print (list "TEST" args))
+    (print (and (equal service url-https-default-port)
+                    (member host my-network-whitelist-https)))
+    (cond ((not host) ; wayland connection - condition
+           (print "1) my/make-network")
+           (apply orig-fun args)) ; - body
+
+          ((or (member host my-network-whitelist-http) ; http
+               (and (equal service url-https-default-port)
+                    (member host my-network-whitelist-https))) ; 443 or HTTPS
+           (print "2) my/make-network")
+           (apply orig-fun args))
+
+          ;;      ;; (string-equal name "api.openai.com")
+
+          ;; ((string-equal name "smtpmail") ; email
+
+          ;;  ;; -! replace "open-network-stream" with "socks-open-network-stream" function
+          ;;  (print (list "smtpmail or HTTPS args:" args))
+          ;;  (print (list "apply socks-open-network-stream " name buffer host service))
+          ;;  (let ((coding-system-for-read 'binary)
+          ;;        (coding-system-for-write 'binary))
+          ;;        (socks-open-network-stream name buffer host service))) ; socks-open-network-stream("ipinfo.io" #<buffer  *url-http-temp*> "ipinfo.io" 80)
+
+          ;; ((string-equal name "socks")
+          ;;      ;; (string-equal name "smtpmail")
+          ;;      ;; ) ; - condition
+          ;;  (progn
+          ;;    (print (list "apply make-network-process" args))
+          ;;    ;; (setq proc
+          ;;    ;; (debug)
+          ;;    (apply orig-fun args)
+          ;;    ))
+
+          (t 				; - final condition
+           (print "3) my/make-network")
+           (message "Network calls are blocked. Arguments: %S" args)
+           ;; Return a dummy process object
+           ;; (make-symbol "dummy-process")
+           ;; (debug)
+           ;; (dummy-process-create "test-proc" "*Dummy Process*")
+           )
+          ;; ;; - else
+          ;; (apply orig-fun args)
+          )
+
+  ;; Optionally, raise an error to prevent the call
+  ;; (error "Network calls are blocked.")
+  ;; proc
+  )) ;;
+
+
+
+(advice-add 'make-network-process :around #'my/make-network-process-advice)
+#+end_src
+*** whitelist hosts (old)
+#+begin_src elisp
+
+;; (defvar my-network-whitelist '("localhost" "127.0.0.1"))
+
+;; (defun my-advice-make-network-process (orig-fun &rest args)
+;;   "Advice function to block network connections to non-whitelisted hosts."
+;;   (let ((host (plist-get args :host)))
+;;     (if (member host my-network-whitelist)
+;;         (apply orig-fun args)
+;;       (error "Connection to %s is not allowed" host))))
+
+;; (advice-add 'make-network-process :around #'my-advice-make-network-process)
+#+end_src
+* Loading paths and file extensions
+#+begin_src elisp
+
+#+end_src
+** load-path for packages
+#+begin_src elisp
+
 (setopt load-prefer-newer t)
 
 
@@ -195,9 +386,18 @@
 ;; (setq load-path (my/remove-from-load-path "telega"))
 
 
-;; must not have subfolders
+;; - must not have subfolders
 (add-to-list 'load-path "~/.emacs.d/mylisp")
-(add-to-list 'load-path "~/.emacs.d/mylisp/ediffnw")
+
+;; - Remove Telega from load-path
+(setq load-path (seq-filter (lambda (path)
+                              (not (string-match-p "telega" path)))
+                              load-path))
+#+end_src
+** File extensions and modes
+#+begin_src elisp
+
+;; (add-to-list 'load-path "~/.emacs.d/mylisp/ediffnw")
 ;; ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/emacs-jedi")
 ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/lsp-bridge")
 ;; conf-mode for /etc
@@ -811,9 +1011,12 @@ And indent rigidly others."
   (let ((link))
   (if (derived-mode-p 'org-mode)
       (setq link (substring-no-properties (org-store-link nil)))
-    ;; else - not Org file
-    (setq link
-        (concat "file:" (buffer-file-name) "::" (number-to-string (line-number-at-pos)))))
+    ;; else - not in Org file
+    (if (derived-mode-p 'image-dired-image-mode)
+        (setq link (buffer-file-name))
+        ;; else - not in Org file and not in Dired-Image mode.
+        (setq link
+              (concat "file:" (buffer-file-name) "::" (number-to-string (line-number-at-pos))))))
   (kill-new link)
   (message (concat link "\t- copied to clipboard"))))
 
@@ -1618,7 +1821,7 @@ to activate."
     (my/split-window-horizontally) )
   (other-window 1) )
 
-(global-set-key "\C-o"    #'my/other-window-or-split)
+(global-set-key "\M-o"    #'my/other-window-or-split)
 ;; (global-set-key "\M-k"    #'delete-other-windows)
 
 #+end_src
@@ -1819,6 +2022,9 @@ and preserve a point position."
   (keyboard-quit))
 
 (global-set-key "\C-g" #'my/keyboard-quit-with-minubuffer)
+(add-hook 'shell-command-mode-hook (lambda ()
+                                     (keymap-set shell-command-mode-map "C-g" (lambda () (interactive) (call-interactively 'comint-interrupt-subjob) (my/keyboard-quit-with-minubuffer) ))
+                                     ))
 (define-key isearch-mode-map "\C-g" #'my/keyboard-quit-with-minubuffer)
 
 
@@ -2000,6 +2206,8 @@ test and will kill actually."
 
 (defun my/open-temp-file ()
   (interactive)
+  ;; (find-file (format "~/tmp/emacs-file%s.org" (format-time-string "%Y-%m-%d" (current-time))))
+
   (let ((da (string-trim-right (shell-command-to-string "date -I"))))
     (find-file (concat "~/tmp/emacs-file" da ".org"))))
 (global-set-key (kbd "C-c e") #'my/open-temp-file) ; org-export-dispatch
@@ -2013,15 +2221,16 @@ test and will kill actually."
 ** multiple-cursor
 #+begin_src elisp
 
-(require 'multiple-cursors)
-(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(require 'multiple-cursors nil t)
+(with-eval-after-load 'multiple-cursors
+  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
 
-(global-set-key (kbd "C->") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-;; (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-(global-set-key (kbd "C-c j") 'mc/mark-all-like-this-dwim)
-;; (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
-
+  (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+  ;; (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+  (global-set-key (kbd "C-c j") 'mc/mark-all-like-this-dwim)
+  ;; (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+)
 
 #+end_src
 ** dumb-jump - navigation for not loaded Elisp and without TAGs
@@ -2129,17 +2338,21 @@ test and will kill actually."
 *** load and configure vertico and marginalia
 #+begin_src elisp
 
-(require 'vertico)
-(vertico-mode t)
-(setopt vertico-count 5)
-(setopt vertico-scroll-margin 0)
-(setopt vertico-resize nil)
-(setopt vertico-cycle t)
-;; (keymap-set vertico-map "<remap> <exit-minibuffer>" 'my-other-kill-line)
-;; (define-key vertico-map (kbd "vertico-insert") #'vertico-next)
+(require 'vertico nil t)
+(with-eval-after-load 'vertico
+  (vertico-mode t)
+  (setopt vertico-count 5)
+  (setopt vertico-scroll-margin 0)
+  (setopt vertico-resize nil)
+  (setopt vertico-cycle t)
+  ;; (keymap-set vertico-map "<remap> <exit-minibuffer>" 'my-other-kill-line)
+  ;; (define-key vertico-map (kbd "vertico-insert") #'vertico-next)
+)
 
-(require 'marginalia)
-(marginalia-mode 1)
+(require 'marginalia nil t)
+(with-eval-after-load 'marginalia
+   (marginalia-mode 1)
+)
 
 #+end_src
 *** vertico fix Dired path selection (vertico-insert)
@@ -2203,13 +2416,14 @@ test and will kill actually."
 *** vertico keymap
 #+begin_src elisp
 
-(require 'vertico-directory)
-;; - Enter select and enter
-(keymap-set vertico-map "RET" #'vertico-directory-enter)
-(keymap-set vertico-map "M-m" #'my/vertico-simple-input)
-(keymap-set vertico-map "C-j" #'my/vertico-simple-input)
-(keymap-set vertico-map "M-h" #'vertico-delete-backward)
-
+(require 'vertico-directory nil t)
+(with-eval-after-load 'vertico-directory
+  ;; - Enter select and enter
+  (keymap-set vertico-map "RET" #'vertico-directory-enter)
+  (keymap-set vertico-map "M-m" #'my/vertico-simple-input)
+  (keymap-set vertico-map "C-j" #'my/vertico-simple-input)
+  (keymap-set vertico-map "M-h" #'vertico-delete-backward)
+)
 #+end_src
 ** zone screensaver FOR FUN
 #+begin_src elisp
@@ -2535,46 +2749,46 @@ run a specific program.  The program must be a member of
 
 ;; (add-hook 'org-mode-hook 'er/add-text-mode-expansions)
 #+end_src
-** when selecting text you can move without Control, only C-g stops selection mode
+** (disabled) when selecting text you can move without Control, only C-g stops selection mode
 #+begin_src elisp
 
-;; (require 'multiple-cursors)
-(defun my/select-space-key ()
-  "SPC pressed during selection."
-  (interactive)
-  (if (and (region-active-p) myselect-mode)
-      (let ((cl (count-lines (region-beginning) (region-end))))
-        (goto-char (region-beginning))
-        ;; (deactivate-mark)
-        (myselect-mode -1)
-        (when (functionp 'mc/mark-next-like-this)
-            (mc/mark-lines (1- cl) 'forwards)
-            (mc/maybe-multiple-cursors-mode)))))
+;; ;; (require 'multiple-cursors)
+;; (defun my/select-space-key ()
+;;   "SPC pressed during selection."
+;;   (interactive)
+;;   (if (and (region-active-p) myselect-mode)
+;;       (let ((cl (count-lines (region-beginning) (region-end))))
+;;         (goto-char (region-beginning))
+;;         ;; (deactivate-mark)
+;;         (myselect-mode -1)
+;;         (when (functionp 'mc/mark-next-like-this)
+;;             (mc/mark-lines (1- cl) 'forwards)
+;;             (mc/maybe-multiple-cursors-mode)))))
 
-(define-minor-mode myselect-mode
-                             ""
-                             :lighter "selmy"
-                             :interactive nil
-                             :keymap (let ((map (make-sparse-keymap)))
-                                       (define-key map (kbd "l") (kbd "C-l")) ;; left
-                                       (define-key map (kbd "k") (kbd "C-k")) ;; up
-                                       (define-key map (kbd "f") (kbd "C-f")) ;; righ
-                                       (define-key map (kbd "n") (kbd "C-n")) ;; down
-                                       (define-key map (kbd "a") (kbd "C-a")) ;; beg of line
-                                       (define-key map (kbd "e") (kbd "C-e")) ;; end of line
-                                       (define-key map (kbd "SPC") #'my/select-space-key)
-                                       map))
+;; (define-minor-mode myselect-mode
+;;                              ""
+;;                              :lighter "selmy"
+;;                              :interactive nil
+;;                              :keymap (let ((map (make-sparse-keymap)))
+;;                                        (define-key map (kbd "l") (kbd "C-l")) ;; left
+;;                                        (define-key map (kbd "k") (kbd "C-k")) ;; up
+;;                                        (define-key map (kbd "f") (kbd "C-f")) ;; righ
+;;                                        (define-key map (kbd "n") (kbd "C-n")) ;; down
+;;                                        (define-key map (kbd "a") (kbd "C-a")) ;; beg of line
+;;                                        (define-key map (kbd "e") (kbd "C-e")) ;; end of line
+;;                                        (define-key map (kbd "SPC") #'my/select-space-key)
+;;                                        map))
 
-(defun my/select-mode(arg)
-  "TODO: C-u C-SPC problem"
-  (interactive "P")
-  (if (null arg)
-      (myselect-mode))
-  (call-interactively 'set-mark-command arg))
+;; (defun my/select-mode(arg)
+;;   "TODO: C-u C-SPC problem"
+;;   (interactive "P")
+;;   (if (null arg)
+;;       (myselect-mode))
+;;   (call-interactively 'set-mark-command arg))
 
-(global-set-key (kbd "C-SPC") 'my/select-mode)
+;; (global-set-key (kbd "C-SPC") 'my/select-mode)
 
-(add-hook 'deactivate-mark-hook (lambda () (myselect-mode -1)))
+;; (add-hook 'deactivate-mark-hook (lambda () (myselect-mode -1)))
 #+end_src
 ** other
 #+begin_src elisp
@@ -2910,9 +3124,9 @@ Words are delimited only by spaces, tabs, and newlines."
   "\n"
   "cat <<EOF | post\n"
   "#dailyreport\n"
-  "蠡\n"
+  "\n"
   "EOF\n"
-  "#+end_src")
+  "#+end_src") ;蠡
 (define-skeleton org-src-shell
   ""
   ""
@@ -2942,7 +3156,7 @@ Words are delimited only by spaces, tabs, and newlines."
   ""
   ""
   "#+begin_src bash :results output\n"
-  "alias curl=\"proxychains -f /home/user/proxychains.conf curl 2>/dev/null\"\n"
+  "alias curl=\"proxychains -f /home/g/proxychains.conf curl 2>/dev/null\"\n"
   "curl | jq -M""\n"
   "#+end_src")
 ;; - now for chinese characters I use input method chinese-py-punct that have chinese-punct inside
@@ -3175,7 +3389,7 @@ Words are delimited only by spaces, tabs, and newlines."
 
 ;; default C-x C-l
 
-(setopt split-width-threshold 100) ;; split window to right if (window-width (selected-window)) > this
+(setopt split-width-threshold 200) ;; split window to right if (window-width (selected-window)) > this
 
 (defun my/list-buffers-right()
   "Display Buffer-menu at right side.
@@ -3673,9 +3887,17 @@ with functions."
 ;; download best https://ovodov.me/trud.ics
 ;; check https://www.consultant.ru/law/ref/calendar/proizvodstvennye/2024/
 (require 'myholidays)
-(require 'russian-calendar)
-;; ;; ;; reference https://github.com/grafov/russian-holidays
-(setq calendar-holidays (append russian-calendar-holidays
+(setq calendar-holidays
+      ;; my:
+      myholidays-family-holidays
+      )
+(require 'russian-calendar nil t)
+(with-eval-after-load 'russian-calendar
+  (print "russian-calendar")
+  ;; (require 'russian-calendar)
+  ;; ;; ;; reference https://github.com/grafov/russian-holidays
+  (setq calendar-holidays (append ;; calendar-holidays
+                                  russian-calendar-holidays
                                   ;; - enable if you need:
                                   russian-calendar-general-holidays
                                   russian-calendar-orthodox-christian-holidays
@@ -3683,16 +3905,16 @@ with functions."
                                   russian-calendar-open-source-confs
                                   russian-calendar-ai-confs
                                   russian-calendar-russian-it-confs
-                                  ;; my:
-                                  myholidays-family-holidays
+                                  ;; ;; my:
+                                  ;; myholidays-family-holidays
                                   ))
-;; optional:
-(russian-calendar-localize)
-(russian-calendar-set-location-to-moscow)
-(russian-calendar-show-diary-holidays-in-calendar)
-(russian-calendar-enhance-calendar-movement)
-(russian-calendar-fix-list-holidays)
-
+  ;; optional:
+  (russian-calendar-localize)
+  (russian-calendar-set-location-to-moscow)
+  (russian-calendar-show-diary-holidays-in-calendar)
+  (russian-calendar-enhance-calendar-movement)
+  (russian-calendar-fix-list-holidays)
+)
 ;; (defun russian-calendar-eqsols (qr string)
 ;;   "Date of equinox/solstice QR for displayed-year of calendar.
 ;; The return value has the form ((MONTH DAY YEAR) STRING)."
@@ -3795,39 +4017,43 @@ with functions."
 #+begin_src elisp
 
 ;; - load circadian https://github.com/GuidoSchmidt/circadian.el
-(require 'circadian)
-(require 'solar)
+(require 'circadian nil t)
+(with-eval-after-load 'circadian
+  (require 'solar)
 
-;; (defun my/get-sun-times()
-;;   (let* ((dat (solar-sunrise-sunset (calendar-current-date)))
-;;          (sunrise-time (apply #'solar-time-string (car dat)))
-;;          (sunset-time (apply #'solar-time-string (cadr dat)))
-;;          (sunrise (car dat))
-;;          (sunrise-3 (list (- (car sunrise) 3) (cdr sunrise)))
-;;          (sunrise+3 (list (+ (car sunrise) 3) (cdr sunrise)))
-;;          (sunset (cadr dat))
-;;          (sunset-3 (list (- (car sunset) 3) (cdr sunset)))
-;;          (sunset+3 (list (+ (car sunset) 3) (cdr sunset)))
-;;          (sunrise-3-time (apply #'solar-time-string sunrise-3))
-;;          (sunrise+3-time (apply #'solar-time-string sunrise+3))
-;;          (sunset-3-time (apply #'solar-time-string sunset-3))
-;;          (sunset+3-time (apply #'solar-time-string sunset+3))
-;;          )
-;;     (list sunrise-time sunset-time sunrise-time sunrise+3-time sunset-3-time sunset+3-time)
-;;     ))
+  ;; (defun my/get-sun-times()
+  ;;   (let* ((dat (solar-sunrise-sunset (calendar-current-date)))
+  ;;          (sunrise-time (apply #'solar-time-string (car dat)))
+  ;;          (sunset-time (apply #'solar-time-string (cadr dat)))
+  ;;          (sunrise (car dat))
+  ;;          (sunrise-3 (list (- (car sunrise) 3) (cdr sunrise)))
+  ;;          (sunrise+3 (list (+ (car sunrise) 3) (cdr sunrise)))
+  ;;          (sunset (cadr dat))
+  ;;          (sunset-3 (list (- (car sunset) 3) (cdr sunset)))
+  ;;          (sunset+3 (list (+ (car sunset) 3) (cdr sunset)))
+  ;;          (sunrise-3-time (apply #'solar-time-string sunrise-3))
+  ;;          (sunrise+3-time (apply #'solar-time-string sunrise+3))
+  ;;          (sunset-3-time (apply #'solar-time-string sunset-3))
+  ;;          (sunset+3-time (apply #'solar-time-string sunset+3))
+  ;;          )
+  ;;     (list sunrise-time sunset-time sunrise-time sunrise+3-time sunset-3-time sunset+3-time)
+  ;;     ))
 
-;; - circadian basic config
-;; (setq circadian-themes '(("00:00" . my/set-theme-dark)
-;;                          ("02:00"   . my/set-theme-middle)
-;;                          ("06:00"  . my/set-theme-white)
-;;                          ("12:00"  . my/set-theme-white)
-;;                          ("17:00"   . my/set-theme-middle)
-;;                          ("20:00" . my/set-theme-dark)))
-(let* ((dat (solar-sunrise-sunset (calendar-current-date)))
+  ;; - circadian basic config
+  ;; (setq circadian-themes '(("00:00" . my/set-theme-dark)
+  ;;                          ("02:00"   . my/set-theme-middle)
+  ;;                          ("06:00"  . my/set-theme-white)
+  ;;                          ("12:00"  . my/set-theme-white)
+  ;;                          ("17:00"   . my/set-theme-middle)
+  ;;                          ("20:00" . my/set-theme-dark)))
+  ;; - get sunrise: (apply #'solar-time-string (car (solar-sunrise-sunset (calendar-current-date))))
+  (let* ((dat (solar-sunrise-sunset (calendar-current-date)))
          (sunrise-time (apply #'solar-time-string (car dat)))
          ;; (sunset-time (apply #'solar-time-string (cadr dat)))
          (sunrise (car dat))
-         (sunrise-3 (list (- (- (car sunrise) 3) 3) (cdr sunrise))) ; + convert to UTC+0
+         ;; (- (- (car sunrise) 3) 3)
+         ;; (cdr sunrise)
+         (sunrise-3 (list (- (- (car sunrise) 0) 3) (cdr sunrise))) ; + convert to UTC+0
          (sunrise+3 (list (- (+ (car sunrise) 3) 3) (cdr sunrise))) ; + convert to UTC+0
          (sunset (cadr dat))
          (sunset-3 (list (- (- (car sunset) 3) 3) (cdr sunset))) ; + convert to UTC+0
@@ -3839,40 +4065,42 @@ with functions."
          (sunset+3-time (apply #'solar-time-string sunset+3))
          (sunset-c-time (apply #'solar-time-string sunset-c))
          )
-  (message "Theme switching times:")
-  (message (concat "- middle:\t" sunrise-3-time))
-  (message (concat "- white:\t" sunrise+3-time))
-  (message (concat "- middle:\t" sunset-c-time))
-  (message (concat "- black:\t" sunset+3-time))
-  (setq circadian-themes (list
-                           (cons sunrise-3-time #'my/set-theme-middle)
-                           (cons sunrise+3-time #'my/set-theme-white)
-                           (cons sunset-c-time  #'my/set-theme-middle)
-                           (cons sunset+3-time  #'my/set-theme-dark)))
-  )
+    ;; (print sunrise)
+    ;; (print sunrise-3)
+    (message "Theme switching times:")
+    (message (concat "- middle:\t" sunrise-3-time))
+    (message (concat "- white:\t" sunrise+3-time))
+    (message (concat "- middle:\t" sunset-c-time))
+    (message (concat "- black:\t" sunset+3-time))
+    (setq circadian-themes (list
+                            (cons sunrise-3-time #'my/set-theme-middle)
+                            (cons sunrise+3-time #'my/set-theme-white)
+                            (cons sunset-c-time  #'my/set-theme-middle)
+                            (cons sunset+3-time  #'my/set-theme-dark)))
+    )
 
-;; - override function that activate theme to our
+  ;; - override function that activate theme to our
 
-(setq circadian-verbose nil) ; debug
+  (setq circadian-verbose nil) ; debug
 
-(defun my/circadian-enable-theme (theme)
+  (defun my/circadian-enable-theme (theme)
     "Call function instead of just `load-theme'."
     ;; Clear existing themes:
     (funcall theme)
-    ; - because `run-at-time' simetimes activated immediately IDK why
+                                        ; - because `run-at-time' simetimes activated immediately IDK why
     (when (not (eq custom-enabled-themes theme))
       (if (not (equal nil circadian-next-timer)) ; just in case
           (cancel-timer circadian-next-timer))
       ;; (setq custom-enabled-themes theme)
       (setq circadian-next-timer nil)
       (circadian-schedule) ;; set circadian-next-timer
-    ))
+      ))
 
-(advice-add 'circadian-enable-theme :override #'my/circadian-enable-theme)
-;; (advice-remove 'circadian-enable-theme #'my/circadian-enable-theme)
-;; - activate circadian
-(circadian-setup)
-
+  (advice-add 'circadian-enable-theme :override #'my/circadian-enable-theme)
+  ;; (advice-remove 'circadian-enable-theme #'my/circadian-enable-theme)
+  ;; - activate circadian
+  (circadian-setup)
+)
 #+end_src
 *** selected-window mode
 #+begin_src elisp
@@ -3881,23 +4109,24 @@ with functions."
 **** main
 #+begin_src elisp
 
-(require 'selected-window-contrast)
-;; ;; ;; (require 'selected-window-contrast-tests)
-;; ;; ;; (ert-run-tests-interactively "selected-window-contrast-tests")
-;; ;; ;; (set-face-attribute 'mode-line-active nil :background nil :foreground nil)
+(require 'selected-window-contrast nil t)
+(with-eval-after-load 'selected-window-contrast
+  ;; ;; ;; (require 'selected-window-contrast-tests)
+  ;; ;; ;; (ert-run-tests-interactively "selected-window-contrast-tests")
+  ;; ;; ;; (set-face-attribute 'mode-line-active nil :background nil :foreground nil)
 
-;; (setopt selected-window-contrast-selected-magnitude-text 1.0)
-;; (setopt selected-window-contrast-selected-magnitude-background 0.85)
-;; (setopt selected-window-contrast-not-sel-magnitude-text 2.0)
-;; (setopt selected-window-contrast-not-sel-magnitude-background 1.1)
-(setopt selected-window-contrast-selected-magnitude-text 1.0)
-(setopt selected-window-contrast-selected-magnitude-background 0.9)
-(setopt selected-window-contrast-not-sel-magnitude-text 2.0)
-(setopt selected-window-contrast-not-sel-magnitude-background 1.05)
+  ;; (setopt selected-window-contrast-selected-magnitude-text 1.0)
+  ;; (setopt selected-window-contrast-selected-magnitude-background 0.85)
+  ;; (setopt selected-window-contrast-not-sel-magnitude-text 2.0)
+  ;; (setopt selected-window-contrast-not-sel-magnitude-background 1.1)
+  (setopt selected-window-contrast-selected-magnitude-text 1.0)
+  (setopt selected-window-contrast-selected-magnitude-background 0.9)
+  (setopt selected-window-contrast-not-sel-magnitude-text 2.0)
+  (setopt selected-window-contrast-not-sel-magnitude-background 1.05)
 
-(add-hook 'buffer-list-update-hook #'selected-window-contrast-highlight-selected-window-timeout1)
-(add-hook 'server-after-make-frame-hook #'selected-window-contrast-highlight-selected-window-timeout2)
-
+  (add-hook 'buffer-list-update-hook #'selected-window-contrast-highlight-selected-window-timeout1)
+  (add-hook 'server-after-make-frame-hook #'selected-window-contrast-highlight-selected-window-timeout2)
+)
 ;; (remove-hook 'buffer-list-update-hook #'selected-window-contrast-highlight-selected-window-timeout1)
 ;; - additional timeout for case of call: $ emacsclient -c ~/file
 
@@ -4306,7 +4535,7 @@ Loop over `dired-listing-switches' +
 #+begin_src elisp
 
 (require 'image-dired)
-(setopt image-dired-dir "/home/user/.cache/thumbnails/normal/")
+(setopt image-dired-dir "/home/g/.cache/thumbnails/normal/")
 (setopt image-dired-thumbnail-storage 'standard)
 
 ;; rebind showing thumbnails
@@ -4315,7 +4544,7 @@ Loop over `dired-listing-switches' +
   (interactive)
   (image-dired-show-all-from-dir (dired-current-directory)))
 
-(define-key dired-mode-map (kbd "C-,") #'my/thumbnails)
+(define-key dired-mode-map (kbd "C-c ,") #'my/thumbnails)
 #+end_src
 *** wdired mode: allow to change permissions in C-x C-q
 #+begin_src elisp
@@ -4332,11 +4561,13 @@ Loop over `dired-listing-switches' +
 ;; (add-to-list 'dired-guess-shell-alist-user '("\\.flac$" "mpv"))
 ;; dired-guess-shell-alist-user is empty by default
 (setopt dired-guess-shell-alist-user
-      '(("\\.\\(flac\\|mp3\\|mp4\\)$" "mpv *")
+      '(
+        ;; ("\\.\\(flac\\|mp3\\|mp4\\)$" "mpv *")
+        ("\\.\\(flac\\|mp3\\|mp4\\|oga\\)$" "mpv*force-window")
         ("\\.pdf$" "evince")
-        ("\\.png$" "mupdf")
-        ("\\.jpg$" "mupdf")
-        ("\\.html$" "./firef")
+        ("\\.png$" "/home/g/fireflocal.sh")
+        ("\\.jpg$" "/home/g/fireflocal.sh")
+        ("\\.html$" "/home/g/fireflocal.sh")
         ))
 
 #+end_src
@@ -4539,11 +4770,12 @@ Loop over `dired-listing-switches' +
 
 ;; kill-region
 (defun my/dired-on-select (body-sel body-marked body-single)
-  "execute code on selected files or on marked.
+  "Look what is marked or selected and decide what to execute.
 body-sel - executed after marking files, for sequene of files,
 body-marked functions - for marked
 body-single - no marks, no preparation, for current line."
   (if mark-active
+      ;; - selected
       (progn
         ;; 1) unmark
         (save-excursion
@@ -4556,7 +4788,8 @@ body-single - no marks, no preparation, for current line."
           (funcall (or body-sel ignore))
           )
         )
-    ;; else on marked
+    ;; else - on marked
+    ;; (print body-marked)
     (if (not (eq (length (dired-get-marked-files)) 1))
         (funcall (or body-marked ignore))
       ;; else - single - at cursor
@@ -4586,20 +4819,150 @@ file nemes."
                       #'my/kill-list
                       ))
 
+
+
+;; - & and * not working now with M-W key in dired.
+(defun my/fix-dired-do-async-shell-command (command &optional arg file-list)
+  "Run a shell command COMMAND on the marked files asynchronously.
+
+Like `dired-do-shell-command', but adds `&' at the end of COMMAND
+to execute it asynchronously.
+
+When operating on multiple files, asynchronous commands
+are executed in the background on each file in parallel.
+In shell syntax this means separating the individual commands
+with `&'.  However, when COMMAND ends in `;' or `;&' then commands
+are executed in the background on each file sequentially waiting
+for each command to terminate before running the next command.
+In shell syntax this means separating the individual commands with `;'.
+
+The output appears in the buffer named by `shell-command-buffer-name-async'.
+
+Commands that are run asynchronously do not accept user input."
+  (interactive
+   (let ((files (dired-get-marked-files t current-prefix-arg nil nil t)))
+     (list
+      ;; Want to give feedback whether this file or marked files are used:
+      (dired-read-shell-command "& on %s: " current-prefix-arg files)
+      current-prefix-arg
+      files))
+   dired-mode)
+  ;; (unless (string-match-p "&[ \t]*\\'" command)
+  ;;   (setq command (concat command " &")))
+  (let ((com (concat (dired-shell-stuff-it command file-list nil) " &")))
+    (print (list "com" com))
+    (dired-run-shell-command com))
+  ;; (dired-do-shell-command command arg file-list) ;; old
+  )
+
+
+(advice-add 'dired-do-async-shell-command :override #'my/fix-dired-do-async-shell-command )
+
+
 (defun my/call-external (arg &optional interactive)
   (interactive (list current-prefix-arg t))
+  (print "haa")
+  #+end_src
+* Org-mode
+#+begin_src elisp
+
+  (if (derived-mode-p 'org-mode)
+    (let* ((context
+           ;; Only consider supported types, even if they are not the
+           ;; closest one.
+           (org-element-lineage
+            (org-element-context)
+            '(citation citation-reference clock comment comment-block
+                       footnote-definition footnote-reference headline
+                       inline-src-block inlinetask keyword link node-property
+                       planning src-block timestamp)
+            t))
+          (type (org-element-type context)))
+
+      (if (memq type '(link))
+          (let ((path (org-element-property :path context)))
+            (print "wtfvvbbb")
+            (browse-url-default-browser (expand-file-name path))))))
+  ;; - else - not Org-mode
+
+;; (if (dired-guess-default files)
+
+;;                 (let ( (command shell-command-guess-open))
+;;                   (when (and (memq system-type '(windows-nt))
+;;                              (equal command "start"))
+;;                     (setq command "open"))
+;;                   ;; (print command)
+;;                   (when command
+;;                     (dolist (file files)
+;;                       (cond
+;;                        ((memq system-type '(gnu/linux))
+;;                         (call-process command nil 0 nil file))
+;;                        ((memq system-type '(ms-dos))
+;;                         (shell-command (concat command " " (shell-quote-argument file))))
+;;                        ((memq system-type '(windows-nt))
+;;                         (w32-shell-execute command (convert-standard-filename file)))
+;;                        ((memq system-type '(cygwin))
+;;                         (call-process command nil nil nil file))
+;;                        ((memq system-type '(darwin))
+;;                         (start-process (concat command " " file) nil command file))
+;;                        (t
+;;                         (error "Open not supported on this system"))))))
+;;                 ;; - else
+
+
+;;                                             )
+  #+end_src
+* dired
+#+begin_src elisp
+
+  (print (list "herevv" arg))
   (my/dired-on-select
-                      ;; for selected
-                      (lambda () (execute-extended-command nil "dired-do-async-shell-command" nil))
-                      ;; for marked
-                      (lambda () (execute-extended-command nil "dired-do-async-shell-command" nil))
-                      ;; for single
-                      (lambda () (dired-map-over-marks (browse-url-of-dired-file) nil))
-                      ))
+   ;; for selected
+   (lambda () (execute-extended-command nil "dired-do-async-shell-command" nil))
+   ;; for marked
+   (lambda () (execute-extended-command nil "dired-do-async-shell-command" nil))
+   ;; for single
+   (lambda ()
+     (let* ((file (dired-get-filename t t))
+
+            (command (dired-guess-default (list file)))
+            ;; (command (if (listp command) (car command) command))
+            )
+
+       (print (list "vv" command (shell-quote-argument file)))
+
+
+       (if command
+           (if (listp command)
+               (dolist (cmd command)
+                 (print (list "dasas" cmd (executable-find cmd)))
+                 (when (executable-find cmd)
+                   (message "Executing command: %s" (concat cmd " " (shell-quote-argument file)))
+                   (async-shell-command (concat cmd " " (shell-quote-argument file)))
+                   (cl-return)))
+           ;; (print (list command file))
+           ;; (print (shell-command "pwd"))
+           ;; - else - one command
+           (print "elase")
+           (async-shell-command (concat command " " (shell-quote-argument file))))
+         ;; (start-process (concat command " " file) nil command file)
+         ;; - else
+         (print "ssvvbba")
+         (dired-map-over-marks (browse-url-of-dired-file) nil)
+         )))))
 
 
 (define-key firstly-search-dired-mode-map (kbd "C-c w") #'my/dired-copy-filename-as-kill)
 (define-key firstly-search-dired-mode-map (kbd "M-W") #'my/call-external)
+
+
+(defun my/dired-do-async-shell-command-test (func-call &rest args)
+  "Mark selected."
+  (print args)
+  (apply func-call args))
+
+(advice-add 'dired-do-async-shell-command :around #'my/dired-do-async-shell-command-test)
+
 
 
 ;; (defun my/dired-copy-filename-as-kill (beg end &optional region)
@@ -4841,42 +5204,45 @@ Value is a list of all tags for FILE."
 ** company
 #+begin_src elisp
 
-(require 'company)
-;; (require 'company)
-;; (setopt global-company-mode nil)
+(require 'company nil t)
+(with-eval-after-load 'company
+  ;; (require 'company)
+  ;; (require 'company)
+  ;; (setopt global-company-mode nil)
 
-(add-hook 'company-mode-hook
-          (lambda ()
-            (define-key company-active-map "\C-h" 'delete-backward-char)
-            (define-key company-active-map "\C-h" 'backward-delete-char-untabify)
-            (setq
-             company-idle-delay                1
-             company-echo-delay                1
-             ;; delete-selection-mode             t
-             company-minimum-prefix-length     3
-             company-dabbrev-downcase          nil
-             company-dabbrev-other-buffers     t
+  (add-hook 'company-mode-hook
+            (lambda ()
+              (define-key company-active-map "\C-h" 'delete-backward-char)
+              (define-key company-active-map "\C-h" 'backward-delete-char-untabify)
+              (setq
+               company-idle-delay                1
+               company-echo-delay                1
+               ;; delete-selection-mode             t
+               company-minimum-prefix-length     3
+               company-dabbrev-downcase          nil
+               company-dabbrev-other-buffers     t
 
-             ;; company-show-numbers              t ; obsolate
-             company-show-quick-access         t
-             company-dabbrev-code-everywhere   t
-             company-dabbrev-code-ignore-case  t
-             company-selection-wrap-around     t
-             company-tooltip-align-annotations t
-             ;; selection-coding-system           'utf-8
-             ;; company-auto-complete-chars       '(32 40 41 119 46 34 36 47 124 33) ; obsolate
-             company-insertion-triggers '(32 40 41 119 46 34 36 47 124 33))
-             ;; company-backends '((company-yasnippet company-files company-semantic company-css company-capf))
-             (cond ((derived-mode-p 'org-mode)
-                    (setq-local company-backends
-                            '(company-math-symbols-unicode
-                               company-keywords
-                               company-files company-abbrev
-                               company-dabbrev)))
-                   )
-             ))
+               ;; company-show-numbers              t ; obsolate
+               company-show-quick-access         t
+               company-dabbrev-code-everywhere   t
+               company-dabbrev-code-ignore-case  t
+               company-selection-wrap-around     t
+               company-tooltip-align-annotations t
+               ;; selection-coding-system           'utf-8
+               ;; company-auto-complete-chars       '(32 40 41 119 46 34 36 47 124 33) ; obsolate
+               company-insertion-triggers '(32 40 41 119 46 34 36 47 124 33))
+              ;; company-backends '((company-yasnippet company-files company-semantic company-css company-capf))
+              (cond ((derived-mode-p 'org-mode)
+                     (setq-local company-backends
+                                 '(company-math-symbols-unicode
+                                   company-keywords
+                                   company-files company-abbrev
+                                   company-dabbrev)))
+                    )
+              ))
 
-(add-hook 'org-mode-hook #'company-mode) ; company-capf
+  (add-hook 'org-mode-hook #'company-mode) ; company-capf
+)
 #+end_src
 ** ORG
 #+begin_src elisp
@@ -5331,6 +5697,10 @@ If argument was given, don't toggle header.
 *** keys others
 #+begin_src elisp
 
+#+end_src
+**** functions
+#+begin_src elisp
+
 ;; We bind org-forward-sentence and org-backward-sentence to
 ;; C-e and C-e, and make it simplier.
 ;; (defun my/org-forward-close (&optional _arg)
@@ -5377,6 +5747,26 @@ If argument was given, don't toggle header.
 ;;   (interactive)
 ;;   (if (= (point) (progn (back-to-indentation) (- (point) 1))) ;; -1 because of  "(there is a bug)" see below
 ;;       (beginning-of-line)))
+
+(defun my/org-ctrl-c-ctrl-c ()
+  "shadow `org-ctrl-c-ctrl-c'"
+  (interactive)
+  ;; - - redisplay images 1)
+  (if org-inline-image-overlays
+      (defvar-local my/org-ctrl-c-ctrl-c-flag (overlay-buffer (car org-inline-image-overlays))))
+  ;; execute default
+  (call-interactively #'org-ctrl-c-ctrl-c) ;; execute
+  ;; - - redisplay images 2)
+  (if (and (boundp 'my/org-ctrl-c-ctrl-c-flag) my/org-ctrl-c-ctrl-c-flag)
+      (org-redisplay-inline-images))
+  ;; language (org-element-property :language (org-element-context))
+  ;; (eq 'src-block (org-element-type (org-element-at-point))
+
+  ;; go to result
+  ;; (goto-char (org-babel-where-is-src-block-result))
+  ;; scroll other window to the endpo
+  (if (org-element-property :language (org-element-context))
+      (end-of-buffer-other-window nil)))
 
 (defun my/org-backward-close (&optional _arg forward-flag)
   "Go to beginning of sentence, or beginning of table field.
@@ -5586,29 +5976,11 @@ Like (outline-hide-other) (org-reveal) but better."
        (org-overview) ;; hide others
        (org-reveal '(4)))) ;; reveal current place appropriate)
 
-(defun my/org-ctrl-c-ctrl-c ()
-  "shadow `org-ctrl-c-ctrl-c'"
-  (interactive)
-  ;; - - redisplay images 1)
-  (if org-inline-image-overlays
-      (defvar-local my/org-ctrl-c-ctrl-c-flag (overlay-buffer (car org-inline-image-overlays))))
-  ;; execute default
-  (org-ctrl-c-ctrl-c) ;; execute
-  ;; - - redisplay images 2)
-  (if (and (boundp 'my/org-ctrl-c-ctrl-c-flag) my/org-ctrl-c-ctrl-c-flag)
-      (org-redisplay-inline-images))
-  ;; language (org-element-property :language (org-element-context))
-  ;; (eq 'src-block (org-element-type (org-element-at-point))
-
-  ;; go to result
-  ;; (goto-char (org-babel-where-is-src-block-result))
-  ;; scroll other window to the endpo
-  (if (string-equal-ignore-case "python" (org-element-property :language (org-element-context)))
-      (end-of-buffer-other-window nil)))
-
 (defun my/org-new-line-indented()
   "go there: open next line split, with indentation"
   (interactive)
+  (if (region-active-p)
+      (delete-region (region-beginning) (region-end)))
   (if (org-babel-get-src-block-info) ;; if in source block
       (progn
         (newline)
@@ -5652,6 +6024,8 @@ Like (outline-hide-other) (org-reveal) but better."
   "Insert a new list item after current and after it's subitems.
 If not in a list don't split, open new line and indent."
   (interactive)
+  (if (region-active-p)
+      (delete-region (region-beginning) (region-end)))
   (if (org-in-item-p) ; if in a list
     (progn
       ;; go to the begining, before list bullet
@@ -5682,7 +6056,10 @@ If not in a list don't split, open new line and indent."
 ;;   )
 ;; (define-key org-mode-map (kbd "C-c C-j") 'my/fix-org-goto) ; old, not used
 
-;; - - -  org keybindinds - - - -
+#+end_src
+**** hook for org keybindinds
+#+begin_src elisp
+
 (add-hook 'org-mode-hook (lambda ()
                            (bind-keys :prefix-map org-mode-my-prefix-map
                                       :prefix "C-x C-o")
@@ -5844,11 +6221,11 @@ If not in a list don't split, open new line and indent."
                            ;; - - - fix: after C-q screen stay far away from right
                            (keymap-local-set "M-q" #'my/org-fill-paragraph)
                            ;; - - - Python source block redisplay image after block execution if inlineimages is on
-                           (keymap-local-set "C-c C-c" #'my/org-ctrl-c-ctrl-c)
+                           (keymap-local-set "C-c C-c" #'my/org-ctrl-c-ctrl-c) ; use (add-hook 'org-ctrl-c-ctrl-c-hook
                            ;; - - - Other buffer
                            (keymap-local-set "C-c C-Z" #'my/other-buffer) ; shadow `org-add-note'
                            (keymap-local-set "C-c C-a" #'my/other-buffer2) ; shadow `org-attach'
-
+                           (keymap-local-set "M-W" #'my/call-external) ; shadow 'kill-ring-save'
 
 
 
@@ -5954,13 +6331,6 @@ If not in a list don't split, open new line and indent."
                            ))
 
 #+end_src
-*** redisplay inline images on source code block evaluation
-#+begin_src elisp
-
-(add-hook 'org-ctrl-c-ctrl-c-final-hook 'org-redisplay-inline-images)
-(add-hook 'org-ctrl-c-ctrl-c-hook 'org-redisplay-inline-images)
-
-#+end_src
 *** fix issue with headline
 #+begin_src elisp
 
@@ -6029,7 +6399,7 @@ If not in a list don't split, open new line and indent."
       (perl . t)
       (lua . t)  ;; require lua-mode
       (yaml . t) ;; llhotka/ob-yaml
-      (http . t) ;; require ob-http
+      ;; (http . t) ;; require ob-http
       (shell . t)
       (sql . t)
       (sqlite . t)
@@ -6173,6 +6543,18 @@ When nil, use the default face background."
 ;; (add-hook 'org-mode-hook 'my/syntax-table-elisp)
 
 #+end_src
+*** C-c C-c for blocks
+#+begin_src elisp
+
+
+;; - - - redisplay inline images on source code block evaluation
+(add-hook 'org-ctrl-c-ctrl-c-final-hook #'org-redisplay-inline-images)
+(add-hook 'org-ctrl-c-ctrl-c-hook #'org-redisplay-inline-images)
+
+;; (add-hook 'org-ctrl-c-ctrl-c-hook #'my/org-ctrl-c-ctrl-c)
+
+
+#+end_src
 ** Electric quote mode for Org and Markdown modes
 #+begin_src elisp
 
@@ -6241,7 +6623,7 @@ When nil, use the default face background."
     (and prev-char
          (not (member prev-char '(?\  ?\t ?\n ?\r))))))
 
-(defun search-backward-for-character ()
+(defun my/search-backward-for-character ()
   "Search for opening single quote until new line or closing quote."
   (let ((found nil) (newline nil))
     (save-excursion
@@ -6263,7 +6645,7 @@ was made."
 
   (if (eq last-command-event ?\')
       (if (my/previous-char-is-text)
-          (not (search-backward-for-character))
+          (not (my/search-backward-for-character))
        )))
 
 (add-hook 'electric-quote-inhibit-functions #'my/inhibit-paired-quote)
@@ -6410,16 +6792,17 @@ If prev word was not found, go to prev heading"
 **** idle-highlight-mode
 #+begin_src elisp
 
-(require 'idle-highlight-mode)
-(add-hook 'python-mode-hook	#'idle-highlight-mode)
-(add-hook 'python-ts-mode-hook	#'idle-highlight-mode)
-(add-hook 'c-mode-common-hook	#'idle-highlight-mode)
-;; (add-hook 'yaml-mode-hook 'idle-highlight-mode)
-(add-hook 'yaml-ts-mode-hook	#'idle-highlight-mode)
-(add-hook 'emacs-lisp-mode-hook #'idle-highlight-mode)
-(add-hook 'sh-mode		#'idle-highlight-mode)
-(add-hook 'ebuild-mode		#'idle-highlight-mode)
-
+(with-eval-after-load 'idle-highlight-mode
+  ;; (require 'idle-highlight-mode)
+  (add-hook 'python-mode-hook	#'idle-highlight-mode)
+  (add-hook 'python-ts-mode-hook	#'idle-highlight-mode)
+  (add-hook 'c-mode-common-hook	#'idle-highlight-mode)
+  ;; (add-hook 'yaml-mode-hook 'idle-highlight-mode)
+  (add-hook 'yaml-ts-mode-hook	#'idle-highlight-mode)
+  (add-hook 'emacs-lisp-mode-hook #'idle-highlight-mode)
+  (add-hook 'sh-mode		#'idle-highlight-mode)
+  (add-hook 'ebuild-mode		#'idle-highlight-mode)
+)
 #+end_src
 **** Demap - minimap - global key C-c i
 #+begin_src elisp
@@ -6485,7 +6868,7 @@ If prev word was not found, go to prev heading"
 #+begin_src elisp
 
 #+end_src
-**** new line key - open new list sexp
+**** Functions new line key - open new list sexp (not used)
 #+begin_src elisp
 
 (defun my/is-current-line-single-comment-p ()
@@ -6523,7 +6906,7 @@ list sexp or comment at current cursor position."
       (insert "()"))
   (backward-char))
 #+end_src
-**** next sexp
+**** next sexp (not used)
 #+begin_src elisp
 
 ;; (defun my/forward-sexp (arg)
@@ -6568,7 +6951,25 @@ list sexp or comment at current cursor position."
                                   "No previous sexp")))))
 
 #+end_src
-**** hook
+**** end-of-defun - fix - cursor should be at ).
+#+begin_src elisp
+
+(defun my/end-of-defun-advice (orig-fun &rest args)
+  (if args
+      (let ((p (point)))
+        (apply orig-fun args)
+        ;; - fix  cursor should be at ) setting
+        (search-backward ")" (- (point) 2229) t)
+        (forward-char)
+        ;; - double press: move to next function
+        (if (equal p (point))
+            (forward-list)))
+    ;; - else
+    (apply orig-fun args)))
+
+(advice-add 'end-of-defun :around 'my/end-of-defun-advice)
+#+end_src
+**** keys, syntax-table
 #+begin_src elisp
 
 (defun my/syntax-table-elisp()
@@ -6579,12 +6980,16 @@ list sexp or comment at current cursor position."
 (defun my/elisp-keys()
   (keymap-local-set "M-i" #'describe-symbol) ; shadow `tab-to-tab-stop'
   ;; (keymap-local-set "C-M-f" #'my/forward-sexp) ; shadow `forward-sexp'
-  ;; (keymap-local-set "C-j" #'my/insert-new-sexp)
+  (keymap-local-set "M-n" #'end-of-defun)
+  (keymap-local-set "<backtab>" #'outline-cycle-buffer) ;; S-tab
+  (keymap-local-set "C-c C-e" #'my/outline-hide-other) ;; hides `elisp-eval-region-or-buffer'
+  (keymap-local-set "TAB" #'outline-toggle-children)
   )
 
 ;; ;; hook executed peir buffer
 (add-hook 'emacs-lisp-mode-hook #'my/syntax-table-elisp)
 (add-hook 'emacs-lisp-mode-hook #'my/elisp-keys)
+
 
 #+end_src
 *** Python
@@ -6882,7 +7287,7 @@ Optional argument ARGS ."
 **** Eglot - for LSP
 #+begin_src elisp
 
-      #+end_src
+#+end_src
 ***** main
 #+begin_src elisp
 
@@ -7842,7 +8247,7 @@ This function is called by `org-babel-execute-src-block'."
 **** gnus-w3m fixes
 #+begin_src elisp
 
-
+(require 'notmuch nil t)
 (with-eval-after-load 'notmuch
 
   (deftheme my-notmuch-theme
@@ -8077,6 +8482,22 @@ This function is called by `org-babel-execute-src-block'."
     (message-send)))
 
 #+end_src
+**** notmuch-show email - browse-url - disable opening
+#+begin_src elisp
+
+(defun my-notmuch-copy-url (url &optional _new-window)
+  "Copy URL to the kill-ring instead of opening it."
+  (kill-new url)
+  (message "Copied URL to kill-ring: %s" url))
+
+(defun my-notmuch-show-setup ()
+  "Override `browse-url` behavior in `notmuch-show-mode` to copy URL to the kill-ring."
+  (setq-local browse-url-browser-function #'my-notmuch-copy-url))
+
+(add-hook 'notmuch-show-mode-hook #'my-notmuch-show-setup)
+
+;;
+#+end_src
 *** editor org-mode integration
 #+begin_src elisp
 
@@ -8140,59 +8561,61 @@ This function is called by `org-babel-execute-src-block'."
 #+begin_src elisp
 
 ;; Ensure `flycheck-aspell' is available
-(require 'flycheck-aspell)
-;; If you want to check TeX/LaTeX/ConTeXt buffers
-(add-to-list 'flycheck-checkers 'tex-aspell-dynamic)
-;; If you want to check Markdown/GFM buffers
-(add-to-list 'flycheck-checkers 'markdown-aspell-dynamic)
-;; If you want to check HTML buffers
-(add-to-list 'flycheck-checkers 'html-aspell-dynamic)
-;; If you want to check XML/SGML buffers
-(add-to-list 'flycheck-checkers 'xml-aspell-dynamic)
-;; If you want to check Nroff/Troff/Groff buffers
-(add-to-list 'flycheck-checkers 'nroff-aspell-dynamic)
-;; If you want to check Texinfo buffers
-(add-to-list 'flycheck-checkers 'texinfo-aspell-dynamic)
-;; If you want to check comments and strings for C-like languages
-(add-to-list 'flycheck-checkers 'c-aspell-dynamic)
-;; If you want to check message buffers
-(add-to-list 'flycheck-checkers 'mail-aspell-dynamic)
+(require 'flycheck-aspell nil t)
+(with-eval-after-load 'flycheck-aspell
+  ;; (require 'flycheck-aspell)
+  ;; If you want to check TeX/LaTeX/ConTeXt buffers
+  (add-to-list 'flycheck-checkers 'tex-aspell-dynamic)
+  ;; If you want to check Markdown/GFM buffers
+  (add-to-list 'flycheck-checkers 'markdown-aspell-dynamic)
+  ;; If you want to check HTML buffers
+  (add-to-list 'flycheck-checkers 'html-aspell-dynamic)
+  ;; If you want to check XML/SGML buffers
+  (add-to-list 'flycheck-checkers 'xml-aspell-dynamic)
+  ;; If you want to check Nroff/Troff/Groff buffers
+  (add-to-list 'flycheck-checkers 'nroff-aspell-dynamic)
+  ;; If you want to check Texinfo buffers
+  (add-to-list 'flycheck-checkers 'texinfo-aspell-dynamic)
+  ;; If you want to check comments and strings for C-like languages
+  (add-to-list 'flycheck-checkers 'c-aspell-dynamic)
+  ;; If you want to check message buffers
+  (add-to-list 'flycheck-checkers 'mail-aspell-dynamic)
 
-(setq ispell-dictionary "en")
-(setq ispell-program-name "aspell")
-(setq ispell-silently-savep t)
-
-(flycheck-aspell-define-checker "org"
-  "Org" ("--add-filter" "url")
-  (org-mode))
-(add-to-list 'flycheck-checkers 'org-aspell-dynamic)
-
-(flycheck-aspell-define-checker "shell"
-  "Shell" ()
-  (shell-script-mode sh-mode))
-(add-to-list 'flycheck-checkers 'shell-aspell-dynamic)
-
-(setq flycheck-checker-error-threshold 1900)
-
-;; ispell-pdict-save to refresh flycheck when inserting new entries into your local dictionary
-;; (advice-add #'ispell-pdict-save :after #'flycheck-maybe-recheck)
-;; (defun flycheck-maybe-recheck (_)
-;;   (when (bound-and-true-p flycheck-mode)
-;;    (flycheck-buffer)))
-
-(defun my/ispell-flycheck-en()
-  (interactive)
   (setq ispell-dictionary "en")
-  (call-interactively 'flycheck-mode))
+  (setq ispell-program-name "aspell")
+  (setq ispell-silently-savep t)
 
-(defun my/ispell-flycheck-ru()
-  (interactive)
-  (setq ispell-dictionary "ru")
-  (call-interactively 'flycheck-mode))
+  (flycheck-aspell-define-checker "org"
+                                  "Org" ("--add-filter" "url")
+                                  (org-mode))
+  (add-to-list 'flycheck-checkers 'org-aspell-dynamic)
 
-(global-set-key (kbd "C-c 2") #'my/ispell-flycheck-en)
-(global-set-key (kbd "C-c 3") #'my/ispell-flycheck-ru)
+  (flycheck-aspell-define-checker "shell"
+                                  "Shell" ()
+                                  (shell-script-mode sh-mode))
+  (add-to-list 'flycheck-checkers 'shell-aspell-dynamic)
 
+  (setq flycheck-checker-error-threshold 1900)
+
+  ;; ispell-pdict-save to refresh flycheck when inserting new entries into your local dictionary
+  ;; (advice-add #'ispell-pdict-save :after #'flycheck-maybe-recheck)
+  ;; (defun flycheck-maybe-recheck (_)
+  ;;   (when (bound-and-true-p flycheck-mode)
+  ;;    (flycheck-buffer)))
+
+  (defun my/ispell-flycheck-en()
+    (interactive)
+    (setq ispell-dictionary "en")
+    (call-interactively 'flycheck-mode))
+
+  (defun my/ispell-flycheck-ru()
+    (interactive)
+    (setq ispell-dictionary "ru")
+    (call-interactively 'flycheck-mode))
+
+  (global-set-key (kbd "C-c 2") #'my/ispell-flycheck-en)
+  (global-set-key (kbd "C-c 3") #'my/ispell-flycheck-ru)
+)
 #+end_src
 ** guess-languagel - ispell - (not working)
 #+begin_src elisp
@@ -8322,66 +8745,68 @@ timeout -k 1 1 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 #+begin_src elisp
 
 ;; (setq multitran-languages)
-(require 'multitran)
-(defun my/multitran-at-pos-en (pos)
-  (interactive (list (point)))
-  (setq multitran-languages '("English" . "Russian") )
-  (multitran-at-pos pos))
+(with-eval-after-load 'multitran
+  ;; (require 'multitran)
+  (defun my/multitran-at-pos-en (pos)
+    (interactive (list (point)))
+    (setq multitran-languages '("English" . "Russian") )
+    (multitran-at-pos pos))
 
-(defun my/multitran-at-pos-ch (pos)
-  (interactive (list (point)))
-  (setq multitran-languages '("Chinese" . "English") )
-  (multitran-at-pos pos))
+  (defun my/multitran-at-pos-ch (pos)
+    (interactive (list (point)))
+    (setq multitran-languages '("Chinese" . "English") )
+    (multitran-at-pos pos))
 
-(defun my/multitran-at-pos-ch-en (pos)
-  (interactive (list (point)))
-  (setq multitran-languages '("English" . "Chinese") )
-  (multitran-at-pos pos))
+  (defun my/multitran-at-pos-ch-en (pos)
+    (interactive (list (point)))
+    (setq multitran-languages '("English" . "Chinese") )
+    (multitran-at-pos pos))
 
-(defun my/multitran-at-pos-ru (pos)
-  (interactive (list (point)))
-  (setq multitran-languages '("Russian" . "English") )
-  (multitran-at-pos pos))
-
-
-
-(defun my/multitran()
-  (keymap-local-set "C-c t e" 'my/multitran-at-pos-en )
-  (keymap-local-set "C-c t c" 'my/multitran-at-pos-ch )
-  (keymap-local-set "C-c t d" 'my/multitran-at-pos-ch-en )
-  (keymap-local-set "C-c t r" 'my/multitran-at-pos-ru )
-  )
-;; org and markdown mode
-(add-hook 'org-mode-hook 'my/multitran)
-(add-hook 'markdown-mode-hook 'my/multitran)
-(add-hook 'fundamental-mode-hook 'my/multitran)
+  (defun my/multitran-at-pos-ru (pos)
+    (interactive (list (point)))
+    (setq multitran-languages '("Russian" . "English") )
+    (multitran-at-pos pos))
 
 
-(defconst multitran-url "https://www.multitran.com")
-;; (defconst multitran-url "https://89.108.112.70")
+
+  (defun my/multitran()
+    (keymap-local-set "C-c t e" 'my/multitran-at-pos-en )
+    (keymap-local-set "C-c t c" 'my/multitran-at-pos-ch )
+    (keymap-local-set "C-c t d" 'my/multitran-at-pos-ch-en )
+    (keymap-local-set "C-c t r" 'my/multitran-at-pos-ru )
+    )
+  ;; org and markdown mode
+  (add-hook 'org-mode-hook 'my/multitran)
+  (add-hook 'markdown-mode-hook 'my/multitran)
+  (add-hook 'fundamental-mode-hook 'my/multitran)
 
 
+  (defconst multitran-url "https://www.multitran.com")
+  ;; (defconst multitran-url "https://89.108.112.70")
+)
 
 #+end_src
 ** hidepw
 #+begin_src elisp
 
-(require 'hidepw)
-(setq hidepw-patterns '("\\([pP]assword\\|[pP]ass\\|[lL]ogin\\|kv\\|[tT]oken\\):? \\(.+\\)$"))
+(with-eval-after-load 'hidepw
+  ;; (require 'hidepw)
+  (setq hidepw-patterns '("\\([pP]assword\\|[pP]ass\\|[lL]ogin\\|kv\\|[tT]oken\\):? \\(.+\\)$"))
 
-(advice-add 'hidepw-font-lock-keywords :override
-  (lambda ()
-    (mapcar (lambda (pat) `(,pat 2 (hidepw-render)))
-          `(,@hidepw-patterns ,@(when hidepw-hide-first-line '("\\`\\(.*\\)$"))))
-    )
-  )
+  (advice-add 'hidepw-font-lock-keywords :override
+              (lambda ()
+                (mapcar (lambda (pat) `(,pat 2 (hidepw-render)))
+                        `(,@hidepw-patterns ,@(when hidepw-hide-first-line '("\\`\\(.*\\)$"))))
+                )
+              )
+)
 #+end_src
 ** EasyPG - GnuPG interface
 #+begin_src elisp
 
 (require 'epa-file)
-;; (setf epa-pinentry-mode 'loopback)
-(setopt epa-pinentry-mode 'ask)
+(setf epa-pinentry-mode 'loopback)
+;; (setopt epa-pinentry-mode 'ask)
 ;; (setf epa-pinentry-mode 'ask)
 ;; (setenv "DISPLAY" "")
 (epa-file-enable)
@@ -8439,9 +8864,10 @@ timeout -k 1 1 speaker-test -c1 -t sin >/dev/null" min-to-app  msg))
 ** pinyin-isearch
 #+begin_src elisp
 
-(require 'pinyin-isearch)
-(pinyin-isearch-activate-submodes)
-
+(with-eval-after-load 'pinyin-isearch
+  ;; (require 'pinyin-isearch)
+  (pinyin-isearch-activate-submodes)
+)
 #+end_src
 ** Org Presentations - help functions
 #+begin_src elisp

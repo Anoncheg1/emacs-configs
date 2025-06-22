@@ -22,7 +22,7 @@
 - M-.			(xref-find-definitions) - for symbol at cursor
 - M-,			(xref-go-back)
 - C-M-,		(xref-go-forward)
-- C-M-u		backward-up-list - go to first line of current block
+- C-M-u/d		backward-up/down-list - go to first/last line of current block
 - M-x pdb		Debugger
 - C-x C-a		Debugger keys prefix
 
