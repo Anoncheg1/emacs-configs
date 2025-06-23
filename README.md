@@ -196,7 +196,7 @@ alias en="emacs --eval \"(notmuch)\""
 [Python mode keys rebindings: ./python-mode-keys.org](python-mode-keys.org)
 
 # ELisp keys
-[Python mode keys rebindings: ./lisp-mode-keys.org](lisp-mode-keys.org)
+[Python mode keys rebindings: ./elisp-mode-keys.org](elisp-mode-keys.org)
 
 # Time management
 For time management I use 3 windows:
