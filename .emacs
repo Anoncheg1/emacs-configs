@@ -1455,59 +1455,82 @@ to activate."
 ;; (global-set-key (kbd "C-M-e") #'next-buffer) ; shadow end-of-defun
 (define-key key-translation-map (kbd "C-M-q") (kbd "RET")) ; shadow `indent-pp-sexp'
 ;; -- -- Windows
-;; -- -- -- toggle windows split for 2 windows &  swap windows
-(defun my/toggle-window-split-or-swap-windows (&optional arg)
-  (interactive "p")
+;; -- -- -- toggle windows split for 2 windows &  swap windows (old)
+;; (defun my/toggle-window-split-or-swap-windows (&optional arg)
+;; "old"
+;;   (interactive "p")
+;;   (print arg)
+;;   (if arg
+;;       (window-swap-states (selected-window) (next-window))
+;;     ;; else
+;;     (if (= (count-windows) 2)
+;;         (let* ((this-win-buffer (window-buffer))
+;;                (next-win-buffer (window-buffer (next-window)))
+;;                (this-win-edges (window-edges (selected-window)))
+;;                (next-win-edges (window-edges (next-window)))
+;;                (this-win-2nd (not (and (<= (car this-win-edges)
+;;                                            (car next-win-edges))
+;;                                        (<= (cadr this-win-edges)
+;;                                            (cadr next-win-edges)))))
+;;                (splitter
+;;                 (if (= (car this-win-edges)
+;;                        (car (window-edges (next-window))))
+;;                     'split-window-horizontally
+;;                   'split-window-vertically)))
+;;           (delete-other-windows)
+;;           (let ((first-win (selected-window)))
+;;             (funcall splitter)
+;;             (if this-win-2nd (other-window 1))
+;;             (set-window-buffer (selected-window) this-win-buffer)
+;;             (set-window-buffer (next-window) next-win-buffer)
+;;             (select-window first-win)
+;;             (if this-win-2nd (other-window 1)))))))
+
+
+(defun my/window-split-toggle (&optional arg)
+  "Toggle between horizontal and vertical split with two windows.
+If universtal argument provided, just swap."
+  (interactive "P")
   (print arg)
   (if arg
       (window-swap-states (selected-window) (next-window))
-    ;; else
-    (if (= (count-windows) 2)
-        (let* ((this-win-buffer (window-buffer))
-               (next-win-buffer (window-buffer (next-window)))
-               (this-win-edges (window-edges (selected-window)))
-               (next-win-edges (window-edges (next-window)))
-               (this-win-2nd (not (and (<= (car this-win-edges)
-                                           (car next-win-edges))
-                                       (<= (cadr this-win-edges)
-                                           (cadr next-win-edges)))))
-               (splitter
-                (if (= (car this-win-edges)
-                       (car (window-edges (next-window))))
-                    'split-window-horizontally
-                  'split-window-vertically)))
-          (delete-other-windows)
-          (let ((first-win (selected-window)))
-            (funcall splitter)
-            (if this-win-2nd (other-window 1))
-            (set-window-buffer (selected-window) this-win-buffer)
-            (set-window-buffer (next-window) next-win-buffer)
-            (select-window first-win)
-            (if this-win-2nd (other-window 1)))))))
+    (if (/= (length (window-list)) 2)
+        (message "Can't toggle with more than 2 windows!")
+      (let ((func (if (window-full-height-p)
+                      #'split-window-vertically
+                    #'split-window-horizontally))
+            (this-win-buffer (window-buffer))
+            (next-win-buffer (window-buffer (next-window))))
+
+        (delete-other-windows)
+        (funcall func)
+        (save-selected-window
+          (other-window 1)
+          (switch-to-buffer next-win-buffer))))))
+
+;; (global-set-key (kbd "C-x C-|") 'my/window-split-toggle)
+(global-set-key (kbd "C-x |") 'my/window-split-toggle)
+(global-set-key (kbd "C-|") 'my/window-split-toggle)
+;; old
+;; (defun my/swap-buffers-in-windows ()
+;;   "Put the buffer from the selected window in next window, and vice versa."
+;;   (interactive)
+;;   (window-swap-states (selected-window) (next-window))
+;;   ;; (let* ((this (selected-window))
+;;   ;;    (other (next-window))
+;;   ;;    (this-buffer (window-buffer this))
+;;   ;;    (other-buffer (window-buffer other)))
+;;   ;;   (set-window-buffer other this-buffer)
+;;   ;;   (set-window-buffer this other-buffer))
+;;   )
 
 
-(global-set-key (kbd "C-x C-|") 'my/toggle-window-split-or-swap-windows)
-(global-set-key (kbd "C-x |") 'my/toggle-window-split-or-swap-windows)
-;; -- -- -- swap windows
-(defun my/swap-buffers-in-windows ()
-  "Put the buffer from the selected window in next window, and vice versa."
-  (interactive)
-  (window-swap-states (selected-window) (next-window))
-  ;; (let* ((this (selected-window))
-  ;;    (other (next-window))
-  ;;    (this-buffer (window-buffer this))
-  ;;    (other-buffer (window-buffer other)))
-  ;;   (set-window-buffer other this-buffer)
-  ;;   (set-window-buffer this other-buffer))
-  )
-
-
-(global-set-key (kbd "C-x M-\\") 'my/swap-buffers-in-windows)
+;; (global-set-key (kbd "C-x |") 'my/swap-buffers-in-windows)
 
 ;; -- -- -- C-x 1..0
 (global-set-key (kbd "C-1") #'delete-other-windows)
-(global-set-key (kbd "C-2") #'my/split-window-vertically)
-(global-set-key (kbd "C-3") #'my/split-window-horizontally)
+;; (global-set-key (kbd "C-2") #'my/split-window-vertically)
+;; (global-set-key (kbd "C-3") #'my/split-window-horizontally)
 (global-set-key (kbd "C-0") #'delete-window)
 
 ;; -- -- comments keys binding
@@ -1709,15 +1732,15 @@ to activate."
 
 
 ;; (global-set-key (kbd "M-c") 'yank)
-;; -- -- -- split windows
-(defun my/split-window-horizontally()
-  (interactive)
-  (select-window (split-window-horizontally)))
-(defun my/split-window-vertically()
-  (interactive)
-  (select-window (split-window-vertically)))
-(global-set-key "\C-x3" #'my/split-window-horizontally)
-(global-set-key "\C-x2" #'my/split-window-vertically)
+;; -- -- -- split windows (old)
+;; (defun my/split-window-horizontally()
+;;   (interactive)
+;;   (select-window (split-window-horizontally)))
+;; (defun my/split-window-vertically()
+;;   (interactive)
+;;   (select-window (split-window-vertically)))
+;; (global-set-key "\C-x3" #'my/split-window-horizontally)
+;; (global-set-key "\C-x2" #'my/split-window-vertically)
 ;; -- -- -- other window
 (defun my/other-window-or-split ()
   (interactive)
@@ -2092,6 +2115,26 @@ test and will kill actually."
   (start-process "process-name" "buffer-name" "foot"))
 
 (global-set-key (kbd "C-!") #'my/open-shell)
+;; -- -- "C-c -" insert dash before every line in region
+(defun insert-dash-at-line-beginnings (start end)
+  "Insert '- ' at the beginning of every line in region, or at current line if no region is active."
+  (interactive
+   (progn
+     (if (use-region-p)
+         (let ((s (region-beginning)) (e (region-end)))
+           (list (min s e) (max s e))
+           ;; (deactivate-mark)
+           )
+       ;; else
+       (list (line-beginning-position) (line-end-position)))))
+  (save-excursion
+    (goto-char start)
+    (beginning-of-line)
+    (while (< (point) end)
+      (insert "- ")
+      (forward-line 1))))
+
+(global-set-key (kbd "C-c -") #'insert-dash-at-line-beginnings)
 ;; -- Global Modes
 ;; -- -- multiple-cursor
 (when (require 'multiple-cursors nil 'noerror)
@@ -2812,21 +2855,21 @@ Words are delimited only by spaces, tabs, and newlines."
 (define-skeleton oai-templ-together
   "Allow to input language."
   ""
-  "#+begin_ai :max-tokens 3000 :stream nil :sys \"Be helpful; think multi-faceted; answer compact and structured. Fix my question first.\"  :service together :model \"meta-llama/Llama-3.3-70B-Instruct-Turbo-Free\"\n"
+  "#+begin_ai :max-tokens 3000 :stream nil :sys \"Be helpful; think by ideas, consider all sides; answer compact, structured and with details. Fix my question first.\"  :service together :model \"meta-llama/Llama-3.3-70B-Instruct-Turbo-Free\"\n"
   "\n"
   "#+end_ai"
   )
 (define-skeleton oai-templ-github
   "Allow to input language."
   ""
-  "#+begin_ai :max-tokens 3000 :stream nil :sys \"Be helpful; think multi-faceted; answer compact and structured. Fix my question first.\"  :service github :model \"openai/gpt-4.1\"\n"
+  "#+begin_ai :max-tokens 3000 :stream nil :sys \"Be helpful; think by ideas, structured and multi-faceted; answer by ideas with details. Fix my question first.\"  :service github :model \"openai/gpt-4.1\"\n"
   "\n"
   "#+end_ai"
   )
 (define-skeleton oai-templ-local
   "Allow to input language."
   ""
-  "#+begin_ai :max-tokens 2000 :stream nil :sys \"Be helpful; think multi-faceted; answer compact and structured. Fix my question first.\"  :service local :model\n"
+  "#+begin_ai :max-tokens 2000 :stream nil :sys \"Be helpful; think by ideas, structured and multi-faceted; answer by ideas with details. Fix my question first.\"  :service local :model\n"
   "\n"
   "#+end_ai"
   )
@@ -2988,7 +3031,7 @@ Words are delimited only by spaces, tabs, and newlines."
   "#dailyreport\n"
   "\n"
   "EOF\n"
-  "cat /tmp/post | post\n"
+  "# cat /tmp/post | post\n"
   "cat /tmp/post | post-dev\n"
   "#+end_src")
 (define-skeleton org-src-shell
@@ -3386,309 +3429,7 @@ If ARG provided switch to double-previous buffer."
               )
 )
 ;; -- -- Outline minor mode for Elisp, Python [rooted]
-;; -- -- -- count depth function
-(defun my/outline-get-depth ()
-  (let (r (p (point-max)))
-    (dolist (c '(0 1 2 3 4 5 6 7 8))
-      (if (/= p 0) ; stop factor
-          (save-excursion
-            (outline-up-heading c)
-            (when (< (point) p)
-              (setq r c)
-              (if (= (point) p)
-                  (setq p 0) ; stop
-                ;; else
-                (setq p (point)))))))
-    (+ 1 r)
-    ))
-;; -- -- -- TAB key - indent.el configuration
-(defvar my/indent-line-function-original)
-
-(defun my/outline-tab ()
-"compare full line at cursor position with outline template for
-header. [rooted]"
-
-  (if (string-match outline-regexp
-                (buffer-substring (line-beginning-position)
-                                  (line-end-position)))
-      (progn
-        (outline-toggle-children)
-      'noindent ; stop TAB sequence
-      )
-    ;; else - not header
-    (indent--funcall-widened my/indent-line-function-original)
-
-    ;; (indent--funcall-widened (default-value 'indent-line-function)) ; my/indent-line-function-original
-    ;; (let ((old-indent (current-indentation)))
-    ;;   (lisp-indent-line)
-    ;;   ;; - align
-    ;;   (let ((syn (syntax-class (syntax-after (point)))))
-    ;;     (if (and (zerop (- (current-indentation) old-indent))
-    ;;              (memql syn '(2 4 5)))
-    ;;         (or (indent--default-inside-comment)
-    ;;             (indent--funcall-widened 'indent-relative))
-    ;;       ))
-    ;; )
-    )
-  )
-
-(defun my/outline-minor-mode-hook1 ()
-  (if outline-minor-mode
-    (progn
-      ;; - restore after applying "Local variables" for this config
-      (if (and (buffer-file-name) (or (string-equal (file-name-nondirectory  (buffer-file-name)) ".emacs")
-                                      (string-equal (file-name-nondirectory (buffer-file-name)) "init.el")))
-          (setq-local indent-line-function #'lisp-indent-line)
-        )
-
-      (setq-local my/indent-line-function-original indent-line-function)
-      (setq-local indent-line-function #'my/outline-tab)
-      ;; (setq-local tab-always-indent t)
-      )
-
-    ;; else - restore
-      (if (bound-and-true-p my/indent-line-function-original)
-    (setq-local indent-line-function my/indent-line-function-original))
-   ;; (setq-local tab-always-indent (default-value tab-always-indent))
-  )
-   ; do not call (completion-at-point) after indent
-  ;; (setq-default indent-line-function nil)
-)
-
-(add-hook 'outline-minor-mode-hook 'my/outline-minor-mode-hook1)
-;; (remove-hook 'outline-minor-mode-hook 'my/outline-mode-hook1)
-
-;; -- -- -- add C-u C-w behavior to copy only headers
-(defun my/outline-copy-outline-headers (beg end &optional delete)
-  "Copy outline headers between BEG and END that match `outline-regexp`.
-Also copies lines before the first top-level outline.
-If universal argument is set, only copy headers and pre-outline content.
-Otherwise, copy all content using `buffer-substring--filter`.
-Activated in outline-mode init hook."
-  (if current-prefix-arg
-      (let* ((content (buffer-substring-no-properties beg end))
-             (lines (split-string content "\n" nil))
-             (first-outline-index (catch 'found
-                                    (let ((index 0))
-                                      (dolist (line lines)
-                                        (when (string-match-p outline-regexp line)
-                                          (throw 'found index))
-                                        (setq index (1+ index)))
-                                      nil)))
-             (pre-outline (if first-outline-index
-                              (butlast lines (- (length lines) first-outline-index))
-                            lines))
-             (headers (delq nil (mapcar (lambda (line)
-                                          (when (string-match-p outline-regexp line)
-                                            (concat line " ...")))
-                                        lines))))
-        (string-join (append pre-outline headers) "\n"))
-    ;; else - no prefix
-    (buffer-substring--filter beg end delete)))
-;; -- -- -- hook and keys
-;; same as my/org-fold-hide-other, but "sublevels 20"
-(defun my/outline-hide-other ()
-  "Hide other headers and don't hide headers and text in opened."
-  (interactive)
-  (save-excursion
-    (outline-hide-sublevels 7) ;; hide all
-    (outline-show-children) ;; show headers, not shure how and wehere,
-    (outline-back-to-heading t) ;; to header in depths
-    (outline-show-entry) ;; show local text
-    (print "my/outline-hide-other1")
-    (condition-case nil
-        (outline-up-heading 1 t) ;; go upper - signal warning
-      (error nil)
-      )
-    (while ( > (funcall outline-level) 1) ;; while not at first header
-      (outline-show-entry)
-      (outline-show-children) ;; show subheaders
-      (print "my/outline-hide-other2")
-      (condition-case nil
-          (outline-up-heading 1 t) ;; go upper  - signal warning
-        (error nil)
-        ))))
-
-(defun my/outline-tab-old ()
-  "compare full line at cursor position with outline template for
-header. [rooted]"
-  (interactive)
-  (if (and (and (boundp 'outline-minor-mode)
-                outline-minor-mode) ; if outline is active
-           ;; and regex match line
-           (string-match outline-regexp (buffer-substring (line-beginning-position) (line-end-position))))
-      (outline-toggle-children)
-    ;; else
-    ;; (call-interactively #'indent-for-tab-command)
-    ;; else
-    (if (fboundp 'my/indent-or-complete)
-        (progn
-          (print "here my")
-          (call-interactively 'my/indent-or-complete))
-      ; else
-      (print "outline default")
-      (call-interactively 'indent-for-tab-command))
-    ))
-
-(defun my/outline-header-search ()
-  (if isearch-regexp
-      (progn
-        (setq isearch-case-fold-search 1)   ; make searches case insensitive
-        (setq case-fold-search 1)   ; make searches case insensitive
-        (isearch-push-state)
-        ;; (setq string "^*.*")
-        (let ((string "^;; --.*"))
-          (isearch-process-search-string
-           string (mapconcat 'isearch-text-char-description string ""))))))
-
-
-(defun my/outline-mode-hook ()
-  (print outline-regexp)
-  ;; - - Problem here: outline-minor mode do not respect 'outline-regexp' and somehow reinitialize it.
-
-  (if (and (buffer-file-name) (or (string-equal (file-name-nondirectory  (buffer-file-name)) ".emacs")
-                                  (string-equal (file-name-nondirectory (buffer-file-name)) "init.el")))
-      (progn
-       (setq-local outline-regexp ";; \\-\\- ")
-       (setq-local outline-heading-alist
-                   '((";; -- " . 1)
-                     (";; -- -- " . 2)
-                     (";; -- -- -- " . 3)
-                     (";; -- -- -- -- " . 4)
-                     (";; -- -- -- -- -- " . 5)
-                     (";; -- -- -- -- -- -- " . 6))))
-    ;; else
-    (if (bound-and-true-p  outline-it-heading-alist)
-        ;; for `outline-it-python'
-        (setq-local outline-heading-alist outline-it-heading-alist)
-
-        ;; else - for programming modes where only one level required
-        (setq-local outline-heading-alist
-                    (list (cons outline-regexp 1))))
-    )
-
-
-  ;; (setq outline-heading-end-regexp "\n")
-  ;; (define-key outline-minor-mode-map (kbd "C-x i") 'outline-toggle-children) ;;
-  ;; (define-key outline-minor-mode-map (kbd "C-c TAB") 'outline-toggle-children) ;;
-  (keymap-local-set "<backtab>" 'outline-cycle-buffer) ;; S-tab
-  (keymap-local-set "C-c C-e" 'my/outline-hide-other) ;; hides `elisp-eval-region-or-buffer'
-  ;; (keymap-local-set "C-c TAB" 'outline-hide-body)
-  ;; (define-key outline-minor-mode-map [S-tab] 'outline-show-all)
-  ;; (outline-hide-body)
-  (setq outline-default-state 'outline-show-only-headings)
-  (outline-apply-default-state)
-  (add-hook 'isearch-mode-hook 'my/outline-header-search nil t) ;; LOCAL = t
-  ;; - activate outline-heading-alistheader leavels
-  (setq outline-level #'outline-level)
-  ;; - TAB key
-
-  ;; (keymap-local-set "TAB" 'my/outline-tab) ;; rooted - wrong
-  ;;
-  ;; - Add behavior of C-u C-w to copy only headers
-  (setq-local filter-buffer-substring-function #'my/outline-copy-outline-headers)
-
-  )
-
-(add-hook 'outline-minor-mode-hook 'my/outline-mode-hook)
-
-;; -- -- -- fixes for other modes
-;; -- -- -- -- C-, xref jump
-(defun my/fix-xref-outline (orig-fun &rest args)
-  "Fix bug when we jump C-, to place hidden header."
-  (apply orig-fun args)
-  (when (eq (get-char-property (point) 'invisible) 'outline)
-      ;; (bound-and-true-p outline-minor-mode)
-    ;; (outline-show-all)
-    ;; (outline-hide-other)
-    (outline-hide-sublevels 7)
-    (outline-show-entry)
-    ))
-
-(advice-add 'xref-find-definitions :around #'my/fix-xref-outline)
-(advice-add 'xref-go-back :around #'my/fix-xref-outline)
-(advice-add 'goto-line :around #'my/fix-xref-outline)
-(advice-add 'compile-goto-error :around #'my/fix-xref-outline)
-
-;; -- -- -- -- Backtrace clicks
-(defun my/outline-help-function-def(&rest r)
-  "Fix clicking buttons in Backtrace."
-  (when (bound-and-true-p outline-minor-mode)
-    (outline-show-all)
-    (my/outline-hide-other)))
-
-(advice-add 'help-function-def--button-function :after #'my/outline-help-function-def)
-
-;; -- -- -- -- C-u C-SPC set-mark-command
-(defun my/outline-set-mark-command(arg)
-  "Fix clicking buttons in Backtrace."
-  (when (and (bound-and-true-p outline-minor-mode)
-             arg)
-    (outline-show-all)
-    (my/outline-hide-other)))
-
-(advice-add 'set-mark-command :after #'my/outline-set-mark-command)
-;; (advice-remove 'set-mark-command #'my/outline-set-mark-command)
-
-;; -- -- -- variant of fix for `outline-hide-other' (not used)
-;; (defun my/outline-hide-other-after (&rest r)
-;;   "Show subheaders and headers at current tree after hidding.
-;; After outline-show-entry that hide all and bottom."
-;;   ;; show all at bottom, undo
-;;   (save-excursion
-;;     (outline-flag-region (point)
-;;                          (point-max)
-;;                          nil))
-
-;;   ;; hide subtrees
-;;   (save-excursion
-;;     (outline-back-to-heading t)
-;;     (let ((level (funcall outline-level))
-;;           (level-current)
-;;           (run t))
-;;       ;; check first subheader manually, it may have deeper level.
-;;       (when (outline-next-heading)
-;;         (outline-hide-subtree)
-;;         (setq level (funcall outline-level)))
-
-;;       (while (and run (outline-next-heading))
-;;             (setq level-current (funcall outline-level))
-;;             (when (>= level level-current) ; go to up
-;;               (outline-hide-subtree)
-;;               (when (> level level-current)
-;;                 (setq level level-current))))
-;;         )))
-;; (advice-add 'outline-hide-other :after #'my/outline-hide-other-after)
-
-
-;; -- -- -- fix for goto-line (old)
-;; (defun my/goto-line-advice (orig-fun &rest args)
-;;   "Fix to unwrap outline.
-;; Double call, first call set cursor at wrapped line, second at
-;; unwrapped."
-;;   (when (bound-and-true-p outline-minor-mode)
-;;     (apply orig-fun args)
-;;     (outline-show-entry))
-;;   (apply orig-fun args))
-
-;; (advice-add 'goto-line :around #'my/goto-line-advice)
-;; (advice-remove 'goto-line #'my/goto-line-advice)
-;; -- -- -- function: "outline-it"
-(defun outline-it(outline-r)
-  "Activate outline-minor mode with custom regex for header.
-Useful for navigation in one level organized files, like code
-with functions."
-  (interactive "soutline-regexp: ")
-  (setq-local outline-regexp "")
-  (outline-minor-mode -1)
-  (setq-local outline-regexp outline-r)
-  (outline-minor-mode 1))
-
-(defun outline-it-python ()
-  (interactive)
-  (setq-local outline-it-heading-alist '(("class" . 1) ("def" . 2)))
-  (outline-it "^class\\|.* def "))
-
+(add-to-list 'load-path "/home/user/sources/emacs-outline-it")
 ;; -- -- Diary
 ;; -- -- -- sort diary entries
 (require 'diary-lib)
@@ -8717,7 +8458,16 @@ MIN-LINES is the minimum number of lines required (default 3)."
             #'my/org-present-end)
   )
 
-;; -- -- org-links ol.el and simple fallback configuration
+;; -- -- org-links ol.el, ffap.el and simple fallback configuration
+;; -- -- -- ffap.el and ol.el
+;; ffap.el - C-x C-f globally at point.
+(setq ffap-url-regexp nil) ; disable using browser, idk how this works, but works.
+;; ol.el
+(setopt org-link-file-path-type 'absolute)
+;; (setq org-link-file-path-type 'adaptive)
+;; (setq org-link-file-path-type 'absolute)
+(setopt org-link-search-must-match-exact-headline nil)
+;; -- -- -- org-links "C-c w" and and "C-c C-o"
 (defun org-links-store-link-fallback (arg)
   "Copy Org-mode link to kill ring and clipboard from any mode.
 Without a  prefix argument  ARG, copies a  link PATH::NUM  (current line
@@ -8746,11 +8496,6 @@ Support `image-dired-thumbnail-mode' and `image-dired-image-mode' modes."
     (message  "%s\t- copied to clipboard" link)))
 
 (add-to-list 'load-path "/home/user/sources/emacs-org-links")
-
-(setopt org-link-file-path-type 'absolute)
-;; (setq org-link-file-path-type 'adaptive)
-;; (setq org-link-file-path-type 'absolute)
-(setopt org-link-search-must-match-exact-headline nil)
 
 (if (not (require 'org-links nil 'noerror))
     (global-set-key (kbd "C-c w") #'org-links-store-link-fallback)
@@ -9778,7 +9523,6 @@ Aspects:
 
 ;; (advice-add 'isearch-edit-string :after #'pinyin-isearch--fix-edit-advice)
 ;; (make-local-variable 'current-language-environment)
-;; (put 'set-goal-column 'disabled nil)
 ;; (setq subword-mode t)
 ;;
 
@@ -9793,3 +9537,4 @@ Aspects:
 ;; outline-regexp: ";; \\-\\- "
 ;; coding: utf-8
 ;; end:
+(put 'set-goal-column 'disabled nil)
