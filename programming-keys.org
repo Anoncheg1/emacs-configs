@@ -9,3 +9,5 @@
 - C-c h		(outline-previous-heading)
 - C-c i		(demap-toggle)
 - C-c j		(mc/mark-all-like-this-dwim)
+- M-.			xref-find-definitions
+- C-x 4 .		xref-find-definitions-other-window

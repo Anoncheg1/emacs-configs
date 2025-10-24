@@ -530,12 +530,13 @@ For Elisp mode by default lines starting with “;;;” used in “outline-regex
 To modify this and add keys bindings create file .dir-locals.el
 #+begin_src elisp :results none :exports code :eval no
 ((emacs-lisp-mode . (
-                    (outline-regexp . "^;;;")
+                    (outline-regexp . "^;;; ")
                     ;; (eval . (outline-minor-mode 1))
                     (eval . (progn (keymap-local-set "C-c k" #'outline-previous-heading)
                                   (keymap-local-set "C-c n" #'outline-next-heading)
-                                  (keymap-local-set "<backtab>" #'outline-cycle-buffer)
-                                  (keymap-local-set "TAB" #'outline-toggle-children)
+                                  (keymap-local-set "C-c C-e" #'my/outline-hide-other)
+                                  (keymap-local-set "C-<tab>" #'outline-cycle-buffer)
+                                  (keymap-local-set "<backtab>" #'outline-toggle-children)
                                   (outline-cycle-buffer 1)
                                   ))
                     )))

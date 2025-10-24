@@ -56,6 +56,10 @@ This is between console and JIKL:
 - M-C and C-x x c 'my/capitalize-sentence
 - C-x C-t	'downcase-region
 - M-l		'my/downcase-word
+- C-t		'recenter-top-bottom
+- C-c C-w	'my/word-cut
+- C-c M-w	'my/word-copy
+- C-9		'open-terminal
 
 I changed behavior of C-a/e and M-a/e in Org mode.
 - C-a - move to the begining of the current element at the line. (For example: to the begining of the URL.)

@@ -1,0 +1,9 @@
+- C-M-x	eval-defun	Evaluate top level expression to left and to right of cursor
+- C-x C-e	eval-last-sexp
+- C-u C-x C-e	eval and insert	result to buffer
+- M-:		eval-expression	type expression in ()
+- M-n		end-of-defun		to last )
+- C-M-u/d		up/down in sexp
+- C-M-n/k		next/prev sexp (cursor should be at “()”)
+- Shift-Tab	outline-cycle-buffer
+- C-c C-e 	my/outline-hide-other
