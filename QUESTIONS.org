@@ -1,4 +1,25 @@
-* Keys: How to use C-h as backspace as it works in console?ired
+* Keys: Must have rebininds
+- C-0 - (other-window) -> C-x o
+- C-h (delete-backward-char) -> backspace
+- M-c (yank) -> C-y
+- C-k (previous-line) -> C-p
+#+begin_src elisp :lexical t :results none :exports code :eval no
+;; C-h (delete-backward-char) -> backspace
+(define-key key-translation-map (kbd "C-h") (kbd "DEL"))
+(define-key isearch-mode-map "\C-h" #'isearch-delete-char)
+(define-key dired-mode-map "\C-h" #'dired-unmark-backward)
+;; C-0 (other-window) -> C-x 0
+(define-key key-translation-map (kbd "C-0") (kbd "C-x o"))
+;; M-c (yank) -> C-y
+(define-key key-translation-map (kbd "M-c") (kbd "C-y")) ; shadow capitalize-word
+;; C-k (previous-line) -> C-p
+(define-key key-translation-map (kbd "C-k") (kbd "C-p")) ;; up
+(define-key key-translation-map (kbd "C-p") (kbd "C-k"))
+;; minibuffer
+(define-key minibuffer-local-map (kbd "C-p") 'previous-line-or-history-element) ;; C-k
+#+end_src
+
+* Keys: How to use C-h as backspace as it works in console?
 : (define-key (current-global-map) (kbd "C-h") 'delete-backward-char)
 backspace at search
 : (define-key isearch-mode-map "\C-h" #'isearch-delete-char) ; delete character during search C-s

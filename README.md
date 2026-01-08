@@ -50,7 +50,7 @@ This is between console and JIKL:
 - C-x C-l	'my/list-buffers-right (beffer-menu)
 - C-x y	'bookmarks
 - C-x m	'compose-mail
-- C-c w	'my/copy-link-to-clipboard, 'my/dired-copy-filename-as-kill
+- C-c w	'org-links-store-extended
 - C-+/-	'text-scale-increase/decrease
 - M-c		'yank
 - M-C and C-x x c 'my/capitalize-sentence
@@ -75,7 +75,9 @@ Buffers:
 - C-x ! - 'my/kill-other-buffers-and-frame-duplicates - kill not modified buffers and duplicate frames, kill not marked buffers in menu
 
 Windows:
-- C-o - my/other-window-or-split
+- C-0 - my/other-window-or-split or switch to left window
+- C-9 - switch or right window
+- M-9/0 - enlarge/squeeze current window
 
 Frames (not used, acttually):
 - M-[/] - (other-frame -1/1)
