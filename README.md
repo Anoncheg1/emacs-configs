@@ -75,8 +75,7 @@ Buffers:
 - C-x ! - 'my/kill-other-buffers-and-frame-duplicates - kill not modified buffers and duplicate frames, kill not marked buffers in menu
 
 Windows:
-- C-0 - my/other-window-or-split or switch to left window
-- C-9 - switch or right window
+- C/M-o - my/other-window-or-split or switch to left window / switch or right window
 - M-9/0 - enlarge/squeeze current window
 
 Frames (not used, acttually):

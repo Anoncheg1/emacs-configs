@@ -1,5 +1,5 @@
 * Keys: Must have rebininds
-- C-0 - (other-window) -> C-x o
+- C/M-o - (other-window 1/-1) -> C-x o
 - C-h (delete-backward-char) -> backspace
 - M-c (yank) -> C-y
 - C-k (previous-line) -> C-p
@@ -8,8 +8,9 @@
 (define-key key-translation-map (kbd "C-h") (kbd "DEL"))
 (define-key isearch-mode-map "\C-h" #'isearch-delete-char)
 (define-key dired-mode-map "\C-h" #'dired-unmark-backward)
-;; C-0 (other-window) -> C-x 0
-(define-key key-translation-map (kbd "C-0") (kbd "C-x o"))
+;; C/M-o - (other-window 1/-1) -> C-x o
+(global-set-key (kbd "C-o")    (lambda () "Other window." (interactive) (other-window 1)))
+(global-set-key (kbd "M-o")    (lambda () "Like M-o to another way." (interactive) (other-window -1)))
 ;; M-c (yank) -> C-y
 (define-key key-translation-map (kbd "M-c") (kbd "C-y")) ; shadow capitalize-word
 ;; C-k (previous-line) -> C-p
@@ -975,6 +976,41 @@ if "masking-baseline" != os.path.basename(os.getcwd()):
 solution:
 : (defalias 'Dockerfile-mode 'dockerfile-mode)
 : (defalias 'Python-mode 'python-mode)
+* Org: Babel: Some keys don't respect source block at current position. How to run command in source block?
+TAB key do proper indentantion, because it is already configured by Org-mode.
+it is ~org-indent-line~ which is set to ~indent-line-function~.
+
+Here is solution how
+
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(defun my/org-execute-in-source-block (func)
+  "If point at src block, then e xecute FUNC in major mode of block.
+  Otherwise execute FUNC natively.
+  Used code from `org-indent-line'."
+  (let* ((element (save-excursion (forward-line 0) (org-element-at-point-no-context)))
+           (type (org-element-type element)))
+
+    (if (and (eq type 'src-block)
+            (> (line-beginning-position)
+                         (org-element-post-affiliated element))
+                      (< (line-beginning-position)
+                         (org-with-point-at (org-element-end element)
+                           (skip-chars-backward " \t\n")
+                           (line-beginning-position))))
+        (ignore-errors ; do not err when there is no proper major mode
+          ;; It is important to call `indent-according-to-mode'
+          ;; rather than `indent-line-function' here or we may
+          ;; sometimes break `electric-indent-mode'
+          ;; https://orgmode.org/list/5O9VMGb6WRaqeHR5_NXTb832Z2Lek_5L40YPDA52-S3kPwGYJspI8kLWaGtuq3DXyhtHpj1J7jTIXb39RX9BtCa2ecrWHjijZqI8QAD742U=@proton.me
+          (org-babel-do-in-edit-buffer (funcall func)))
+      ;; else
+      (funcall func))))
+
+(keymap-set org-mode-map "C-M-f" (lambda () "forward-sexp in org-mode" (interactive) (my/org-execute-in-source-block 'forward-sexp)))
+(keymap-set org-mode-map "C-M-l" (lambda () "backward-sexp in org-mode" (interactive) (my/org-execute-in-source-block 'backward-sexp )))
+
+#+end_src
+
 * Org: What is the best approach to document small table with big cells in plain text?
 You can write 2x2 table this way:
 
