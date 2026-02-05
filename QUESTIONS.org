@@ -726,15 +726,17 @@ call_emacs() {
 #+end_src
 * Jumping: How to make recenter when jumping from *Backtrace* buffer?
 #+begin_src elisp :lexical t :results none :exports code :eval no
-(defun jumping-to-bottom-fix (&rest args)
-  "Check if at least 8 lines visible after jumping, if not recenter.
+(defun my/backtrace-jump-at-bottom-fix (&rest args)
+  (ignore args)
+  "Check if at least 8 lines visible after jumping, if not recenter."
   (when (and (not (pos-visible-in-window-p (save-excursion
-                                             (forward-line 8)
-                                             (point))))
+                                        (forward-line 8)
+                                        (point))))
              (eq (window-buffer) (current-buffer))) ; if showed
+    (print "recenter")
     (recenter)))
 
-(advice-add 'help-function-def--button-function :after #jumping-to-bottom-fix)
+(advice-add 'help-function-def--button-function :after #'my/backtrace-jump-at-bottom-fix)
 #+end_src
 * paragraph.el: How to prevent fill-paragraph in Org mode to indent source block according to language
 How to force fill-paragraph to use just local fill-column and don't use babel?
