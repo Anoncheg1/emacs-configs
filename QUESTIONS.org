@@ -1,4 +1,4 @@
-* Keys: Must have rebininds
+* Keys: Must have rebininds and must key bindings
 - C/M-o - (other-window 1/-1) -> C-x o
 - C-h (delete-backward-char) -> backspace
 - M-c (yank) -> C-y
@@ -19,6 +19,9 @@
 ;; minibuffer
 (define-key minibuffer-local-map (kbd "C-p") 'previous-line-or-history-element) ;; C-k
 #+end_src
+
+Some commands don't have bininds:
+- kill-line (C-u in terminal) -> ?
 
 * Keys: How to use C-h as backspace as it works in console?
 : (define-key (current-global-map) (kbd "C-h") 'delete-backward-char)
@@ -564,6 +567,143 @@ To modify this and add keys bindings create file .dir-locals.el
                     )))
 #+end_src
 
+* How to remove space between at pointer position in buffer?
+Emacs already have key for that: *M-\* ~delete-horizontal-space~.
+
+~fixup-whitespace~ do the same but leave one space after self.
+
+It is nice to have it bound to TAB key. For that you need create function and assign to ~indent-line-function~ variable.
+
+But I do other way I have own implementation indent.el (at https://github.com/Anoncheg1/emacs-indent )
+
+This implementation at TAB call steps, if one return t it stops.
+I created “step function” and place it between “5-indent-line”  and “6-completion-org” steps.
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(defun my/indent-for-tab-step-remove-spaces-at-point (&optional arg)
+  "Remove spaces if cursor at them, left one."
+  (ignore arg)
+  (let ((cur-syn (syntax-class (syntax-after (point)))) ; at cur position
+        (next-syn (and (< (point) (point-max))
+                       (syntax-class (syntax-after (1+ (point))))))
+        (prev-syn (and (> (point) (point-min))
+                       (syntax-class (syntax-after (1- (point))))))
+        point-save mark-s)
+
+    ;; if space at current position
+    (when (and (eq cur-syn 0) ; space current char
+               (or
+                (eq next-syn 0)
+                (eq prev-syn 0)) ; space before or after also
+               (not (looking-back "^\\s-*" (line-beginning-position))) ; not before line
+               (not (eolp)) ; not at the end of line (spaces removed at saving)
+               )
+      (let ((old-tick (buffer-chars-modified-tick)))
+        (fixup-whitespace)
+        (eql old-tick (buffer-chars-modified-tick)))))) ; return t if some was removed
+
+(defun my/indent-for-tab-step-remove-spaces-at-point-org (&optional arg)
+  "Remove spaces if cursor at them for ORG-mode."
+  (ignore arg)
+  (if (derived-mode-p 'org-mode)
+      (let ((element (org-element-at-point))) ; (org-element-type (org-element-at-point))
+        (unless (or (thing-at-point 'url)
+                    (thing-at-point 'email)
+                    (member (org-element-type element) '(table table-row)))
+          (my/indent-for-tab-step-remove-spaces-at-point)))
+    ;; else - other modes
+    (my/indent-for-tab-step-remove-spaces-at-point)))
+#+end_src
+
+* How to configure minimal Markdown, Yaml, JSON modes with Org source blocks support?
+
+Steps:
+1) install required “tree-sitter” packages to OS:
+#+begin_quote
+dev-libs/tree-sitter-json
+dev-libs/tree-sitter-markdown
+dev-libs/tree-sitter-markdown-inline
+dev-libs/tree-sitter-yaml
+#+end_quote
+
+2) Make shure that Emacs configured with “tree-sitter”
+: M-: (treesit-available-p) RET ; should be t
+or
+: C-h v system-configuration-options RET
+
+3) install markdown-ts-mode (json-ts-mode and yaml-ts-mode are build-in)
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+#+end_src
+
+: M-x package-install RET markdown-ts-mode
+
+4) Configure loading, file extensions and Org mode.
+#+begin_src elisp :lexical t :results none :exports code :eval no
+
+(when (treesit-available-p)
+  ;; Markdown
+  (when (require 'markdown-ts-mode nil 'noerror)
+    (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-ts-mode)))
+  ;; - built-in:
+  ;; YAML
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
+  ;; json
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . json-ts-mode))
+
+  ;; for org-mode source blocks
+  (with-eval-after-load 'org
+    (defalias 'yaml-mode 'yaml-ts-mode)
+    (defalias 'json-mode 'json-ts-mode)
+    (defalias 'markdown-mode 'markdown-ts-mode)))
+#+end_src
+
+5) For ability to use “C-c C-c” ~org-ctrl-c-ctrl-c~ to parse and lint, ~org-babel-execute:yaml~ function required (commonly distributed in ~ob-yaml.el~).
+
+Here is example for JSON to parse it with ~jq~ cli command.
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(defun org-babel-execute:json (body params)
+  "Validate JSON in BODY using jq CLI.
+Returns 'Valid JSON' or jq error message."
+  (let* ((processed-params (org-babel-process-params params))
+         (full-body (org-babel-expand-body:json
+                     body params processed-params)) ; (optional)
+         (command "jq ."))
+    (condition-case err
+        (org-babel-eval command full-body) ; "full-body" may be replaced with "body"
+      (org-babel-insert-result (format "Error running jq: %s" (error-message-string err)) '("replace")))))
+
+
+(defun org-babel-expand-body:json (body params &optional processed-params)
+  "Replace PARAMS in BODY specified as $name with its values."
+  (let ((vars (org-babel--get-vars (or processed-params (org-babel-process-params params)))))
+    (when vars
+      (mapc ;; define any variables
+       (lambda (pair)
+         (print (list "ss" (cdr pair) (concat " " (cdr pair))))
+         (setq body (string-replace (concat " $" (symbol-name (car pair)))
+                                    (concat " " (cdr pair))
+                                    body)))
+       vars)))
+  (concat "\n" body "\n"))
+
+;; example for some programming mode, like shell
+(defun org-babel-expand-body:sh (body params &optional processed-params)
+  "Add PARAMS to BODY as key=value, return the expanded body."
+  (let ((vars (org-babel--get-vars (or processed-params (org-babel-process-params params)))))
+    (concat
+     (mapconcat ;; define any variables
+      (lambda (pair)
+        (format "%s=%S"
+                (car pair) (format "%S" (cadr pair))))
+      vars "\n")
+     "\n" body "\n")))
+#+end_src
+
+
+To enable line-number-mode in preview buffer use:
+: (add-hook 'json-ts-mode-hook #'display-line-numbers-mode)
+
 * Automatic curly quotation marks “” (instead of "") and ‘’ (instead of '')
 #+begin_src elisp :results none :exports code :eval no
 (setopt electric-quote-context-sensitive t)
@@ -583,6 +723,18 @@ call_emacs() {
     fi
     emacsclient -c -a emacs +"${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}"
 }
+#+end_src
+* Jumping: How to make recenter when jumping from *Backtrace* buffer?
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(defun jumping-to-bottom-fix (&rest args)
+  "Check if at least 8 lines visible after jumping, if not recenter.
+  (when (and (not (pos-visible-in-window-p (save-excursion
+                                             (forward-line 8)
+                                             (point))))
+             (eq (window-buffer) (current-buffer))) ; if showed
+    (recenter)))
+
+(advice-add 'help-function-def--button-function :after #jumping-to-bottom-fix)
 #+end_src
 * paragraph.el: How to prevent fill-paragraph in Org mode to indent source block according to language
 How to force fill-paragraph to use just local fill-column and don't use babel?

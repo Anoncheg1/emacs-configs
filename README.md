@@ -47,6 +47,7 @@ This is between console and JIKL:
 
 ## Additional key bindings:
 - M-;		'comment-line
+- C-M-;	'comment-dwim
 - C-x C-l	'my/list-buffers-right (beffer-menu)
 - C-x y	'bookmarks
 - C-x m	'compose-mail
@@ -60,6 +61,8 @@ This is between console and JIKL:
 - C-c C-w	'my/word-cut
 - C-c M-w	'my/word-copy
 - C-9		'open-terminal
+- C-;		'recenter-top-bottom
+- C-:		'recenter-top-bottom
 
 I changed behavior of C-a/e and M-a/e in Org mode.
 - C-a - move to the begining of the current element at the line. (For example: to the begining of the URL.)
@@ -71,7 +74,7 @@ Buffers:
 - C-M-a/e - tab-line move right, move left
 - C-c M-c - *Messages* buffer
 - C-c C-z - previous buffer, with respect to tab-line
-- C-c C-a - previous previous buffer
+- C-c C-d - previous previous buffer
 - C-x ! - 'my/kill-other-buffers-and-frame-duplicates - kill not modified buffers and duplicate frames, kill not marked buffers in menu
 
 Windows:
@@ -81,7 +84,15 @@ Windows:
 Frames (not used, acttually):
 - M-[/] - (other-frame -1/1)
 - C-x 5 2 - (make-frame) (default)
-## Email Client
+
+## Left hand bindings
+- C-M-q - RET
+- C/M-z - next-line, previous-line
+- C-f/b - forward-char, backward-char
+- C-c s/M-s - my/other-window-or-split or switch to left window / switch or right window
+
+
+# Email Client
 isync + notmuch + notmuch-emacs + emacs + smtpmail-multi
 
 

@@ -171,13 +171,13 @@ Full code (greeTAB -> greetings!):
     (define-skeleton example
       "Define skeleton template."
       "" "greetings!")
-    
+
     ;; Abbrev table for Org-mode
     (define-abbrev-table 'org-mode-abbrev-table
       '(
         ("gree" "" example)
       ))
-    
+
     ;; TAB key rebinding
     (defun my/indent-or-complete (arg)
       (interactive "P")
@@ -194,7 +194,7 @@ Full code (greeTAB -> greetings!):
         ;; else
         (execute-extended-command nil "indent-for-tab-command" nil) ; cycle line
       ))
-    
+
     (global-set-key (kbd "TAB") #'my/indent-or-complete)
 
 You can also use company mode to show you available abbrevs.
@@ -227,7 +227,7 @@ Org mode have own function org-cycle bount to TAB.
 
 You should bind TAB in 'org-mode-hook. For other modes you should use hooks and global binding.
 
-    
+
     (defun my/indent-or-complete-org (arg)
       "TAB key"
       (interactive "P")
@@ -326,7 +326,7 @@ To show message we add hook and surround server-execute with own
     			     (make-auto-save-file-name)))
               (message (format "%s has auto save data, but older than original; consider M-x recover-this-file"
             	           (file-name-nondirectory buffer-file-name)))))))
-    
+
     ;; this fix hidding of message about auto saved #file# when there is local variables defined in file.
     (add-hook 'find-file-hook 'my/hook-fix-auto-save-was-found)
     ;; and when emacsclient is used and hide by message "When done with a buffer, type C-x #"
@@ -432,7 +432,7 @@ We can bound this to TAB key and detect if region is active:
         (deactivate-mark t)
         (goto-char beg)
         (beginning-of-line)
-    
+
         (setq-local  ciw (current-indentation))
         (indent-for-tab-command) ;; indent first line
         (let ((differ (+ (- (current-indentation) ciw) 1) )) ;; was = 1, become=4, 4-1 = 3+1 =4
@@ -541,7 +541,7 @@ For Org mode:
          (save-excursion
            (org-overview) ;; hide others
            (org-reveal '(4)))) ;; reveal current place appropriate)
-    
+
     (add-hook 'org-mode-hook (lambda ()
                                (local-set-key (kbd "C-c e") 'my/org-fold-hide-other)))
 
@@ -613,7 +613,7 @@ prevent evaluation if Org source blocks during export:
 
 Yes, it is a little hack:
 
-    
+
 
 Just press C-c C-c on this block and "aaa" block will be executed
  automatically. (x values is not used)
@@ -714,7 +714,7 @@ There is c function “make-network-process” (maybe more) that allow to
 Here is way to control connections by “make-network-process” function:
 
     (require 'socks)
-    
+
     (defun my-block-network-process-advice (orig-fun &rest args)
       "Pass smtpmail to socks and block everything other."
       (let ((name (plist-get args :name)) ; "socks" for socks-open-network-stream
@@ -726,7 +726,7 @@ Here is way to control connections by “make-network-process” function:
         (print (list "TEST" name host))
         (cond ((not host) ; wayland connection - condition
                (apply orig-fun args)) ; - body
-    
+
               ((string-equal name "smtpmail") ; - condition
                ;; -! replace "open-network-stream" with "socks-open-network-stream" function
                (print (list "smtpmail args" args))
@@ -734,7 +734,7 @@ Here is way to control connections by “make-network-process” function:
                (let ((coding-system-for-read 'binary)
                      (coding-system-for-write 'binary))
                      (socks-open-network-stream name buffer host service)))
-    
+
               ((string-equal name "socks")
                    ;; (string-equal name "smtpmail")
                    ;; ) ; - condition
@@ -744,7 +744,7 @@ Here is way to control connections by “make-network-process” function:
                  ;; (debug)
                  (apply orig-fun args)
                  ))
-    
+
               (t 				; - final condition
                 (message "Network calls are blocked. Arguments: %S" args)
                 ;; Return a dummy process object
@@ -755,12 +755,12 @@ Here is way to control connections by “make-network-process” function:
                 ;; ;; - else
                 ;; (apply orig-fun args)
                 )
-    
+
       ;; Optionally, raise an error to prevent the call
       ;; (error "Network calls are blocked.")
       ;; proc
       ))
-    
+
     (advice-add 'make-network-process :around #'my-block-network-process-advice)
 
 
@@ -867,12 +867,12 @@ Solution 2:
     (defun current-line-blank ()
       "Return non-nil if line is empty line."
       (eq (progn (end-of-line) (point)) (progn (beginning-of-line) (point)) ))
-    
+
     (defun current-line-list ()
       "Return boolean, non-nil if line is a list in Org mode."
       (or (eq (org-element-type (org-element-property :parent (org-element-at-point))) 'plain-list)
           (eq (org-element-type (org-element-at-point)) 'plain-list)))
-    
+
     (defun my/fill-paragraph-list ()
       "Fix for list in Org mode.
     Properly apply fill-paragraph in Org mode."
@@ -887,7 +887,7 @@ Solution 2:
           (forward-line -1))
         (if (or (current-line-blank) (not (current-line-list))) ; 3, 2
             (forward-line)))
-    
+
       ;; go forward
       (let ((v t))
         (while v
@@ -933,7 +933,7 @@ Simplies way is to bind switching to keys. In following code we
       (mapc (lambda (x)(load-theme x t))
             (reverse themes))
       (setq custom-enabled-themes themes))
-    
+
     ;; enable themes
     (global-set-key (kbd "C-=") (lambda () (interactive)
                                   (my/load-theme '(wombat manoj-dark))))
@@ -951,7 +951,7 @@ Simplies way is to bind switching to keys. In following code we
     (defun my/zone-sit-for-advice (func-call seconds &optional nodisp obsolete)
       (setq seconds (* seconds 6)) ; 6 times slower
       (apply func-call seconds nodisp obsolete))
-    
+
     (advice-add 'sit-for :around #'my/zone-sit-for-advice)
 
 advanced
@@ -959,20 +959,20 @@ advanced
     (defvar my/zone-current-program nil)
     (require 'zone)
     (zone-when-idle 120)
-    
+
     (defvar my/zone-crazy '("zone-pgm-putz-with-case"
                             "zone-pgm-whack-chars"))
-    
+
     (defvar my/zone-hungry '("zone-pgm-dissolve"
                              "zone-pgm-jitter"))
-    
+
     (defvar my/zone-demanding '("zone-pgm-rotate"
                                 "zone-pgm-random-life"
                                 "zone-pgm-drip"
                                 "zone-pgm-rotate-LR-lockstep"
                                 "zone-pgm-rotate-RL-variable"
                                 "zone-pgm-paragraph-spaz"))
-    
+
     (defun my/zone-sit-for-advice (func-call seconds &optional nodisp obsolete)
       "Slow down zone"
       (cond
@@ -985,14 +985,14 @@ advanced
        (t (setq seconds (* seconds 5))) ; 5 times slower for others
        )
       (apply func-call seconds nodisp obsolete))
-    
+
     (advice-add 'sit-for :around #'my/zone-sit-for-advice)
-    
+
     (defun my/zone-call (func-call program &optional timeout)
       (setq my/zone-current-program (symbol-name program))
       (print (symbol-name program)) ; for debug
       (apply func-call program timeout))
-    
+
     (advice-add 'zone-call :around #'my/zone-call)
 
 
@@ -1039,7 +1039,7 @@ Fix for org-backward-paragraph to skip lists
            )
           ;; other:
           (_ (call-interactively 'org-backward-paragraph)))))
-    
+
     (defun my/org-forward-paragraph ()
       "fix to skip whole list"
       (interactive)
@@ -1056,7 +1056,7 @@ Fix for org-backward-paragraph to skip lists
           )
         )
       )
-    
+
     (add-hook 'org-mode-hook (lambda ()
                                (local-set-key (kbd "M-p") 'my/org-backward-paragraph)
                                (local-set-key (kbd "M-n") 'my/org-forward-paragraph)
@@ -1081,7 +1081,7 @@ org-goto is default search in Org headers but it have many disadvantages, here i
             (let ((string "^*.*"))
               (isearch-process-search-string
                string (mapconcat 'isearch-text-char-description string ""))))))
-    
+
     (add-hook 'org-mode-hook (lambda ()
       (add-hook 'isearch-mode-hook 'my/org-header-search nil t) ;; LOCAL = t
     )
@@ -1117,7 +1117,7 @@ And if the pointer is not on the header then use more aggressive expansion funct
                 (call-interactively 'org-cycle)) ;; useful for Tables
         )
       )
-    
+
     (add-hook 'org-mode-hook (lambda ()
                                (local-set-key (kbd "TAB") 'my/org-tab)))
 
@@ -1177,7 +1177,7 @@ Here we create new line and use simple (indent-relative) to previous line withou
 
     (add-hook 'org-mode-hook (lambda ()
       (local-set-key (kbd "C-c c") (lambda () (interactive) (goto-char (org-babel-where-is-src-block-result))))
-    
+
     (local-set-key (kbd "C-c M-c") (lambda () (interactive)
                                                                 "open session of current source block in right window"
                                                                 (if (org-babel-get-src-block-info)
@@ -1207,22 +1207,22 @@ We can fix it by adding our code before every code blocks that will be executed:
     (defun my/f-call (func-call &rest args)
       (let ((body
             (concat  "import signal
-    
+
     # Register an handler for the timeout
     def handler(signum, frame):
         print(\"Forever is over!\")
         raise Exception(\"end of time\")
-    
+
     # Register the signal function handler
     signal.signal(signal.SIGALRM, handler)
-    
+
     # Define a timeout for your function
     signal.alarm(15) # timeout 15 seconds
     " (car args)))
             (params (cdr args)))
-    
+
       (apply func-call body params)))
-    
+
     (advice-add 'org-babel-execute:python :around #'my/f-call)
 
 
@@ -1330,14 +1330,14 @@ globally:
           (org-next-item)
         (error
          (org-forward-element))))
-    
+
     (defun my/org-previous-item ()
       (interactive)
       (condition-case _
           (org-previous-item)
         (error
          (org-backward-element))))
-    
+
     (add-hook 'org-mode-hook (lambda ()
                                ;; - - - C-c n
                                (keymap-local-set "C-c n" #'org-next-visible-heading) ; shadow org-forward-heading-same-level
@@ -1409,7 +1409,7 @@ open with default app
       "Show thumbnails of current directory."
       (interactive)
       (image-dired-show-all-from-dir (dired-current-directory)))
-    
+
     (define-key dired-mode-map "\C-j" #'dired-up-directory)
     (define-key dired-mode-map (kbd "C-,") #'my/thumbnails)
 
@@ -1435,11 +1435,11 @@ Dired don't remember your choose by default, to fix that:
 
     (require 'dired-x)
     (setopt dired-omit-files (concat dired-omit-files "\\|^\\.+")) ; omit files started with dot "."
-    
+
     ;; fix remember state
     (defvar my/dired-omit-flag t
          "Non-nil means Omit mode is enabled by default.")
-    
+
     (defun my/dired-omit-switch ()
       "This function is a small enhancement for `dired-omit-mode', which will
        \"remember\" omit state across Dired buffers."
@@ -1449,13 +1449,13 @@ Dired don't remember your choose by default, to fix that:
                               my/dired-omit-flag
                             ;; else - negative arg to disable mode
                             -1 )))
-    
+
     (defun my/dired-omit-hook ()
       "Active Omit only if flag is set."
       (if my/dired-omit-flag (dired-omit-mode)))
-    
+
     (add-hook 'dired-mode-hook #'my/dired-omit-hook)
-    
+
     (define-key dired-mode-map "\C-\M-h" #'my/dired-omit-switch) ; to switch on/off
 
 
@@ -1502,7 +1502,7 @@ Beacause C-x C-q allow you to edit any file you see.
     (defun my/dired-dwim-target-directory-advice()
       (advice-remove 'dired-dwim-target-directory #'my/dired-dwim-target-directory-advice)
       (car (dired-get-marked-files nil nil)))
-    
+
     (defun my/dired-do-rename (orig-fun &rest args)
       "Dired fix for renaming a single file, it suggests the same
      name instead of only a current directory."
@@ -1553,7 +1553,7 @@ Use default display-buffer-fallback-action as base for your config.
               (window-width . 0.8) ; 80 percent
               (side . right))))
         (apply #'dired-find-file-other-window args)))
-    
+
     (define-key firstly-search-dired-mode-map (kbd "M-o") #'my/dired-find-file-other-window)
     ;; or
     (define-key dired-mode-map (kbd "o") #'my/dired-find-file-other-window)
@@ -1592,8 +1592,8 @@ How to open side window and toggle with the a single key?
     ;;            (derived-mode-p 'dired-mode)) - check if we on dired
     ;; (not (eq (window-main-window) (selected-window))) - check if we on side
     ;; (window-with-parameter 'window-side nil frame)  - if side exist
-    
-    
+
+
     (defun my/window-toggle-side-windows(&optional frame)
       (interactive)
       ;; (call-interactively 'window-toggle-side-windows frame)
@@ -1612,7 +1612,7 @@ How to open side window and toggle with the a single key?
           ;; else in side: close -toggle
           (if (not (eq sw (window-main-window)))
               (call-interactively #'window-toggle-side-windows)))))
-    
+
     (global-set-key (kbd "C-'") #'my/window-toggle-side-windows)
 
 
@@ -1705,7 +1705,7 @@ If you want function that behave differently for selected, marked and just at cu
           ;; else - single - at cursor
           (eval body-single)
           )))
-    
+
     (defun my/call-external (arg &optional interactive)
       (interactive (list current-prefix-arg t))
       (my/dired-on-select nil
@@ -1736,7 +1736,7 @@ By default mark require you to select region or use mark and unmark separate com
           (dired-toggle-marks))
         (forward-line) (dired-move-to-filename) ; forward line
         ))
-    
+
     (define-key dired-mode-map (kbd "m") #'my/dired-toggle-marks)
 
 
@@ -1768,7 +1768,7 @@ Here is how it works:
                             (re-search-forward regexp nil t))
             (dired-map-over-marks (setq count (1+ count)) nil))
         count))
-    
+
     (defun my/dired-map-over-flags ( func )
       "Call FUNC with point on each line of file with flag.
     Deletion flag `dired-del-marker' is used."
@@ -1777,7 +1777,7 @@ Here is how it works:
         (if (save-excursion (goto-char (point-min))
                             (re-search-forward regexp nil t))
             (dired-map-over-marks (funcall func) nil))))
-    
+
     (defun my/dired-flag-file-deletion(arg &optional interactive)
       "Invert marks with called with C-u and interactively."
       (interactive (list current-prefix-arg t))
@@ -1794,7 +1794,7 @@ Here is how it works:
                                                      (dired-mark  nil)))))
           ;; else - normal dired-do-flagged-delete
           (dired-flag-file-deletion arg interactive))))
-    
+
     (keymap-set dired-mode-map "<remap> <dired-flag-file-deletion>" #'my/dired-flag-file-deletion)
 
 
@@ -1833,13 +1833,13 @@ More intelligent approach is to “cycle” with a single key sorting: by
     ;; extend it to toggle by looping throught the list of
     ;; `dired-listing-switches-others'
     (setopt dired-listing-switches "-AlthG") ;;  --group-directories-first
-    
+
     (defvar dired-listing-switches-name "by date") ; by date by default here.
-    
+
     (defvar dired-listing-switches-others
           '(("by name" . "-AlhG")
             ("by size" . "-AlShG")))
-    
+
     (defun get-next-item-by-string-value (clist value)
       (cl-loop for pair in clist
                for i from 1
@@ -1848,7 +1848,7 @@ More intelligent approach is to “cycle” with a single key sorting: by
                finally return nil))
     ;; test:
     ;; (cl-assert (equal (get-next-item-by-string-value dired-listing-switches-others "-AlhG") '("by size" . "-AlShG")))
-    
+
     (defun dired-sort-toggle()
       "Rewrite of `dired-sort-toggle'.
     Loop over `dired-listing-switches' +
@@ -1978,7 +1978,7 @@ Dired “=” keys don't comare buffers or directories by default.
                 (dired-sort-other switches-current))))
           ;; - 2) diff-buffers
           (diff-buffers wnb wsb))))
-    
+
     (define-key dired-mode-map (kbd "=") #'my/dired-diff)
 
 
@@ -2008,7 +2008,7 @@ C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
              (concat (buffer-file-name) "::" (number-to-string (line-number-at-pos)))))
         (kill-new path-with-line-number)
         (message (concat path-with-line-number "\t- copied to clipboard"))))
-    
+
     (define-key global-map (kbd "C-c z") #'my/copy-current-line-position-to-clipboard)
 
 
@@ -2113,7 +2113,7 @@ To open file at right window in Dired we can set
                   (cons 'previous-window (window-in-direction 'right)))
               '(side . right))))
     (apply #'dired-find-file-other-window args)))
-    
+
     (define-key dired-mode-map "\M-o" #'my/dired-find-file-other-window)
 
 
@@ -2214,7 +2214,7 @@ Here we define ignore list, get buffer-list and filter system and our ignore lis
                       (not (member (buffer-name b)
                                    ignored-system-buffers))))
                    (cdr (buffer-list))))))
-    
+
     (global-set-key (kbd "C-x C-b") #'my/other-buffer) ; shadow `downcase-region'
 
 
@@ -2285,7 +2285,7 @@ Did you notice, that C-g in normal buffer don't abort minibuffer? It
       (if (switch-to-minibuffer)
             (minibuffer-keyboard-quit))
       (keyboard-quit))
-    
+
     (global-set-key "\C-g" #'my/keyboard-quit-with-minubuffer)
     (define-key isearch-mode-map "\C-g" #'my/keyboard-quit-with-minubuffer)
 
@@ -2390,7 +2390,7 @@ If buffer-menu is opened (current-buffer) still point to previous
       "Any part of buffer name.")
     (defun my/kill-buffer-testfn (key lcar)
       (string-match-p (regexp-quote key) lcar))
-    
+
     (defun my/kill-other-buffers ()
         "Kill all other buffers."
         (mapc 'kill-buffer
@@ -2404,7 +2404,7 @@ If buffer-menu is opened (current-buffer) still point to previous
                                                                       (downcase (buffer-name b))
                                                                  #'my/kill-buffer-testfn))))
                                 (seq-uniq (buffer-list)))))))
-    
+
     ;; ------------------------ kill other frames
     (defun my/member-frame(frame frames)
       "Compare list of windows of FRAME with every frame in FRAMES."
@@ -2413,7 +2413,7 @@ If buffer-menu is opened (current-buffer) still point to previous
        (mapcar (lambda (x) (mapcar #'window-buffer (window-list x))) frames)
        ;; element
        (mapcar #'window-buffer (window-list frame))))
-    
+
     (defun my/drop-frame-duplicates ()
       "Compare window list by `my/member-frame' function and kill others."
         (let ((duplicates '())
@@ -2423,13 +2423,13 @@ If buffer-menu is opened (current-buffer) still point to previous
                 (push item duplicates)
               (push item unique-items)))
           (mapc #'delete-frame duplicates)))
-    
+
     ;; -------------------------- all together
     (defun my/kill-other-buffers-and-frame-duplicates ()
       (interactive)
       (my/kill-other-buffers)
       (my/drop-frame-duplicates))
-    
+
     (global-set-key (kbd "C-x !") #'my/kill-other-buffers-and-frame-duplicates)
 
 
@@ -2458,7 +2458,7 @@ Advice that allow to use EXPORT\_FILE\_NAME per subtree to set export location f
               (org-html-export-to-html async t visible-only body-only ext-plist)))
         ;; else
         (apply orig-fun async subtreep visible-only body-only ext-plist)))
-    
+
     (advice-add 'org-html-export-to-html :around #'my/org-html-export-to-html-all-subtrees)
 
 
@@ -2549,7 +2549,7 @@ at line 4, column 3.
             (concat "file:" (buffer-file-name) "::" (number-to-string (line-number-at-pos)))))
       (kill-new link)
       (message (concat link "\t- copied to clipboard"))))
-    
+
     ;; shadow `append-next-kill'
     (define-key global-map (kbd "C-M-w") #'my/copy-link-to-clipboard)
 
@@ -2605,7 +2605,7 @@ It is possible only for simple macros:
              (,fun ,arg))
            (raise-frame (next-frame))))))
 
-    
+
     (defun myfun (arg) (progn (with-current-buffer myfun (myfun 3)) (raise-frame (next-frame))))
 
 
@@ -2643,7 +2643,7 @@ It will be better to add dependent logic to :set function after setting variable
             (scan-error (user-error (if (> arg 0)
                                         "No next sexp"
                                       "No previous sexp")))))
-    
+
     (defun my/elisp-keys()
       (keymap-local-set "C-M-f" #'my/forward-sexp) ; shadow `forward-sexp')
        ;; or
@@ -2669,7 +2669,7 @@ This solution for default configuration when separate frame used,
  windows.
 
     (defvar my/ediff-control-buffer nil)
-    
+
     (defmacro my/ediff-macro (fun)
       (let ((command-name (intern (format "my/%s" fun))))
       `(defun ,command-name ()
@@ -2677,7 +2677,7 @@ This solution for default configuration when separate frame used,
          (with-current-buffer my/ediff-control-buffer
            (call-interactively #',fun))
          (raise-frame (next-frame)))))
-    
+
     (my/ediff-macro ediff-previous-difference)
     (my/ediff-macro ediff-next-difference)
     (my/ediff-macro ediff-quit)
@@ -2697,7 +2697,7 @@ This solution for default configuration when separate frame used,
     (my/ediff-macro ediff-save-buffer)
     (my/ediff-macro ediff-inferior-compare-regions)
     (my/ediff-macro ediff-toggle-wide-display)
-    
+
     ;; (global-set-key (kbd "C-M-") (lambda ()(interactive) (print "asd")))
     (defvar-keymap my/ediff-mode-map
       :doc "Replacement for `ediff-setup-keymap'."
@@ -2722,23 +2722,23 @@ This solution for default configuration when separate frame used,
       "C-="	#'my/ediff-inferior-compare-regions
       "C-M-m"	#'my/ediff-toggle-wide-display
     )
-    
+
     (define-minor-mode my/ediff-mode
       "In A, B buffer ediff mode."
       :lighter " ediff"
       :global nil)
-    
+
     (defun my/ediff-startup()
       (setq my/ediff-control-buffer ediff-control-buffer)
-    
+
       (with-current-buffer ediff-buffer-A
         (make-variable-buffer-local 'my/ediff-control-buffer)
         (my/ediff-mode))
-    
+
       (with-current-buffer ediff-buffer-B
         (make-variable-buffer-local 'my/ediff-control-buffer)
         (my/ediff-mode)))
-    
+
     (defun my/ediff (file-a file-b)
       (ediff-files file-a file-b '( my/ediff-startup)))
 
@@ -2793,7 +2793,7 @@ Execution path of notification hook:
 To replace standard behavior you can:
 
     (setopt telega-inserter-for-msg-notification 'my/telega-ins--msg-notification)
-    
+
     (advice-add 'telega-notifications--notify :override
                 #'my/telega-alert--notify)
 
@@ -2807,14 +2807,14 @@ To replace standard behavior you can:
       (let ((char (char-after (point))))
         (and (characterp char)
              (eq (upcase char) char))))
-    
+
     (defun move-to-first-word ()
       "Move point to the first normal text word at the current line."
       (interactive)
       (beginning-of-line)
       (re-search-forward "\\b\\w+\\b" (point-at-eol) t)
       (goto-char (match-beginning 0)))
-    
+
     (defun my/capitalize-word (arg)
       "Capitalize first letter of current word and preserve a point
      position.
@@ -2850,7 +2850,7 @@ More advanced solution that search backward for opening and closining quotes
       (let ((prev-char (char-before (1- (point)))))
         (and prev-char
              (not (member prev-char '(?\  ?\t ?\n ?\r))))))
-    
+
     (defun search-backward-for-character ()
       "Search for opening single quote until new line or closing quote."
       (let ((found nil) (newline nil))
@@ -2862,7 +2862,7 @@ More advanced solution that search backward for opening and closining quotes
             (when (memq (char-before) '(?\n ?\r ?\f ?’))
               (setq newline t))))
         found))
-    
+
     (defun my/inhibit-paired-quote ()
       "Inhibit pairing for words like don't.
     For single quote \' and if it is after text and no opening quote
@@ -2871,7 +2871,7 @@ More advanced solution that search backward for opening and closining quotes
           (if (my/previous-char-is-text)
               (not (search-backward-for-character))
            )))
-    
+
     (add-hook 'electric-quote-inhibit-functions #'my/paired-quote)
 
 
@@ -2971,7 +2971,7 @@ Here is two functions for that, copy this code to "M-:" or add to init
       "Get auto-save #file# difference with current buffer."
       (interactive)
       (diff (make-auto-save-file-name) (current-buffer) nil 'noasync))
-    
+
     (defun auto-save-file-remove ()
       "Delete auto-save #file# if exist."
       (interactive)
@@ -3014,7 +3014,7 @@ Solution to get right org-forward-sentence:
       "Add directory that was opened with find-file commands."
       (if (file-directory-p filename)
           (recentf-add-file filename)))
-    
+
     (advice-add 'find-file :before #'my/find-file-hook)
 
 
@@ -3051,8 +3051,8 @@ to choose colour: M-x customize-face RET &#x2026;
      '(highlight-changes-delete ((t (:background nil :foreground "red"))))
      '(whitespace-tab ((t (:foreground "hot pink"))))
      '(whitespace-trailing ((t (:extend t :background "dark red")))))
-    
-    
+
+
     ;; Org specific faces configurations with dark/lagth auto switching
     (add-hook 'org-mode-hook (lambda ()
                                ;; Can not be set globally! Only in function or hook
@@ -3072,7 +3072,7 @@ to choose colour: M-x customize-face RET &#x2026;
     ;; default theme:
     (custom-set-variables
      '(custom-enabled-themes '(wombat manoj-dark)))
-    
+
     (defun my/load-theme (themes)
       "Load THEMES properly by disabling the previous themes first."
       ;; (setq themes '(wombat manoj-dark)) ; debug
@@ -3080,28 +3080,28 @@ to choose colour: M-x customize-face RET &#x2026;
       (mapc (lambda (x)(load-theme x t))
             (reverse themes))
       (setq custom-enabled-themes themes))
-    
+
     (defun my/dark-common()
       (custom-set-faces
        '(highlight-changes ((t (:background nil :foreground "pink"))))
        '(whitespace-trailing ((t (:extend t :background "dark red"))))
        )
       )
-    
+
     (defun my/set-theme-dark ()
       "Theme 1."
       (interactive)
       (my/load-theme '(manoj-dark wombat))
       (my/dark-common)
       )
-    
+
     (defun my/set-theme-middle ()
       "Theme 2."
       (interactive)
       (my/load-theme '(wombat manoj-dark))
       (my/dark-common))
-    
-    
+
+
     (defun my/set-theme-white ()
       "Theme 3."
       (interactive)
@@ -3111,7 +3111,7 @@ to choose colour: M-x customize-face RET &#x2026;
        '(highlight-changes ((t (:background nil :foreground "red"))))
        '(whitespace-trailing ((t (:extend t :background "pink")))))
       )
-    
+
     ;; enable themes - darker
     (global-set-key (kbd "M-_") #'my/set-theme-dark)
     ;; enable themes - middle ; shadow `insert-parentheses'
@@ -3144,18 +3144,18 @@ Here is modification that run our function instead of just change theme:
 
     ;; - Load circadian https://github.com/GuidoSchmidt/circadian.el
     (require 'circadian)
-    
+
     ;; - Circadian basic config
     (setq circadian-themes '(("00:00" . my/set-theme-dark)
                              ("10:00"  . my/set-theme-white)
                              ("19:00"   . my/set-theme-middle)))
-    
+
     ;; - Replace function that activate theme
     (defun my/circadian-enable-theme (theme)
         "Call function instead of just set theme."
         (funcall theme)
     (setq circadian-next-timer nil))
-    
+
     (advice-add 'circadian-enable-theme :override #'my/circadian-enable-theme)
     ;; - Activate circadian
     (circadian-setup)
@@ -3206,7 +3206,7 @@ Yes, Emacs can calculate time by season and geographic location.
     (setq calendar-longitude 37.6149202)
     (setq calendar-location-name "your location")
     (setq calendar-time-zone 0) ; UTC
-    
+
     (require 'circadian)
     (let* ((dat (solar-sunrise-sunset (calendar-current-date)))
              (sunrise-time (apply #'solar-time-string (car dat)))
@@ -3267,6 +3267,5 @@ Here is how you can modify **eglot&#x2013;guess-contact**:
           ;; else "pylsp" by defalut from `eglot-server-programs' variable
         )
         (list managed-major-mode project class contact language-id)))
-    
-    (advice-add 'eglot--guess-contact :filter-return 'my/eglot-config-hack)
 
+    (advice-add 'eglot--guess-contact :filter-return 'my/eglot-config-hack)

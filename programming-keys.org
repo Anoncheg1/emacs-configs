@@ -1,6 +1,6 @@
 - M-i			describe-symbol
 - M-;			(comment-line)
-- C-;			(comment-dwim) - after line
+- C-M-;		(comment-dwim) - after line
 - C-c C-k		(my/go-to-prev-occurrence) or prev sexp
 - C-c C-n		(my/go-to-next-occurrence) or next sexp
 - C-c k		prev header
