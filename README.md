@@ -26,6 +26,10 @@ This is between console and JIKL:
 - C-k - up (old C-p)
 - C-n - down
 
+I think about it:
+- C-M-f/l - forward-word/backward-word
+- M-f/l - forward-sexp/backward-sexp
+
 ## New line
 [New line rebinding: ./new-line-rebinding.org](new-line-rebinding.org)
 

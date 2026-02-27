@@ -132,6 +132,195 @@ You should bind TAB in 'org-mode-hook. For other modes you should use hooks and 
                  nil)))))))
 (global-set-key (kbd "TAB") 'expand-abbrev)
 #+end_src
+* Keys: How to bind several minor modes to one command from major mode, commands chaining?
+** Approach for rebinding by function name, based on ~define-key~ and ~remap~ major function by name.
+*** Solution
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(defun call-next-remap-protected (command &optional seen)
+  "Call the next remapping of COMMAND, skipping any commands already in SEEN.
+If no further remappings found, calls COMMAND interactively if possible."
+  ;; Remove the highest-priority minor mode map (simulate 'skipping' our map).
+  (let ((minor-mode-map-alist (cdr minor-mode-map-alist)))
+    ;; Find what [remap command] now resolves to.
+    (let ((binding (key-binding (vector 'remap command))))
+      (cond
+       ;; EDGE CASE 1: No binding found, OR we've already seen this (possible loop), fallback to original command.
+       ((or (null binding) (memq binding seen))
+        ;; Only call command interactively if it's valid/interactive.
+        (when (commandp command)
+          (call-interactively command)))
+       ;; EDGE CASE 2: Binding is valid and interactive, but may be another remap.
+       ((commandp binding)
+        ;; Add this binding to the SEEN list to prevent recursion, and recursively try again.
+        (call-next-remap-protected command (cons binding seen)))))))
+#+end_src
+
+*** Usage example for ~org-next-visible-heading~ and two minor modes that rebind it:
+#+begin_src elisp :lexical t :results none :exports code :eval no
+;; Helper function: as posted earlier (with comments)
+(defun call-next-remap-protected (command &optional seen)
+  "Call the next remapping of COMMAND, skipping any commands already in SEEN.
+If no further remappings found, calls COMMAND interactively if possible."
+  (let ((minor-mode-map-alist (cdr minor-mode-map-alist)))
+    (let ((binding (key-binding (vector 'remap command))))
+      (cond
+       ;; No binding found, or recursion, fallback to original
+       ((or (null binding) (memq binding seen))
+        (when (commandp command)
+          (call-interactively command)))
+       ;; Valid binding, try further
+       ((commandp binding)
+        (call-next-remap-protected command (cons binding seen)))))))
+
+;; FIRST MINOR MODE
+(defvar my-first-minor-mode-map (make-sparse-keymap))
+(define-minor-mode my-first-minor-mode
+  "First minor mode."
+  :lighter "Mode1"
+  :keymap my-first-minor-mode-map)
+
+(defun my-first-minor-mode-org-next-visible-heading ()
+  "Custom remap for org-next-visible-heading in first minor mode."
+  (interactive)
+  (if (eq (random 2) 1)
+      (message "First minor mode handled org-next-visible-heading!")
+    ;; Fallback logic: don't know/care about other modes.
+    (call-next-remap-protected 'org-next-visible-heading)))
+
+(define-key my-first-minor-mode-map
+  [remap org-next-visible-heading]
+  'my-first-minor-mode-org-next-visible-heading)
+
+;; SECOND MINOR MODE
+(defvar my-second-minor-mode-map (make-sparse-keymap))
+(define-minor-mode my-second-minor-mode
+  "Second minor mode."
+  :lighter "Mode2"
+  :keymap my-second-minor-mode-map)
+
+(defun my-second-minor-mode-org-next-visible-heading ()
+  "Custom remap for org-next-visible-heading in second minor mode."
+  (interactive)
+  (if (eq (random 2) 1)
+      (message "Second minor mode handled org-next-visible-heading!")
+    ;; Fallback logic: don't know/care about other modes.
+    (call-next-remap-protected 'org-next-visible-heading)))
+
+(define-key my-second-minor-mode-map
+  [remap org-next-visible-heading]
+  'my-second-minor-mode-org-next-visible-heading)
+#+end_src
+
+*** Or with defvar-keymap:
+#+begin_src elisp :lexical t :results none :exports code :eval no
+;; FIRST MINOR MODE
+(defvar-keymap my-first-minor-mode-map
+  "<remap> <org-next-visible-heading>" #'my-first-minor-mode-org-next-visible-heading)
+
+(define-minor-mode my-first-minor-mode
+  "First minor mode."
+  :lighter "Mode1"
+  :keymap my-first-minor-mode-map)
+
+(defun my-first-minor-mode-org-next-visible-heading ()
+  "Custom remap for org-next-visible-heading in first minor mode."
+  (interactive)
+  (if (eq (random 2) 1)
+      (message "First minor mode handled org-next-visible-heading!")
+    ;; Fallback logic: try other remaps or original
+    (call-next-remap-protected 'org-next-visible-heading)))
+
+;; SECOND MINOR MODE
+(defvar-keymap my-second-minor-mode-map
+  "<remap> <org-next-visible-heading>" #'my-second-minor-mode-org-next-visible-heading)
+
+(define-minor-mode my-second-minor-mode
+  "Second minor mode."
+  :lighter "Mode2"
+  :keymap my-second-minor-mode-map)
+
+(defun my-second-minor-mode-org-next-visible-heading ()
+  "Custom remap for org-next-visible-heading in second minor mode."
+  (interactive)
+  (if (eq (random 2) 1)
+      (message "Second minor mode handled org-next-visible-heading!")
+    ;; Fallback logic as above
+    (call-next-remap-protected 'org-next-visible-heading)))
+#+end_src
+** Approach for rebinding by key, based on ~defvar-keymap~
+#+begin_src elisp :lexical t :results none :exports code :eval no
+;; Helper function: Fallback logic for KEY (instead of command)
+(defun call-next-key-remap-protected (key &optional seen)
+  "Call the next binding of KEY, skipping handlers already in SEEN.
+If no further binding found, calls the major mode's or global binding.
+KEY is a string representing the keystroke, e.g., \"C-c a\".
+SEEN is a list of commands already called, used to prevent recursion."
+
+  ;; Locally shadow minor-mode-map-alist to remove the highest-priority minor mode map.
+  (let ((minor-mode-map-alist (cdr minor-mode-map-alist)))
+    ;; Find the current binding for KEY after skipping the top minor mode.
+    (let ((binding (key-binding (kbd key) nil nil)))
+      (cond
+       ;; If no binding found or we've already seen this binding, try major mode and then global map.
+       ((or (null binding) (memq binding seen))
+        ;; Attempt to find the binding in the major mode's keymap.
+        (let* ((major-mode-map (current-local-map))
+               (binding-major (and major-mode-map (lookup-key major-mode-map (kbd key)))))
+          (if (commandp binding-major)
+              ;; If found and it's a command, call interactively.
+              (call-interactively binding-major)
+            ;; Otherwise, try the global map for the key.
+            (let ((global-binding (key-binding (kbd key) t t)))
+              (if (commandp global-binding)
+                  (call-interactively global-binding)
+                ;; If no valid binding anywhere, notify the user.
+                (message "No valid binding for %s" key)))))
+        )
+       ;; If binding is a command, recursively try to find the next remapped binding,
+       ;; and add this binding to SEEN for recursion protection.
+       ((commandp binding)
+        (call-next-key-remap-protected key (cons binding seen)))
+       ;; Handle the case where binding is not a command (function, lambda, etc.).
+       (t
+        (message "Binding for %s is not a command" key))))))
+
+;; FIRST MINOR MODE: remap C-c C-n
+(defvar-keymap my-first-minor-mode-map
+  "First minor mode keymap."
+  :repeat nil
+  :parent nil
+  "C-c C-n" #'my-first-minor-mode-c-c-c-n-handler)
+
+(define-minor-mode my-first-minor-mode
+  "First minor mode."
+  :lighter "Mode1"
+  :keymap my-first-minor-mode-map)
+
+(defun my-first-minor-mode-c-c-c-n-handler ()
+  (interactive)
+  (if (eq (random 2) 1)
+      (message "First mode handled C-c C-n!")
+    (call-next-key-remap-protected "C-c C-n")))
+
+;; SECOND MINOR MODE: remap C-c C-n
+(defvar-keymap my-second-minor-mode-map
+  "Second minor mode keymap."
+  :repeat nil
+  :parent nil
+  "C-c C-n" #'my-second-minor-mode-c-c-c-n-handler)
+
+(define-minor-mode my-second-minor-mode
+  "Second minor mode."
+  :lighter "Mode2"
+  :keymap my-second-minor-mode-map)
+
+(defun my-second-minor-mode-c-c-c-n-handler ()
+  (interactive)
+  (if (eq (random 2) 1)
+      (message "Second mode handled C-c C-n!")
+    (call-next-key-remap-protected "C-c C-n")))
+
+#+end_src
 * How to remove space character after Abbrev completion?
 as pointed out in documentation https://www.gnu.org/software/emacs/manual/html_node/autotype/Skeleton-Language.html
 you can use -1 in skeleton, like this:
