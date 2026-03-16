@@ -2233,6 +2233,54 @@ Back to default:
 
 4) Mode that remove fragile:
 - https://github.com/captainflasmr/selected-window-accent-mode
+* GUI: How to highlight whitespaces and tabs before lines?
+whitespace.el provide this, but we disable post-command-hook of this, because it slow down cursor movement
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(setopt whitespace-style '(face tabs tab-mark trailing))
+
+(setopt whitespace-display-mappings
+  '((tab-mark 9 [124 9] [92 9]))) ; 124 is the ascii ID for '\|'
+(global-whitespace-mode)
+(defun my/whitespace-disable-post-command-hook ()
+            (remove-hook 'post-command-hook #'whitespace-post-command-hook t))
+(add-hook 'global-whitespace-mode-hook #'my/whitespace-disable-post-command-hook)
+(add-hook 'whitespace-mode-hook #'my/whitespace-disable-post-command-hook)
+
+#+end_src
+* GUI: How to show (point) in modeline?
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(defvar show-point-mode-map-entry
+  '(:eval (format " (%d)" (point)))
+  "The specific list structure we add to the mode-line.")
+
+(defvar my/force-mode-line-update-timer nil)
+
+(defun my/force-mode-line-update ()
+  ;; (setq my/force-mode-line-update-counter (1+ my/force-mode-line-update-counter))
+  (unless my/force-mode-line-update-timer
+    (setq my/force-mode-line-update-timer
+          (run-with-timer 0.4 nil (lambda ()
+                                  (setq my/force-mode-line-update-timer nil))))
+    (force-mode-line-update)))
+
+(define-minor-mode show-point-mode
+  "Toggle display of point position in the mode-line."
+  :global t
+  :group 'editing-basics
+  (if show-point-mode
+      (progn
+        ;; Avoid double-adding if the mode is toggled quickly
+        (unless (member show-point-mode-map-entry mode-line-position)
+          (setq mode-line-position
+                (append mode-line-position (list show-point-mode-map-entry))))
+        (add-hook 'post-command-hook #'my/force-mode-line-update))
+
+    ;; Use 'delete' with the specific variable reference
+    (setq mode-line-position (delete show-point-mode-map-entry mode-line-position))
+    (remove-hook 'post-command-hook #'my/force-mode-line-update)))
+
+(show-point-mode 1)
+#+end_src
 * How to kill all buffers and duplicate frames?
 In this solution we define exceptions, lowercase them, after that we
  get (buffer-list) and filter with our exceptions, system, alive and
@@ -2244,51 +2292,74 @@ If buffer-menu is opened (current-buffer) still point to previous
  buffer, to prevent killing buffer-menu we filter buffer of
  selected-window also.
 #+begin_src elisp :results output :exports both
-;; ------------------------ kill other buffers
+;; -- -- -- kill other buffers
 (defvar my/kill-buffer-exceptions
   (mapcar #'downcase '("Messages" "emacs-file" "scratch"))
   "Any part of buffer name.")
 (defun my/kill-buffer-testfn (key lcar)
   (string-match-p (regexp-quote key) lcar))
 
-(defun my/kill-other-buffers ()
-    "Kill all other buffers."
-    (mapc 'kill-buffer
-          (delq (window-buffer (selected-window)) ; filter buffer-menu in current window
-          (delq (current-buffer) ; filter current buffer
-                ;; filter alive and not system
-                (seq-filter (lambda (b) (and (buffer-live-p b) ; filter alive
-                                             (/= (aref (buffer-name b) 0) ?\s) ; filter system
-                                             ;; filter exceptions
-                                             (not (seq-contains-p my/kill-buffer-exceptions
-                                                                  (downcase (buffer-name b))
-                                                             #'my/kill-buffer-testfn))))
-                            (seq-uniq (buffer-list)))))))
+(defun my/kill-other-buffers (&optional test)
+  "Kill all other buffers. If TEST is true just print victims."
+  ;; if current window is buffer-menu with selected buffers
+  ;; this buffers will be ignored.
+  (let* ((exception-buffers (if (derived-mode-p 'Buffer-menu-mode)
+                                (Buffer-menu-marked-buffers)
+                              nil)))
+    (let (buffers)
+      (dolist (b (buffer-list))
+        (let ((name (buffer-name b)))
+          ;; when to kill
+          (when (and (buffer-live-p b)
+                     (/= (aref name 0) ?\s)
+                     (not (buffer-modified-p b))
+                     (not (get-buffer-process b))        ;; process check
+                     (not (eq b (current-buffer)))
+                     (not (eq b (window-buffer (selected-window))))
+                     (not (seq-contains-p exception-buffers b))
+                     (not (seq-contains-p my/kill-buffer-exceptions
+                                          (downcase name)
+                                          #'my/kill-buffer-testfn)))
+            (push b buffers))))
+      (if test
+          (print buffers)
+        (mapc #'kill-buffer buffers)))))
 
-;; ------------------------ kill other frames
-(defun my/member-frame(frame frames)
-  "Compare list of windows of FRAME with every frame in FRAMES."
-  (seq-contains-p
-   ;; sequence
-   (mapcar (lambda (x) (mapcar #'window-buffer (window-list x))) frames)
-   ;; element
-   (mapcar #'window-buffer (window-list frame))))
+;; -- -- -- kill other frames
+(defun my/frame-list-groups-by-name ()
+  (let* ((frames (frame-list))
+         (group-table (make-hash-table :test 'equal)))
+    ;; Build hash table: name => list of frames
+    (dolist (f frames)
+      (let ((name (alist-get 'name (frame-parameters f))))
+        (push f (gethash name group-table))))
+    ;; Collect and sort groups by name
+    (mapcar
+     (lambda (name)
+       (nreverse (gethash name group-table)))
+     (sort (hash-table-keys group-table) #'string-lessp))))
+
 
 (defun my/drop-frame-duplicates ()
-  "Compare window list by `my/member-frame' function and kill others."
-    (let ((duplicates '())
-          (unique-items '()))
-      (dolist (item (frame-list-z-order))
-        (if (my/member-frame item unique-items)
-            (push item duplicates)
-          (push item unique-items)))
-      (mapc #'delete-frame duplicates)))
+  "Keep first frame, delete duplicates."
+  (dolist (group (my/frame-list-groups-by-name))
+    (dolist (f (cdr group))
+      (delete-frame f))))
 
-;; -------------------------- all together
-(defun my/kill-other-buffers-and-frame-duplicates ()
-  (interactive)
-  (my/kill-other-buffers)
-  (my/drop-frame-duplicates))
+;; -- -- -- all together and bind to key
+(defun my/kill-other-buffers-and-frame-duplicates (arg)
+  "Kill not modified buffers and duplicate frames.
+Called from buffer-menu. Marked buffers will be ignored. C-u for
+test and will kill actually."
+  (interactive "P")
+  (delete-other-windows) ; drop other windows in current frame
+  (my/drop-frame-duplicates) ; drop duplicate frames by showed buffer
+  (my/kill-other-buffers arg) ; drop other buffers
+  (my/drop-frame-duplicates) ; drop duplicate frames - because buffers changed
+  ;; Hack to trigger all window hooks (I need force-mode-line-update for myself)
+  (let ((sw (selected-window)))
+    (select-window (minibuffer-window))
+    (select-window sw)))
 
 (global-set-key (kbd "C-x !") #'my/kill-other-buffers-and-frame-duplicates)
 #+end_src

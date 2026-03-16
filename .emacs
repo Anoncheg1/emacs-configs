@@ -48,18 +48,20 @@
  ;; If there is more than one, they won't work right.
  '(auto-compression-mode nil)
  '(auto-encryption-mode nil)
- '(c-default-style '((c-mode . "stroustrup") (java-mode . "java") (awk-mode . "awk")
-  (other . "gnu")))
+ '(c-default-style
+   '((c-mode . "stroustrup") (java-mode . "java") (awk-mode . "awk")
+     (other . "gnu")))
  '(custom-enabled-themes '(wombat manoj-dark))
  '(delete-selection-mode t)
-  '(global-eldoc-mode -1)
+ '(global-eldoc-mode -1)
  '(inhibit-startup-screen t)
  '(menu-bar-mode nil)
- '(mml-secure-key-preferences '((OpenPGP
-   (sign
-    ("user@mail.com" "xxxxxxxxxxxxxxxxxxxx"))
-   (encrypt))
-  (CMS (sign) (encrypt))))
+ '(mml-secure-key-preferences
+   '((OpenPGP
+      (sign
+       ("user@mail.com" "xxxxxxxxxxxxxxxxxxxx"))
+      (encrypt))
+     (CMS (sign) (encrypt))))
  '(mouse-wheel-mode nil)
  '(org-agenda-files '("/home/user/.emacs.d/todo.org"))
  '(org-hide-leading-stars t)
@@ -68,16 +70,17 @@
  '(org-return-follows-link t)
  '(org-src-preserve-indentation t)
  '(org-startup-folded t)
- '(package-selected-packages '(circadian command-log-mode company company-jedi company-math
-            company-restclient csv-mode dired-duplicates diredc
-            dockerfile-mode editorconfig elpher epresent flycheck
-            flycheck-aspell flymake-python-pyflakes flymake-yamllint
-            free-keys ggtags hidepw htmlize idle-highlight-mode
-            jinja2-mode julia-mode lua-mode marginalia markdown-mode
-            multiple-cursors multitran ob-http org-inline-anim
-            org-present ox-html5slide pinyin-isearch pinyin-search
-            projectile python-insert-docstring rainbow-identifiers
-            smtpmail-multi tab-bar-buffers vertico vlf))
+ '(package-selected-packages
+   '(circadian command-log-mode company company-jedi company-math
+               company-restclient csv-mode dired-duplicates diredc
+               editorconfig elpher epresent flycheck flycheck-aspell
+               flymake-python-pyflakes flymake-yamllint free-keys
+               ggtags hidepw htmlize idle-highlight-mode jinja2-mode
+               julia-mode lua-mode marginalia markdown-mode
+               multiple-cursors multitran ob-http org-inline-anim
+               org-present ox-html5slide pinyin-isearch pinyin-search
+               projectile python-insert-docstring rainbow-identifiers
+               smtpmail-multi tab-bar-buffers vertico vlf))
  '(safe-local-variable-values '((org-image-actual-width . 500)))
  '(speedbar-show-unknown-files t)
  '(warning-suppress-log-types '((org-element org-element-parser))))
@@ -242,6 +245,26 @@
   (display-buffer (url-retrieve-synchronously "http://ipinfo.io/ip"))
   ))
 
+(defun get-ip-asynchronously ()
+  (let ((url-request-extra-headers '(("User-Agent" . "MyCustomApp/1.0")))
+        (url-user-agent "MyCustomApp/1.0")
+        (url-request-method "GET")
+        (url-request-data nil))
+    (url-retrieve
+     "https://ipinfo.io/ip"
+     (lambda (status)
+       (let ((result-buffer (get-buffer-create "*Async IP*")))
+         (with-current-buffer (current-buffer)
+           (goto-char (point-min))
+           ;; Skip HTTP headers
+           (re-search-forward "^$")
+           (let ((body (buffer-substring-no-properties (point) (point-max))))
+             (with-current-buffer result-buffer
+               (erase-buffer)
+               (insert body)
+               (pop-to-buffer result-buffer))))
+         (kill-buffer (current-buffer)))))))
+
 ;; (browse-url url)
 ;; (my/testproxy)
 ;; (with-current-buffer
@@ -321,7 +344,7 @@
 ;; (advice-add 'socks-open-network-stream :before #'my/socks-open-network-stream-deb)
 
 
-;; -- -- -- blocking all connections
+;; -- -- -- firewall, block connections
 ;; (defun dummy-process-create (name buffer-name)
 ;;   "Create a minimal dummy process with NAME in BUFFER-NAME, ensuring no internet access."
 ;;   (let ((proc-buffer (get-buffer-create buffer-name))
@@ -336,12 +359,13 @@
 ;;     proc))
 (require 'socks)
 (require 'url-http)
-(defvar my-network-whitelist-http '("ipinfo.io")) ; "smtpmail"?
+(defvar my-network-whitelist-host-http '("ipinfo.io")) ; "smtpmail"?
 (defvar my-network-whitelist-names '("localhost" "smtpmail" "my-http-server")) ; my-http-server - for tests in oai-tests-integration.el
-(defvar my-network-whitelist-https '("ipinfo.io" "elpa.gnu.org" "stable.melpa.org"
+(defvar my-network-whitelist-host-https '("ipinfo.io" "elpa.gnu.org" "stable.melpa.org"
                                      "melpa.org" "elpa.nongnu.org" "models.github.ai"
                                      "api.together.xyz"
-                                     "gemini.hackers.town"))
+                                     "gemini.hackers.town"
+                                     "api.openai.com"))
 
 (defun my/make-network-process-advice (orig-fun &rest args)
   "Pass smtpmail to socks and block everything other."
@@ -349,20 +373,19 @@
         (buffer (plist-get args :buffer))
         (host (plist-get args :host))
         (service (plist-get args :service))
-        proc
-        )
+        proc)
     (print (list "TEST" args))
     (print (and (equal service url-https-default-port)
-                    (member host my-network-whitelist-https)))
+                    (member host my-network-whitelist-host-https)))
     (cond ((not host) ; wayland connection - condition
-           (print "1) my/make-network")
+           (print (list "1) no host" args))
            (apply orig-fun args)) ; - body
 
-          ((or (member host my-network-whitelist-http) ; http
+          ((or (member host my-network-whitelist-host-http) ; http
                (member name my-network-whitelist-names)
                (and (member service (list url-https-default-port 1965))
-                    (member host my-network-whitelist-https))) ; 443 or HTTPS
-           (print "2) my/make-network")
+                    (member host my-network-whitelist-host-https))) ; 443 or HTTPS
+           (print (list "my/make-network 2) ACCEPPT" args))
            (apply orig-fun args))
 
           ;;      ;; (string-equal name "api.openai.com")
@@ -387,7 +410,7 @@
           ;;    ))
 
           (t 				; - final condition
-           (print "3) my/make-network")
+           (print "my/make-network 3) Block")
            (message "Network calls are blocked. Arguments: %S" args)
            ;; Return a dummy process object
            ;; (make-symbol "dummy-process")
@@ -452,11 +475,19 @@
 (add-to-list 'auto-mode-alist '("\\.jpg\\'" . image-mode))
 (add-to-list 'auto-mode-alist '("\\.png\\'" . image-mode))
 (add-to-list 'auto-mode-alist '("\\.gif\\'" . image-mode))
+;; Dockerfile
+(add-to-list 'load-path "~/sources/dockerfile-mode")
+(when (require 'dockerfile-mode nil 'noerror)
+  (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
 ;; YAML
 (when (treesit-available-p)
   (when (require 'yaml-ts-mode nil 'noerror) ; not requored - built-in
     (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))))
 ;; Markdown
+(when (treesit-available-p)
+  (when (require 'markdown-ts-mode nil 'noerror)
+    (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-ts-mode))))
+
 (when (treesit-available-p)
   (when (require 'markdown-ts-mode nil 'noerror)
     (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-ts-mode))))
@@ -1123,7 +1154,7 @@ Otherwise, remove spaces/tabs immediately before and after point."
 ;; (add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
 ;; (add-hook 'text-mode-hook  'visual-line-mode)
 
-;; -- -- Make tabs visiable
+;; -- -- Make tabs visiable - whitespace.el
 ;; You can also do M-x whitespace-report
 ;;    whitespace-toggle-options too
 ;; whitespace-new-line-mode, to display new lines
@@ -1132,7 +1163,10 @@ Otherwise, remove spaces/tabs immediately before and after point."
 (setopt whitespace-display-mappings
   '((tab-mark 9 [124 9] [92 9]))) ; 124 is the ascii ID for '\|'
 (global-whitespace-mode)
-
+(defun my/whitespace-disable-post-command-hook ()
+            (remove-hook 'post-command-hook #'whitespace-post-command-hook t))
+(add-hook 'global-whitespace-mode-hook #'my/whitespace-disable-post-command-hook)
+(add-hook 'whitespace-mode-hook #'my/whitespace-disable-post-command-hook)
 
 ;; -- -- Time
 (setopt display-time-24hr-format t)
@@ -1193,6 +1227,7 @@ Otherwise, remove spaces/tabs immediately before and after point."
 (column-number-mode -1)
 (display-time-mode -1) ; time and sys load average
 ;; -- -- Modeline: current path
+;; see also [[position-in-modeline]]
 (setq global-mode-string
       (cond ((consp global-mode-string)
              (add-to-list 'global-mode-string 'default-directory 'APPEND))
@@ -1612,6 +1647,10 @@ If universtal argument provided, just swap."
 
 ;; (define-key key-translation-map (kbd "M-c") (kbd "C-y")) ; shadow C-u 0-
 (global-set-key (kbd "C-o")    #'my/other-window-or-split)
+
+;; (global-set-key (kbd "C-o")    #'my/other-window-or-split)
+(global-unset-key (kbd "C-x C-o"))
+
 (defun my/other-window () "Like M-o to another way." (interactive) (other-window -1))
 (global-set-key (kbd "M-o")  #'my/other-window)
 ;; ;; fix Emacs modes for C-o
@@ -2011,9 +2050,13 @@ and preserve a point position."
 
 
 ;; -- -- start open shell
-(defun my/call-process-shell-command()
-  (interactive)
-  (call-process-shell-command "xfce4-terminal -e tmux&" nil 0))
+(defun my/call-process-shell-command(&optional arg)
+  (interactive "P")
+  (if arg
+      ;; original
+      (call-interactively #'shell-command)
+    ;; else
+    (call-process-shell-command "xfce4-terminal -e tmux&" nil 0)))
 (global-set-key (kbd "M-!") #'my/call-process-shell-command)
 ;; -- -- open config
 (defun my/open-config ()
@@ -2030,37 +2073,65 @@ and preserve a point position."
   (string-match-p (regexp-quote key) lcar))
 
 (defun my/kill-other-buffers (&optional test)
-    "Kill all other buffers. If TEST is true just print victims.
-Can drop frame that started as emacsclient --create-frame"
-    (let* (;; if current window is buffer-menu with selected buffers
-           ;; this buffers will be ignored.
-           (exception-buffers (if (derived-mode-p 'Buffer-menu-mode)
-                                  (Buffer-menu-marked-buffers)
-                                ;; else
-                                nil))
-           ;; buffers to kill from source: `buffer-list'
-           (buffers (delq (window-buffer (selected-window)) ; filter buffer-menu in current window
-                          (delq (current-buffer) ; filter current buffer
-                                ;; filters per individual buffer - alive, not modified and not system
-                                (seq-filter (lambda (b)
-                                              ;; true means - to kill
-                                              (and (buffer-live-p b) ; filter alive
-                                                   ;; first character of name should be not space
-                                                   (/= (aref (buffer-name b) 0) ?\s)
-                                                   ;; don't kill if was modified
-                                                   (not (buffer-modified-p b))
-                                                   ;; don't kill selected buffers
-                                                   ;; (print (list exception-buffers b))
-                                                   (not (seq-contains-p exception-buffers b))
-                                                   ;; filter exceptions
-                                                   (not (seq-contains-p my/kill-buffer-exceptions
-                                                                        (downcase (buffer-name b))
-                                                                        #'my/kill-buffer-testfn))))
-                                            (seq-uniq (buffer-list)))))))
+  "Kill all other buffers. If TEST is true just print victims."
+  ;; if current window is buffer-menu with selected buffers
+  ;; this buffers will be ignored.
+  (let* ((exception-buffers (if (derived-mode-p 'Buffer-menu-mode)
+                                (Buffer-menu-marked-buffers)
+                              nil)))
+    (let (buffers)
+      (dolist (b (buffer-list))
+        (let ((name (buffer-name b)))
+          ;; when to kill
+          (when (and (buffer-live-p b)
+                     (/= (aref name 0) ?\s)
+                     (not (buffer-modified-p b))
+                     (not (get-buffer-process b))        ;; process check
+                     (not (eq b (current-buffer)))
+                     (not (eq b (window-buffer (selected-window))))
+                     (not (seq-contains-p exception-buffers b))
+                     (not (seq-contains-p my/kill-buffer-exceptions
+                                          (downcase name)
+                                          #'my/kill-buffer-testfn)))
+            (push b buffers))))
       (if test
           (print buffers)
-          ;; else
-      (mapc 'kill-buffer buffers)))) ; kill left buffers
+        (mapc #'kill-buffer buffers)))))
+;; -OLD
+;; (defun my/kill-other-buffers (&optional test) ; OLD
+;;     "Kill all other buffers. If TEST is true just print victims.
+;; Can drop frame that started as emacsclient --create-frame"
+;;     (let* (;; if current window is buffer-menu with selected buffers
+;;            ;; this buffers will be ignored.
+;;            (exception-buffers (if (derived-mode-p 'Buffer-menu-mode)
+;;                                   (Buffer-menu-marked-buffers)
+;;                                 ;; else
+;;                                 nil))
+;;            ;; buffers to kill from source: `buffer-list'
+;;            (buffers (delq (window-buffer (selected-window)) ; filter buffer-menu in current window
+;;                           (delq (current-buffer) ; filter current buffer
+;;                                 ;; filters per individual buffer - alive, not modified and not system
+;;                                 (seq-filter (lambda (b)
+;;                                               ;; true means - to kill
+;;                                               (and (buffer-live-p b) ; filter alive
+;;                                                    ;; first character of name should be not space
+;;                                                    (/= (aref (buffer-name b) 0) ?\s)
+;;                                                    ;; don't kill if was modified
+;;                                                    (not (buffer-modified-p b))
+;;                                                    ;; have process attached
+;;                                                    (not (get-buffer-process b))
+;;                                                    ;; don't kill selected buffers
+;;                                                    ;; (print (list exception-buffers b))
+;;                                                    (not (seq-contains-p exception-buffers b))
+;;                                                    ;; filter exceptions
+;;                                                    (not (seq-contains-p my/kill-buffer-exceptions
+;;                                                                         (downcase (buffer-name b))
+;;                                                                         #'my/kill-buffer-testfn))))
+;;                                             (seq-uniq (buffer-list)))))))
+;;       (if test
+;;           (print buffers)
+;;           ;; else
+;;       (mapc 'kill-buffer buffers)))) ; kill left buffers
 ;; -- -- -- kill other frames (old with frame-list-z-order)
 ;; (defun my/member-frame(frame frames)
 ;;   "Compare showed buffers of FRAME with every frame in FRAMES."
@@ -2245,22 +2316,49 @@ test and will kill actually."
   "Convert lines with columns separated with tab character to Org table."
   (interactive "r")
   (when (region-active-p)
-    (goto-char end)
-    (while (bolp)
-      (backward-char))
-    (setq end (point))
-    (replace-regexp-in-region "[\t]+" "|" beg end)
-    (replace-regexp-in-region "^" "|" beg end)
-    (replace-regexp-in-region "\n" "|\n" beg end)
-    (insert "|") ; at the end of the last line
-    (goto-char beg)
-    (unless (eq end (line-end-position)) ; if more than one line
-      (forward-line)
-      (insert "|-\n")
-      (goto-char beg))
-    (forward-char)))
+    (save-excursion
+      (save-restriction
+        (narrow-to-region beg end)
+        (goto-char end)
+        (while (bolp)
+          (backward-char))
+        (setq end (point))
+        (replace-regexp-in-region "[\t]+" "|" beg end)
+        (replace-regexp-in-region "^" "|" beg end)
+        (replace-regexp-in-region "\n" "|\n" beg end)
+        (insert "|") ; at the end of the last line
+        (goto-char beg)
+        (unless (eq end (line-end-position)) ; if more than one line
+          (forward-line)
+          (insert "|-\n")
+          (goto-char beg))
+        (forward-char)))))
 
-(global-set-key (kbd "C-c t") #'my/text-to-org-table)
+(defun my/reformat-markdown-items-to-org-items (beg end)
+  "Replace '- **LABEL:**' with '- LABEL ::' and remove all '**' and replace ':' with '::' in selected region."
+  (interactive "r")
+  (when (region-active-p)
+    (save-excursion
+      (save-restriction
+        (narrow-to-region beg end)
+        ;; Replace '- **Label:**' with '- Label ::'
+        (replace-regexp "- \\*\\*\\([^*]+\\):\\*\\*" "- \\1 ::" nil (point-min) (point-max))))))
+
+(defun my/reformat-table-or-items (beg end)
+  "Replace '- **LABEL:**' with '- LABEL ::' and remove all '**' and replace ':' with '::' in selected region."
+  (interactive "r")
+  (when (region-active-p)
+    (if (save-excursion (goto-char beg)
+                        (or (member (org-element-type (org-element-at-point)) '(item plain-list))
+                            (re-search-forward "^- \\*\\*" end t)))
+        (my/reformat-markdown-items-to-org-items beg end)
+      ;; else
+      (if (save-excursion (goto-char beg) (re-search-forward "\t" end t))
+          (my/text-to-org-table beg end)
+        ;; else
+        (error "not a table")))))
+
+(global-set-key (kbd "C-c t") #'my/reformat-table-or-items)
 
 ;; -- Global Modes
 ;; -- -- multiple-cursor
@@ -2992,7 +3090,7 @@ Must return nil because it is run from `write-file-functions'."
   "Allow to input language."
   ""
   "\n* ai\n"
-  "#+begin_ai :stream nil :max-tokens 900 :sys \"Be helpful; answer structured, compcat by ideas but with details, multi-faceted. Label every small part of your answer with [exploration] or [validation]. Give short fix of question first.\"  :model \"openai/gpt-4o\" :service github\n"
+  "#+begin_ai :stream nil :max-tokens 900 :sys \"Be helpful; answer structured, compcat by ideas but with details, multi-faceted. Label every small part of your answer with [exploration] or [validation]. Give short fix of question first. Finally provide concise answer or test for code.\"  :model \"openai/gpt-4.1\" :service github\n"
   _ "\n"
   "#+end_ai\n: -----------------------------------------------------------\n\n\n"
   )
@@ -3000,7 +3098,7 @@ Must return nil because it is run from `write-file-functions'."
   "Allow to input language."
   ""
   "\n* ai\n"
-  "#+begin_ai :stream nil :max-tokens 900 :sys \"Be helpful; answer structured, compcat by ideas but with details, multi-faceted. Label every small part of your answer with [exploration] or [validation]. Give short fix of question first.\"  :model \"openai/gpt-4o\" :service github\n"
+  "#+begin_ai :stream nil :max-tokens 900 :sys \"Be helpful; answer structured, compcat by ideas but with details, multi-faceted. Label every small part of your answer with [exploration] or [validation]. Give short fix of question first.\"  :model \"openai/gpt-4.1\" :service github\n"
   "Translate this Chinese to English: " _ "\n"
   "### Example Translation (Structured Formatting)\n"
   "```text\n"
@@ -5443,8 +5541,8 @@ If argument was given, don't toggle header."
     'noindent))
 
 (defun my/indent-for-tab-step-6-completion-org (&optional arg)
-  "Perform completion if necessary based on nearby characters."
-  ;; (print "wtfhere")
+  "Perform completion if necessary based on nearby characters.
+For Org mode."
   (when (and (eq tab-always-indent 'complete)
              (or (eq last-command this-command)
                  (let ((syn (syntax-class (syntax-after (point))))
@@ -5456,76 +5554,82 @@ If argument was given, don't toggle header."
                      ('word (not (eql 2 syn)))
                      ('word-or-paren (not (memq syn '(2 4 5))))
                      ('word-or-paren-or-punct (not (memq syn '(2 4 5 1))))))))
-    (add-hook 'completion-at-point-functions #'pcomplete-completions-at-point nil 'local)
-    (add-hook 'completion-at-point-functions #'comint--complete-file-name-data nil 'local) ; comint-dynamic-complete-filename
-    (let* ((eap (org-element-context)) ; org-element-at-point
-           (el-type (org-element-type eap)))
-      ;; - if in source block
-      (if (eq el-type 'src-block)
-        (let ((lang (org-element-property :language eap)))
-          (message "srcblocktab11")
-          (cond
-             ((string-equal "elisp" lang)
-              (add-hook 'completion-at-point-functions
-                        #'elisp-completion-at-point nil 'local)
-              ;; (print completion-at-point-functions)
-              ;; (minibuffer-hide-completions)
-              ;; (completion--done "nets" 'finished)
-              ;; (minibuffer--bitset nil nil t)
-              (let ((res (completion-at-point)))
-                (remove-hook 'completion-at-point-functions
-                             #'elisp-completion-at-point
-                             'local)))
-             ((string-equal "python" lang)
-              (add-hook 'completion-at-point-functions
-                        #'python-shell-completion-at-point nil 'local)
-              (minibuffer-hide-completions)
-              (let ((res (completion-at-point)))
-                (remove-hook 'completion-at-point-functions
-                             #'python-shell-completion-at-point
-                             'local
-                             )))
-             ;; error: (wrong-type-argument listp unset)   assoc("output" unset)   sh-smie--keyword-p()
-             ;; ((or (string-equal "shell" lang) (string-equal "sh" lang))
-             ;;  (add-hook 'completion-at-point-functions
-             ;;            #'sh-completion-at-point-function nil 'local)
-             ;;  (print completion-at-point-functions)
-             ;;  (let ((ss))
-             ;;        ;; (sh-shell "bash")
-             ;;        ;; (sh-feature 'bash)
-             ;;        ;; (sh-method 'bash)
-             ;;        ;; (sh-shell-variables '(("PATH" . "/usr/bin")))
-             ;;        ;; (sh-builtin '())
-             ;;        ;; (sh-shell-file "/bin/bash")
-             ;;        ;; (sh-mode-syntax-table sh-mode-syntax-table))
-             ;;    ;; (setq-local sh-shell "bash")
-             ;;    ;; (setq-local sh-feature 'bash)
-             ;;    ;; (setq-local sh-method 'bash)
-             ;;    ;; (setq-local sh-shell-variables '(("PATH" . "/usr/bin")))
-             ;;    ;; (setq-local sh-builtin '())
-             ;;    ;; (setq-local sh-shell-file "/bin/bash")
-             ;;    ;; (setq-local sh-mode-syntax-table sh-mode-syntax-table)
-             ;;    (message "%S" (symbol-value 'sh-shell-variables))
-             ;;    (completion-at-point)
-             ;;    (remove-hook 'completion-at-point-functions
-             ;;                 #'sh-completion-at-point-function
-             ;;                 'local
-             ;;                 )))
-             (t nil)
-             ;; - TODO: add more languages
-             ))
-        ;; else - if not on header use hippie expander
-        (let ((old-tick (buffer-chars-modified-tick)))
-          (or        ;; (call-interactively 'company-complete-selection)
-                     ;; (call-interactively 'company-complete-common)
-           (company-complete-common)
-           ;; get prefix: (company-grab-symbol)
-           ;; (call-interactively 'company-complete)
-           ;; company-candidates
-           (not (eql old-tick (buffer-chars-modified-tick)))
-           (completion-at-point)))))
-    (remove-hook 'completion-at-point-functions #'pcomplete-completions-at-point 'local)
-    (remove-hook 'completion-at-point-functions #'comint--complete-file-name-data 'local)))
+    (unwind-protect
+        (progn
+          (add-hook 'completion-at-point-functions #'pcomplete-completions-at-point nil 'local)
+          (add-hook 'completion-at-point-functions #'comint--complete-file-name-data nil 'local) ; comint-dynamic-complete-filename
+          (let* ((eap (org-element-context)) ; org-element-at-point
+                 (el-type (org-element-type eap)))
+            ;; - if in source block
+            (if (eq el-type 'src-block)
+                (let ((lang (org-element-property :language eap)))
+                  (pring "srcblocktab11")
+                  (cond
+                   ((string-equal "elisp" lang)
+                    (add-hook 'completion-at-point-functions
+                              #'elisp-completion-at-point nil 'local)
+                    ;; (print completion-at-point-functions)
+                    ;; (minibuffer-hide-completions)
+                    ;; (completion--done "nets" 'finished)
+                    ;; (minibuffer--bitset nil nil t)
+                    (let ((res (completion-at-point)))
+                      (remove-hook 'completion-at-point-functions
+                                   #'elisp-completion-at-point
+                                   'local)))
+                   ((string-equal "python" lang)
+                    (add-hook 'completion-at-point-functions
+                              #'python-shell-completion-at-point nil 'local)
+                    (minibuffer-hide-completions)
+                    (let ((res (completion-at-point)))
+                      (remove-hook 'completion-at-point-functions
+                                   #'python-shell-completion-at-point
+                                   'local
+                                   )))
+                   ;; error: (wrong-type-argument listp unset)   assoc("output" unset)   sh-smie--keyword-p()
+                   ;; ((or (string-equal "shell" lang) (string-equal "sh" lang))
+                   ;;  (add-hook 'completion-at-point-functions
+                   ;;            #'sh-completion-at-point-function nil 'local)
+                   ;;  (print completion-at-point-functions)
+                   ;;  (let ((ss))
+                   ;;        ;; (sh-shell "bash")
+                   ;;        ;; (sh-feature 'bash)
+                   ;;        ;; (sh-method 'bash)
+                   ;;        ;; (sh-shell-variables '(("PATH" . "/usr/bin")))
+                   ;;        ;; (sh-builtin '())
+                   ;;        ;; (sh-shell-file "/bin/bash")
+                   ;;        ;; (sh-mode-syntax-table sh-mode-syntax-table))
+                   ;;    ;; (setq-local sh-shell "bash")
+                   ;;    ;; (setq-local sh-feature 'bash)
+                   ;;    ;; (setq-local sh-method 'bash)
+                   ;;    ;; (setq-local sh-shell-variables '(("PATH" . "/usr/bin")))
+                   ;;    ;; (setq-local sh-builtin '())
+                   ;;    ;; (setq-local sh-shell-file "/bin/bash")
+                   ;;    ;; (setq-local sh-mode-syntax-table sh-mode-syntax-table)
+                   ;;    (message "%S" (symbol-value 'sh-shell-variables))
+                   ;;    (completion-at-point)
+                   ;;    (remove-hook 'completion-at-point-functions
+                   ;;                 #'sh-completion-at-point-function
+                   ;;                 'local
+                   ;;                 )))
+                   (t nil)
+                   ;; - TODO: add more languages
+                   ))
+              ;; else - if not on header use: company two times,
+              (let ((inhibit-message t))
+                (let ((old-tick (buffer-chars-modified-tick)))
+                  (or        ;; (call-interactively 'company-complete-selection)
+                   ;; (call-interactively 'company-complete-common)
+                   ;; (with-temp-message ""
+                   (call-interactively #'company-complete-common)
+                   ;; get prefix: (company-grab-symbol)
+                   ;; (call-interactively 'company-complete)
+                   ;; company-candidates
+                   (not (eql old-tick (buffer-chars-modified-tick)))
+                   (call-interactively #'dabbrev-expand)
+                   (call-interactively #'completion-at-point) ; return t
+                   ))))))
+      (remove-hook 'completion-at-point-functions #'pcomplete-completions-at-point 'local)
+      (remove-hook 'completion-at-point-functions #'comint--complete-file-name-data 'local))))
 
 
 ;; -- -- -- key: TAB: complete-at-point backends (shadowed by company if company used)
@@ -5985,116 +6089,116 @@ If not in a list don't split, open new line and indent."
         (goto-char (point-max)) ; (end-of-buffer)
         (other-window 1))
     (message "No src-block here!")))
-;; -- -- -- -- hook for org keybindinds
-(add-hook 'org-mode-hook (lambda ()
-                           (bind-keys :prefix-map org-mode-my-prefix-map
-                                      :prefix "C-x C-o")
-                           ;; (define-key org-mode-map [(control tab)] 'org-insert-structure-template)
-                           (keymap-local-set "C-x C-o m" 'company-math-symbols-unicode)
-                           ;; -- -- dictd - english dictionary - C-c d
-                           ;; - require: emerge app-dicts/dictd-wn app-dicts/dictd-vera app-text/dictd
-                           ;; - rc-update add dictd
-                           ;; USES TCP localhost:2628 PORT
-                           (global-set-key (kbd "C-x C-o d") #'dictionary-lookup-definition)
+;; -- -- -- -- (old) hook for org keybindinds (old)
+;; (add-hook 'org-mode-hook (lambda ()
+;;                            ;; (bind-keys :prefix-map org-mode-my-prefix-map
+;;                            ;;            :prefix "C-x C-o")
+;;                            ;; (define-key org-mode-map [(control tab)] 'org-insert-structure-template)
+;;                            ;; (keymap-local-set "C-x C-o m" 'company-math-symbols-unicode)
+;;                            ;; -- -- dictd - english dictionary - C-c d
+;;                            ;; - require: emerge app-dicts/dictd-wn app-dicts/dictd-vera app-text/dictd
+;;                            ;; - rc-update add dictd
+;;                            ;; USES TCP localhost:2628 PORT
+;;                            ;; (global-set-key (kbd "C-x C-o d") #'dictionary-lookup-definition)
 
-                           (keymap-local-set "C-x C-o f" 'org-footnote-action)
+;;                            ;; (keymap-local-set "C-x C-o f" 'org-footnote-action)
 
-                           ;; (isearch-forward-regexp)
+;;                            ;; (isearch-forward-regexp)
 
-                           ;;
-                           ;; - - - disable Moving a tree to an archive file
-                           (local-unset-key (kbd "C-c C-x C-s"))
+;;                            ;;
+;;                            ;; - - - disable Moving a tree to an archive file
+;;                            ;; (local-unset-key (kbd "C-c C-x C-s"))
 
-                           ;; ;; - - change indentation of list elements
-                           ;; ;; by default:
-                           ;; ;; - C-c C-f                 org-forward-heading-same-level
-                           ;; ;; - C-c C-b                 org-backward-heading-same-level
-                           ;; ;; - org-shiftmetaright - change indentation to right
-                           ;; ;; - org-shiftmetaleft - change indentation to left
-                           ;; ;; - org-shiftleft - cycle list marks to left
-                           ;; ;; - org-shiftright - cycle list marks to righ
-                           ;; ;; we need: 1) cycling with a single key 2) change indentation with two directions
-                           ;; (keymap-local-set "C-c C-f" 'org-shiftmetaright) ; shadow org-forward-heading-same-level
-                           ;; (keymap-local-set "C-c C-b" 'org-shiftmetaleft) ; shadow org-backward-heading-same-level
-                           ;; (keymap-local-set "C-c n" 'org-forward-heading-same-level)
-                           ;; (keymap-local-set "C-c k" 'org-backward-heading-same-level)
-                           ;; (define-key org-mode-map (kbd "C-'") 'org-shiftright)
-                           ;; (define-key org-mode-map (kbd "M-'") 'org-shiftleft)
-                           ;; ;; (define-key org-mode-map (kbd "C-c l") 'org-shiftleft)
-                           ;; ;; (define-key org-mode-map (kbd "C-c f") 'org-shiftright) ; shadow org-forward-heading-same-level
+;;                            ;; ;; - - change indentation of list elements
+;;                            ;; ;; by default:
+;;                            ;; ;; - C-c C-f                 org-forward-heading-same-level
+;;                            ;; ;; - C-c C-b                 org-backward-heading-same-level
+;;                            ;; ;; - org-shiftmetaright - change indentation to right
+;;                            ;; ;; - org-shiftmetaleft - change indentation to left
+;;                            ;; ;; - org-shiftleft - cycle list marks to left
+;;                            ;; ;; - org-shiftright - cycle list marks to righ
+;;                            ;; ;; we need: 1) cycling with a single key 2) change indentation with two directions
+;;                            ;; (keymap-local-set "C-c C-f" 'org-shiftmetaright) ; shadow org-forward-heading-same-level
+;;                            ;; (keymap-local-set "C-c C-b" 'org-shiftmetaleft) ; shadow org-backward-heading-same-level
+;;                            ;; (keymap-local-set "C-c n" 'org-forward-heading-same-level)
+;;                            ;; (keymap-local-set "C-c k" 'org-backward-heading-same-level)
+;;                            ;; (define-key org-mode-map (kbd "C-'") 'org-shiftright)
+;;                            ;; (define-key org-mode-map (kbd "M-'") 'org-shiftleft)
+;;                            ;; ;; (define-key org-mode-map (kbd "C-c l") 'org-shiftleft)
+;;                            ;; ;; (define-key org-mode-map (kbd "C-c f") 'org-shiftright) ; shadow org-forward-heading-same-level
 
-                           ;; begin of line:
-                           ;; (define-key key-translation-map (kbd "M-a") (kbd "M-m"))
-                           ;; (define-key key-translation-map (kbd "M-m") (kbd "M-a"))
-                           ;; (keymap-local-set "M-h" 'backward-kill-word) ; shadow mark paragraph
-                           ;; (define-key org-mode-map (kbd "M-h") 'backward-kill-word) ; redefine org-mark-element
+;;                            ;; begin of line:
+;;                            ;; (define-key key-translation-map (kbd "M-a") (kbd "M-m"))
+;;                            ;; (define-key key-translation-map (kbd "M-m") (kbd "M-a"))
+;;                            ;; (keymap-local-set "M-h" 'backward-kill-word) ; shadow mark paragraph
+;;                            ;; (define-key org-mode-map (kbd "M-h") 'backward-kill-word) ; redefine org-mark-element
 
-                           ;; (keymap-local-set "C-c SPC" 'org-babel-mark-block)
+;;                            ;; (keymap-local-set "C-c SPC" 'org-babel-mark-block)
 
-                           ;; - - - C-e should be short and M-e should be long
-                           ;; (keymap-local-set "M-e" 'org-forward-sentence)
-                           ;; (keymap-local-set "M-a" 'org-backward-sentence)
+;;                            ;; - - - C-e should be short and M-e should be long
+;;                            ;; (keymap-local-set "M-e" 'org-forward-sentence)
+;;                            ;; (keymap-local-set "M-a" 'org-backward-sentence)
 
-                           ;; ;; - - - up down - paragraph
-                           ;; (keymap-local-set "M-p" 'my/org-backward-paragraph)
-                           ;; (keymap-local-set "M-n" 'my/org-forward-paragraph)
-
-
+;;                            ;; ;; - - - up down - paragraph
+;;                            ;; (keymap-local-set "M-p" 'my/org-backward-paragraph)
+;;                            ;; (keymap-local-set "M-n" 'my/org-forward-paragraph)
 
 
 
 
-                           ;; (keymap-local-set "C-c C-o" (lambda () (interactive)
-                           ;;                                  "not working properly."
-                           ;;                                (let
-                           ;;                                    ((display-buffer-base-action
-                           ;;                                      (list '(
-                           ;;                                              ;; display-buffer-in-previous-window ;; IF RIGHT WINDOW EXIST
-                           ;;                                              ;; If all else fails, use same window
-                           ;;                                              display-buffer-use-some-window
-                           ;;                                              ;; display-buffer-same-window
-                           ;;                                              )
-                           ;;                                             '(inhibit-same-window . nil)
-                           ;;                                             '((inhibit-switch-frame . nil))
-                           ;;                                             )))
-                           ;;                                  (call-interactively 'org-open-at-point))
-                           ;;                                ) )
 
 
-                           ;; (keymap-local-set "C-c j") 'my/org-open-next-line-indent-shift)
+;;                            ;; (keymap-local-set "C-c C-o" (lambda () (interactive)
+;;                            ;;                                  "not working properly."
+;;                            ;;                                (let
+;;                            ;;                                    ((display-buffer-base-action
+;;                            ;;                                      (list '(
+;;                            ;;                                              ;; display-buffer-in-previous-window ;; IF RIGHT WINDOW EXIST
+;;                            ;;                                              ;; If all else fails, use same window
+;;                            ;;                                              display-buffer-use-some-window
+;;                            ;;                                              ;; display-buffer-same-window
+;;                            ;;                                              )
+;;                            ;;                                             '(inhibit-same-window . nil)
+;;                            ;;                                             '((inhibit-switch-frame . nil))
+;;                            ;;                                             )))
+;;                            ;;                                  (call-interactively 'org-open-at-point))
+;;                            ;;                                ) )
 
-                           ;; - - fix new line in src-block, just to prevous
-                           ;; (keymap-local-set "\C-m" (lambda () (interactive) (newline) (indent-relative) ) )
 
-                           ;; (keymap-local-set "\M-m" 'my/new-line-stay-indent)
-                           ;; (keymap-local-set "M-RET") 'my/open-next-line) ; shadow `org-meta-return'
+;;                            ;; (keymap-local-set "C-c j") 'my/org-open-next-line-indent-shift)
 
-                           ;; - - - move header
+;;                            ;; - - fix new line in src-block, just to prevous
+;;                            ;; (keymap-local-set "\C-m" (lambda () (interactive) (newline) (indent-relative) ) )
 
-                           ;; - - - -
-                           ;; (setq show-paren-style 'parenthesis) ; highlight brackets
+;;                            ;; (keymap-local-set "\M-m" 'my/new-line-stay-indent)
+;;                            ;; (keymap-local-set "M-RET") 'my/open-next-line) ; shadow `org-meta-return'
+
+;;                            ;; - - - move header
+
+;;                            ;; - - - -
+;;                            ;; (setq show-paren-style 'parenthesis) ; highlight brackets
 
 
-                           ;; - - - replace org-goto (header search) with native C-M-s
+;;                            ;; - - - replace org-goto (header search) with native C-M-s
 
-                           ;; - - - open session of current source block in right window
-                           ;; (defun my/s () (interactive)
-                           ;;                                  (split-window-right)
-                           ;;                                  (message "wtf1")
-                           ;;                                  (org-babel-pop-to-session-maybe)
-                           ;;                                  (message "wtf2")
-                           ;;                                  (move-beginning-of-line nil)
-                           ;;                                  (message "wtf3")
-                           ;;                                  (other-window 1))
-                           ;; (keymap-local-set "C-c M-c") 'my/s)
+;;                            ;; - - - open session of current source block in right window
+;;                            ;; (defun my/s () (interactive)
+;;                            ;;                                  (split-window-right)
+;;                            ;;                                  (message "wtf1")
+;;                            ;;                                  (org-babel-pop-to-session-maybe)
+;;                            ;;                                  (message "wtf2")
+;;                            ;;                                  (move-beginning-of-line nil)
+;;                            ;;                                  (message "wtf3")
+;;                            ;;                                  (other-window 1))
+;;                            ;; (keymap-local-set "C-c M-c") 'my/s)
 
-                           ;; - - - jump to result of current source block - use M-} instead
-                           ;; (keymap-local-set "C-c r" (lambda () (interactive) (let ((location (org-babel-where-is-src-block-result)))
-                           ;;                                             (when location
-                           ;;                                               (goto-char location)))))
-                           ;; - - - fix: after C-q screen stay far away from right
-                           ;; (keymap-local-set "M-q" #'my/org-fill-paragraph)
-                           ))
+;;                            ;; - - - jump to result of current source block - use M-} instead
+;;                            ;; (keymap-local-set "C-c r" (lambda () (interactive) (let ((location (org-babel-where-is-src-block-result)))
+;;                            ;;                                             (when location
+;;                            ;;                                               (goto-char location)))))
+;;                            ;; - - - fix: after C-q screen stay far away from right
+;;                            ;; (keymap-local-set "M-q" #'my/org-fill-paragraph)
+;;                            ))
 
 
 ;; -- -- -- -- Org keymap
@@ -6137,7 +6241,7 @@ If not in a list don't split, open new line and indent."
 (keymap-set org-mode-map "C-c C-e" #'outline-it-hide-other) ;; hides org-export-dispatch
 
 ;; - - Org keys area: C-x C-o
-(keymap-set org-mode-map "C-x C-o e" 'org-export-dispatch) ; shadow 'delete-blank-lines
+;; (keymap-set org-mode-map "C-x C-o e" 'org-export-dispatch) ; shadow 'delete-blank-lines
 (keymap-set org-mode-map "C-c '" #'my/org-horizontal-windows-split )
 
 ;; - - - - ORG NEW LINE:
@@ -6171,6 +6275,9 @@ If not in a list don't split, open new line and indent."
 ;; (keymap-set org-mode-map "C-c C-y" #'my/show-message-log) ; shadow `org-evaluate-time-range'
 
 (keymap-unset org-mode-map "C-c C-a") ; shadow `org-attach'
+
+;; - - - disable Moving a tree to an archive file - that may cut current file accidentely
+(keymap-unset org-mode-map "C-c C-x C-s")
 ;; -- -- -- hook: syntax-table (executed per buffer)
 
 
@@ -6241,15 +6348,6 @@ If not in a list don't split, open new line and indent."
                            ;; end
                            ))
 
-;; -- -- -- fix issue with headline
-(setq org-insert-heading-respect-content t)
-
-
-;; (add-hook 'org-mode-hook (lambda ()
-;;           (
-;;            (define-key org-mode-map [(control tab)] 'org-insert-structure-template)
-;;           ))
-;; )
 
 ;; -- -- -- configuration
 ;; (add-hook 'org-mode-hook (lambda ()
@@ -6260,7 +6358,8 @@ If not in a list don't split, open new line and indent."
 ;;                             '(org-level-3 ((t ( :weight bold :height 1.10))))
 ;;                             '(org-hide ((((background dark)) (:foreground "dark blue"))
 ;;                                         (((background light)) (:foreground "gray"))))
-;;                             )))
+;;            (define-key org-mode-map [(control tab)] 'org-insert-structure-template)
+
 (with-eval-after-load 'org
   ;; (set-face-attribute 'org-level-1 nil :weight 'bold :height 1.10)
   ;; (set-face-attribute 'org-level-2 nil :weight 'bold :height 1.10)
@@ -6282,6 +6381,10 @@ If not in a list don't split, open new line and indent."
 
   ;; do not indent test after header
   (setopt org-adapt-indentation nil)
+
+  ;; fix issue with headline
+  (setq org-insert-heading-respect-content t)
+
 
   ;; font size
 
@@ -6306,6 +6409,8 @@ If not in a list don't split, open new line and indent."
       ;; (http . t) ;; require ob-http
       (cons 'shell t)
       (cons 'sql t)
+      ;; (cons 'dockerfile t)
+      ;; (cons 'sql t)
       ;; (when (treesit-available-p)
       ;;   (when (require 'markdown-ts-mode nil 'noerror) ; not built-in
       ;;     (cons 'markdown t)))
@@ -6319,6 +6424,10 @@ If not in a list don't split, open new line and indent."
       (cons 'julia t) ;; require julia-mode
       ;; (ditta . t) ;; require ob-ditta
       ))
+  ;; Only highlightling for modes:
+  (when (require 'dockerfile-mode nil 'noerror)
+    (add-to-list 'org-src-lang-modes '("Dockerfile" . dockerfile))
+    (add-to-list 'org-src-lang-modes '("dockerfile" . dockerfile)))
 
   ;; (with-eval-after-load 'ob-http
   ;;   (org-babel-do-load-languages
@@ -6358,7 +6467,7 @@ If not in a list don't split, open new line and indent."
 ;; -- -- -- hook: default fill column
 (add-hook 'org-mode-hook (lambda ()
                            (setq fill-column 100)))
-;; -- -- -- timeout for org-babel- * -evaluate-external-process (old)
+;; -- -- -- (old) timeout for org-babel- * -evaluate-external-process (old)
 ;; (setq python-shell-interpreter "timout"
 ;;       python-shell-interpreter-args
 ;;       "1 python")
@@ -6402,7 +6511,7 @@ If not in a list don't split, open new line and indent."
 
 
 ;; org-babel-execute:python
-;; -- -- -- fix for inline images with transparent background
+;; -- -- -- advice: fix for inline images with transparent background
 (defcustom org-inline-image-background nil
   "The color used as the default background for inline images.
 When nil, use the default face background."
@@ -6424,7 +6533,7 @@ When nil, use the default face background."
             #'create-image-with-background-color)
 
 (setopt org-inline-image-background "#ffffff")
-;; -- -- -- fix Allow to export subtree to different files (HTML)
+;; -- -- -- hooks: (old) fix Allow to export subtree to different files (HTML)
 ;; (defun my/org-html-export-to-html-all-subtrees (orig-fun &optional async subtreep visible-only body-only ext-plist)
 ;;   "Apply export to HTML for every subtree when called for buffer."
 ;;   (if (null subtreep)
@@ -6439,7 +6548,7 @@ When nil, use the default face background."
 
 ;; (advice-add 'org-html-export-to-html :around #'my/org-html-export-to-html-all-subtrees)
 
-;; -- -- -- fix C-c n org-forward-heading-same-level to jump no metter what
+;; -- -- -- advices: fix C-c n org-forward-heading-same-level to jump no metter what
 (defun my/org-forward-heading-same-level-advice (func-call &rest args)
   "Allow to jump to next header even at final one."
   (let ((p (point)))
@@ -6462,7 +6571,7 @@ When nil, use the default face background."
 
 ;; (add-hook 'org-mode-hook 'my/syntax-table-elisp)
 
-;; -- -- -- C-c C-c for blocks
+;; -- -- -- hooks: C-c C-c for blocks - redisplay images
 
 ;; - - - redisplay inline images on source code block evaluation
 (add-hook 'org-ctrl-c-ctrl-c-final-hook #'org-redisplay-inline-images)
@@ -6471,6 +6580,30 @@ When nil, use the default face background."
 ;; (add-hook 'org-ctrl-c-ctrl-c-hook #'my/org-ctrl-c-ctrl-c)
 
 
+;; -- -- -- advice for org-toggle-item and org-ctrl-c-minus - remove space before
+;; (defun my/org-toggle-item-preprocess (&rest _)
+(defun my/org-toggle-item-preprocess (&rest _)
+  "Remove leading spaces unless first line starts with ' *-' before org-toggle-item."
+  (let* ((beg (if (use-region-p) (region-beginning) (line-beginning-position)))
+         (end (if (use-region-p) (region-end) (line-end-position)))
+         (first-line
+           (save-excursion
+             (goto-char beg)
+             (buffer-substring-no-properties
+              (line-beginning-position)
+              (line-end-position)))))
+    (unless (string-match-p "^[ \t]*-" first-line)
+      (save-excursion
+        (goto-char beg)
+        (while (< (point) end)
+          (beginning-of-line)
+          (when (looking-at "^[ \t]+")
+            (replace-match ""))
+          (forward-line 1)))))
+  ;; No need to call original, :before always lets function run
+  )
+
+(advice-add 'org-toggle-item :before #'my/org-toggle-item-preprocess)
 ;; -- -- Text mode
 ;; Used: text-mode-abbrev-table
 (defun my/company-manual-begin (&optional arg)
@@ -6525,6 +6658,9 @@ When nil, use the default face background."
                ))
   ;; - disable ispell, that enabled by default for text-mode in [[file:/usr/share/emacs/30.2/lisp/textmodes/text-mode.el::158::(add-hook 'completion-at-point-functions #'ispell-completion-at-point 10 t)))]]
   (remove-hook 'completion-at-point-functions #'ispell-completion-at-point t)
+  ;; for speed:
+  (remove-hook 'pre-command-hook 'company-pre-command t)
+  (remove-hook 'post-command-hook 'company-post-command t)
  )
 
 (defun my/text-mode-hook ()
@@ -7132,6 +7268,8 @@ If prev word was not found, go to prev heading"
 (add-hook 'emacs-lisp-mode-hook #'display-line-numbers-mode)
 ;; (add-hook 'yaml-mode-hook	#'display-line-numbers-mode)
 (add-hook 'yaml-ts-mode-hook	#'display-line-numbers-mode)
+(when (require 'dockerfile-mode nil 'noerror)
+  (add-hook 'dockerfile-mode-hook	#'display-line-numbers-mode))
 (add-hook 'ebuild-mode		#'display-line-numbers-mode)
 ;; (add-hook 'sh-mode		#'display-line-numbers-mode)
 ;; (add-hook 'shell-script-mode	#'display-line-numbers-mode)
@@ -8733,21 +8871,30 @@ This function is called by `org-babel-execute-src-block'."
 (setopt smtpmail-multi-accounts
         '(
           (mail . ("user@mail.com" "mail.mail.com" 587 "user@mail.com" starttls nil nil nil))
-
+          ;; (asv313gjiydata . ("asv313gjiydata@hotmail.com" "smtp-mail.outlook.com" 587 "asv313gjiydata@hotmail.com" starttls nil nil nil))
+          ;; (vitsmallboy . ("vitsmallboy@hotmail.com" "smtp-mail.outlook.com" 587 "vitsmallboy@hotmail.com" starttls nil nil nil))
+          ;; (gmail-main . ("firmin.martin@gmail.com" "smtp.gmail.com" 587 "firmin.martin@gmail.com" nil nil nil nil))
           ))
 
 (setopt smtpmail-multi-associations
   '(
     ("user@mail.com" mail)
-
+    ;; ("asv313gjiydata@hotmail.com" asv313gjiydata)
+    ;; ("vitsmallboy@hotmail.com" vitsmallboy)
+    ;; ("firmin.martin@gmail.com" gmail-main)
     ))
 
 (setopt smtpmail-multi-default-account 'mail)
+;; (setopt smtpmail-multi-default-account 'vitsmallboy)
+;; (setopt smtpmail-multi-default-account 'asv313gjiydata)
 
 (setopt message-send-mail-function 'smtpmail-multi-send-it)
 (setopt smtpmail-debug-info t)
 (setq smtpmail-debug-verbose t)
+
+;; (setopt user-mail-address "asv313gjiydata@hotmail.com")
 (setopt user-mail-address "user@mail.com")
+;; (setopt user-mail-address "vitsmallboy@hotmail.com")
 
 ;; -- -- flycheck-aspell for English
 ;; Ensure `flycheck-aspell' is available
@@ -8974,10 +9121,12 @@ timeout -k 1 1 speaker-test -c 2 -t sin >/dev/null" min-to-app  msg))
 
 ;; (setenv "GPG_AGENT_INFO" nil)
 ;; -- -- Ediff
-(add-to-list 'load-path "/home/user/sources/ediffnw/")
+(add-to-list 'load-path "/home/user/sources/emacs-ediffnw/")
 (when (require 'ediffnw nil 'noerror)
   ;; (setopt ediff-window-setup-function #'ediff-setup-windows-plain)
-  (setopt ediffnw-purge-window t))
+  (setopt ediffnw-purge-window t)
+  (outline-it-advices-activation)
+  )
 ;; (setq 'ediff--startup-hook '(ediffnw--startup)) ;; not working, idk why
 ;; (defun ediff-setup-control-buffer (ctl-buf)
 ;;   t)
@@ -10000,6 +10149,42 @@ Aspects:
 ;; (add-hook 'org-font-lock-hook 'my/org-fontify-links-in-ai-blocks)
 ;;           (lambda (limit)
 ;;             (my/org-activate-links-in-ai-blocks limit)))
+;; -- -- show-point-mode in mode-line <<position-in-modeline>>
+;; Define the minor mode to toggle point display
+(defvar show-point-mode-map-entry
+  '(:eval (format " (%d)" (point)))
+  "The specific list structure we add to the mode-line.")
+
+(defvar my/force-mode-line-update-timer nil)
+
+(defun my/force-mode-line-update ()
+  ;; (setq my/force-mode-line-update-counter (1+ my/force-mode-line-update-counter))
+  (unless my/force-mode-line-update-timer
+    (setq my/force-mode-line-update-timer
+          (run-with-timer 0.4 nil (lambda ()
+                                  (setq my/force-mode-line-update-timer nil))))
+    (force-mode-line-update)))
+
+(define-minor-mode show-point-mode
+  "Toggle display of point position in the mode-line."
+  :global t
+  :group 'editing-basics
+  (if show-point-mode
+      (progn
+        ;; Avoid double-adding if the mode is toggled quickly
+        (unless (member show-point-mode-map-entry mode-line-position)
+          (setq mode-line-position
+                (append mode-line-position (list show-point-mode-map-entry))))
+        (add-hook 'post-command-hook #'my/force-mode-line-update))
+
+    ;; Use 'delete' with the specific variable reference
+    (setq mode-line-position (delete show-point-mode-map-entry mode-line-position))
+    (remove-hook 'post-command-hook #'my/force-mode-line-update)))
+
+(show-point-mode 1)
+;; -- -- dockerfile-mode
+;; (with-eval-after-load 'dockerfile-mode
+;;   (add-hook 'dockerfile-mode-hook #'flycheck-mode))
 ;; -- -- RTAGS (old)
 ;; (require 'rtags)
 ;; (with-eval-after-load 'rtags
@@ -10502,6 +10687,6 @@ Aspects:
 ;;
 ;;
 ;; Local variables:
-;; outline-regexp: ";; -- "
+;; outline-regexp: "^;; -- "
 ;; coding: utf-8
 ;; end:
