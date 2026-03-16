@@ -2308,19 +2308,25 @@ If buffer-menu is opened (current-buffer) still point to previous
                               nil)))
     (let (buffers)
       (dolist (b (buffer-list))
-        (let ((name (buffer-name b)))
-          ;; when to kill
-          (when (and (buffer-live-p b)
-                     (/= (aref name 0) ?\s)
-                     (not (buffer-modified-p b))
-                     (not (get-buffer-process b))        ;; process check
-                     (not (eq b (current-buffer)))
-                     (not (eq b (window-buffer (selected-window))))
-                     (not (seq-contains-p exception-buffers b))
-                     (not (seq-contains-p my/kill-buffer-exceptions
-                                          (downcase name)
-                                          #'my/kill-buffer-testfn)))
-            (push b buffers))))
+        ;; when to kill
+        (when (and (buffer-live-p b)
+                   ;; first character of name should be not space
+                   (/= (aref (buffer-name b) 0) ?\s)
+                   ;; don't kill if modified
+                   (not (buffer-modified-p b))
+                   ;; have bound process
+                   (not (get-buffer-process b))
+                   ;; current buffer
+                   (not (eq b (current-buffer)))
+                   ;; filter buffer-menu in current window
+                   (not (eq b (window-buffer (selected-window))))
+                   ;; don't kill selected buffers
+                   (not (seq-contains-p exception-buffers b))
+                   ;; filter exceptions
+                   (not (seq-contains-p my/kill-buffer-exceptions
+                                        (downcase name)
+                                        #'my/kill-buffer-testfn)))
+          (push b buffers)))
       (if test
           (print buffers)
         (mapc #'kill-buffer buffers)))))
