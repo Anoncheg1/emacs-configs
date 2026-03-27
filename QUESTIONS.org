@@ -2324,7 +2324,7 @@ If buffer-menu is opened (current-buffer) still point to previous
                    (not (seq-contains-p exception-buffers b))
                    ;; filter exceptions
                    (not (seq-contains-p my/kill-buffer-exceptions
-                                        (downcase name)
+                                        (downcase (buffer-name b))
                                         #'my/kill-buffer-testfn)))
           (push b buffers)))
       (if test
@@ -2333,18 +2333,19 @@ If buffer-menu is opened (current-buffer) still point to previous
 
 ;; -- -- -- kill other frames
 (defun my/frame-list-groups-by-name ()
+  "Return a list of lists of frames grouped by their 'name' parameter.
+Each subgroup contains frames with the same name. The groups are sorted by name alphabetically."
   (let* ((frames (frame-list))
          (group-table (make-hash-table :test 'equal)))
     ;; Build hash table: name => list of frames
     (dolist (f frames)
       (let ((name (alist-get 'name (frame-parameters f))))
-        (push f (gethash name group-table))))
+        (puthash name (cons f (gethash name group-table '())) group-table)))
     ;; Collect and sort groups by name
     (mapcar
      (lambda (name)
        (nreverse (gethash name group-table)))
      (sort (hash-table-keys group-table) #'string-lessp))))
-
 
 (defun my/drop-frame-duplicates ()
   "Keep first frame, delete duplicates."
@@ -2744,22 +2745,21 @@ was made."
 * TODO Org: How set #+TITLE: to filename?
 (plist-get (org-export-get-environment) ':title)
 * FAQ: My Emacs is not loading what to do? How to debug init config file?
-1) *Check for Errors in Messages Buffer*: When Emacs hangs, you can
+1) M-x messages - *Check for Errors in Messages Buffer*: When Emacs hangs, you can
  try pressing `C-g` to see if you can regain control. Additionally,
  check the Messages buffer (`M-x messages`) for any error messages
  that might provide clues about what's going wrong.
-2) *Inspect the Init File*:
-3) *Run Emacs in Debug Mode*: try running Emacs with ~emacs
- --debug-init~ to see if additional debugging information reveals the
- source of the problem.
-4) *Try to run Emacs without config* ~emacs --quick~
-5) *Bisection* is a technique used to debug a problematic init file by
+2) ~/.emacs - *Inspect the Init File*:
+3) ~emacs --debug-init~ - *Run Emacs in Debug Mode*
+4) ~emacs --quick~ - *Try to run Emacs without config*
+5) ~emacs -q --load ~/.emacs.part~ - *Bisection* to debug a problematic init file by
  commenting out half the file and running emacs. If the problem
  persists, you know that it is in the un-commented part of your init
  file. Comment or uncomment half of the remaining code and re-run
- emacs; recurse as needed. You can use Emacs itself without loading
- configuration to comment lines: ~emacs --quick .emacs~. Select region
- and do ~M-x comment-line~.
+ emacs; recurse as needed.
+  - ~cp ~/.emacs ~/.emacs.minimal~
+  - in ~~/.emacs.minimal~ Select region and do ~M-x comment-line~.
+  - ~emacs -q --load ~/.emacs.part~ - Load Emacs with edited config.
 6) Try to add (setq debug-on-error t) at the top of your init.
 7) *Check for System Updates*: It's also worth checking if there were
  any recent updates to your operating system or any related software
