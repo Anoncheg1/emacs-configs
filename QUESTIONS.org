@@ -1930,6 +1930,41 @@ Dired “=” keys don't comare buffers or directories by default.
 
 (define-key dired-mode-map (kbd "=") #'my/dired-diff)
 #+end_src
+* Dired: How to find file by regex recursively?
+There is no function for that
+- ~find-dired~ and ~find-name-dired~ - use wildcard, not regex
+
+We wrapped ~directory-files-recursively~ for interactive use with opeining result in Dired like buffer.
+
+Here is solution:
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(defun my/find-file-regex-recursive (regexp)
+  "Search current directory recursively for REGEXP and display relative paths in Dired."
+  (interactive "sMatching regex (in current dir): ")
+  (let* ((dir default-directory)
+         (files (directory-files-recursively dir regexp t))
+         (bufname (format "*Regex Find: %s*" regexp)))
+    (if (null files)
+        (message "No matches found for: %s" regexp)
+      (with-current-buffer (get-buffer-create bufname)
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (setq default-directory dir)
+          ;; Buffer Header
+          (insert "  " dir ":\n")
+          (dolist (file files)
+            ;; Convert absolute path to relative path
+            (let ((rel-file (file-relative-name file dir)))
+              ;; Insert dummy 'ls -l' metadata so dired-mark works
+              (insert (format "  -rw-r--r--  1 user group 0 Jan 01 00:00 %s\n" rel-file))))
+
+          (dired-mode dir)
+          ;; Ensure Dired treats the buffer as a long-format listing
+          (setq-local dired-actual-switches "-l")
+          (setq-local dired-subdir-alist (list (cons dir (point-min-marker))))
+          (dired-goto-next-file)
+          (display-buffer (current-buffer)))))))
+#+end_src
 * How emacs behavior differ when run under root?
 C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
 - TAB is ascii C-i. ,
