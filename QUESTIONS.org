@@ -1354,6 +1354,21 @@ Here is solution how
 
 #+end_src
 
+* Org: Babel: For shell src-block, how to get exit-code and stdout/stderr? [2026-04-07 Sun]
+Function that execute block ~org-babel-execute-src-block~ return the result only stdout (:results output) or exit-code (:results value), but not both.
+
+To sove this, we add advice around internal function that always return exit-code and save it to global variable.
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(defvar org-babel--last-shell-exit-code nil
+  "Last exit code from `org-babel--shell-command-on-region`.")
+
+(defun org-babel--save-shell-exit-code-advice (orig-fun &rest args)
+  (let ((result (apply orig-fun args)))
+    (setq org-babel--last-shell-exit-code result)
+    result))
+
+(advice-add 'org-babel--shell-command-on-region :around #'org-babel--save-shell-exit-code-advice)
+#+end_src
 * Org: What is the best approach to document small table with big cells in plain text?
 You can write 2x2 table this way:
 
@@ -1965,6 +1980,18 @@ Here is solution:
           (dired-goto-next-file)
           (display-buffer (current-buffer)))))))
 #+end_src
+* Dired-image: Why there is no path in Buffer Menu? [2026-04-10 Sun]
+Buffer Menu's File column logic does not fall back to default-directory for non-Dired buffers.
+
+Solution is to forcely set ~buffer-file-name~ variable locally in buffer.
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(with-eval-after-load 'image-dired
+  (defun my-image-dired-set-dired-dir ()
+    (when (derived-mode-p 'image-dired-thumbnail-mode)
+      (setq-local buffer-file-name default-directory)))
+  (add-hook 'image-dired-thumbnail-mode-hook #'my-image-dired-set-dired-dir))
+#+end_src
+
 * How emacs behavior differ when run under root?
 C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
 - TAB is ascii C-i. ,
@@ -2688,6 +2715,62 @@ no need to use emacs as alternative editor, you can just use an empty string, in
 # *ERROR*: X windows are not in use or not initialized
 # *ERROR*: Unknown terminal type
 Frame was not created, use ~emacsclient --create-frame~
+
+* Troubleshooting: Encoding: fixing UTF-8 in buffer [2026-04-18 Sat]
+If you see “=:@” instead of “U:@” in modeline, this means that means that in buffer there is characters without encoding conversion is being performed (typically for binary or non-text files).
+
+You may see lines like ~\342\200\230~ in buffer with broken encoding.
+
+Here is solution, that filter characters and re-encode whole buffer.
+
+Use: M-x my-utf8-recode-buffer-to-file
+
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(defun oai-restapi--clean-unicode-text (str)
+  "Remove ASCII control chars except tab, newline, and carriage return.
+Argument STR unicode multi-byte string."
+  (apply #'string
+         (seq-filter
+          (lambda (ch)
+            (or (>= ch 32) ; ; Unicode (including emoji, CJK, etc.) and printable ASCII
+                ;; (memq ch '(?\t ?\n ?\r)) ; forbit tab, linefeed, CR
+                ))
+          (string-to-list
+           (replace-regexp-in-string "\r.*?\r" "" str))))) ; removes content between pairs of CRs, which may be too aggressive.
+
+(defun my-utf8-recode-buffer-to-file (filename)
+  "Clean buffer text, recode to valid UTF-8, and save to FILENAME.
+Removes ASCII control characters (except tab, newline, CR) before recoding."
+  (interactive "FSave clean/UTF-8 buffer to file: ")
+  (let* ((orig-text (buffer-substring-no-properties (point-min) (point-max)))
+         ;; Clean buffer text for allowable chars only
+         (clean-text (oai-restapi--clean-unicode-text orig-text))
+         ;; Recoding to normalize encoding, catch malformed sequences
+         (utf8-text (decode-coding-string
+                     (encode-coding-string clean-text 'utf-8 t) 'utf-8)))
+    ;; Save to file in UTF-8
+    (write-region utf8-text nil filename)))
+#+end_src
+
+To use with yanking:
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(defun my/yank-safe-encoding (string)
+  "Reencode and remove unsafe characters.
+For `yank-transform-functions'.
+Called with the string to be yanked as the sole argument, and should
+ return the (possibly) transformed string.
+called with the destination buffer as the current buffer, and with point
+ at the place where the string is to be inserted."
+  ;; TODO: use encoding of current buffer.
+  (clean-text (oai-restapi--clean-unicode-text
+               (decode-coding-string
+                (encode-coding-string string 'utf-8 t) 'utf-8))))
+
+(setq yank-transform-functions (cons #'yank-in-context--transform
+                                        yank-transform-functions)) ; (delete-dups yank-transform-functions)
+#+end_src
+
+
 * TODO How to use holidays?
 Configure holidays.el by hands at the begining of every year.
 * Telega: How to add custom notification on new message?
