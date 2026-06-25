@@ -533,13 +533,65 @@ if you M-x debug-on-entry RET execute-extended-command which is M-x. You fill fi
 
 The way to emulate it properly is to use followind call:
 : (execute-extended-command nil "indent-for-tab-command" nil)
-* How to change current directory "default-directory" to directory of emacs's start or directory of other buffer?
+* Buffer: How to change current directory "default-directory" to directory of emacs's start or directory of other buffer?
 to change directory to emacs's start temporarely:
 #+begin_src elisp :results output :exports both
 (with-temp-buffer
        (setq-local default-directory (buffer-local-value 'default-directory (get-buffer
        "*Messages*")))
        ...)
+#+end_src
+
+* Buffer: How to switch buffers fast with one key?
+- "C-c C-z" - to previous buffer
+- "C-c C-d" - to previous previous buffer
+
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(defvar my/ignored-system-buffers '("*Buffer List*")
+  "List of buffer names to ignore when looping through window history.")
+
+(defun my/find-buffer-predicate (b)
+  "Return non-nil if buffer B is a valid target buffer."
+  (and (buffer-live-p b)
+       (/= (aref (buffer-name b) 0) ?\s) ; Not hidden system buffers
+       (with-current-buffer b (not (derived-mode-p 'dired-mode))) ; Not Dired
+       (not (member (buffer-name b) my/ignored-system-buffers)))) ; Not ignored
+
+(defun my/loop-over-window-history (&optional skip-count)
+  "Loop through the buffer history of the currently selected window.
+Optional argument SKIP-COUNT specifies how many valid buffers to skip
+past the current buffer. If nil, it goes to the immediate previous valid buffer."
+  (interactive "p") ; skip-count=1 in interactive call
+  (let* ((current-buf (current-buffer))
+         (history (window-prev-buffers (selected-window)))
+         ;; Filter history: must pass your predicate AND not be the current buffer
+         (live-buffers (delq nil (mapcar (lambda (entry)
+                                           (let ((buf (car entry)))
+                                             (when (and (my/find-buffer-predicate buf)
+                                                        (not (eq buf current-buf)))
+                                               buf)))
+                                         history)))
+         (skip (if skip-count (1- skip-count) 0))
+         (target-buffer (nth skip live-buffers)))
+
+    (cond
+     ((null history)
+      (message "This window has no buffer history yet!"))
+     ((null target-buffer)
+      (message "No valid buffer found in history at skip index %d." skip))
+     (t
+      ;; Switch buffer without altering the history order dynamically
+      (switch-to-buffer target-buffer nil t)
+      (message "Switched to: %s" (buffer-name target-buffer))))))
+
+(defun my/loop-over-window-history2 ()
+  (interactive)
+  (my/loop-over-window-history 2))
+
+(global-set-key (kbd "C-c C-z") #'my/loop-over-window-history)
+(require 'org)
+(keymap-unset org-mode-map "C-c C-d")
+(global-set-key (kbd "C-c C-d") #'my/loop-over-window-history2) ; with argument
 #+end_src
 * How in Org-mode to hide other headers and leave current open without hiding text and headers in opened?
 (org-fold-show-entry) and Outline in (outline-show-entry) don't show
@@ -1354,7 +1406,7 @@ Here is solution how
 
 #+end_src
 
-* Org: Babel: For shell src-block, how to get exit-code and stdout/stderr? [2026-04-07 Sun]
+* Org: Babel: For shell src-block, how to get exit-code and stdout/stderr?
 Function that execute block ~org-babel-execute-src-block~ return the result only stdout (:results output) or exit-code (:results value), but not both.
 
 To sove this, we add advice around internal function that always return exit-code and save it to global variable.
@@ -1980,7 +2032,7 @@ Here is solution:
           (dired-goto-next-file)
           (display-buffer (current-buffer)))))))
 #+end_src
-* Dired-image: Why there is no path in Buffer Menu? [2026-04-10 Sun]
+* Dired-image: Why there is no path in Buffer Menu?
 Buffer Menu's File column logic does not fall back to default-directory for non-Dired buffers.
 
 Solution is to forcely set ~buffer-file-name~ variable locally in buffer.
@@ -2549,6 +2601,31 @@ And function 2) that will be called from bash to open that link:
 Here is example of ~/.bash_aliases file with alias with inserted link from clipboard created pointing to org file:
 : alias iaa='emacsclient --alternate-editor=emacs --create-frame --eval "(my/open-link \"file:~/nix::<<config_kernel_gentoo>>\")"'
 * How to kill Python Babel when execute source block in Org mode?
+* How to mark and remember position in buffer for return later?
+1) Mark Ring “C-u C-SPC” or Global Mark Ring “C-x C-SPC”
+2) Registers (Persistent Positions) - works globally
+   - To save: “C-x r SPC followed by a letter (e.g., a)” - point-to-register
+   - To return: “C-x r j followed by a letter (e.g., a)” - jump-to-register
+
+Suggested Short Binding for Registers:
+- to save: C-u C-c j
+- to return: C-c j
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(defun my/register-point-toggle (register)
+  "Save or jump to a register using a single keybinding.
+With no prefix argument, save the current point to REGISTER.
+With a prefix argument (\\[universal-argument]), jump to REGISTER."
+  (interactive "cRegister: ")
+  (if (not current-prefix-arg)
+      (progn
+        (jump-to-register register)
+        (message "Jumped to register %c" register))
+    (point-to-register register)
+    (message "Point saved to register %c" register)))
+
+;; Bind it to C-x j
+(keymap-global-set "C-x j" #'my/register-point-toggle)
+#+end_src
 * ELisp: How to load new package for easy navigation?
 : (add-to-list 'load-path "~/path/folder")
 : M-x load-library RET file
@@ -2707,7 +2784,7 @@ Ediff files:
 Ediff customization guides:
 - https://oremacs.com/2015/01/17/setting-up-ediff/
 - http://yummymelon.com/devnull/using-ediff-in-2023.html
-* grep: How to configure it? [2026-04-29 Wed]
+* grep: How to configure it?
 *grep-find*
 - grep-find-command - final constructed command in form ~(cons “commands string” N-cursor-position-in-string)~
 *rgrep*
@@ -2725,7 +2802,7 @@ Workflow:
 2) (print grep-find-command) - to inspect compiled command string
 3) Add to .emacs: ~(require 'grep) (setopt grep-find-command "your customized command string")~
 
-* grep: How to replace string in several files? modify *grep* buffer? [2026-04-29 Wed]
+* grep: How to replace string in several files? modify *grep* buffer?
 Third-party package on MELPA and NonGNU ELPA https://elpa.nongnu.org/nongnu/wgrep.html
 
 wgrep workflow:
@@ -2742,7 +2819,7 @@ no need to use emacs as alternative editor, you can just use an empty string, in
 # *ERROR*: Unknown terminal type
 Frame was not created, use ~emacsclient --create-frame~
 
-* Troubleshooting: Encoding: fixing UTF-8 in buffer [2026-04-18 Sat]
+* Troubleshooting: Encoding: fixing UTF-8 in buffer
 If you see “=:@” instead of “U:@” in modeline, this means that means that in buffer there is characters without encoding conversion is being performed (typically for binary or non-text files).
 
 You may see lines like ~\342\200\230~ in buffer with broken encoding.
