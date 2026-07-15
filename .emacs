@@ -8,7 +8,7 @@
 
 ;; -- Notes: One.
 ;; + outline connfiguration for first opening at the bottom
-;; + [rooted] - means tested for usage under root console.
+;; + [rooted] - means tested for usage under tty console.
 ;; + GNU Emacs 30.1
 ;; -- Notes: How outline works in this file?
 ;; This works wihtout `outline-minor-mode'.
@@ -34,7 +34,8 @@
 ;; .authinfo - notmuch credentials and password
 ;; .tramp_history - file, (not valuable)
 ;; .emacs.d/mylisp/myholidays.el - holidays
-;; .emacs.d/mylisp/oai-tokens.el
+;; .emacs.d/mylisp/cui-tokens.el
+;; .emacs.d/todo.org - org-agenda
 ;;Email:
 ;; ~/notmuch-*.sh
 ;; /usr/local/bin/email_notmuch_perm.sh
@@ -52,10 +53,8 @@
    '((c-mode . "stroustrup") (java-mode . "java") (awk-mode . "awk")
      (other . "gnu")))
  '(custom-enabled-themes '(wombat manoj-dark))
- '(delete-selection-mode t)
  '(global-eldoc-mode -1)
  '(inhibit-startup-screen t)
- '(menu-bar-mode nil)
  '(mml-secure-key-preferences
    '((OpenPGP
       (sign
@@ -63,7 +62,6 @@
       (encrypt))
      (CMS (sign) (encrypt))))
  '(mouse-wheel-mode nil)
- '(org-agenda-files '("/home/user/.emacs.d/todo.org"))
  '(org-hide-leading-stars t)
  '(org-image-actual-width '(300))
  '(org-link-descriptive nil)
@@ -78,10 +76,11 @@
                ggtags hidepw htmlize idle-highlight-mode jinja2-mode
                julia-mode lua-mode marginalia markdown-mode
                multiple-cursors multitran ob-http org-inline-anim
-               org-present ox-html5slide pinyin-isearch pinyin-search
-               projectile python-insert-docstring rainbow-identifiers
-               smtpmail-multi tab-bar-buffers vertico vlf))
+               org-present ox-html5slide pinyin-search projectile
+               python-insert-docstring rainbow-identifiers
+               smtpmail-multi tab-bar-buffers vertico vlf wgrep))
  '(safe-local-variable-values '((org-image-actual-width . 500)))
+ '(send-mail-function 'mailclient-send-it)
  '(speedbar-show-unknown-files t)
  '(warning-suppress-log-types '((org-element org-element-parser))))
 
@@ -114,7 +113,7 @@
   ;;  ;; '(whitespace-tab ((t (:foreground "#636363"))))
   ;;  ;; '(whitespace-trailing ((t (:extend t :background "pink"))))
 
-;; -- Fonts
+;; -- Fonts (old)
 ;; (add-to-list 'yank-excluded-properties 'font-lock-face)
 ;; (add-to-list 'yank-excluded-properties 'font)
 ;; (setopt yank-excluded-properties '(t))
@@ -133,50 +132,12 @@
 ;; (setq selection-converter-alist
 ;;       (rassq-delete-all 'xselect-convert-to-rtf selection-converter-alist))
 
-;; -- -- clean text properties
-(setopt yank-excluded-properties t)
-;;
-;; (defun my/kill-ring-strip-properties (string &optional do-not-move)
-;;   "Force the return value of current-kill to be properties-free."
-;;   (print (list "my/kill-ring-strip-properties" string))
-;;   (if (stringp string)
-;;       (progn
-;;         (print (substring-no-properties string)))
-;;     string))
-
-;; ;; Advice 'current-kill' (the engine for C-y and M-y)
-;; (advice-add 'current-kill :filter-return #'my/kill-ring-strip-properties)
-
-;; (add-to-list 'yank-handled-properties '(nil . t))
-
-;; (setq-local line-spacing 0)
-;; (when (window-system) ; mono is required for correct displaying tables in Org mode.
-;;   ;; Set the font for the 'default' face
-;;   (cond
-;;    ((find-font (font-spec :name "DejaVu Sans Mono"))
-;;     (set-face-attribute 'default nil :family "DejaVu Sans Mono" ))
-;;    ;; ((find-font (font-spec :name "DejaVu Sans"))
-;;    ;;  (set-face-attribute 'default nil :family "DejaVu Sans" ))
-;;    ;; ((find-font (font-spec :name "DejaVu Sans Serif"))
-;;    ;;  (set-face-attribute 'default nil :family "DejaVu Sans Serif" ))
-;;    ((find-font (font-spec :name "Noto Sans Mono CJK SC"))
-;;     (set-face-attribute 'default nil :family "Noto Sans Mono CJK SC" ))
-;;    ((find-font (font-spec :name "Nimbus Mono PS"))
-;;     (set-face-attribute 'default nil :family "Nimbus Mono PS" ))
-;;    ((find-font (font-spec :name "Verdana"))
-;;     (set-face-attribute 'default nil :family "Verdana" ))
-;;    ((find-font (font-spec :name "Georgia"))
-;;     (set-face-attribute 'default nil :family "Georgia" ))
-;;    ((find-font (font-spec :name "Arial"))
-;;     (set-face-attribute 'default nil :family "Arial") ;; :height 120
-;;     )
-;;    ))
-
 ;; -- Enable commands (automatc added)
 ;; (put 'scroll-left 'disabled nil)
 ;; (put 'erase-buffer 'disabled nil)
 ;; (put 'downcase-region 'disabled nil)
-;; - MELPA
+;; -- Network
+;; -- -- MELPA
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 ;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
@@ -184,7 +145,7 @@
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (package-initialize) ; use `package-load-list' variable, dafault: (all)
                      ; and `package-activated-list' variable
-;; -- Network
+
 ;; -- -- url-http configuration
 (require 'url)
 (setopt url-privacy-level '(email os lastloc))
@@ -344,7 +305,7 @@
 ;; (advice-add 'socks-open-network-stream :before #'my/socks-open-network-stream-deb)
 
 
-;; -- -- -- firewall, block connections
+;; -- -- -- firewall, block connections [rooted]
 ;; (defun dummy-process-create (name buffer-name)
 ;;   "Create a minimal dummy process with NAME in BUFFER-NAME, ensuring no internet access."
 ;;   (let ((proc-buffer (get-buffer-create buffer-name))
@@ -359,13 +320,14 @@
 ;;     proc))
 (require 'socks)
 (require 'url-http)
-(defvar my-network-whitelist-host-http '("ipinfo.io")) ; "smtpmail"?
-(defvar my-network-whitelist-names '("localhost" "smtpmail" "my-http-server")) ; my-http-server - for tests in oai-tests-integration.el
-(defvar my-network-whitelist-host-https '("ipinfo.io" "elpa.gnu.org" "stable.melpa.org"
-                                     "melpa.org" "elpa.nongnu.org" "models.github.ai"
-                                     "api.together.xyz"
-                                     "gemini.hackers.town"
-                                     "api.openai.com"))
+(unless (bound-and-true-p my/tty)
+  (defvar my-network-whitelist-host-http '("ipinfo.io")) ; "smtpmail"?
+  (defvar my-network-whitelist-names '("localhost" "smtpmail" "my-http-server")) ; my-http-server - for tests in cui-tests-integration.el
+  (defvar my-network-whitelist-host-https '("ipinfo.io" "elpa.gnu.org" "stable.melpa.org"
+                                            "melpa.org" "elpa.nongnu.org" "models.github.ai"
+                                            "api.together.xyz"
+                                            "gemini.hackers.town"
+                                            "api.openai.com")))
 
 (defun my/make-network-process-advice (orig-fun &rest args)
   "Pass smtpmail to socks and block everything other."
@@ -465,10 +427,11 @@
 (setq load-path (seq-filter (lambda (path)
                               (not (string-match-p "telega" path)))
                               load-path))
-;; -- -- File extensions and modes
+;; -- -- File extensions and mode [rooted]
 ;; (add-to-list 'load-path "~/.emacs.d/mylisp/ediffnw")
 ;; ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/emacs-jedi")
 ;; (add-to-list 'load-path "~/.emacs.d/contrib/lisp/lsp-bridge")
+(add-to-list 'auto-mode-alist '("\\.el\\'" . emacs-lisp-mode))
 ;; conf-mode for /etc
 (add-to-list 'auto-mode-alist '("/etc/.*" . conf-unix-mode))
 ;; images
@@ -479,6 +442,13 @@
 (add-to-list 'load-path "~/sources/dockerfile-mode")
 (when (require 'dockerfile-mode nil 'noerror)
   (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+
+;; Ebuild, CMake, etc files
+;; (when (require 'ebuild-mode nil 'noerror)
+(add-to-list 'auto-mode-alist '("\\.ebuild\\'" . bash-ts-mode))
+(add-to-list 'auto-mode-alist '("/etc/.*" . conf-unix-mode))
+(add-to-list 'auto-mode-alist '("CMakeLists.txt" . cmake-ts-mode))
+
 ;; YAML
 (when (treesit-available-p)
   (when (require 'yaml-ts-mode nil 'noerror) ; not requored - built-in
@@ -507,13 +477,17 @@
 ;;                     ("\\.png\\'" . image-mode)
 ;;                     ("\\.gif\\'" . image-mode))))
 ;; -- Backup
-;; -- -- Single or Numbered Backups.
+;; -- -- Single or Numbered Backups. [rooted]
 ;; backup dir
-(setopt backup-directory-alist '(("." . "~/.MyEmacsBackups")))
+(setopt backup-directory-alist '(("." . "~/.MyEmacsBackups/")))
 (setopt version-control t) ; save versins with  foo.~1~, foo.~2~, foo.~3~, …, foo.~259~
 (setopt delete-old-versions t) ;  nil, the default - asks , t -  deletes the excess backup files silently
-(setopt kept-old-versions 6)
-(setopt kept-new-versions 6)
+(setopt kept-old-versions 9)
+(setopt kept-new-versions 30)
+(setopt backup-by-copying t) ; default renaming method can break things like symbolic links, hard links, file permissions, and file ownership
+(setopt auto-save-timeout 20)      ; Auto-save after 20 seconds of idle time (default 30)
+(setopt auto-save-interval 50)     ; Auto-save after every 50 keystrokes (default 300)
+(setq vc-make-backup-files t)
 ;; -- -- Auto save files "#file#" (Auto-save)
 ;; -- -- -- Difference and remove
 (defun my/diff-auto-save-file ()
@@ -613,10 +587,10 @@
 ;;        (t (user-error "Recover-file canceled")))))
 ;; -- Called externally with: emacs --eval "()"
 ;; -- -- Agenda and diary
-(require 'org-agenda)
 (defun my/agenda-split()
   "called with (call-interactively 'my/agenda-split)"
   (interactive)
+  (require 'org-agenda)
   (org-agenda nil "a")
   (delete-other-windows)
   (split-window-right)
@@ -631,19 +605,19 @@
   ;; (other-window 1)
   ;; (other-window 1)
   )
-
-;; -- -- Open link
-;; usage in ~/.bash_aliases: alias iaa='emacsclient --alternate-editor=emacs --create-frame --eval "(my/open-link \"file:~/nix::<<config_kernel_gentoo>>\")"'
-(defun my/open-link(arg)
-  "Open org link, generated by `my/copy-link-to-clipboard'."
-  (let
-      ((display-buffer-base-action
-        (list '(
-           display-buffer-reuse-window ; pop up bottom window
-           display-buffer--maybe-pop-up-frame-or-window ;; create window
-           ;; If all else fails, pop up a new frame.
-           display-buffer-pop-up-frame ))))
-    (org-link-open-from-string arg)))
+(defalias 'et 'my/agenda-split)
+;; -- -- Open link (old, not used)
+;; ;; usage in ~/.bash_aliases: alias iaa='emacsclient --alternate-editor=emacs --create-frame --eval "(my/open-link \"file:~/nix::<<config_kernel_gentoo>>\")"'
+;; (defun my/open-link(arg)
+;;   "Open org link, generated by `my/copy-link-to-clipboard'."
+;;   (let
+;;       ((display-buffer-base-action
+;;         (list '(
+;;            display-buffer-reuse-window ; pop up bottom window
+;;            display-buffer--maybe-pop-up-frame-or-window ;; create window
+;;            ;; If all else fails, pop up a new frame.
+;;            display-buffer-pop-up-frame ))))
+;;     (org-link-open-from-string arg)))
 
 ;; -- -- Find file in right frame
 ;; (defun my/find-file-frame (filename)
@@ -891,40 +865,40 @@ column to indent to; if it is nil, use one of the three methods above."
 ;; del fill-prefix case
 (advice-add 'indent-region :override #'my/indent-region)
 
-;; -- Global TAB key helping functions
+;; -- Global TAB key helping functions (old, not used)
 ;; (defun my/indent-python (start end)
-(defun my/indent-region-like-first (start end)
-  "Indent all lines like first.
-Apply `indent-according-to-mode' to the first line.
-And indent rigidly others."
-  (print "my/indent-region-like-first")
-  (deactivate-mark t)
-  (save-excursion
-    (goto-char start)
-    (beginning-of-line)
-    (let ((ciw (current-indentation))
-          (cl (count-lines start end)))
-      (indent-according-to-mode nil) ;; indent first line
-      (when (> cl 1)
-        (let ((differ (- (current-indentation) ciw) ) ; was = 1, become=4, 4-1 = 3+1 =4
-              (end (save-excursion (forward-line (1- cl))
-                                   (line-end-position))))
-          ;; (print (list "diff" (point) end differ))
-          (indent-rigidly (point) end differ))))))
+;; (defun my/indent-region-like-first (start end)
+;;   "Indent all lines like first.
+;; Apply `indent-according-to-mode' to the first line.
+;; And indent rigidly others."
+;;   (print "my/indent-region-like-first")
+;;   (deactivate-mark t)
+;;   (save-excursion
+;;     (goto-char start)
+;;     (beginning-of-line)
+;;     (let ((ciw (current-indentation))
+;;           (cl (count-lines start end)))
+;;       (indent-according-to-mode nil) ;; indent first line
+;;       (when (> cl 1)
+;;         (let ((differ (- (current-indentation) ciw) ) ; was = 1, become=4, 4-1 = 3+1 =4
+;;               (end (save-excursion (forward-line (1- cl))
+;;                                    (line-end-position))))
+;;           ;; (print (list "diff" (point) end differ))
+;;           (indent-rigidly (point) end differ))))))
 
 
-;; not used
-(defun my/apply-command-to-region (command)
-  "Apply FUNCTION to each line in the region."
-  (let ((start (region-beginning)) (end (region-end)))
-    (save-excursion
-      (save-restriction
-        (goto-char start)
-        (while (<= (point) (+ end 2))
-          (funcall command)
-          (forward-line 1)
-          (beginning-of-line)
-          )))))
+;; ;; not used
+;; (defun my/apply-command-to-region (command)
+;;   "Apply FUNCTION to each line in the region."
+;;   (let ((start (region-beginning)) (end (region-end)))
+;;     (save-excursion
+;;       (save-restriction
+;;         (goto-char start)
+;;         (while (<= (point) (+ end 2))
+;;           (funcall command)
+;;           (forward-line 1)
+;;           (beginning-of-line)
+;;           )))))
 
 ;; (defun my/detect-folding-after-function ()
 ;;   "Detect if folding was made on the next line after a function call using overlay-put."
@@ -940,7 +914,8 @@ And indent rigidly others."
 ;;           (message "No folding detected on the next line"))
 ;;         folding-detected))))
 
-;; -- Global TAB empty space
+;; -- Global TAB interactive functions
+;; -- -- empty space
 (defun my/clear-empty-space-around-point (arg)
   "Clean empty/whitespace lines above, below, and at point if on a blank line.
 Otherwise, remove spaces/tabs immediately before and after point."
@@ -959,6 +934,39 @@ Otherwise, remove spaces/tabs immediately before and after point."
           (delete-region p (1- (1- (point))) )))))
 
 (setq indent-for-tab-steps (append indent-for-tab-steps '(my/clear-empty-space-around-point)))
+;; -- -- export .emacs for root
+(defun my/export-root--current-level ()
+    (how-many "--" (line-beginning-position) (line-end-position)))
+
+(defun my/export-root ()
+  (interactive)
+  (find-file (expand-file-name "~/.emacs"))
+  (save-excursion
+    (goto-char (point-min))
+    (let ((items)
+          (outline-level #'my/export-root--current-level))
+      (while (outline-next-heading)
+        (when (looking-at ".*\\[rooted\\].*")
+          ;; (print (buffer-substring-no-properties (line-beginning-position) (line-end-position)))))
+
+          (outline-mark-subtree)
+          (push (buffer-substring-no-properties (region-beginning) (region-end))
+                items)
+          (goto-char (region-end))
+          (setq deactivate-mark t)))
+      (with-current-buffer (get-buffer-create ".emacs.root")
+        (kill-region (point-min) (point-max))
+        (insert "; -*- mode: emacs-lisp; lexical-binding: t -*-\n")
+        (insert "(setq debug-on-error t)\n")
+        (insert "(defvar my/tty t)\n")
+        (insert (string-join items "\n"))
+        (insert "\n\n;; -- Local variables\n;; Local variables:\n"
+
+                ";; outline-regexp: \"^;; -- \"\n"
+                ";; end:\n")
+        (switch-to-buffer (current-buffer))
+        ))))
+
 ;; -- Global Hooks
 ;; -- -- Delete white spaces at save
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
@@ -1019,11 +1027,10 @@ Otherwise, remove spaces/tabs immediately before and after point."
 ;; (add-hook 'isearch-mode-hook #'outline-it--header-search)
 ;; (add-hook 'isearch-mode-hook 'my/header-search) ;; LOCAL = t
 ;; -- -- ipynb
-(require 'markdown-mode nil t)
-(require 'json)
-
 (defun ipynb-to-markdown (file)
   (interactive "f")
+  (require 'markdown-mode nil t)
+  (require 'json)
   (let* ((data (with-temp-buffer
                  (insert-file-contents-literally file)
                  (json-parse-string (buffer-string)
@@ -1070,11 +1077,17 @@ Otherwise, remove spaces/tabs immediately before and after point."
 ;; (advice-remove 'undo  #'my/undo-save-excursion)
 ;; (advice--p (advice--symbol-function 'undo))
 ;; (advice-remove 'undo #'my/undo)
-;; -- GUI
+;; -- options: common  [rooted]
+;; typed text replaces the selection
+(delete-selection-mode 1)
+;; For ex. (yes-or-no-p "Close buffer?"), answer shortly: y not yes.
+(setq use-short-answers t)
+;; -- options: GUI
 ;; -- -- common options
 ;; Disable GUI components
-(tooltip-mode      -1)
-(menu-bar-mode     -1) ; отключаем графическое меню
+(tooltip-mode	-1)
+(tool-bar-mode	-1)
+(menu-bar-mode	-1)
 
 (setopt fringe-mode 12) ; Give some breathing room
 (setopt visible-bell t) ; Set up the visible bell
@@ -1094,9 +1107,6 @@ Otherwise, remove spaces/tabs immediately before and after point."
 
 ;; default scratch buffer mode
 (setopt initial-major-mode 'org-mode)
-
-;; For ex. (yes-or-no-p "Close buffer?"), answer shortly: y not yes.
-(setq use-short-answers t)
 
 ;; Help windows always select
 (setopt help-window-select t)
@@ -1167,11 +1177,6 @@ Otherwise, remove spaces/tabs immediately before and after point."
             (remove-hook 'post-command-hook #'whitespace-post-command-hook t))
 (add-hook 'global-whitespace-mode-hook #'my/whitespace-disable-post-command-hook)
 (add-hook 'whitespace-mode-hook #'my/whitespace-disable-post-command-hook)
-
-;; -- -- Time
-(setopt display-time-24hr-format t)
-(setopt display-time-mode t)
-
 ;; -- -- window title
 ;; (setq-default frame-title-format '(
 ;;                                 ""
@@ -1225,6 +1230,7 @@ Otherwise, remove spaces/tabs immediately before and after point."
 (size-indication-mode t)
 (line-number-mode -1)
 (column-number-mode -1)
+(setopt display-time-24hr-format t)
 (display-time-mode -1) ; time and sys load average
 ;; -- -- Modeline: current path
 ;; see also [[position-in-modeline]]
@@ -1244,6 +1250,81 @@ Otherwise, remove spaces/tabs immediately before and after point."
 
 ;; ;; ;; (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
 ;; ;; ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+;; -- -- yank: clean text properties
+(setopt yank-excluded-properties t)
+;; -- -- yank: clean not utf-8 properties
+(add-to-list 'load-path "/home/user/sources/emacs-cui")
+
+;;   ;; not used
+;;   (defun my/yank-safe-encoding (string)
+;;     "Reencode and remove unsafe characters.
+;; For `yank-transform-functions'.
+;; Called with the string to be yanked as the sole argument, and should
+;;  return the (possibly) transformed string.
+;; called with the destination buffer as the current buffer, and with point
+;;  at the place where the string is to be inserted."
+;;     ;; TODO: use encoding of current buffer.
+;;     (cui-restapi--clean-unicode-text
+;;      (decode-coding-string
+;;       (encode-coding-string string 'utf-8 t) 'utf-8)))
+
+  ;; (add-hook 'emacs-lisp-mode-hook 'my/remapcame)
+  ;; (add-hook 'yank-transform-functions #'my/yank-safe-encoding)
+  ;; (remove-hook 'yank-transform-functions #'my/yank-safe-encoding)
+  ;; (setq yank-transform-functions (cons #'my/yank-safe-encoding
+  ;;                                         yank-transform-functions)) ; (delete-dups yank-transform-functions)
+
+(defun my-utf8-recode-buffer-to-file (filename)
+  "Clean buffer text, recode to valid UTF-8, and save to FILENAME.
+Removes ASCII control characters (except tab, newline, CR) before recoding."
+  (interactive "FSave clean/UTF-8 buffer to file: ")
+  (require 'cui)
+  (let* ((orig-text (buffer-substring-no-properties (point-min) (point-max)))
+         ;; Clean buffer text for allowable chars only
+         (clean-text (cui-restapi--clean-unicode-text orig-text))
+         ;; Recoding to normalize encoding, catch malformed sequences
+         (utf8-text (decode-coding-string
+                     (encode-coding-string clean-text 'utf-8 t) 'utf-8)))
+    ;; Save to file in UTF-8
+    (write-region utf8-text nil filename)))
+
+;; (defun my/kill-ring-strip-properties (string &optional do-not-move)
+;;   "Force the return value of current-kill to be properties-free."
+;;   (print (list "my/kill-ring-strip-properties" string))
+;;   (if (stringp string)
+;;       (progn
+;;         (print (substring-no-properties string)))
+;;     string))
+
+;; ;; Advice 'current-kill' (the engine for C-y and M-y)
+;; (advice-add 'current-kill :filter-return #'my/kill-ring-strip-properties)
+
+;; (add-to-list 'yank-handled-properties '(nil . t))
+
+;; (setq-local line-spacing 0)
+;; (when (window-system) ; mono is required for correct displaying tables in Org mode.
+;;   ;; Set the font for the 'default' face
+;;   (cond
+;;    ((find-font (font-spec :name "DejaVu Sans Mono"))
+;;     (set-face-attribute 'default nil :family "DejaVu Sans Mono" ))
+;;    ;; ((find-font (font-spec :name "DejaVu Sans"))
+;;    ;;  (set-face-attribute 'default nil :family "DejaVu Sans" ))
+;;    ;; ((find-font (font-spec :name "DejaVu Sans Serif"))
+;;    ;;  (set-face-attribute 'default nil :family "DejaVu Sans Serif" ))
+;;    ((find-font (font-spec :name "Noto Sans Mono CJK SC"))
+;;     (set-face-attribute 'default nil :family "Noto Sans Mono CJK SC" ))
+;;    ((find-font (font-spec :name "Nimbus Mono PS"))
+;;     (set-face-attribute 'default nil :family "Nimbus Mono PS" ))
+;;    ((find-font (font-spec :name "Verdana"))
+;;     (set-face-attribute 'default nil :family "Verdana" ))
+;;    ((find-font (font-spec :name "Georgia"))
+;;     (set-face-attribute 'default nil :family "Georgia" ))
+;;    ((find-font (font-spec :name "Arial"))
+;;     (set-face-attribute 'default nil :family "Arial") ;; :height 120
+;;     )
+;;    ))
+
 
 ;; -- Functions
 ;; (defun my/add-to-list ()
@@ -1388,11 +1469,11 @@ to activate."
       (t (message "completion-at-point func")
          (completion-at-point)))))
 ;; -- Global Key Bindings
-;; -- -- yank
+;; -- -- yank [rooted]
 (define-key key-translation-map (kbd "M-c") (kbd "C-y")) ; shadow capitalize-word
 ;; (global-set-key "\M-c" #'yank)
 ;; (define-key key-translation-map (kbd "C-p") (kbd "C-k"))
-;; -- -- backspace
+;; -- -- backspace [rooted]
 ;; (keyboard-translate ?\C-h  ?\C-?) ;; do not work in emacsclient, required for M-x
 ;; backward-delete-char-untabify
 ;; (global-set-key "\C-h" 'delete-backward-char)
@@ -1449,10 +1530,10 @@ to activate."
 (define-key key-translation-map (kbd "C-у") (kbd "C-e"))
 (define-key key-translation-map (kbd "C-ь") (kbd "C-m"))
 (define-key key-translation-map (kbd "C-о") (kbd "C-j"))
-;; -- -- minibuffer M-x: previous command, next command
+;; -- -- minibuffer M-x: previous command, next command [rooted]
 (define-key minibuffer-local-map (kbd "C-p") 'previous-line-or-history-element) ;; C-k
 (define-key minibuffer-local-map (kbd "C-n") 'next-line-or-history-element) ;; C-n
-;; -- -- navigation
+;; -- -- navigation [rooted]
 ;; -- -- -- main
 ;; -> C-f
 ;; <- C-l
@@ -1630,7 +1711,7 @@ If universtal argument provided, just swap."
 
 ;; (global-set-key "\C-x3" #'my/split-window-horizontally)
 ;; (global-set-key "\C-x2" #'my/split-window-vertically)
-;; -- -- -- other window
+;; -- -- -- other window [rooted]
 (defun my/split-window-horizontally()
   (interactive)
   (select-window (split-window-horizontally)))
@@ -1647,6 +1728,9 @@ If universtal argument provided, just swap."
 
 ;; (define-key key-translation-map (kbd "M-c") (kbd "C-y")) ; shadow C-u 0-
 (global-set-key (kbd "C-o")    #'my/other-window-or-split)
+ ; fix for compilation-mode like exit buffer of babel eval shell src block
+(with-eval-after-load 'compile
+  (keymap-unset compilation-mode-map "C-o"))
 
 ;; (global-set-key (kbd "C-o")    #'my/other-window-or-split)
 (global-unset-key (kbd "C-x C-o"))
@@ -1669,6 +1753,24 @@ If universtal argument provided, just swap."
 ;; -- -- -- size
 (global-set-key (kbd "M-0")  (lambda () "move edge of window" (interactive) (window-resize nil 5 t)))
 (global-set-key (kbd "M-9")  (lambda () "move edge of window" (interactive) (window-resize nil -5 t)))
+(global-set-key (kbd "C-{")  (lambda () "move edge of window" (interactive) (window-resize nil 5 t)))
+(global-set-key (kbd "C-}")  (lambda () "move edge of window" (interactive) (window-resize nil -5 t)))
+
+;; -- -- -- reuse other buffer in grep clicking - compile-goto-error (break M-x checkdoc)
+(defun my/grep-goto-error-custom-display (orig-fun &rest args)
+  "Force custom display action when jumping to a file from a grep buffer."
+  (if (derived-mode-p 'grep-mode)
+      (let ((display-buffer-base-action '((display-buffer-reuse-window
+                                           display-buffer-use-some-window))))
+        (apply orig-fun args))
+    ;; If we are not in a grep buffer, execute normally
+    (apply orig-fun args)))
+
+;; Attach the advice to the core compilation-goto function
+(advice-add 'compile-goto-error :around #'my/grep-goto-error-custom-display)
+
+;; (setq display-buffer-base-action
+;;       '((display-buffer-reuse-window display-buffer-use-some-window)))
 
 ;; -- -- comments keys binding
 (global-set-key (kbd "M-;") #'comment-line)
@@ -2049,22 +2151,7 @@ and preserve a point position."
 ;; (define-key isearch-mode-map "\C-g" #'my/keyboard-quit-with-minubuffer)
 
 
-;; -- -- start open shell
-(defun my/call-process-shell-command(&optional arg)
-  (interactive "P")
-  (if arg
-      ;; original
-      (call-interactively #'shell-command)
-    ;; else
-    (call-process-shell-command "xfce4-terminal -e tmux&" nil 0)))
-(global-set-key (kbd "M-!") #'my/call-process-shell-command)
-;; -- -- open config
-(defun my/open-config ()
-  (interactive)
-  (find-file-read-only "~/.emacs"))
-(global-set-key (kbd "C-~") #'my/open-config)
-;; -- -- close all,other buffers, kill all buffers and frames
-
+;; -- -- Buffers: close all,other buffers, kill all buffers and frames
 ;; -- -- -- kill other buffers
 (defvar my/kill-buffer-exceptions
   (mapcar #'downcase '("Messages" "emacs-file" "scratch"))
@@ -2081,19 +2168,25 @@ and preserve a point position."
                               nil)))
     (let (buffers)
       (dolist (b (buffer-list))
-        (let ((name (buffer-name b)))
-          ;; when to kill
-          (when (and (buffer-live-p b)
-                     (/= (aref name 0) ?\s)
-                     (not (buffer-modified-p b))
-                     (not (get-buffer-process b))        ;; process check
-                     (not (eq b (current-buffer)))
-                     (not (eq b (window-buffer (selected-window))))
-                     (not (seq-contains-p exception-buffers b))
-                     (not (seq-contains-p my/kill-buffer-exceptions
-                                          (downcase name)
-                                          #'my/kill-buffer-testfn)))
-            (push b buffers))))
+        ;; when to kill
+        (when (and (buffer-live-p b)
+                   ;; first character of name should be not space
+                   (/= (aref (buffer-name b) 0) ?\s)
+                   ;; don't kill if modified
+                   (not (buffer-modified-p b))
+                   ;; have bound process
+                   (not (get-buffer-process b))
+                   ;; current buffer
+                   (not (eq b (current-buffer)))
+                   ;; filter buffer-menu in current window
+                   (not (eq b (window-buffer (selected-window))))
+                   ;; don't kill selected buffers
+                   (not (seq-contains-p exception-buffers b))
+                   ;; filter exceptions
+                   (not (seq-contains-p my/kill-buffer-exceptions
+                                        (downcase (buffer-name b))
+                                        #'my/kill-buffer-testfn)))
+          (push b buffers)))
       (if test
           (print buffers)
         (mapc #'kill-buffer buffers)))))
@@ -2155,18 +2248,19 @@ and preserve a point position."
 
 ;; -- -- -- kill other frames
 (defun my/frame-list-groups-by-name ()
+  "Return a list of lists of frames grouped by their 'name' parameter.
+Each subgroup contains frames with the same name. The groups are sorted by name alphabetically."
   (let* ((frames (frame-list))
          (group-table (make-hash-table :test 'equal)))
     ;; Build hash table: name => list of frames
     (dolist (f frames)
       (let ((name (alist-get 'name (frame-parameters f))))
-        (push f (gethash name group-table))))
+        (puthash name (cons f (gethash name group-table '())) group-table)))
     ;; Collect and sort groups by name
     (mapcar
      (lambda (name)
        (nreverse (gethash name group-table)))
      (sort (hash-table-keys group-table) #'string-lessp))))
-
 
 (defun my/drop-frame-duplicates ()
   "Keep first frame, delete duplicates."
@@ -2201,7 +2295,58 @@ test and will kill actually."
       (call-interactively 'delete-frame)))
 
 (global-set-key (kbd "C-x M-p") #'my/kill-buffer-and-frame)
-;; -- -- minor-mode experiment
+;; -- -- Buffers: kill all buffers opened in some path
+(defun my/kill-buffers-in-directory (target-dir)
+  "Kill all buffers visiting files inside TARGET-DIR (resolving symlinks).
+Ask if buffer have unsaved changes."
+  (interactive "DTarget directory: ")
+  (let ((target (file-name-as-directory (file-truename target-dir)))
+        (count 0))
+    (dolist (buf (buffer-list))
+      (let ((file (and (buffer-live-p buf) (buffer-file-name buf))))
+        (when (and file (string-prefix-p target (file-truename file)))
+          (kill-buffer buf)
+          (setq count (1+ count)))))
+    (message "Killed %d file buffer(s) in %s" count target)))
+
+(defun my/kill-buffers-in-directory-tests ()
+  "Run ultra-compact, comprehensive edge-case tests."
+  (interactive)
+  (let* ((root (file-name-as-directory (file-truename temporary-file-directory)))
+         (target (concat root "tg/"))
+         (similar (concat root "tg-ext/"))
+         b-kill b-sym b-save-dir b-save-ext)
+
+    (unwind-protect
+        (progn
+          ;; 1. Setup minimal test buffers
+          (setq b-kill     (generate-new-buffer " *t1*")   ; Normal file -> KILL
+                b-sym      (generate-new-buffer " *t2*")   ; Symlink/Relative -> KILL
+                b-save-dir (generate-new-buffer " *t3*")   ; Dired/Folder -> SURVIVE
+                b-save-ext (generate-new-buffer " *t4*"))  ; Similar name -> SURVIVE
+
+          (with-current-buffer b-kill     (setq buffer-file-name (concat target "a.txt")))
+          (with-current-buffer b-sym      (setq buffer-file-name (concat target "../tg/b.txt"))) ; Relative path
+          (with-current-buffer b-save-dir (setq default-directory target))
+          (with-current-buffer b-save-ext (setq buffer-file-name (concat similar "a.txt")))
+
+          ;; 2. Run
+          (my/kill-buffers-in-directory target)
+
+          ;; 3. Check for failures instantly
+          (if (or (buffer-live-p b-kill)
+                  (buffer-live-p b-sym)
+                  (not (buffer-live-p b-save-dir))
+                  (not (buffer-live-p b-save-ext)))
+              (message "❌ Test failed! One or more edge cases behaved incorrectly.")
+            (message "✅ All edge cases passed! (Exact, Symlink/Relative, Dired, and Extensions)")))
+
+      ;; 4. Clean up surviving buffers
+      (dolist (b (list b-kill b-sym b-save-dir b-save-ext))
+        (when (buffer-live-p b) (kill-buffer b))))))
+
+(my/kill-buffers-in-directory-tests)
+;; -- -- minor-mode experiment (old)
 ;; call key: (funcall (global-key-binding "TAB"))
 
 ;; (define-minor-mode modal-navigation
@@ -2281,7 +2426,19 @@ test and will kill actually."
   (interactive)
   (start-process "process-name" "buffer-name" "foot"))
 
+
+(defun my/call-process-shell-command(&optional arg)
+  (interactive "P")
+  (if arg
+      ;; original
+      (call-interactively #'shell-command)
+    ;; else
+    (call-process-shell-command "xfce4-terminal -e tmux&" nil 0)))
+
+;; (when (display-graphic-p)
+(global-set-key (kbd "M-!") #'my/call-process-shell-command)
 (global-set-key (kbd "C-!") #'my/open-shell)
+
 ;; -- -- "C-c -" insert dash before every line in region
 (defun insert-dash-at-line-beginnings (start end)
   "Insert '- ' at the beginning of every line in region, or at current line if no region is active."
@@ -2303,63 +2460,76 @@ test and will kill actually."
 
 (global-set-key (kbd "C-c -") #'insert-dash-at-line-beginnings)
 ;; -- -- C-c 1 ask AI in Org
+(defun my/ask-ai-template (templ-fn)
+  (interactive "aTemplate function: ")
+  (if (region-active-p)
+      (let ((str (cui-block-tags--compose-m-block
+                  (buffer-substring-no-properties (region-beginning) (region-end))
+                  :lang (cui-block-tags--filepath-to-language major-mode))))
+        (my/open-temp-file)
+        (goto-char (point-min))
+        (funcall templ-fn)
+        (insert str)
+        (re-search-backward "#\\+begin" nil t))
+    (my/open-temp-file)
+    (goto-char (point-min))
+    (funcall templ-fn)))
+
 (defun my/ask-ai-1aig ()
   (interactive)
-  (my/open-temp-file)
-  (goto-char (point-min))
-  (oai-templ-github))
+  (my/ask-ai-template #'cui-templ-github))
+
+(defun my/ask-ai-1aig2 ()
+  (interactive)
+  (my/ask-ai-template #'cui-templ-github2))
 
 (global-set-key (kbd "C-c 1") #'my/ask-ai-1aig)
+(global-set-key (kbd "C-c 2") #'my/ask-ai-1aig2)
 
+;; -- -- C-c m replace region with markdown
+(defun my/replace-region-with-markdown ()
+  (interactive)
+    (when (use-region-p)
+      (let ((region-string (buffer-substring-no-properties
+                            (region-beginning)
+                            (region-end)))
+            pos)
+        ;; Delete the region
+        (delete-region (region-beginning) (region-end))
+        ;; Deactivate mark (optional, but clean)
+        (setq mark-active nil)
+        (insert "```")
+        (setq pos (point))
+        (insert "\n" region-string "\n")
+        (insert "```\n")
+        (goto-char pos))))
+
+(global-set-key (kbd "C-c m") #'my/replace-region-with-markdown)
 ;; -- -- C-c t wrap text in table.
-(defun my/text-to-org-table (beg end)
-  "Convert lines with columns separated with tab character to Org table."
-  (interactive "r")
-  (when (region-active-p)
-    (save-excursion
-      (save-restriction
-        (narrow-to-region beg end)
-        (goto-char end)
-        (while (bolp)
-          (backward-char))
-        (setq end (point))
-        (replace-regexp-in-region "[\t]+" "|" beg end)
-        (replace-regexp-in-region "^" "|" beg end)
-        (replace-regexp-in-region "\n" "|\n" beg end)
-        (insert "|") ; at the end of the last line
-        (goto-char beg)
-        (unless (eq end (line-end-position)) ; if more than one line
-          (forward-line)
-          (insert "|-\n")
-          (goto-char beg))
-        (forward-char)))))
+(add-to-list 'load-path "/home/user/sources/emacs-org-tsv2markdown/")
+(when (require 'org-tsv2markdown nil 'noerror)
+  (global-set-key (kbd "C-c t") #'org-tsv2markdown-reformat-table-or-items))
+;; -- -- C-c 2, M-2 open config [rooted]
+(defun my/open-config ()
+  (interactive)
+  (find-file-read-only "~/.emacs"))
+(global-set-key (kbd "C-c 3") #'my/open-config)
+(global-set-key (kbd "M-3") #'my/open-config)
 
-(defun my/reformat-markdown-items-to-org-items (beg end)
-  "Replace '- **LABEL:**' with '- LABEL ::' and remove all '**' and replace ':' with '::' in selected region."
-  (interactive "r")
-  (when (region-active-p)
-    (save-excursion
-      (save-restriction
-        (narrow-to-region beg end)
-        ;; Replace '- **Label:**' with '- Label ::'
-        (replace-regexp "- \\*\\*\\([^*]+\\):\\*\\*" "- \\1 ::" nil (point-min) (point-max))))))
 
-(defun my/reformat-table-or-items (beg end)
-  "Replace '- **LABEL:**' with '- LABEL ::' and remove all '**' and replace ':' with '::' in selected region."
-  (interactive "r")
-  (when (region-active-p)
-    (if (save-excursion (goto-char beg)
-                        (or (member (org-element-type (org-element-at-point)) '(item plain-list))
-                            (re-search-forward "^- \\*\\*" end t)))
-        (my/reformat-markdown-items-to-org-items beg end)
-      ;; else
-      (if (save-excursion (goto-char beg) (re-search-forward "\t" end t))
-          (my/text-to-org-table beg end)
-        ;; else
-        (error "not a table")))))
+;; -- -- C-c j shortcuts for Saving Position in register and return
+(defun my/register-point-toggle (register)
+  "Save or jump to a register using a single keybinding.
+With no prefix argument, save the current point to REGISTER.
+With a prefix argument (\\[universal-argument]), jump to REGISTER."
+  (interactive "cRegister: ")
+  (if (not current-prefix-arg)
+      (jump-to-register register)
+    (point-to-register register)
+    (message "Point saved to register %c" register)))
 
-(global-set-key (kbd "C-c t") #'my/reformat-table-or-items)
-
+;; Bind it to C-x j
+(keymap-global-set "C-c j" #'my/register-point-toggle)
 ;; -- Global Modes
 ;; -- -- multiple-cursor
 (when (require 'multiple-cursors nil 'noerror)
@@ -2370,7 +2540,7 @@ test and will kill actually."
   (global-set-key (kbd "C->") 'mc/mark-next-like-this)
   (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
   ;; (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-  (global-set-key (kbd "C-c j") 'mc/mark-all-like-this-dwim)
+  (global-set-key (kbd "C-c a") 'mc/mark-all-like-this-dwim)
   ;; (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 )
 
@@ -2908,10 +3078,13 @@ run a specific program.  The program must be a member of
 ;; -- -- -- fix SAVE: find-file directory opened - for remote
 (defun my/find-file-hook (filename &optional wildcards)
   "Add directory that was opened with find-file commands."
-    (when (file-remote-p filename)
-        ;; (or (file-directory-p filename)
-        ;; (recentf-add-file filename)
-        (print "my/find-file-hook save remote")
+    (when (or (file-remote-p filename)
+              (and (interactive-p) ; to not trigger by jumping in Dired.
+                   (or (file-directory-p filename)
+                       (file-exists-p filename))))
+                       ;; (or (file-directory-p filename)
+        (recentf-add-file filename)
+        (print "my/find-file-hook save remote or interactive")
         (recentf-save-list)))
 
 (advice-add 'find-file :after #'my/find-file-hook)
@@ -2919,18 +3092,18 @@ run a specific program.  The program must be a member of
 (defun my/recentf-track-opened-file ()
   "File remote file/directory or if exist. if file add directory.
 Must return nil because it is run from `write-file-functions'."
-  (print (list "recentf-track-opened-file buffer-file-name" buffer-file-name))
+  ;; (print (list "recentf-track-opened-file buffer-file-name" buffer-file-name))
   (when buffer-file-name
-    (print "here100 recent")
+    ;; (print "here100 recent")
     (if (file-remote-p buffer-file-name)
         (progn
-          (print "here1122 recent")
+          ;; (print "here1122 recent")
           (recentf-add-file buffer-file-name)
-               (recentf-save-list))
+          (recentf-save-list))
 
       ;; else
       (when (file-exists-p buffer-file-name)
-          (print "here11 recent")
+          ;; (print "here11 recent")
           (if (not (file-directory-p buffer-file-name))
               (progn
                   (print buffer-file-name)
@@ -3065,7 +3238,7 @@ Must return nil because it is run from `write-file-functions'."
   "#+end_src"
   )
 (define-skeleton org-src-empty
-  "Allow to input language."
+  ""
   ""
   "#+begin_src " _ "\n"
   "\n"
@@ -3078,27 +3251,44 @@ Must return nil because it is run from `write-file-functions'."
   "\n"
   "#+end_example"
   )
-(define-skeleton oai-templ-together
-  "Allow to input language."
+(define-skeleton cui-templ-shallow
   ""
-  "#+begin_ai :stream nil :max-tokens 1200 :sys \"Be helpful; think by ideas, consider all sides; answer compact, structured and with details. Give short fix of question, then answer.\"  :service together :model \"meta-llama/Llama-3.2-1B-Instruct\"\n"
+  "\n"
+  "#+name: ?\n"
+  "#+begin_cui\n"
   _ "\n"
-  "#+end_ai\n: -----------------------------------------------------------\n\n\n"
+  "#+end_cui\n"
+  )
+(define-skeleton cui-templ-together
+  ""
+  ""
+  "#+begin_cui :max-tokens 1200 :stream nil :sys \"Be helpful; think by ideas, consider all sides; answer compact, structured and with details. Give short fix for question first, then answer.\"  :service together :model \"meta-llama/Llama-3.2-1B-Instruct\"\n"
+  _ "\n"
+  "#+end_cui\n: -----------------------------------------------------------\n\n\n"
   )
 ;; For abstract questions focus on: core concept, purpose, distinctions, benefits and trade-offs; before final conclusion add your own thoughs. For coding focus in input on: Purpose, I/O and logic flow, related part of code.
-(define-skeleton oai-templ-github
-  "Allow to input language."
+;; Be helpful; answer short and structured but with details, multi-faceted. Label every small part of your answer with [exploration] or [validation]. Give short fix for question first. Don't rush, it's better to leave the rest for later. Finally provide concise answer or test for code.
+(define-skeleton cui-templ-github
   ""
-  "\n* ai\n"
-  "#+begin_ai :stream nil :max-tokens 900 :sys \"Be helpful; answer structured, compcat by ideas but with details, multi-faceted. Label every small part of your answer with [exploration] or [validation]. Give short fix of question first. Finally provide concise answer or test for code.\"  :model \"openai/gpt-4.1\" :service github\n"
+  ""
+  "* cui " (format-time-string (org-time-stamp-format nil t)) "\n"
+  "#+begin_cui :stream nil :max-tokens 900 :sys \"Think structured and multi-faceted. Label every small part of your answer with [exploration] or [validation]. Fix question first. Leave unsolved tasks as a short list. Finally provide concise answer.\"  :model \"openai/gpt-4.1\" :service github\n"
   _ "\n"
-  "#+end_ai\n: -----------------------------------------------------------\n\n\n"
+  "#+end_cui\n: -----------------------------------------------------------\n\n\n"
   )
-(define-skeleton oai-templ-github-translate-chinese
-  "Allow to input language."
+(define-skeleton cui-templ-github2
+  "For coding, shorter"
   ""
-  "\n* ai\n"
-  "#+begin_ai :stream nil :max-tokens 900 :sys \"Be helpful; answer structured, compcat by ideas but with details, multi-faceted. Label every small part of your answer with [exploration] or [validation]. Give short fix of question first.\"  :model \"openai/gpt-4.1\" :service github\n"
+  "* cui " (format-time-string (org-time-stamp-format nil t)) "\n"
+  "#+begin_cui :stream nil :max-tokens 900 :sys \"Fix question first, think by steps.\"  :model \"openai/gpt-4.1\" :service github\n"
+  _ "\n"
+  "#+end_cui\n: -----------------------------------------------------------\n\n\n"
+  )
+(define-skeleton cui-templ-github-translate-chinese
+  ""
+  ""
+  "\n* cui\n"
+  "#+begin_cui :max-tokens 900 :stream nil :sys \"Be helpful; answer structured, compcat by ideas but with details, multi-faceted. Label every small part of your answer with [exploration] or [validation]. Give short fix for question first.\"  :model \"openai/gpt-4.1\" :service github\n"
   "Translate this Chinese to English: " _ "\n"
   "### Example Translation (Structured Formatting)\n"
   "```text\n"
@@ -3120,12 +3310,12 @@ Must return nil because it is run from `write-file-functions'."
   "2. **Tone:** The tone is formal and professional, suitable for workplace or recruitment communication.\n"
   "3. **Character Type:** Simplified Chinese is employed, confirming usage typical in Mainland Chinese contexts such as business or HR.\n"
   "```\n"
-  "#+end_ai\n: -----------------------------------------------------------\n\n\n"
+  "#+end_cui\n: -----------------------------------------------------------\n\n\n"
   )
-(define-skeleton oai-templ-github-wide1
-  "Allow to input language."
+(define-skeleton cui-templ-github-wide1
   ""
-  "#+begin_ai :stream nil :max-tokens 200 :sys \"Be helpful; think by ideas and multi-faceted; answer by ideas with details.\"  :service github :model \"openai/gpt-4.1\"\n"
+  ""
+  "#+begin_cui :max-tokens 200 :stream nil :sys \"Be helpful; think by ideas and multi-faceted; answer by ideas with details.\"  :service github :model \"openai/gpt-4.1\"\n"
   "Question: “" _ "”""\n"
   "\n"
   "Analyze this question step-by-step in markdown:""\n"
@@ -3137,24 +3327,24 @@ Must return nil because it is run from `write-file-functions'."
   "\n"
   "**Fixed Grammar:** [Full corrected question, 1 sentence]""\n"
   "Do NOT answer. Use tools (e.g., web_search) if topic unclear.""\n"
-  "#+end_ai\n: -----------------------------------------------------------\n"
+  "#+end_cui\n: -----------------------------------------------------------\n"
   )
-(define-skeleton oai-templ-github-code1
-  "Allow to input language."
+(define-skeleton cui-templ-github-code1
   ""
-  "#+begin_ai :stream nil :max-tokens 200 :sys \"Be helpful; think by ideas and multi-faceted; answer by ideas with details.\"  :service github :model \"openai/gpt-4.1\"\n"
+  ""
+  "#+begin_cui :max-tokens 200 :stream nil :sys \"Be helpful; think by ideas and multi-faceted; answer by ideas with details.\"  :service github :model \"openai/gpt-4.1\"\n"
   "Question: “" _ "”""\n"
   "\n"
   "No actual code now, pseudocode/meta-code and tests are allowed. First,""\n"
   "provide: intent, inputs/outputs, challenges, plan, and test cases.""\n"
-  "#+end_ai""\n"
+  "#+end_cui""\n"
   ": -----------------------------------------------------------\n"
   )
 
-(define-skeleton oai-templ-github-sum
-  "Allow to input language."
+(define-skeleton cui-templ-github-sum
   ""
-  "#+begin_ai :stream nil :max-tokens 1200 :sys \"Be helpful; think by ideas and multi-faceted; answer by ideas with details.\"  :service github :model \"openai/gpt-4.1\"\n"
+  ""
+  "#+begin_cui :max-tokens 1200 :stream nil :sys \"Be helpful; think by ideas and multi-faceted; answer by ideas with details.\"  :service github :model \"openai/gpt-4.1\"\n"
   "Please outline and analyze the structure of the following philosophical text, summarize its key points, and translate the summary into Russian.""\n"
   "```text""\n"
   _ "\n"
@@ -3163,8 +3353,8 @@ Must return nil because it is run from `write-file-functions'."
   ": -----------------------------------------------------------\n"
   )
 
-(define-skeleton oai-templ-github-wide2
-  "Allow to input language."
+(define-skeleton cui-templ-github-wide2
+  ""
   ""
 ;;   "Answer the FIXED question in EXACT prior 'Best Answer Format'.""\n"
 ;; "Focus: " _ " (per clarification).""\n"
@@ -3173,29 +3363,30 @@ Must return nil because it is run from `write-file-functions'."
 for clarification question use this specific answer:" _ ". No intro/outro.\n"
   )
 
-(define-skeleton oai-templ-local
-  "Allow to input language."
+(define-skeleton cui-templ-local
   ""
-  "#+begin_ai :stream nil :max-tokens 1200 :sys \"Be helpful; Firstly fix question shortly then answer to your understanding.\"  :service local :model\n"
+  ""
+  "#+begin_ai :stream nil :max-tokens 1200 :sys \"Be helpful; Fix question shortly then answer to your understanding.\"  :service local :model nil\n"
   _ "\n"
   "#+end_ai\n: -----------------------------------------------------------\n"
   )
-(define-skeleton markdown-shallow
+
+(define-skeleton markdown-skeleton-shallow
   "Allow to input language."
   ""
   "```" _ "\n"
   "\n"
   "```"
   )
-(define-skeleton markdown-elisp
-  "Allow to input language."
+(define-skeleton markdown-skeleton-elisp
+  ""
   ""
   "```elisp\n"
   _ "\n"
   "```"
   )
-(define-skeleton markdown-text
-  "Allow to input language."
+(define-skeleton markdown-skeleton-text
+  ""
   ""
   "```text\n"
   _ "\n"
@@ -3322,6 +3513,12 @@ for clarification question use this specific answer:" _ ". No intro/outro.\n"
   ""
   "#+begin_src yaml :results output pp\n"
   "#+end_src")
+(define-skeleton org-src-json
+  "json"
+  ""
+  "#+begin_src json :exports code :eval no\n"
+  _ "\n"
+  "#+end_src")
 (define-skeleton diary-warntime
   "warntime for appt, diary"
   "" "## warntime 12")
@@ -3332,24 +3529,24 @@ for clarification question use this specific answer:" _ ". No intro/outro.\n"
   ":#+begin_src bash :results output\n"
   "source ~/.bash_aliases\n"
   "\n"
-  "cat <<EOF >/tmp/post\n"
+  "cat <<\"EOF\" >/tmp/post\n"
   "#dailyreport\n"
   "\n"
   "EOF\n"
-  "cat /tmp/post | post\n"
+  "post-split && check-message\n"
+  "cat /tmp/post && tpost_blog /tmp/post && MASTADON_IDX=1 mpost_blog 2>&1 \n"
   "#+end_src")
 
 (define-skeleton org-src-gist
   ""
   ""
-  ":#+begin_src bash :results output\n"
+  "#+begin_cui :gist :noweb yes :tangle yes\n"
+  "\n"
+  "#+end_cui\n"
+  "\n"
+  "#+begin_src bash :results output\n"
   "source ~/.bash_aliases\n"
-  "\n"
-  "cat <<EOF >/tmp/post\n"
-  "#code\n"
-  "\n"
-  "EOF\n"
-  "cat /tmp/post | post\n"
+  "cat /tmp/post | post-gist\n"
   "#+end_src")
 (define-skeleton org-src-shell
   ""
@@ -3418,19 +3615,22 @@ for clarification question use this specific answer:" _ ". No intro/outro.\n"
     ("1e" "" org-example-templ)
     ("1q" "" org-template-quote)
     ("1t" "" org-src-text)
-    ("1aig" "" oai-templ-github)
-    ("1aitch" "" oai-templ-github-translate-chinese)
-    ("1ail" "" oai-templ-local)
-    ;; ("1ait" "" oai-templ-together)
-    ("1aiw1" "" oai-templ-github-wide1)
-    ("1aiw2" "" oai-templ-github-wide2)
-    ;; ("1aigs" "" oai-templ-github-sum)
-    ("ma" "" markdown-shallow)
-    ("ml" "" markdown-elisp)
-    ("me" "" markdown-elisp)
-    ("mt" "" markdown-text)
+    ("1aig" "" cui-templ-github)
+    ("1aitch" "" cui-templ-github-translate-chinese)
+    ("1ail" "" cui-templ-local)
+    ("1ai" "" cui-templ-shallow)
+    ("1gi" "" org-src-gist)
 
-    ;; ("```" "" markdown-shallow) ;; not working
+    ;; ("1ait" "" cui-templ-together)
+    ("1aiw1" "" cui-templ-github-wide1)
+    ("1aiw2" "" cui-templ-github-wide2)
+    ;; ("1aigs" "" cui-templ-github-sum)
+    ("ma" "" markdown-skeleton-shallow)
+    ("ml" "" markdown-skeleton-elisp)
+    ("me" "" markdown-skeleton-elisp)
+    ("mt" "" markdown-skeleton-text)
+
+    ;; ("```" "" markdown-skeleton-shallow) ;; not working
 
     ;; ("1r-result-shallow" "" org-src-with-output)
 
@@ -3455,7 +3655,8 @@ for clarification question use this specific answer:" _ ". No intro/outro.\n"
     ;; 4 for others
     ("4y-yaml" "" org-src-yaml)
     ("4s-sqlit" "" org-src-sqlite)
-    ("4j-julia" "" org-src-julia)
+    ("4j-json" "" org-src-json)
+    ("4u-julia" "" org-src-julia)
     ("4m-mastadon" "" org-src-mastadon)
     ("4a-artist" "" org-src-artist)
     ("4pne-perl" "" org-src-perl-no-exec)
@@ -3489,8 +3690,8 @@ for clarification question use this specific answer:" _ ". No intro/outro.\n"
 
 (define-abbrev-table 'text-mode-abbrev-table
   '(
-    ("1markdown" "" markdown-shallow)
-    ("1markelisp" "" markdown-elisp)
+    ("1markdown" "" markdown-skeleton-shallow)
+    ("1markelisp" "" markdown-skeleton-elisp)
 
     ("ru" "" (lambda () (activate-input-method "russian-computer")))
     ("ут" "" (lambda () (activate-input-method nil)))
@@ -3499,29 +3700,71 @@ for clarification question use this specific answer:" _ ". No intro/outro.\n"
     ))
 
 
-
 (setq save-abbrevs nil) ;; do not prompt to save abbrevs
 (setq skeleton-end-newline nil)
-;; -- -- -- -- replace region with
+;; -- -- -- -- Python
+;; https://github.com/cstrap/python-snippets/blob/master/snippets/base.json
+;; https://gist.github.com/andreberg/d3876b82f9f33343862534df96ed2906
+(define-skeleton python-skl-main
+  "template"
+  ""
+  "def main()" _ \n
+  "if __name__ == \"__main__\":" \n
+  "main()")
 
-(defun my/replace-region-with-markdown ()
-  (interactive)
-    (when (use-region-p)
-      (let ((region-string (buffer-substring-no-properties
-                            (region-beginning)
-                            (region-end)))
-            pos)
-        ;; Delete the region
-        (delete-region (region-beginning) (region-end))
-        ;; Deactivate mark (optional, but clean)
-        (setq mark-active nil)
-        (insert "```")
-        (setq pos (point))
-        (insert "\n" region-string "\n")
-        (insert "```\n")
-        (goto-char pos))))
+(define-skeleton python-skl-print
+  "template"
+  ""
+  "print(\"" _ "\")")
 
-(global-set-key (kbd "C-c 2") #'my/replace-region-with-markdown)
+(define-skeleton python-skl-open
+  "template"
+  ""
+  "with open(\"" _ "\", \"r\") as f:" \n)
+
+(define-skeleton python-skl-class
+  "template"
+  ""
+  "class " _ ":" \n
+  "\"\"\" \"\"\"" \n
+  "def __init__(self, ):" \n
+  ""
+  )
+
+;; see also [[file:/usr/share/emacs/30.2/lisp/progmodes/python.el::5413::(python-skeleton-define if nil]]
+;;
+(with-eval-after-load 'python
+  ;; they can by used by M-x python-skl-main
+  (setq python-skeleton-autoinsert t) ; required by python.el
+  (define-abbrev python-mode-skeleton-abbrev-table
+    "0m" "" 'python-skl-main)
+  (define-abbrev python-mode-skeleton-abbrev-table
+    "0p" "" 'python-skl-print)
+  (define-abbrev python-mode-skeleton-abbrev-table
+    "0o" "" 'python-skl-open)
+  (define-abbrev python-mode-skeleton-abbrev-table
+    "0c" "" 'python-skl-class)
+  )
+
+(when (require 'python-ts nil 'noerror)
+  ;; they can by used by M-x python-skl-main
+  (setq python-skeleton-autoinsert t) ; required by python.el
+  (define-abbrev python-ts-mode-abbrev-table
+    "0m" "" 'python-skl-main)
+  (define-abbrev python-ts-mode-abbrev-table
+    "0p" "" 'python-skl-print)
+  (define-abbrev python-ts-mode-abbrev-table
+    "0o" "" 'python-skl-open)
+  (define-abbrev python-ts-mode-abbrev-table
+    "0c" "" 'python-skl-class)
+  )
+;; (setq python-mode-abbrev-table python-mode-skeleton-abbrev-table)
+;; (define-abbrev-table 'python-mode-abbrev-table
+;;   '(
+;;     ("init" "" )))
+
+
+;; -- -- -- -- old markdown smart
 ;; (defun my/insert-skeleton ()
 ;;   "Insert skeleton.
 
@@ -3568,68 +3811,8 @@ for clarification question use this specific answer:" _ ". No intro/outro.\n"
 ;;     ;; (when flag (backward-kill-word 1))
 ;;     )))
 ;; (my/insert-skeleton 'org-src-sqlite)
-;; -- -- -- -- Python
-;; https://github.com/cstrap/python-snippets/blob/master/snippets/base.json
-;; https://gist.github.com/andreberg/d3876b82f9f33343862534df96ed2906
-(define-skeleton python-skl-main
-  "template"
-  ""
-  "def main()" _ \n
-  "if __name__ == \"__main__\":" \n
-  "main()")
 
-(define-skeleton python-skl-print
-  "template"
-  ""
-  "print(\"" _ "\")")
-
-(define-skeleton python-skl-open
-  "template"
-  ""
-  "with open(\"" _ "\", \"r\") as f:" \n)
-
-(define-skeleton python-skl-class
-  "template"
-  ""
-  "class " _ ":" \n
-  "\"\"\" \"\"\"" \n
-  "def __init__(self, ):" \n
-  ""
-  )
-
-
-(with-eval-after-load 'python
-  ;; they can by used by M-x python-skl-main
-  (setq python-skeleton-autoinsert t) ; required by python.el
-  (define-abbrev python-mode-skeleton-abbrev-table
-    "0m" "" 'python-skl-main)
-  (define-abbrev python-mode-skeleton-abbrev-table
-    "0p" "" 'python-skl-print)
-  (define-abbrev python-mode-skeleton-abbrev-table
-    "0o" "" 'python-skl-open)
-  (define-abbrev python-mode-skeleton-abbrev-table
-    "0c" "" 'python-skl-class)
-  )
-
-(when (require 'python-ts nil 'noerror)
-  ;; they can by used by M-x python-skl-main
-  (setq python-skeleton-autoinsert t) ; required by python.el
-  (define-abbrev python-ts-mode-abbrev-table
-    "0m" "" 'python-skl-main)
-  (define-abbrev python-ts-mode-abbrev-table
-    "0p" "" 'python-skl-print)
-  (define-abbrev python-ts-mode-abbrev-table
-    "0o" "" 'python-skl-open)
-  (define-abbrev python-ts-mode-abbrev-table
-    "0c" "" 'python-skl-class)
-  )
-;; (setq python-mode-abbrev-table python-mode-skeleton-abbrev-table)
-;; (define-abbrev-table 'python-mode-abbrev-table
-;;   '(
-;;     ("init" "" )))
-
-
-;; -- Buffers, Windows, Buffer menu, tab-bar, tab-list [rooted]
+;; -- Buffers, Windows, Buffer menu, tab-bar, tab-list (tested for root)
 ;; -- -- Buffer menu buffer-menu - sorting(disabled)
 ;; (defun my/sort-buffer-meny-by-mode()
 ;;   "result of (print tabulated-list-sort-key))."
@@ -3681,25 +3864,28 @@ for clarification question use this specific answer:" _ ". No intro/outro.\n"
 ;; (global-set-key (kbd "C-M-e") #'dired-hist-tl-tab-line-switch-to-next-tab) ; shadow end-of-defun
 
 ;; -- -- keys
-;; -- -- -- buffer menu
+;; -- -- -- buffer menu [rooted]
 ;; default C-x C-l
 
-(setopt split-width-threshold 200) ;; split window to right if (window-width (selected-window)) > this
+(setopt split-width-threshold 100) ;; split window to right if (window-width (selected-window)) > this
 
 ;; (defvar my/buffer-menu
 
 (defun my/list-buffers-right()
-  "Display Buffer-menu at right side.
+  "Display Buffer-menu.
 If this window is splitted and small, just use current window."
   (interactive)
-  (let ((b (list-buffers-noselect nil)))
-    (setq my/tab-line-previous-buffer nil) ; for [tab-line - save previous buffer]
-    (if (< (window-width (selected-window)) split-width-threshold)
-        (buffer-menu) ;; full window
-        ;; else
-      (switch-to-buffer-other-window b))))
+  (if (or (and (buffer-name (current-buffer))
+               (= (aref (buffer-name (current-buffer)) 0) 42)) ; starts with "*" char
+          (< (window-width (selected-window)) split-width-threshold)
+          (> (length (window-list)) 1))
+      (switch-to-buffer (list-buffers-noselect nil))
 
-(global-set-key (kbd "C-x M-x") #'buffer-menu) ; rooted
+    (let ((new-window (split-window-right)))
+      (set-window-buffer new-window (list-buffers-noselect nil))
+      (select-window new-window))))
+
+(global-set-key (kbd "C-x M-x") #'my/list-buffers-right) ; left hand
 (global-set-key (kbd "C-x C-b") #'my/list-buffers-right) ; shadow `list-buffers'
 ;(global-set-key (kbd "C-x M-j") #'buffer-menu)
 
@@ -3728,7 +3914,9 @@ If this window is splitted and small, just use current window."
 (advice-add 'Buffer-menu-this-window :before 'my/buffer-menu-restore-sort)
 
 ;; (global-set-key (kbd "C-S-z") #'buffer-menu) ; (not rooted)
-;; -- -- -- buffer menu with Dired only.
+;; -- -- -- Dired - left hand
+(global-set-key (kbd "C-x C-d") #'my/dired-jump)
+;; -- -- -- buffer menu with Dired only. [rooted]
 (defun my/buffer-menu-dired ()
   (interactive)
   (switch-to-buffer (list-buffers-noselect
@@ -3738,48 +3926,57 @@ If this window is splitted and small, just use current window."
 (global-set-key (kbd "C-x M-b") #'my/buffer-menu-dired)
 
 ;; -- -- -- other-buffer [rooted]
-(setq my/ignored-system-buffers '("*Buffer List*"))
+;; (defun my/find-buffer-predicate (b) ; get first good one
+;;   (and
+;;    (/= (aref (buffer-name b) 0) ?\s) ; not system buffers
+;;    (buffer-live-p b) ; ensure alive
+;;    (with-current-buffer b (not (derived-mode-p 'dired-mode)))
+;;    (not (member (buffer-name b)
+;;                 my/ignored-system-buffers)))) ; not filtered
 
-(defun my/find-buffer-predicate (b) ; get first good one
-  (and
-   (/= (aref (buffer-name b) 0) ?\s) ; not system buffers
-   (buffer-live-p b) ; ensure alive
-   (with-current-buffer b (not (derived-mode-p 'dired-mode)))
-   (not (member (buffer-name b)
-                my/ignored-system-buffers)))) ; not filtered
+(defvar my/ignored-system-buffers '("*Buffer List*")
+  "List of buffer names to ignore when looping through window history.")
 
-(defun my/other-buffer (&optional arg)
-  "Switch to other buffer, ie `other-buffer' without system buffers.
-If ARG provided switch to double-previous buffer."
-  (interactive "P")
-  (if (bound-and-true-p my/tab-line-previous-buffer)
-      (progn
-        (switch-to-buffer my/tab-line-previous-buffer)
-        (setq my/tab-line-previous-buffer nil))
-    ;; - else
-    ;; (previous-buffer)
-    (let* ((bufs (cdr (buffer-list)))
-          (ignored-system-buffers )
-          (prev-buf (seq-find #'my/find-buffer-predicate
-                              bufs))
-          ) ; "*Messages*"
-      (if arg
-          ;; - find double previous
-          (progn
-            (setq bufs (seq-remove (lambda (b) (eq b prev-buf))
-                                   bufs))
-            (setq prev-buf
-                  (seq-find #'my/find-buffer-predicate
-                            bufs))
-                ))
-        ;; - else
-        (print prev-buf)
-        (switch-to-buffer prev-buf)
-        )))
+(defun my/find-buffer-predicate (b)
+  "Return non-nil if buffer B is a valid target buffer."
+  (and (buffer-live-p b)
+       (/= (aref (buffer-name b) 0) ?\s) ; Not hidden system buffers
+       (with-current-buffer b (not (derived-mode-p 'dired-mode))) ; Not Dired
+       (not (member (buffer-name b) my/ignored-system-buffers)))) ; Not ignored
 
-(defun my/other-buffer2 ()
+(defun my/loop-over-window-history (&optional skip-count)
+  "Loop through the buffer history of the currently selected window.
+Optional argument SKIP-COUNT specifies how many valid buffers to skip
+past the current buffer. If nil, it goes to the immediate previous valid buffer."
+  (interactive "p") ; skip-count=1 in interactive call
+  (let* ((current-buf (current-buffer))
+         (history (window-prev-buffers (selected-window)))
+         ;; Filter history: must pass your predicate AND not be the current buffer
+         (live-buffers (delq nil (mapcar (lambda (entry)
+                                           (let ((buf (car entry)))
+                                             (when (and (my/find-buffer-predicate buf)
+                                                        (not (eq buf current-buf)))
+                                               buf)))
+                                         history)))
+         (skip (if skip-count (1- skip-count) 0))
+         (target-buffer (nth skip live-buffers)))
+
+    (cond
+     ((null history) ; if new buffer was created
+      (other-window 1)
+      (message "This window has no buffer history yet!"))
+     ((null target-buffer)
+      (other-window 1)
+      (message "No valid buffer found in history at skip index %d." skip))
+     (t
+      ;; Switch buffer without altering the history order dynamically
+      (switch-to-buffer target-buffer nil t)
+      (message "Switched to: %s" (buffer-name target-buffer))))))
+
+(defun my/loop-over-window-history2 ()
   (interactive)
-  (my/other-buffer t))
+  (my/loop-over-window-history 2))
+
 ;; (defun my/other-buffer ()
 ;;   "alternative implementation."
 ;;   (interactive)
@@ -3788,23 +3985,23 @@ If ARG provided switch to double-previous buffer."
 ;;          (call-interactively 'Buffer-menu-this-window)))
 
 ;; (global-set-key "\C-o" #'other-window) ; shadow 'open-line
-(global-set-key (kbd "C-c C-z") #'my/other-buffer)
+(global-set-key (kbd "C-c C-z") #'my/loop-over-window-history)
 (require 'org)
 (keymap-unset org-mode-map "C-c C-d")
-(global-set-key (kbd "C-c C-d") #'my/other-buffer2) ; with argument
+(global-set-key (kbd "C-c C-d") #'my/loop-over-window-history2) ; with argument
 ;; Replace for  mode:
-(keymap-set org-mode-map "C-c C-z" #'my/other-buffer) ; shadow `org-add-note'
+(keymap-set org-mode-map "C-c C-z" #'my/loop-over-window-history) ; shadow `org-add-note'
 (with-eval-after-load 'python
-  (keymap-set python-mode-map "C-c C-z" #'my/other-buffer) ; shadow `python-shell-switch-to-shell'
-)
-(keymap-set sh-mode-map "C-c C-z" #'my/other-buffer) ; shadow `sh-show-shell'
+  (keymap-set python-mode-map "C-c C-z" #'my/loop-over-window-history)) ; shadow `python-shell-switch-to-shell'
+
+(keymap-set sh-mode-map "C-c C-z" #'my/loop-over-window-history) ; shadow `sh-show-shell'
 ;; (with-eval-after-load 'org
 ;;   (define-key org-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `org-add-note'
 ;; (with-eval-after-load 'sh-script
 ;;   (define-key sh-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `sh-show-shell'
 ;; (with-eval-after-load 'python ; not working
 ;;   (define-key python-mode-map (kbd "C-c C-z") #'my/other-buffer)) ; shadow `python-shell-switch-to-shell'
-;; -- -- -- *Messages* (rooted)
+;; -- -- -- *Messages* [rooted]
 (defun my/show-message-log ()
   (interactive)
   (switch-to-buffer "*Messages*")
@@ -3820,40 +4017,70 @@ If ARG provided switch to double-previous buffer."
 
 ;; (global-set-key (kbd "C-c C-d") #'my/show-backtrace) ; rooted
 
-;; -- -- -- keymap
+;; -- -- -- fix C-o for Buffer-menu [rooted]
 (keymap-unset Buffer-menu-mode-map "C-o") ; for `my/other-window-or-split'
+;; -- -- Buffer-menu *Buffer List* auto update on focus
+(defun my/auto-refresh-buffer-menu()
+  "Buffer-menu *Buffer List* auto update on focus."
+  (when (derived-mode-p 'Buffer-menu-mode)
+    (tabulated-list-revert)))
+(add-hook 'buffer-list-update-hook 'my/auto-refresh-buffer-menu)
 ;; -- Tree-sitter (disabled now)
 ;; (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 ;; (add-to-list 'major-mode-remap-alist '(bash-mode . bash-ts-mode))
 ;; -- grep-find - with ignore case.
-(setopt grep-find-command (cons "find . -type f -exec grep -i --color=auto -nH --null -e  \\{\\} +"  54))
+;; (add-to-list 'grep-find-ignored-directories "target")
+(require 'grep)
+;; (add-to-list 'grep-find-ignored-directories ".venv")
+;; (add-to-list 'grep-find-ignored-directories ".git")
+(setopt grep-find-command '("find . -not -path \"*/.git/*\" -type f -exec grep --color=auto -niH --null -e  \\{\\} +" . 77))
+;; (setopt grep-find-command (cons "find . -type f -exec grep -i --color=auto -nH --null -e \\{\\} +"  57))
+
 
 ;; -- indent.el configuration
 ;; -- Per Mode Configurations
 ;; -- -- hidepw
-(when (require 'hidepw nil 'noerror)
-;; (with-eval-after-load 'hidepw
-  ;; (require 'hidepw)
-  (setq hidepw-patterns '("\\([pP]assword\\|[pP]ass\\|[lL]ogin\\|kv\\|[tT]oken\\):? \\(.+\\)$"))
+;; (when (require 'hidepw nil 'noerror)
+;; ;; (with-eval-after-load 'hidepw
+;;   ;; (require 'hidepw)
+;;   (setq hidepw-patterns '(
+;;                           ;; "\\([pP]assword\\|[pP]ass\\|[lL]ogin\\|kv\\|[tT]oken\\):? \\(.+\\)$"
+;;                           "[pP]assword:? \\(.+\\)$"
+;;                           "[pP]ass:? \\(.+\\)$"
+;;                           "[lL]ogin:? \\(.+\\)$"
+;;                           "kv:? \\(.+\\)$"
+;;                           "[tT]oken:? \\(.+\\)$"
+;;                           "^#\\+begin_src pass\n\\(\\(?:.\\|\n\\)*?\\)\n#\\+end_src"))
 
-  (advice-add 'hidepw-font-lock-keywords :override
-              (lambda ()
-                (mapcar (lambda (pat) `(,pat 2 (hidepw-render)))
-                        `(,@hidepw-patterns ,@(when hidepw-hide-first-line '("\\`\\(.*\\)$"))))
-                )
-              )
-)
+;;   ;; (advice-add 'hidepw-font-lock-keywords :override
+;;   ;;             (lambda ()
+;;   ;;               (mapcar (lambda (pat) `(,pat 2 (hidepw-render)))
+;;   ;;                       `(,@hidepw-patterns ,@(when hidepw-hide-first-line '("\\`\\(.*\\)$"))))
+;;   ;;               )
+;;   ;;             )
+;; )
+(add-to-list 'load-path "/home/user/sources/emacs-hidepass/")
+(when
+    (require 'hidepass nil 'noerror)
+  ;; (load "/home/user/hidepass.el" t)
+  ;; (setopt hidepass-multiline-patterns
+  ;;         '(("^#\\+begin_src pass\n" . "^#\\+end_src")
+  ;;           ("<secret>" . "</secret>")
+  ;;           ("---BEGIN PASSWORD---" . "---END PASSWORD---"))
+  ;; )
+  )
 ;; -- -- Outline-it minor mode for Elisp, Python [rooted]
 (add-to-list 'load-path "/home/user/sources/emacs-outline-it/")
-(require 'outline-it)
-(outline-it-advices-activation)
-(add-hook 'outline-minor-mode-hook 'outline-it-outline-minor-mode-hook-function) ; for .emacs
-(add-hook 'sh-mode-hook 'outline-it-any-mode-hook-function)
+(when (require 'outline-it nil 'noerror)
+  (outline-it-advices-activation)
+  (add-hook 'outline-minor-mode-hook 'outline-it-outline-minor-mode-hook-function) ; for .emacs
+  (add-hook 'sh-mode-hook 'outline-it-any-mode-hook-function)
 
-;; globally set `isearch-string' based on `outline-regexp' for C-M-s to search by headers-outliners
-(add-hook 'isearch-mode-hook #'outline-it--header-search) ; for C-M-s set
-;; (remove-hook 'isearch-mode-hook #'outline-it--header-search)
-;; (add-hook 'emacs-lisp-mode-hook 'outline-it-any-mode-hook-function) ; can't set outline-regexp for every lisp file
+  ;; globally set `isearch-string' based on `outline-regexp' for C-M-s to search by headers-outliners
+  (add-hook 'isearch-mode-hook #'outline-it--header-search) ; for C-M-s set
+  ;; (remove-hook 'isearch-mode-hook #'outline-it--header-search)
+  ;; (add-hook 'emacs-lisp-mode-hook 'outline-it-any-mode-hook-function) ; can't set outline-regexp for every lisp file
+  )
 ;; -- -- Diary
 ;; -- -- -- sort diary entries
 (require 'diary-lib)
@@ -3930,7 +4157,7 @@ If ARG provided switch to double-previous buffer."
 ;;                           (seq-min pos-list) ; smallest
 ;;                         (seq-max pos-list)))))))
 
-;; -- -- Dired [rooted (consider disable trashing, omit, thumbnails)]
+;; -- -- Dired (rooted (consider disable trashing, omit, thumbnails))
 ;; -- -- -- speedup loading (disabled)
 ;; (setopt ls-lisp-use-insert-directory-program t)
 ;; (setopt ls-lisp-dirs-first nil
@@ -3961,7 +4188,7 @@ If ARG provided switch to double-previous buffer."
 
 ;; Switches for looping with M-s key
 (defvar dired-listing-switches-others
-      '(("by name" . "-AlhG")
+      '(("by name and ex" . "-AlhGX")
         ("by size" . "-AlShG")))
 
 (defun get-next-item-by-string-value (clist value)
@@ -4240,6 +4467,86 @@ Value is a list of all tags for FILE."
                          comment-beg-pos comment-end-pos))))
       comment)))
 
+;; -- -- -- -- fix opening image
+;; Now when image dsiplaied it split windows chaotically
+;;
+(defun image-dired-display-image (file &optional _ignored)
+  "Display image FILE always in the same window and buffer."
+  (declare (advertised-calling-convention (file) "29.1"))
+  (setq file (expand-file-name file))
+  (unless (file-exists-p file)
+    (error "No such file: %s" file))
+  (let* ((curwin (selected-window))
+    (bufname image-dired-display-image-buffer)
+    (buf (get-buffer bufname))
+    (img-buf (find-file-noselect file nil t)))
+    ;; Rename the image buffer.
+    (with-current-buffer img-buf
+      (rename-buffer bufname t)
+      (if (string-match (image-file-name-regexp) file)
+          (image-dired-image-mode)
+        (normal-mode)))
+    ;; Display the buffer in existing image window or in some window
+    (let ((image-window (and buf
+                             (buffer-live-p buf)
+                             (get-buffer-window buf 'visible))))
+      (if image-window
+          (progn
+            (select-window image-window)
+            (switch-to-buffer img-buf))
+        (display-buffer img-buf
+                        '((display-buffer-use-some-window display-buffer-pop-up-window)))))
+    ;; Now that the new buffer is named, kill any previous with the same name but different buffer
+    (dolist (b (buffer-list))
+      (when (and (not (eq b img-buf))
+                 (string= (buffer-name b) bufname))
+        (kill-buffer b)))
+    (select-window curwin)))
+
+;; -- -- -- -- fix: no path in Buffer Menu for for "image-dired"
+(with-eval-after-load 'image-dired
+  (defun my-image-dired-set-dired-dir ()
+    (when (derived-mode-p 'image-dired-thumbnail-mode)
+      (setq-local buffer-file-name default-directory)))
+  (add-hook 'image-dired-thumbnail-mode-hook #'my-image-dired-set-dired-dir))
+;; -- -- -- -- random slideshow
+(require 'image-dired)
+(require 'cl-lib)
+
+(defun image-dired-slideshow-random-start (&optional arg)
+  "Start a random image-dired slideshow using built-in, optimized functions."
+  (interactive "P")
+  (let* ((buf (get-buffer image-dired-thumbnail-buffer))
+         (cached-points
+          (and buf
+               (with-current-buffer buf
+                 (save-excursion
+                   (cl-loop for pos = (point-min) then (next-single-property-change pos 'display nil (point-max))
+                            while (< pos (point-max))
+                            do (goto-char pos)
+                            when (image-dired-image-at-point-p)
+                            collect pos))))))
+    (when cached-points
+      (cl-labels
+          ((random-step (&rest _)
+             (when (buffer-live-p buf)
+               (with-current-buffer buf
+                 (goto-char (seq-random-elt cached-points))
+                 (image-dired-display-this))))
+           (filter-stop (orig-fun &rest args)
+             (let ((this-command (if (eq this-command 'image-dired-slideshow-random-start)
+                                     'image-dired-slideshow-start
+                                   this-command)))
+               (apply orig-fun args)
+               (unless image-dired--slideshow-timer
+                 (advice-remove 'image-dired-display-next #'random-step)
+                 (advice-remove 'image-dired--slideshow-stop #'filter-stop)))))
+
+        (advice-add 'image-dired-display-next :override #'random-step)
+        (advice-add 'image-dired--slideshow-stop :around #'filter-stop)
+        (random-step)
+        (image-dired-slideshow-start arg)))))
+
 ;; -- -- -- wdired mode: allow to change permissions in C-x C-q
 ;; (require 'wdired)
 ;; (setopt wdired-allow-to-change-permissions t)
@@ -4252,7 +4559,7 @@ Value is a list of all tags for FILE."
 (setopt dired-guess-shell-alist-user
       '(
         ;; ("\\.\\(flac\\|mp3\\|mp4\\)$" "mpv *")
-        ("\\.\\(flac\\|mp3\\|mp4\\|m4a\\|mkv\\|oga\\)$" "mpv --force-window  --loop-playlist inf")
+        ("\\.\\(flac\\|mp3\\|mp4\\|m4a\\|mkv\\|oga\\)$" "mpv --no-audio-display --force-window  --loop-playlist inf")
         ("\\.pdf$" "evince")
         ("\\.png$" "/home/user/fireflocal.sh")
         ("\\.jpg$" "/home/user/fireflocal.sh")
@@ -4269,6 +4576,7 @@ Value is a list of all tags for FILE."
 
 
 ;; -- -- -- -- hist: alternative based on tab-line mode
+(add-to-list 'load-path "/home/user/sources/dired-hist")
 (require 'dired-hist-tl)
 ;; (add-hook 'dired-mode-hook #'dired-hist-tl-dired-mode-hook)
 (add-hook 'dired-mode-hook #'dired-hist-tl-dired-mode-hook)
@@ -4341,7 +4649,7 @@ Value is a list of all tags for FILE."
         (error (message "No side window - my/window-toggle-side-windows")))
         ))))
 
-(global-set-key (kbd "M-'") #'my/window-toggle-side-windows)
+(global-set-key (kbd "C-'") #'my/window-toggle-side-windows)
 ;; -- -- -- -- Update side window when up and down move of cursor
 (defun my/update-side-window (&rest r)
   (let ((sw (selected-window)))
@@ -4518,10 +4826,12 @@ Commands that are run asynchronously do not accept user input."
 
 (advice-add 'dired-do-async-shell-command :override #'my/fix-dired-do-async-shell-command )
 
-
 (defun my/call-external (arg &optional interactive)
   (interactive (list current-prefix-arg t))
   (print "my/call-external entry")
+  ;; - save current directory to recent
+  (recentf-add-file default-directory)
+  (recentf-save-list)
   ;; -- Org-mode
   (if (derived-mode-p 'org-mode)
     (let* ((context
@@ -4786,6 +5096,43 @@ Deletion flag `dired-del-marker' is used."
 
 (keymap-set dired-mode-map "<remap> <dired-flag-file-deletion>" #'my/dired-flag-file-deletion)
 
+;; -- -- -- Find file by regex recursively
+(defun my/find-file-regex-recursive (regexp)
+  "Search current directory recursively for REGEXP and display relative paths in Dired."
+  (interactive "sMatching regex (in current dir): ")
+  (let* ((dir default-directory)
+         (files (directory-files-recursively dir regexp t))
+         (bufname (format "*Regex Find: %s*" regexp)))
+    (if (null files)
+        (message "No matches found for: %s" regexp)
+      (with-current-buffer (get-buffer-create bufname)
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (setq default-directory dir)
+          ;; Buffer Header
+          (insert "  " dir ":\n")
+          (dolist (file files)
+            ;; Convert absolute path to relative path
+            (let ((rel-file (file-relative-name file dir)))
+              ;; Insert dummy 'ls -l' metadata so dired-mark works
+              (insert (format "  -rw-r--r--  1 user group 0 Jan 01 00:00 %s\n" rel-file))))
+
+          (dired-mode dir)
+          ;; Ensure Dired treats the buffer as a long-format listing
+          (setq-local dired-actual-switches "-l")
+          (setq-local dired-subdir-alist (list (cons dir (point-min-marker))))
+          (dired-goto-next-file)
+          (display-buffer (current-buffer)))))))
+
+
+(defun my/find-file (&optional arg)
+  (interactive "P")
+  (if arg
+      (call-interactively 'my/find-file-regex-recursive)
+    ;; else
+    (call-interactively 'find-file)))
+
+(global-set-key (kbd "C-x C-f") #'my/find-file)
 ;; -- -- -- Fix: preserve column position after up/down moving
 (defun my/dired-preserve-column (orig-fun &rest args)
   "Preserve column position after up/down moving."
@@ -5009,18 +5356,18 @@ Replace single `fill-paragraph-function' with list of functions."
             my/org-fill-paragraph-functions))
   ;; (print (list (region-active-p) (region-beginning) (region-end)))
   ;; (or (and (featurep 'oai)
-  ;;          ;; (let ((aib (oai-block-p)))
+  ;;          ;; (let ((aib (cui-block-p)))
   ;;          ;;   (cond
   ;;          ;;    ;; - OAI   - separate line starts at own lines:
   ;;          ;;    ((and aib region)
-  ;;          ;;     (oai-block--apply-to-region-lines #'oai-block-fill-region-as-paragraph (region-beginning) (region-end) justify))
+  ;;          ;;     (cui-block--apply-to-region-lines #'cui-block-fill-region-as-paragraph (region-beginning) (region-end) justify))
 
   ;;          ;;    ;; - OAI   - whole block
   ;;          ;;    ((and aib (not region) justify)
-  ;;          ;;     (let* ((reg (oai-block--contents-area aib))
+  ;;          ;;     (let* ((reg (cui-block--contents-area aib))
   ;;          ;;            (con-beg (car reg))
   ;;          ;;            (con-end (cdr reg)))
-  ;;          ;;       (oai-block--apply-to-region-lines #'oai-block-fill-region-as-paragraph con-beg con-end nil)))
+  ;;          ;;       (cui-block--apply-to-region-lines #'cui-block-fill-region-as-paragraph con-beg con-end nil)))
 
   ;;             ;; else - call in loop functions, untill one return true
   ;;             ((and region
@@ -5029,18 +5376,18 @@ Replace single `fill-paragraph-function' with list of functions."
   ;;                               (funcall step justify region))
   ;;                             my/org-fill-paragraph-functions)))))
 
-  ;; (let ((aib (when (featurep 'oai) (oai-block-p))))
+  ;; (let ((aib (when (featurep 'oai) (cui-block-p))))
   ;;   (cond
   ;;    ;; - OAI   - separate line starts at own lines:
   ;;    ((and aib region)
-  ;;          (oai-block--apply-to-region-lines #'oai-block-fill-region-as-paragraph (region-beginning) (region-end) justify))
+  ;;          (cui-block--apply-to-region-lines #'cui-block-fill-region-as-paragraph (region-beginning) (region-end) justify))
 
   ;;    ;; - OAI   - whole block
   ;;    ((and aib (not region) justify)
-  ;;     (let* ((reg (oai-block--contents-area aib))
+  ;;     (let* ((reg (cui-block--contents-area aib))
   ;;            (con-beg (car reg))
   ;;            (con-end (cdr reg)))
-  ;;       (oai-block--apply-to-region-lines #'oai-block-fill-region-as-paragraph con-beg con-end nil)))
+  ;;       (cui-block--apply-to-region-lines #'cui-block-fill-region-as-paragraph con-beg con-end nil)))
 
   ;;    ;; else - call in loop functions, untill one return true
   ;;    (region
@@ -5176,90 +5523,6 @@ Replace single `fill-paragraph-function' with list of functions."
       (org-shiftmetaright)
       (widen)
       (org-list-repair))))
-;; -- -- -- -- fix BABEL SHELL: permission error
-;; (setq org-babel-temporary-directory "/var/tmp/babel")
-(defun org-babel-sh-evaluate (session body &optional params stdin cmdline)
-  "Pass BODY to the Shell process in BUFFER.
-If RESULT-TYPE equals `output' then return a list of the outputs
-of the statements in BODY, if RESULT-TYPE equals `value' then
-return the value of the last statement in BODY."
-  (let* ((shebang (cdr (assq :shebang params)))
-         (results-params (cdr (assq :result-params params)))
-         (value-is-exit-status
-          (or (and
-               (equal '("replace") results-params)
-               (not org-babel-shell-results-defaults-to-output))
-              (member "value" results-params)))
-         (results
-          (cond
-           ((or stdin cmdline)         ; external shell script w/STDIN
-            (let ((script-file (org-babel-temp-file "sh-script-"))
-                  (stdin-file (org-babel-temp-file "sh-stdin-"))
-                  (padline (not (string= "no" (cdr (assq :padline params))))))
-              (with-temp-file script-file
-                (when shebang (insert shebang "\n"))
-                (when padline (insert "\n"))
-                (insert body))
-              (set-file-modes script-file #o755)
-              (with-temp-file stdin-file (insert (or stdin "")))
-              (with-temp-buffer
-                (with-connection-local-variables
-                 (print (list #'process-file
-                        (if shebang (file-local-name script-file)
-                          shell-file-name)
-                        stdin-file
-                        (current-buffer)
-                        nil
-                        (if shebang (when cmdline (list cmdline))
-                          (list shell-command-switch
-                                (concat (file-local-name script-file)  " " cmdline)))))
-                 (apply #'process-file
-                        (if shebang (file-local-name script-file)
-                          shell-file-name)
-                        stdin-file
-                        (current-buffer)
-                        nil
-                        (if shebang (when cmdline (list cmdline))
-                          (list shell-command-switch
-                                (concat (file-local-name script-file)  " " cmdline)))))
-                (buffer-string))))
-           (session                     ; session evaluation
-            (mapconcat
-             #'org-babel-sh-strip-weird-long-prompt
-             (mapcar
-              #'org-trim
-              (butlast ; Remove eoe indicator
-               (org-babel-comint-with-output
-                   (session org-babel-sh-eoe-output t body)
-                 (insert (org-trim body) "\n"
-                         org-babel-sh-eoe-indicator)
-                 (comint-send-input nil t))
-               ;; Remove `org-babel-sh-eoe-indicator' output line.
-               1))
-             "\n"))
-           ;; External shell script, with or without a predefined
-           ;; shebang.
-           ((org-string-nw-p shebang)
-            (let ((script-file (org-babel-temp-file "sh-script-"))
-                  (padline (not (equal "no" (cdr (assq :padline params))))))
-              (with-temp-file script-file
-                (insert shebang "\n")
-                (when padline (insert "\n"))
-                (insert body))
-              (set-file-modes script-file #o755)
-              (org-babel-eval script-file "")))
-           (t (org-babel-eval shell-file-name (org-trim body))))))
-    (when (and results value-is-exit-status)
-      (setq results (car (reverse (split-string results "\n" t)))))
-    (when results
-      (let ((result-params (cdr (assq :result-params params))))
-        (org-babel-result-cond result-params
-          results
-          (let ((tmp-file (org-babel-temp-file "sh-")))
-            (with-temp-file tmp-file (insert results))
-            (org-babel-import-elisp-from-file tmp-file)))))))
-
-
 
 ;; -- -- -- -- SRC block: begin, end
 (defun my/get-org-content-block-region (&optional element)
@@ -5291,6 +5554,27 @@ return the value of the last statement in BODY."
                           (setq end (line-end-position)))))
       (list beg end))))
 ;; -- -- -- -- SRC block: execute function inside
+(defun my/my-org-exit-edit-from-base (&optional base-buf)
+  "Find the edit buffer belonging to this base buffer and close it cleanly."
+  (interactive)
+  (let ((base-buf (or base-buf  (current-buffer)))
+        (closed nil))
+    (dolist (buf (buffer-list))
+      (with-current-buffer buf
+        (print (list (org-src-edit-buffer-p) (when (org-src-edit-buffer-p)  (eq (org-src-source-buffer) base-buf))))
+        ;; Check if this buffer is an active Org edit buffer
+        (when (and (not closed)
+                   (org-src-edit-buffer-p)
+                   ;; Check if its target base buffer is our current buffer
+                   ;; (bound-and-true-p org-src--base-buffer)
+                   (eq (org-src-source-buffer) base-buf))
+          ;; Force the edit buffer to run its own exit function cleanly
+          (org-edit-src-exit)
+          (setq closed t))))
+    (if closed
+        (message "Associated source edit buffer closed successfully.")
+      (message "No open source edit buffers found for this file."))))
+
 (defun my/org-execute-in-source-block (func)
   "If point at src block, then e xecute FUNC in major mode of block.
   Otherwise execute FUNC natively.
@@ -5305,12 +5589,19 @@ return the value of the last statement in BODY."
                          (org-with-point-at (org-element-end element)
                            (skip-chars-backward " \t\n")
                            (line-beginning-position))))
-        (ignore-errors ; do not err when there is no proper major mode
+        ;; (ignore-errors ; do not err when there is no proper major mode
           ;; It is important to call `indent-according-to-mode'
           ;; rather than `indent-line-function' here or we may
           ;; sometimes break `electric-indent-mode'
           ;; https://orgmode.org/list/5O9VMGb6WRaqeHR5_NXTb832Z2Lek_5L40YPDA52-S3kPwGYJspI8kLWaGtuq3DXyhtHpj1J7jTIXb39RX9BtCa2ecrWHjijZqI8QAD742U=@proton.me
-          (org-babel-do-in-edit-buffer (funcall func)))
+
+          (let ((src-buffer (current-buffer)))
+            (ignore-errors (org-babel-do-in-edit-buffer (funcall func))) ; ignore error of (org-edit-src-exit) by macros
+            ;; close C-c ' org-edit-specia buffer
+            (let ((cb (current-buffer)))
+              (my/my-org-exit-edit-from-base src-buffer) ; jump to base buffer after
+              (set-window-buffer nil cb)
+              ))
       ;; else
       (funcall func))))
 ;; -- -- -- -- Smooth up and down movement element by element
@@ -5333,8 +5624,8 @@ return the value of the last statement in BODY."
     (call-interactively #'org-next-visible-heading))
 
    ;; ((and (featurep 'oai)
-   ;;       (oai-block-p)
-   ;;       (oai-block-next-message 1)))
+   ;;       (cui-block-p)
+   ;;       (cui-block-next-message 1)))
 
    ((if-let ((region (my/get-org-content-block-region)))
         (goto-char (cadr region)) ; end
@@ -5355,8 +5646,8 @@ return the value of the last statement in BODY."
     (call-interactively #'org-previous-visible-heading))
 
    ;; ((and (featurep 'oai)
-   ;;       (oai-block-p)
-   ;;       (oai-block-previous-message)))
+   ;;       (cui-block-p)
+   ;;       (cui-block-previous-message)))
    ((if-let ((region (my/get-org-content-block-region)))
         (goto-char (car region)) ; end
     ))
@@ -5456,6 +5747,7 @@ return the value of the last statement in BODY."
                #'indent-for-tab-step-1-region-to-column
                ;; 'indent-for-tab-step-2-region-fill-prefix
                #'indent-for-tab-step-3-region-indent-lines
+               #'cui-optional-markdown-cycle ; toggle Markdown header in cui block
                #'my/indent-for-tab-step-31-header ; toggle header
                #'indent-for-tab-step-4-insert-tab
                #'indent-for-tab-step-5-indent-line
@@ -5534,10 +5826,13 @@ header. [rooted]"
   "Toggle header or table row or property.
 If argument was given, don't toggle header."
   (when (and (not arg)
-             (member (org-element-type (org-element-at-point))
-                     (list 'headline 'table-row 'property-drawer)))
+             (or (org-looking-at-p org-outline-regexp) ; fast
+                 (member (org-element-type (org-element-at-point)) ; slow
+                         (list 'headline 'table-row 'property-drawer))))
     (message "header or table row")
-    (org-cycle)
+    (let ((org-element-use-cache nil))
+      (call-interactively #'org-cycle))
+      ;; (org-fold-show-subtree))
     'noindent))
 
 (defun my/indent-for-tab-step-6-completion-org (&optional arg)
@@ -5563,7 +5858,7 @@ For Org mode."
             ;; - if in source block
             (if (eq el-type 'src-block)
                 (let ((lang (org-element-property :language eap)))
-                  (pring "srcblocktab11")
+                  (print "srcblocktab11")
                   (cond
                    ((string-equal "elisp" lang)
                     (add-hook 'completion-at-point-functions
@@ -5741,90 +6036,99 @@ depending on context.
   ;;         (end-of-line)
   ;;       (beginning-of-line)))
 
-    (let* ((element (org-element-at-point))
-           (contents-begin (or (org-element-property :contents-begin element)
-                               (org-element-property :begin element)))
+  (let ((element (condition-case nil
+                     (org-element-with-disabled-cache
+                       (org-element-at-point))
+                   (error nil))))
+    (if (not element)
+        ;; Fallback: go to beginning/end of line as appropriate
+        (if forward-flag
+            (end-of-line)
+          (beginning-of-line))
+      ;; else
+      (let ((contents-begin (or (org-element-property :contents-begin element)
+                                (org-element-property :begin element)))
 
-           (contents-end (or (org-element-property :contents-end element)
-                             (org-element-property :begin element)))
-           (el-type (org-element-type element))
-           (point-before (point)))
-      ;; (print (list el-type (point) contents-begin contents-end))
-      ;; - - behavior for different current element
-      (cond
-       ;; - table
-       ((and (or (eq el-type 'table-row) (eq el-type 'table))
-             ;; (>= (point) (1- contents-begin))
-             (<= (point) contents-end))
-        (let ((org-table-automatic-realign nil))
+            (contents-end (or (org-element-property :contents-end element)
+                              (org-element-property :begin element)))
+            (el-type (org-element-type element))
+            (point-before (point)))
+        ;; (print (list el-type (point) contents-begin contents-end))
+        ;; - - behavior for different current element
+        (cond
+         ;; - table
+         ((and (or (eq el-type 'table-row) (eq el-type 'table))
+               ;; (>= (point) (1- contents-begin))
+               (<= (point) contents-end))
+          (let ((org-table-automatic-realign nil))
 
-          (if forward-flag
+            (if forward-flag
+                ;; if next field at other line go to end of line
+                (if (save-excursion (re-search-forward "|" (line-end-position 1) t)
+                                    (re-search-forward "|" (line-end-position 1) t))
+                    (call-interactively #'org-table-end-of-field)
+                  ;; else
+                  (end-of-line))
+              ;; else
               ;; if next field at other line go to end of line
-              (if (save-excursion (re-search-forward "|" (line-end-position 1) t)
-                                  (re-search-forward "|" (line-end-position 1) t))
-                  (call-interactively #'org-table-end-of-field)
+              (if (save-excursion (re-search-backward "|" (line-beginning-position 1) t)
+                                  (re-search-backward "|" (line-beginning-position 1) t))
+                  (call-interactively #'org-table-beginning-of-field)
                 ;; else
-                (end-of-line))
+                (beginning-of-line)))))
+         ;; - src-block
+         ((eq el-type 'src-block)
+          (if forward-flag
+              ;; (progn
+              ;;   (call-interactively #'end-of-line)
+              ;;   (if (eq p (point)) ; not changed
+              ;;       (call-interactively #'end-of-line)
+              ;;     )
+              (call-interactively #'end-of-line)
             ;; else
-            ;; if next field at other line go to end of line
-            (if (save-excursion (re-search-backward "|" (line-beginning-position 1) t)
-                                (re-search-backward "|" (line-beginning-position 1) t))
-                (call-interactively #'org-table-beginning-of-field)
-              ;; else
-              (beginning-of-line)))))
-       ;; - src-block
-       ((eq el-type 'src-block)
-        (if forward-flag
-            ;; (progn
-            ;;   (call-interactively #'end-of-line)
-            ;;   (if (eq p (point)) ; not changed
-            ;;       (call-interactively #'end-of-line)
-            ;;     )
-            (call-interactively #'end-of-line)
-          ;; else
-          (call-interactively 'back-to-indentation)
-          (if (= point-before (point)) ; not changed
-              (beginning-of-line))))
-       ;; - example-block
-       ((eq el-type 'example-block)
-        (if forward-flag
-            (call-interactively #'end-of-line)
-          ;; else
-          (call-interactively #'back-to-indentation))) ; back-to-indentation-or-beginning
-       ;; - others
-       (t
-        ;; (print (org-element-at-point))
-        ;; (print el-type)
-        ;; (call-interactively #'backward-char) ;; required if we at the end of header. (there is a bug)
-        (if forward-flag
-            (if (and contents-end
-                     (< point-before contents-end)
-                     (<= contents-end (line-end-position)))
-
-                (progn ; (print (list "asd1" point-before contents-end))
-                  (goto-char contents-end))
-              ;; else
-              (call-interactively #'end-of-line))
-          ;; else
-          (if (and contents-begin
-                   ;; (< (point-min) contents-begin)
-                   (> (point) contents-begin)
-                   (>= contents-begin (line-beginning-position))
-                   ;; (not (eq el-type 'fixed-width))
-                   )
-              ;; (narrow-to-region contents-begin
-              ;;                   contents-end)
-
-              (goto-char contents-begin)
-            ;; (skip-chars-backward " \r\t\n")
+            (call-interactively 'back-to-indentation)
+            (if (= point-before (point)) ; not changed
+                (beginning-of-line))))
+         ;; - example-block
+         ((eq el-type 'example-block)
+          (if forward-flag
+              (call-interactively #'end-of-line)
             ;; else
-            (call-interactively #'back-to-indentation) ; back-to-indentation-or-beginning
-            (if (= (point) point-before)
-                (call-interactively #'beginning-of-line)))
-          ;; (call-interactively #'back-to-indentation-or-beginning)
+            (call-interactively #'back-to-indentation))) ; back-to-indentation-or-beginning
+         ;; - others
+         (t
+          ;; (print (org-element-at-point))
+          ;; (print el-type)
+          ;; (call-interactively #'backward-char) ;; required if we at the end of header. (there is a bug)
+          (if forward-flag
+              (if (and contents-end
+                       (< point-before contents-end)
+                       (<= contents-end (line-end-position)))
 
-          )))
-      ))
+                  (progn ; (print (list "asd1" point-before contents-end))
+                    (goto-char contents-end))
+                ;; else
+                (call-interactively #'end-of-line))
+            ;; else
+            (if (and contents-begin
+                     ;; (< (point-min) contents-begin)
+                     (> (point) contents-begin)
+                     (>= contents-begin (line-beginning-position))
+                     ;; (not (eq el-type 'fixed-width))
+                     )
+                ;; (narrow-to-region contents-begin
+                ;;                   contents-end)
+
+                (goto-char contents-begin)
+              ;; (skip-chars-backward " \r\t\n")
+              ;; else
+              (call-interactively #'back-to-indentation) ; back-to-indentation-or-beginning
+              (if (= (point) point-before)
+                  (call-interactively #'beginning-of-line)))
+            ;; (call-interactively #'back-to-indentation-or-beginning)
+
+            )))
+        ))))
 
 (defun my/org-forward-close (&optional _arg)
   (interactive)
@@ -6019,7 +6323,7 @@ If not in a list don't split, open new line and indent."
   (cond
    ;; 1
    ((and (featurep 'oai)
-         (if-let ((element (oai-block-p)))
+         (if-let ((element (cui-block-p)))
              (goto-char (1- (org-element-property :contents-end element)))
            nil)))
    ;; 2
@@ -6079,7 +6383,10 @@ If not in a list don't split, open new line and indent."
 (defun my/run-org-src-block ()
   (interactive)
   "open session of current source block in right window"
-  (if (org-babel-get-src-block-info)
+  (if (when-let* ((info (org-babel-get-src-block-info))
+             (params (nth 2 info))
+             (session (cdr (assq :session params))))
+        (and (stringp session) (not (string= session "none"))))
       (progn
         (delete-other-windows)
         (split-window-right)
@@ -6088,7 +6395,7 @@ If not in a list don't split, open new line and indent."
         (move-beginning-of-line nil)
         (goto-char (point-max)) ; (end-of-buffer)
         (other-window 1))
-    (message "No src-block here!")))
+    (message "No src-block or session here!")))
 ;; -- -- -- -- (old) hook for org keybindinds (old)
 ;; (add-hook 'org-mode-hook (lambda ()
 ;;                            ;; (bind-keys :prefix-map org-mode-my-prefix-map
@@ -6262,6 +6569,10 @@ If not in a list don't split, open new line and indent."
 (keymap-set org-mode-map "<remap> <org-next-visible-heading>" 'my/org-previous-item) ; C-c C-p
 (keymap-set org-mode-map "<remap> <org-next-visible-heading>" 'my/org-next-item) ; C-c C-n
 
+(keymap-set org-mode-map "M-i" (lambda () "hide header" (interactive)
+                                 (call-interactively #'org-previous-visible-heading)
+                                 (call-interactively #'org-fold-hide-entry)))
+
 ;; (keymap-set org-mode-map "C-c C-p" #'my/org-previous-item)
 ;; (keymap-set org-mode-map "C-c C-n" #'my/org-next-item)
 (keymap-set org-mode-map "M-g n" #'my/org-go-to-end-of-block)
@@ -6270,6 +6581,18 @@ If not in a list don't split, open new line and indent."
 
 (keymap-set org-mode-map "C-M-f" (lambda () "forward-sexp in org-mode" (interactive) (my/org-execute-in-source-block 'forward-sexp)))
 (keymap-set org-mode-map "C-M-l" (lambda () "backward-sexp in org-mode" (interactive) (my/org-execute-in-source-block 'backward-sexp )))
+
+(defun my/find-definition-key-in-source-block ()
+  "find definition in src block"
+  (interactive
+   ;; (print (xref-find-backend)
+   (my/org-execute-in-source-block
+   (lambda ()
+     ;; (print (list "aaaaaaa" (xref-find-backend)
+     ;;              (xref-backend-identifier-at-point (xref-find-backend))))
+     (xref-find-definitions (xref-backend-identifier-at-point (xref-find-backend)))))))
+
+(keymap-set org-mode-map "M-." #'my/find-definition-key-in-source-block)
 
 (keymap-unset org-mode-map "C-c C-y") ; ; shadow `org-evaluate-time-range'
 ;; (keymap-set org-mode-map "C-c C-y" #'my/show-message-log) ; shadow `org-evaluate-time-range'
@@ -6604,6 +6927,111 @@ When nil, use the default face background."
   )
 
 (advice-add 'org-toggle-item :before #'my/org-toggle-item-preprocess)
+;; -- -- -- Babel
+;; -- -- -- -- SHELL: fix - permission error  (TRUMP?) (old)
+;; (setq org-babel-temporary-directory "/var/tmp/babel")
+;; [[file:/usr/share/emacs/30.2/lisp/org/ob-shell.el::297::(defun org-babel-sh-evaluate (session body &optional params stdin cmdline)]]
+(defun my/org-babel-sh-evaluate (session body &optional params stdin cmdline)
+  "Pass BODY to the Shell process in BUFFER.
+If RESULT-TYPE equals `output' then return a list of the outputs
+of the statements in BODY, if RESULT-TYPE equals `value' then
+return the value of the last statement in BODY."
+  (let* ((shebang (cdr (assq :shebang params)))
+         (results-params (cdr (assq :result-params params)))
+         (value-is-exit-status
+          (or (and
+               (equal '("replace") results-params)
+               (not org-babel-shell-results-defaults-to-output))
+              (member "value" results-params)))
+         (results
+          (cond
+           ((or stdin cmdline)         ; external shell script w/STDIN
+            (let ((script-file (org-babel-temp-file "sh-script-"))
+                  (stdin-file (org-babel-temp-file "sh-stdin-"))
+                  (padline (not (string= "no" (cdr (assq :padline params))))))
+              (with-temp-file script-file
+                (when shebang (insert shebang "\n"))
+                (when padline (insert "\n"))
+                (insert body))
+              (set-file-modes script-file #o755)
+              (with-temp-file stdin-file (insert (or stdin "")))
+              (with-temp-buffer
+                (with-connection-local-variables
+                 (print (list #'process-file
+                        (if shebang (file-local-name script-file)
+                          shell-file-name)
+                        stdin-file
+                        (current-buffer)
+                        nil
+                        (if shebang (when cmdline (list cmdline))
+                          (list shell-command-switch
+                                (concat (file-local-name script-file)  " " cmdline)))))
+                 (apply #'process-file
+                        (if shebang (file-local-name script-file)
+                          shell-file-name)
+                        stdin-file
+                        (current-buffer)
+                        nil
+                        (if shebang (when cmdline (list cmdline))
+                          (list shell-command-switch
+                                (concat (file-local-name script-file)  " " cmdline)))))
+                (buffer-string))))
+           (session                     ; session evaluation
+            (mapconcat
+             #'org-babel-sh-strip-weird-long-prompt
+             (mapcar
+              #'org-trim
+              (butlast ; Remove eoe indicator
+               (org-babel-comint-with-output
+                   (session org-babel-sh-eoe-output t body)
+                 (insert (org-trim body) "\n"
+                         org-babel-sh-eoe-indicator)
+                 (comint-send-input nil t))
+               ;; Remove `org-babel-sh-eoe-indicator' output line.
+               1))
+             "\n"))
+           ;; External shell script, with or without a predefined
+           ;; shebang.
+           ((org-string-nw-p shebang)
+            (let ((script-file (org-babel-temp-file "sh-script-"))
+                  (padline (not (equal "no" (cdr (assq :padline params))))))
+              (with-temp-file script-file
+                (insert shebang "\n")
+                (when padline (insert "\n"))
+                (insert body))
+              (set-file-modes script-file #o755)
+              (org-babel-eval script-file "")))
+           (t (org-babel-eval shell-file-name (org-trim body))))))
+    (when (and results value-is-exit-status)
+      (setq results (car (reverse (split-string results "\n" t)))))
+    (when results
+      (let ((result-params (cdr (assq :result-params params))))
+        (org-babel-result-cond result-params
+          results
+          (let ((tmp-file (org-babel-temp-file "sh-")))
+            (with-temp-file tmp-file (insert results))
+            (org-babel-import-elisp-from-file tmp-file)))))))
+
+;; (advice-add 'org-babel-sh-evaluate :override #'my/org-babel-sh-evaluate)
+
+
+;; -- -- -- -- SHELL: get exit-code
+
+;; (defvar my/exit-code)
+
+;; (defun my/org-babel--shell-command-on-region (orig-fun &rest args)
+;;   (setq my/exit-code (apply orig-fun args) ))
+
+;; (advice-add 'org-babel--shell-command-on-region :around
+;;             #'my/org-babel--shell-command-on-region)
+
+(defvar org-babel--last-shell-exit-code nil
+  "Last exit code from `org-babel--shell-command-on-region`.")
+
+(defun org-babel--save-shell-exit-code-advice (orig-fun &rest args)
+  (setq org-babel--last-shell-exit-code (apply orig-fun args)))
+
+(advice-add 'org-babel--shell-command-on-region :around #'org-babel--save-shell-exit-code-advice)
 ;; -- -- Text mode
 ;; Used: text-mode-abbrev-table
 (defun my/company-manual-begin (&optional arg)
@@ -6655,6 +7083,7 @@ When nil, use the default face background."
                'my/company-manual-begin
                ;; 'indent-for-tab-step-6-completion
                'my/indent-for-tab-step-remove-spaces-at-point
+               'indent-for-tab-step-6-completion
                ))
   ;; - disable ispell, that enabled by default for text-mode in [[file:/usr/share/emacs/30.2/lisp/textmodes/text-mode.el::158::(add-hook 'completion-at-point-functions #'ispell-completion-at-point 10 t)))]]
   (remove-hook 'completion-at-point-functions #'ispell-completion-at-point t)
@@ -6718,7 +7147,7 @@ When nil, use the default face background."
 (add-hook 'markdown-mode-hook
           (lambda ()
             (electric-quote-local-mode t)))
-;; -- -- -- "don’t" to "don't" - Inset don't with stright quite
+;; -- -- -- "don’t" to "don't" - Inset don't with stright quite (not used)
 (defun my/previous-char-is-text ()
   "Test that character before previous one is something."
   (let ((prev-char (char-before (1- (point)))))
@@ -6750,7 +7179,8 @@ was made."
           (not (my/search-backward-for-character))
        )))
 
-(add-hook 'electric-quote-inhibit-functions #'my/inhibit-paired-quote)
+;; (add-hook 'electric-quote-inhibit-functions #'my/inhibit-paired-quote)
+;; (remove-hook 'electric-quote-inhibit-functions #'my/inhibit-paired-quote)
 
 ;; ;; -- -- -- -- insert streight "'" key
 ;; (defun my/streight-quote()
@@ -6854,7 +7284,7 @@ was made."
 ;;   "Christian holidays.
 ;; See the documentation for `calendar-holidays' for details.")
 
-;; -- -- theme switching - day and night [rooted]
+;; -- -- theme switching - day and night (rooted)
 ;; -- -- -- main
 (defun my/load-theme (themes)
   "Load THEMES properly by disabling the previous themes first."
@@ -7025,7 +7455,7 @@ was made."
   ;; - activate circadian
   (circadian-setup)
 )
-;; -- -- -- selected-window mode
+;; -- -- -- selected-window mode [rooted]
 ;; -- -- -- -- main
 ;; (add-to-list 'load-path "/home/user/sources/selected-window-contrast")
 ;; (when (require 'selected-window-contrast nil 'noerror)
@@ -7099,7 +7529,7 @@ was made."
 (add-hook 'flymake-mode-hook #'my/flymake-hook)
 ;; -- -- Programming modes
 ;; -- -- -- all programming modes
-;; -- -- -- -- function next/prev occurrence of word
+;; -- -- -- -- function next/prev occurrence of word [rooted]
 
 (defvar my/prevnext-occurrence-jump-bound 1999)
 
@@ -7183,7 +7613,7 @@ If prev word was not found, go to prev heading"
 
 
   ;; (isearch-forward-symbol-at-point) (isearch-repeat-backward) (isearch-repeat-backward))
-;; -- -- -- -- Keys
+;; -- -- -- -- Keys [rooted]
 (defun my/programming-keys()
   (keymap-local-set "M-;" #'comment-line)
   (keymap-local-set "C-M-;" #'comment-dwim)
@@ -7260,7 +7690,7 @@ If prev word was not found, go to prev heading"
                 )))
 )
 
-;; -- -- -- -- line numbers
+;; -- -- -- -- line numbers [rooted]
 (setq display-line-numbers-width 5)
 (add-hook 'python-mode-hook	#'display-line-numbers-mode)
 (add-hook 'python-ts-mode-hook	#'display-line-numbers-mode)
@@ -7270,7 +7700,8 @@ If prev word was not found, go to prev heading"
 (add-hook 'yaml-ts-mode-hook	#'display-line-numbers-mode)
 (when (require 'dockerfile-mode nil 'noerror)
   (add-hook 'dockerfile-mode-hook	#'display-line-numbers-mode))
-(add-hook 'ebuild-mode		#'display-line-numbers-mode)
+(when (require 'ebuild-mode nil 'noerror)
+  (add-hook 'ebuild-mode		#'display-line-numbers-mode))
 ;; (add-hook 'sh-mode		#'display-line-numbers-mode)
 ;; (add-hook 'shell-script-mode	#'display-line-numbers-mode)
 (add-hook 'sh-base-mode-hook	#'display-line-numbers-mode)
@@ -7490,7 +7921,7 @@ and in *Org Src* buffer."
 ;;   ))
 
 ;; (defun mb/org-babel-edit:python ()
-
+;; For lazy eglot loading
 (defcustom org-eglot-starter #'my/eglot-start
   "`eglot-ensure' or wrap around it.
 May check `default-directory' or `buffer-file-name and decide
@@ -7743,90 +8174,6 @@ Optional argument ARGS ."
 ;;                             ))
 
 ;; -- -- -- -- Eglot - for LSP
-;; -- -- -- -- -- main
-(require 'eglot)
-(setq eglot-sync-connect 1) ; wait to connect
-(setq eglot-autoshutdown t) ; disconnect if all buffer closed
-;; - - LSP server configuration - default
-(setq eglot-server-programs
-      '((python-ts-mode . ("pylsp"))
-        (python-mode . ("pylsp"))
-        )) ; default
-;; (setq eglot-server-programs
-;;              '((python-ts-mode . ("127.0.0.1" 2087))
-;;                (python-mode . ("127.0.0.1" 2087))
-;;                )) ; default
-;; (setq-default eglot-workspace-configuration
-;;             '(:pylsp (:plugins (:jedi_completion (:include_params t
-;;                                                   :fuzzy t)
-;;                                 :pylint (:enabled :json-false)))
-;;               :gopls (:usePlaceholders t)))
-;; ;;               :mypy (:enabled :json-false
-;;                                        :live_mode :json-false
-;;                                        :report_progress t
-;;                                        :dmypy t)
-(setq-default eglot-workspace-configuration
-            '(:pylsp (:plugins (:jedi_completion (:include_params t
-                                                  :fuzzy t)
-                                :jedi_hover (:enabled nil)
-                                :jedi_signature_help (:enabled nil)
-                                :pylint (:enabled :json-false)
-                                ))
-              :gopls (:usePlaceholders t)))
-
-
-;; - - modes for which Eglot will be activated
-(defun my/eglot-start ()
-  "Configure Eglot before starting."
-  (interactive)
-  ;; (eglot-shutdown-all) ; two connection to same file is not allowed
-  ;; (print (list "Eglot:" buffer-file-name default-directory))
-  (if (and buffer-file-name
-           (file-remote-p buffer-file-name))
-      (setq-local eglot-server-programs
-             '((python-ts-mode . ("127.0.0.1" 2087))
-               (python-mode . ("127.0.0.1" 2087))
-               ))
-    ;; else - Local
-    (setq-local eglot-server-programs
-          '((python-ts-mode . ("pylsp"))
-            (python-mode . ("pylsp"))
-            ))
-    )
-  (setq-local eglot-ignored-server-capabilities '(:hoverProvider
-                                                  :signatureHelpProvider
-                                                  :documentHighlightProvider))
-  ;; (eglot-ensure)
-  ;; (eglot)
-
-  ;; - ElDoc: remove `eldoc-display-in-echo-area' to disable echo area
-  (setq-local eldoc-display-functions
-          '(eldoc-display-in-buffer))
-  ;; disable semantic
-  (semantic-mode -1)
-  )
-
-(defun my/eglot-config-hack (&rest args)
-  (seq-let (managed-major-mode project class contact language-id) (car args)
-     (if (and buffer-file-name
-             (file-remote-p buffer-file-name))
-        (setq contact '("127.0.0.1" 2087))
-      ;; else "pylsp" by defalut from `eglot-server-programs' variable
-    )
-    (list managed-major-mode project class contact language-id)))
-
-(advice-add 'eglot--guess-contact :filter-return 'my/eglot-config-hack)
-
-(add-hook 'python-mode-hook 'my/eglot-start)
-;; (add-hook 'python-ts-mode-hook 'my/eglot-start)
-;; -- -- -- -- -- remote bin
-;; (setq eglot-server-programs '(("python" "ssh:machine:/path/to/venv/bin/pylsp")))
-(defvar my/remote-bin "/home/jup/.local/bin")
-(with-eval-after-load 'python
-  (add-to-list 'python-shell-remote-exec-path my/remote-bin))
-;; - - TRAMP
-(with-eval-after-load 'tramp
-  (add-to-list 'tramp-remote-path my/remote-bin))
 ;; -- -- -- -- -- ElDoc
 ;; -- -- -- -- -- -- disable echo area (old)
 ;; (defun my/eldoc-use-side-window (orig-fun &rest args)
@@ -7842,7 +8189,7 @@ Optional argument ARGS ."
 
 
 ;; (advice-add 'eldoc-print-current-symbol-info :around 'my/eldoc-use-side-window)
-   ;; -- -- -- -- -- -- activation hook
+;; -- -- -- -- -- -- activation hook
 (defun my/windowed-eldoc()
   ;; used in our `eldoc-print-current-symbol-info' advice
   (make-local-variable 'eldoc-echo-area-prefer-doc-buffer)
@@ -7850,8 +8197,8 @@ Optional argument ARGS ."
   (make-local-variable 'eldoc-idle-delay)
   (setq eldoc-idle-delay 0.3))
 
-(add-hook 'python-mode-hook 'my/windowed-eldoc)
-(add-hook 'python-ts-mode-hook 'my/python-mode-hook)
+;; (add-hook 'python-mode-hook 'my/windowed-eldoc)
+;; (add-hook 'python-ts-mode-hook 'my/python-mode-hook)
 
 (defun my/eldoc ()
   "Create eldoc buffer and window and call eldoc.
@@ -7884,12 +8231,103 @@ If window already exist, close window and hence block ElDoc."
 ;; (remove-hook 'eldoc-documentation-functions 'turn-on-visual-line-mode)
 
 
-;; -- -- -- -- -- keys
-(keymap-set eglot-mode-map "M-i" #'my/eldoc) ; shadow `tab-to-tab-stop'
-;; (keymap-set eglot-mode-map "C-'" #'flymake-goto-next-error)
-;; (keymap-set eglot-mode-map "M-'" #'flymake-goto-prev-error) ; shadow `my/window-toggle-side-windows'
-(keymap-set eglot-mode-map "C-c C-e" #'eglot-rename)
-(keymap-set eglot-mode-map "C-c o" #'eglot-format)
+
+;; -- -- -- -- -- my/eglot-start
+(defun my/eglot-start ()
+  "Configure Eglot before starting."
+  (interactive)
+  (require 'eglot)
+  ;; (eglot-shutdown-all) ; two connection to same file is not allowed
+  ;; (print (list "Eglot:" buffer-file-name default-directory))
+  (if (and buffer-file-name
+           (file-remote-p buffer-file-name))
+      (setq-local eglot-server-programs
+             '((python-ts-mode . ("127.0.0.1" 2087))
+               (python-mode . ("127.0.0.1" 2087))
+               ))
+    ;; else - Local
+    (setq-local eglot-server-programs
+          '((python-ts-mode . ("pylsp"))
+            (python-mode . ("pylsp"))
+            ))
+    )
+  (setq-local eglot-ignored-server-capabilities '(:hoverProvider
+                                                  :signatureHelpProvider
+                                                  :documentHighlightProvider))
+  ;; (eglot-ensure)
+  ;; (eglot)
+
+  ;; - ElDoc: remove `eldoc-display-in-echo-area' to disable echo area
+  (setq-local eldoc-display-functions
+          '(eldoc-display-in-buffer))
+  ;; disable semantic
+  (semantic-mode -1)
+  ;; per mode additional configs
+  (when (derived-mode-p 'python-mode)
+    (my/windowed-eldoc)))
+;; -- -- -- -- -- main
+(defun my/eglot-config-hack (&rest args)
+  (seq-let (managed-major-mode project class contact language-id) (car args)
+     (if (and buffer-file-name
+             (file-remote-p buffer-file-name))
+        (setq contact '("127.0.0.1" 2087))
+      ;; else "pylsp" by defalut from `eglot-server-programs' variable
+    )
+    (list managed-major-mode project class contact language-id)))
+
+
+
+(with-eval-after-load 'eglot
+  (setq eglot-sync-connect 1) ; wait to connect
+  (setq eglot-autoshutdown t) ; disconnect if all buffer closed
+  ;; - - LSP server configuration - default
+  (setq eglot-server-programs
+        '((python-ts-mode . ("pylsp"))
+          (python-mode . ("pylsp"))
+          )) ; default
+  ;; (setq eglot-server-programs
+  ;;              '((python-ts-mode . ("127.0.0.1" 2087))
+  ;;                (python-mode . ("127.0.0.1" 2087))
+  ;;                )) ; default
+  ;; (setq-default eglot-workspace-configuration
+  ;;             '(:pylsp (:plugins (:jedi_completion (:include_params t
+  ;;                                                   :fuzzy t)
+  ;;                                 :pylint (:enabled :json-false)))
+  ;;               :gopls (:usePlaceholders t)))
+  ;; ;;               :mypy (:enabled :json-false
+  ;;                                        :live_mode :json-false
+  ;;                                        :report_progress t
+  ;;                                        :dmypy t)
+  (setq-default eglot-workspace-configuration
+                '(:pylsp (:plugins (:jedi_completion (:include_params t
+                                                                      :fuzzy t)
+                                                     :jedi_hover (:enabled nil)
+                                                     :jedi_signature_help (:enabled nil)
+                                                     :pylint (:enabled :json-false)
+                                                     ))
+                         :gopls (:usePlaceholders t)))
+
+  (advice-add 'eglot--guess-contact :filter-return 'my/eglot-config-hack)
+
+  ;; - Keys
+  (keymap-set eglot-mode-map "M-i" #'my/eldoc) ; shadow `tab-to-tab-stop'
+  ;; (keymap-set eglot-mode-map "C-'" #'flymake-goto-next-error)
+  ;; (keymap-set eglot-mode-map "M-'" #'flymake-goto-prev-error) ; shadow `my/window-toggle-side-windows'
+  (keymap-set eglot-mode-map "C-c C-e" #'eglot-rename)
+  (keymap-set eglot-mode-map "C-c o" #'eglot-format))
+
+
+;; -- -- -- -- -- modes for which Eglot will be activated
+;; (add-hook 'python-mode-hook 'my/eglot-start)
+;; (add-hook 'python-ts-mode-hook 'my/eglot-start)
+;; -- -- -- -- -- remote bin
+;; (setq eglot-server-programs '(("python" "ssh:machine:/path/to/venv/bin/pylsp")))
+(defvar my/remote-bin "/home/jup/.local/bin")
+(with-eval-after-load 'python
+  (add-to-list 'python-shell-remote-exec-path my/remote-bin))
+;; - - TRAMP
+(with-eval-after-load 'tramp
+  (add-to-list 'tramp-remote-path my/remote-bin))
 ;; -- -- -- -- lsp-bridge (not working)
 ;; (require 'yasnippet)
 ;; (yas-global-mode 1)
@@ -8373,17 +8811,8 @@ level."
 
 
 ;; -- -- -- -- Org execute source block
-
 (setq org-babel-c-compile-command "gcc -o /var/tmp/a.out -xc -")
 (setq org-babel-c-run-command "sudo -u t /var/tmp/a.out")
-
-(defvar my/exit-code)
-
-(defun my/org-babel--shell-command-on-region (orig-fun &rest args)
-  (setq my/exit-code (apply orig-fun args) ))
-
-(advice-add 'org-babel--shell-command-on-region :around
-            #'my/org-babel--shell-command-on-region)
 
 (defun my/org-babel-c-evaluate (body &optional result-type result-params)
   "my org-babel-c-evaluate"
@@ -8395,7 +8824,7 @@ level."
             (`output
              (with-temp-file tmp-output-file
                (org-babel-eval org-babel-c-compile-command body)
-               (if (eq my/exit-code 0)
+               (if (eq org-babel--last-shell-exit-code 0) ; [[file:~/.emacs::6805::;; -- -- -- -- SHELL: get exit-code]]
                    (insert
                     (org-babel-eval org-babel-c-run-command "")
                     )
@@ -8447,7 +8876,7 @@ This function is called by `org-babel-execute-src-block'."
 (defun my/sh-mode-hook ()
   (setq sh-basic-offset 2)
   ;; (setq flymake-no-changes-timeout 0.5)
-  (keymap-local-set "C-c C-c" 'my/exec-bash)
+  ;; (keymap-local-set "C-c C-c" 'my/exec-bash)
   ;; (keymap-set sh-mode-map "<remap> <sh-case>" 'my/exec-bash) ; shadow 'sh-case'
   (keymap-local-set "C-x c" 'sh-case))
 
@@ -8456,8 +8885,9 @@ This function is called by `org-babel-execute-src-block'."
 ;; Font-lock: Highlight echo
 (defun my-sh-highlight-echo ()
   "Highlight 'echo' and its arguments using different faces in one pass."
+  (require 'org-faces)
   (font-lock-add-keywords nil
-    '(("^[ \t]*\\(echo\\)[ \t]+\\([\'\"][^>|\n]*\\)$"
+    '(("^[ \t]*\\(echo\\)[ \t]+\\([\'\"\$][^>|\n]*\\)$"
        (1 (unless (nth 4 (syntax-ppss)) 'org-agenda-restriction-lock) prepend)
        (2 (unless (nth 4 (syntax-ppss)) 'font-lock-warning-face) prepend)))
     'prepend)
@@ -8487,7 +8917,7 @@ This function is called by `org-babel-execute-src-block'."
    ;;          (set (make-local-variable 'sgml-basic-offset) 4)))
 ;; -- -- artistic
 ;; -- -- -- minor mode short-keys
-(require 'artist)
+;; (require 'artist)
 (defun my/art-active (args)
   "Set first pointer after activation of shape immediately"
   ;; enable rubber for ellipse and disable for all other
@@ -8567,6 +8997,9 @@ This function is called by `org-babel-execute-src-block'."
 ;; (add-hook 'artist-mode-hook 'my/artist-mode-hook)
 
 ;; -- -- email
+;; -- -- -- startup
+(setopt user-mail-address "user@mail.com")
+(setopt message-send-mail-function 'smtpmail-multi-send-it)
 ;; -- -- -- notmuch
 (require 'notmuch)
 ;; -- -- -- -- basic
@@ -8867,33 +9300,33 @@ This function is called by `org-babel-execute-src-block'."
 ;; (setq send-mail-function 'smtpmail-send-it)
 
 ;; -- -- -- smtpmail-multi
-(require 'smtpmail-multi)
-(setopt smtpmail-multi-accounts
-        '(
-          (mail . ("user@mail.com" "mail.mail.com" 587 "user@mail.com" starttls nil nil nil))
-          ;; (asv313gjiydata . ("asv313gjiydata@hotmail.com" "smtp-mail.outlook.com" 587 "asv313gjiydata@hotmail.com" starttls nil nil nil))
-          ;; (vitsmallboy . ("vitsmallboy@hotmail.com" "smtp-mail.outlook.com" 587 "vitsmallboy@hotmail.com" starttls nil nil nil))
-          ;; (gmail-main . ("firmin.martin@gmail.com" "smtp.gmail.com" 587 "firmin.martin@gmail.com" nil nil nil nil))
-          ))
+(with-eval-after-load 'notmuch
+  (require 'smtpmail-multi)
+  (setopt smtpmail-multi-accounts
+          '(
+            (mail . ("user@mail.com" "mail.mail.com" 587 "user@mail.com" starttls nil nil nil))
+            ;; (asv313gjiydata . ("asv313gjiydata@hotmail.com" "smtp-mail.outlook.com" 587 "asv313gjiydata@hotmail.com" starttls nil nil nil))
+            ;; (vitsmallboy . ("vitsmallboy@hotmail.com" "smtp-mail.outlook.com" 587 "vitsmallboy@hotmail.com" starttls nil nil nil))
+            ;; (gmail-main . ("firmin.martin@gmail.com" "smtp.gmail.com" 587 "firmin.martin@gmail.com" nil nil nil nil))
+            ))
 
-(setopt smtpmail-multi-associations
-  '(
-    ("user@mail.com" mail)
-    ;; ("asv313gjiydata@hotmail.com" asv313gjiydata)
-    ;; ("vitsmallboy@hotmail.com" vitsmallboy)
-    ;; ("firmin.martin@gmail.com" gmail-main)
-    ))
+  (setopt smtpmail-multi-associations
+          '(
+            ("user@mail.com" mail)
+            ;; ("asv313gjiydata@hotmail.com" asv313gjiydata)
+            ;; ("vitsmallboy@hotmail.com" vitsmallboy)
+            ;; ("firmin.martin@gmail.com" gmail-main)
+            ))
 
-(setopt smtpmail-multi-default-account 'mail)
-;; (setopt smtpmail-multi-default-account 'vitsmallboy)
-;; (setopt smtpmail-multi-default-account 'asv313gjiydata)
+  (setopt smtpmail-multi-default-account 'mail)
+  ;; (setopt smtpmail-multi-default-account 'vitsmallboy)
+  ;; (setopt smtpmail-multi-default-account 'asv313gjiydata)
 
-(setopt message-send-mail-function 'smtpmail-multi-send-it)
-(setopt smtpmail-debug-info t)
-(setq smtpmail-debug-verbose t)
+
+  (setopt smtpmail-debug-info t))
 
 ;; (setopt user-mail-address "asv313gjiydata@hotmail.com")
-(setopt user-mail-address "user@mail.com")
+
 ;; (setopt user-mail-address "vitsmallboy@hotmail.com")
 
 ;; -- -- flycheck-aspell for English
@@ -8952,8 +9385,8 @@ This function is called by `org-babel-execute-src-block'."
       (setq ispell-dictionary "ru")
       (call-interactively 'flycheck-mode))
 
-    (global-set-key (kbd "C-c 2") #'my/ispell-flycheck-en)
-    (global-set-key (kbd "C-c 3") #'my/ispell-flycheck-ru)
+    (global-set-key (kbd "C-c 8") #'my/ispell-flycheck-en)
+    (global-set-key (kbd "C-c 9") #'my/ispell-flycheck-ru)
 ))
 ;; -- -- guess-languagel - ispell - (not working)
 ;; (require 'guess-language)
@@ -8970,8 +9403,11 @@ This function is called by `org-babel-execute-src-block'."
 
 ;; (add-hook 'guess-language-after-detection-functions #'my-custom-function)
 ;; -- -- org-agenda
-(setq org-agenda-include-diary t)
-(global-set-key (kbd "C-c a") 'org-agenda)
+(with-eval-after-load 'org-agenda
+  (setq org-agenda-files '("/home/user/.emacs.d/todo.org"))
+  (setopt org-agenda-include-diary t))
+
+;; (global-set-key (kbd "C-c a") 'org-agenda)
 
 ;; ;; custom view
 ;; (setq org-agenda-custom-commands
@@ -8990,26 +9426,31 @@ This function is called by `org-babel-execute-src-block'."
 ;; (define-key org-mode-map (kbd "n") 'org-agenda-next-item) ;; shadow org-agenda-capture
 ;; (define-key org-mode-map (kbd "k") 'org-agenda-previous-item) ;; shadow org-agenda-capture
 
-(add-hook 'org-agenda-mode-hook (lambda ()
-                             ;; (print "wtf")
-                           ;; do not indent for <s TAB
-                           ;(setq org-adapt-indentation nil)
-                           ;; - - - -  org keybindinds - - - - - -
-                           ;; (define-key org-mode-map [(control tab)] 'org-insert-structure-template)
-                           ;; new line
-                             ;; (define-key org-mode-map [(meta j)] 'org-meta-return)
-                             (keymap-local-set "n" 'org-agenda-next-item)
-                             (keymap-local-set "k" 'org-agenda-previous-item)
-                             ;; (define-key (current-global-map) (kbd "C-n") 'org-agenda-next-item) ;; shadow org-agenda-capture
-                             ;; (define-key (current-global-map) (kbd "C-k") 'org-agenda-previous-item) ;; shadow org-agenda-capture
-                             ;; (define-key (current-global-map) (kbd "C-M-,") 'picture-movement-down)
-                             ;; (local-set-key (kbd "C-k") 'org-agenda-previous-line)
-                           ;; (define-key key-translation-map (kbd "k") (kbd "p")) ;; left
-                           ;; (define-key key-translation-map (kbd "p") (kbd "k"))
-                           ;; - - replace arrows
-                           ;; (define-key org-mode-map [(control meta f)] 'org-shiftmetaright)
-                           ;; (define-key org-mode-map [(control meta l)] 'org-shiftmetaleft)
-                           ))
+   ;; (keymap-set org-agenda-mode-map "n" 'org-agenda-next-item)
+   ;; (keymap-set org-agenda-mode-map "k" 'org-agenda-previous-line)
+   ;; )
+
+
+  ;; (add-hook 'org-agenda-mode-hook (lambda ()
+  ;;                                   ;; (print "wtf")
+  ;;                                   ;; do not indent for <s TAB
+  ;;                                       ;(setq org-adapt-indentation nil)
+  ;;                                   ;; - - - -  org keybindinds - - - - - -
+  ;;                                   ;; (define-key org-mode-map [(control tab)] 'org-insert-structure-template)
+  ;;                                   ;; new line
+  ;;                                   ;; (define-key org-mode-map [(meta j)] 'org-meta-return)
+  ;;                                   (keymap-local-set "n" 'org-agenda-next-item)
+  ;;                                   (keymap-local-set "k" 'org-agenda-previous-item)
+  ;;                                   ;; (define-key (current-global-map) (kbd "C-n") 'org-agenda-next-item) ;; shadow org-agenda-capture
+  ;;                                   ;; (define-key (current-global-map) (kbd "C-k") 'org-agenda-previous-item) ;; shadow org-agenda-capture
+  ;;                                   ;; (define-key (current-global-map) (kbd "C-M-,") 'picture-movement-down)
+  ;;                                   ;; (local-set-key (kbd "C-k") 'org-agenda-previous-line)
+  ;;                                   ;; (define-key key-translation-map (kbd "k") (kbd "p")) ;; left
+  ;;                                   ;; (define-key key-translation-map (kbd "p") (kbd "k"))
+  ;;                                   ;; - - replace arrows
+  ;;                                   ;; (define-key org-mode-map [(control meta f)] 'org-shiftmetaright)
+  ;;                                   ;; (define-key org-mode-map [(control meta l)] 'org-shiftmetaleft)
+  ;;                                   )))
 ;; -- -- appt - my appt X notification system:
 ;; notify-send in by first emacs process
 ;; Require:
@@ -9192,11 +9633,14 @@ Returns 'Valid JSON' or jq error message."
                                 ;; wrap lines visually becouse they are long
                                 (toggle-truncate-lines nil)))
 ;; -- -- pinyin-isearch
-(when (require 'pinyin-isearch nil 'noerror)
-;; (with-eval-after-load 'pinyin-isearch
-  ;; (require 'pinyin-isearch)
-  (pinyin-isearch-activate-submodes)
-)
+(add-to-list 'load-path "/home/user/sources/pinyin-isearch/")
+(require 'pinyin-isearch nil 'noerror)
+;; (require 'pinyin-isearch)
+;; ;; (when (require 'pinyin-isearch nil 'noerror)
+;; (with-eval-after-load 'org
+;;   (require 'pinyin-isearch)
+;;   ;; (pinyin-isearch-activate-submodes)
+;; )
 ;; -- -- Org Presentations - help functions
 ;; (when (re-search-forward "\\[\\[file:\\([^]]+\\)\\]\\]" nil t)
 ;;   (substring-no-properties (match-string 1)))
@@ -9436,6 +9880,7 @@ MIN-LINES is the minimum number of lines required (default 3)."
 ;; (setq org-link-file-path-type 'adaptive)
 ;; (setq org-link-file-path-type 'absolute)
 (setopt org-link-search-must-match-exact-headline nil)
+(setopt org-links-on-several-halt-flag t)
 ;; -- -- -- org-links "C-c w" and and "C-c C-o"
 (defun my/org-links-store-link-fallback (arg)
   "Copy Org-mode link to kill ring and clipboard from any mode.
@@ -9484,10 +9929,10 @@ Support `image-dired-thumbnail-mode' and `image-dired-image-mode' modes."
   ;; opening
   (global-set-key (kbd "C-c C-o") #'org-links-org-open-at-point-global))
 
-;; -- -- OAI-MODE
+;; -- -- CUI-MODE
 ;; -- -- -- debugging
-(add-to-list 'load-path "/home/user/sources/emacs-oai")
-(require 'oai)
+(add-to-list 'load-path "/home/user/sources/emacs-cui")
+(require 'cui)
 (setq debug-on-error t)
 ;; (defun my-display-warning-debug (&rest args)
 ;;   "Advice to trigger debugger before display-warning."
@@ -9495,120 +9940,182 @@ Support `image-dired-thumbnail-mode' and `image-dired-image-mode' modes."
 
 ;; (advice-add #'display-warning :before #'my-display-warning-debug)
 
-(setopt oai-debug-buffer "*debug-oai*")
-;; (setopt oai-debug-buffer nil)
+(setopt cui-debug-buffer "*debug-cui*")
+;; (setopt cui-debug-buffer nil)
 ;; -- -- -- configuration
 
-(require 'oai-tokens)
-(add-hook 'org-mode-hook #'oai-mode) ; oai.el
-(setopt oai-timers-duration 60)
-;; (setopt oai-restapi-fill-function nil)
-;; (setopt oai-restapi-fill-paragraph-function 'my/org-fill-paragraph)
-;; (oai-global-mode) ; oai.el
+(require 'cui-tokens)
+(add-hook 'org-mode-hook #'cui-mode)
+(setopt cui-timers-duration 260)
+;; (setopt cui-restapi-fill-function nil)
+;; (setopt cui-restapi-fill-paragraph-function 'my/org-fill-paragraph)
+;; (cui-global-mode) ; cui.el
 
-;; (setq oai-debug-buffer nil) ; my debug mode
+;; (setq cui-debug-buffer nil) ; my debug mode
 
 
 ;; -- -- -- configuration - local LLM
 
-(plist-put oai-restapi-con-endpoints :local "http://localhost:8000/v1/chat/completions")
+(plist-put cui-restapi-con-endpoints :local "http://localhost:8000/v1/chat/completions")
 ;; -- -- -- keys
-(keymap-set oai-mode-map "C-c C-l" #'oai-set-max-tokens-org)
+;; (keymap-set cui-mode-map "C-c C-l" #'cui-set-max-tokens-org)
 
-;; -- -- -- oai-optional: post-processing hook
-(require 'oai-optional)
+(defun my/cui-set-max-tokens-200 ()
+  (interactive)
+   (when (cui-block-p)
+       (cui-block-set-block-parameter :max-tokens 200)))
 
-(add-hook 'oai-block-after-chat-insertion-hook #'oai-optional-remove-distant-empty-lines-hook-function)
-(add-hook 'oai-block-after-chat-insertion-hook #'oai-optional-remove-headers-hook-function)
+(defun my/cui-set-max-tokens-1900 ()
+  (interactive)
+   (when (cui-block-p)
+       (cui-block-set-block-parameter :max-tokens 1900)))
 
-;; (remove-hook 'oai-block-after-chat-insertion-hook #'oai-optional-remove-headers-hook-function)
+(defvar cui-max-tokens-map (make-sparse-keymap))
+(keymap-set cui-mode-map "C-c C-l" cui-max-tokens-map)
+(keymap-set cui-max-tokens-map "C-1" #'my/cui-set-max-tokens-200)
+(keymap-set cui-max-tokens-map "C-2" #'my/cui-set-max-tokens-1900)
 
-;; (remove-hook 'oai-block-after-chat-insertion-hook #'oai-optional-remove-distant-empty-lines-hook-function)
+
+;; -- -- -- hooks: cui-optional: post-processing
+(require 'cui-optional)
+
+(add-hook 'cui-block-after-chat-insertion-hook #'cui-optional-remove-distant-empty-lines-hook-function)
+(add-hook 'cui-block-after-chat-insertion-hook #'cui-optional-remove-headers-hook-function)
+
+;; (remove-hook 'cui-block-after-chat-insertion-hook #'cui-optional-remove-distant-empty-lines-hook-function)
+;; (remove-hook 'cui-block-after-chat-insertion-hook #'cui-optional-remove-headers-hook-function)
+;; -- -- -- hooks send image to local
+(defun my/cui-hook-multimodal-image-swith (plist)
+  (let* ((messages (plist-get plist :content ))
+         (idx (cui-block-msgs--find-last-user-index messages))
+         (last-user-mes (when messages (aref messages idx)))
+         (content (when last-user-mes (plist-get last-user-mes :content ))))
+         (when (and (stringp content)
+                    (string-match cui-restapi--multimodal-internal-link-re content))
+         (plist-put plist :service "local")
+          (plist-put plist :model nil)))
+  plist)
+
+(add-hook 'cui-block-msgs-after-prepare-messages-hook #'my/cui-hook-multimodal-image-swith)
 
 ;; -- -- -- fill-paragraph (old)
 
 ;; (setq my/org-fill-paragraph-functions
-;;           (append (list #'oai-optional-block-fill-paragraph)
+;;           (append (list #'cui-optional-block-fill-paragraph)
 ;;                   my/org-fill-paragraph-functions))
 
 ;; -- -- -- inhibit electric quotes
-(defun my/oai-electric-quote-inhibit()
+(defun my/cui-electric-quote-inhibit()
   "if this function return Non-nil, don't activate electric-quoting."
-  (when (and (derived-mode-p 'org-mode) (oai-block-p))
+  (when (and (derived-mode-p 'org-mode)
+             (cui-block-p)
+             (save-excursion (cui-block--markdown-block-p)))
     t))
 
-(add-hook 'electric-quote-inhibit-functions #'my/oai-electric-quote-inhibit)
+(add-hook 'electric-quote-inhibit-functions #'my/cui-electric-quote-inhibit)
+;; -- -- -- :gist
+(defun cui-gist-ctrl-c-run (_req-type)
+  "1) Tangle to .md file, 2) create gist in /tmp/post based on Org header.
+/tmp/post have 3 lines:
+Title: test [2026-03-30 Mon]
+#test
+file:/home/user/sources/gists/README.md"
+  (org-with-wide-buffer
+   (let ((header-str (save-excursion
+                       (org-back-to-heading t)
+                       (substring-no-properties (org-get-heading t t t t))))
+         (filename "/tmp/post")
+         (filepath (car (org-babel-tangle '(4))))) ; tangle here
+     ;; rename tangled file extension to .md
+     (let* ((md-path (concat (file-name-sans-extension filepath) ".md"))
+            (tag-words (mapconcat #'identity (seq-filter (lambda (w) (string-prefix-p "#" w))
+                                                         (split-string header-str "\\s-+" t)) " "))
+            (without-tags (string-join (seq-remove (lambda (w) (string-prefix-p "#" w))
+                                                   (split-string header-str "\\s-+" t)) " ")))
+
+       ;; (print (list "md-path" md-path))
+       (delete-file md-path)
+       (rename-file filepath md-path)
+       (cui-block-insert-result
+        (with-temp-file filename
+          (insert "Title: " without-tags "\n")
+          (insert tag-words "\n")
+          (insert "file:" md-path)
+          (buffer-string)))))))
+
+(with-eval-after-load 'cui
+  (plist-put cui-req-type-functions :gist #'cui-gist-ctrl-c-run))
 ;; -- -- -- service
 ;; -- -- -- -- chain
-(require 'oai-prompt)
+(require 'cui-prompt)
 
-;; (defun my/oai-switch (&rest args)
-;;   "For assiging to `oai-agent-call-function'."
+;; (defun my/cui-switch (&rest args)
+;;   "For assiging to `cui-agent-call-function'."
 ;;   ;; element = (nth 1 args)
-;;   (if (not (eql 'x (alist-get :c5 (oai-block-get-info (nth 1 args)) 'x)))
-;;       (apply #'oai-prompt-request-chain-5 args)
+;;   (if (not (eql 'x (alist-get :c5 (cui-block-get-info (nth 1 args)) 'x)))
+;;       (apply #'cui-prompt-request-chain-5 args)
 ;;     ;; else
-;;     (if (not (apply #'oai-prompt-request-switch args))
-;;         (apply #'oai-restapi-request-prepare  args)))
+;;     (if (not (apply #'cui-prompt-request-switch args))
+;;         (apply #'cui-restapi-request-prepare  args)))
 ;;   t)
 
 
-;; (setq oai-agent-call-function #'my/oai-switch)
-;; (setq oai-agent-call-function #'oai-prompt-request-switch)
-;; ;; (setq oai-agent-call #'oai-api-request-prepare)
+;; (setq cui-agent-call-function #'my/cui-switch)
+;; (setq cui-agent-call-function #'cui-prompt-request-switch)
+;; ;; (setq cui-agent-call #'cui-api-request-prepare)
 ;; -- -- -- -- 4-step chain
 
-(defvar oai-prompt-chain-list-5
+(defvar cui-prompt-chain-list-5
   (list "Present a very short four-part research plan for how to find the answer; carry out only the first part. noting any missed points and correcting as needed before proceeding."
         "Complete the second part of plan only."
         "Complete the third part of plan only."
         "Complete the fourth part of plan only."
         "Integrate insights, then give a final answer to the main question."))
 
-(defun oai-prompt-request-chain-5 (req-type element sys-prompt sys-prompt-for-all-messages model max-tokens top-p temperature frequency-penalty presence-penalty service stream)
+(defun cui-prompt-request-chain-5 (req-type element sys-prompt sys-prompt-for-all-messages model max-tokens top-p temperature frequency-penalty presence-penalty service stream)
   "Use :my parameter to activate and use :step to execute chain of prompt.
 Aspects:
 1) start and stop reporter at begining and at the end (final callback).
 2) error handling: kill reporter, kill tmp buffer, kill timers"
-  (oai--debug "oai-prompt-agent-request-prepare1 service, model: %s %s" service model)
+  (cui--debug "cui-prompt-agent-request-prepare1 service, model: %s %s" service model)
 
-  ;; (if (not (eql 'x (alist-get :my (oai-block-get-info element) 'x))) ; check if :my exist
+  ;; (if (not (eql 'x (alist-get :my (cui-block-get-info element) 'x))) ; check if :my exist
   ;; - My request
   (let ((service (or service 'github))
-        (end-marker (oai-block--get-content-end-marker element))
-        (header-marker (oai-block-get-header-marker element))
+        (end-marker (cui-block--get-content-end-marker element))
+        (header-marker (cui-block-get-header-marker element))
         ;; (gap-between-requests 3) ; TODO
-        (buffer-key (get-buffer-create "*oai--chain-tmp*" t)) ; use one buffer as for updating global notification timer
-        (step (alist-get :step (oai-block-get-info element)))
+        (buffer-key (get-buffer-create "*cui--chain-tmp*" t)) ; use one buffer as for updating global notification timer
+        (step (alist-get :step (cui-block-get-info element)))
         )
 
     (let (
           (callbackmy (lambda (data callback)
                         (when data ; if not data it is fail
-                          (oai--debug "calbackmy")
-                          (oai-restapi--insert-single-response end-marker (concat "[AI]: " data) nil 'final)
+                          (cui--debug "calbackmy")
+                          (cui-restapi--insert-single-response end-marker (concat "[AI]: " data) nil 'final)
                           (run-at-time 0 nil callback data)
-                          (oai-timers--progress-reporter-run #'oai-restapi--stop-tracking-url-request))))
+                          (cui-timers--progress-reporter-run #'cui-restapi--stop-tracking-url-request))))
           (calbafin (lambda (data callback)
                       (when data ; if not data it is fail
-                        (oai--debug "calbafin")
-                        (oai-restapi--insert-single-response end-marker (concat "[AI]: " data))
-                        (oai-restapi--insert-single-response end-marker nil 'insertrole 'final) ; finalize
-                        (oai-timers--interrupt-current-request (oai-timers--get-keys-for-variable header-marker) #'oai-restapi--stop-tracking-url-request)
-                        (oai-timers--interrupt-current-request buffer-key #'oai-restapi--stop-tracking-url-request))))
+                        (cui--debug "calbafin")
+                        (cui-restapi--insert-single-response end-marker (concat "[AI]: " data))
+                        (cui-restapi--insert-single-response end-marker nil 'insertrole 'final) ; finalize
+                        (cui-timers--interrupt-current-request (cui-timers--get-keys-for-variable header-marker) #'cui-restapi--stop-tracking-url-request)
+                        (cui-timers--interrupt-current-request buffer-key #'cui-restapi--stop-tracking-url-request))))
           (call (lambda (step)
                   (lambda (data callback)
-                    (oai--debug "oai-prompt-agent-request-prepare-call step %s" step)
-                    (oai--debug "oai-prompt-agent-request-prepare-call max-tokens %s header-marker %s sys-prompt %s" max-tokens header-marker sys-prompt )
+                    (cui--debug "cui-prompt-agent-request-prepare-call step %s" step)
+                    (cui--debug "cui-prompt-agent-request-prepare-call max-tokens %s header-marker %s sys-prompt %s" max-tokens header-marker sys-prompt )
                     ;; also save request for timer
-                    (oai-restapi-request-llm-retries service
+                    (cui-restapi-request-llm-retries service
                                                      model
-                                                     oai-timers-duration
+                                                     cui-timers-duration
                                                      callback
                                                      :retries 3
-                                                     :messages (oai-prompt-collect-chat-research-steps-prompt oai-prompt-chain-list-5
+                                                     :messages (cui-prompt-collect-chat-research-steps-prompt cui-prompt-chain-list-5
                                                                                                               step
-                                                                                                              (with-current-buffer (marker-buffer header-marker) (string-trim (oai-block-get-content (oai-block-element-by-marker header-marker))))
+                                                                                                              (with-current-buffer (marker-buffer header-marker) (string-trim (cui-block-get-content (cui-block-element-by-marker header-marker))))
                                                                                                               sys-prompt
                                                                                                               max-tokens)
                                                      :max-tokens max-tokens
@@ -9619,9 +10126,9 @@ Aspects:
                                                      :presence-penalty presence-penalty)))))
 
 
-      (oai--debug "oai-prompt-agent-request-prepare2 %s %s %s %s" header-marker service model oai-timers-duration)
+      (cui--debug "cui-prompt-agent-request-prepare2 %s %s %s %s" header-marker service model cui-timers-duration)
       ;;
-      (oai-async1-start nil
+      (cui-async1-start nil
                         (list (funcall call 0)
                               callbackmy
                               (funcall call 1)
@@ -9636,16 +10143,23 @@ Aspects:
       ;; Global reporter uppdated and run all the time.
       ;; Every task have own timer for parallel requests to retry them.
       ;; 1) save request for timer
-      (oai-timers--set buffer-key header-marker)
+      (cui-timers--set buffer-key header-marker)
       ;; 2) run global reporter
-      (oai-timers--progress-reporter-run #'oai-restapi--stop-tracking-url-request (* oai-timers-duration 3) )))
+      (cui-timers--progress-reporter-run #'cui-restapi--stop-tracking-url-request (* cui-timers-duration 3) )))
 )
   ;;     ;; - else - built-in
-  ;;     (oai--debug "ELSE")
-  ;;     (oai-restapi-request-prepare req-type element sys-prompt sys-prompt-for-all-messages model max-tokens top-p temperature frequency-penalty presence-penalty service stream)
+  ;;     (cui--debug "ELSE")
+  ;;     (cui-restapi-request-prepare req-type element sys-prompt sys-prompt-for-all-messages model max-tokens top-p temperature frequency-penalty presence-penalty service stream)
   ;; ))
 
 ;; -- -- -- -- TODO: two parallel and concat
+;; -- -- -- Optional folding
+;; folding: activation
+(add-hook 'cui-mode-hook #'cui-optional-markdown-folding-activation)
+;; folding: cycle-block Shift-TAB
+(advice-add 'org-shifttab :around #'cui-optional-markdown-folding-shifttab-advice)
+
+;; (advice-remove 'xref-find-definitions #'my-org-xref-advice)
 ;; -- -- -- test sync request (old)
 
 ;; (print (let ((service 'together)
@@ -9655,7 +10169,7 @@ Aspects:
 ;;       (top-p nil)
 ;;       (frequency-penalty nil)
 ;;       (presence-penalty nil))
-;;   (oai-api-request-sync service model
+;;   (cui-api-request-sync service model
 ;;                            99
 ;;                            :messages  (vector (list :role 'system :content "Be good.")
 ;;                                               (list :role 'user :content "How to do staff?"))
@@ -9665,15 +10179,15 @@ Aspects:
 ;;                            :frequency-penalty frequency-penalty
 ;;                            :presence-penalty presence-penalty)))
 
-;; (defun my/oai-api-request-prepare-sync (req-type content element sys-prompt sys-prompt-for-all-messages model max-tokens top-p temperature frequency-penalty presence-penalty service stream)
+;; (defun my/cui-api-request-prepare-sync (req-type content element sys-prompt sys-prompt-for-all-messages model max-tokens top-p temperature frequency-penalty presence-penalty service stream)
 ;;   "Compose API request from data and start a server-sent event stream.
-;; Call `oai-api-request' function as a next step.
-;; Called from `oai-interface-step1' in main file.
+;; Call `cui-api-request' function as a next step.
+;; Called from `cui-interface-step1' in main file.
 ;; `REQ-TYPE' symbol - is completion or chat mostly.
 ;; `CONTENT' string - is block content, used to create messages or prompt.
 ;; `ELEMENT' org-element - is ai block, should be converted to market at once.
 ;; `SYS-PROMPT' string - first system instruction as a string.
-;; `SYS-PROMPT-FOR-ALL-MESSAGES' from `oai-default-inject-sys-prompt-for-all-messages' variable.
+;; `SYS-PROMPT-FOR-ALL-MESSAGES' from `cui-default-inject-sys-prompt-for-all-messages' variable.
 ;; `MODEL' string - is the model to use.
 ;; `MAX-TOKENS' integer - is the maximum number of tokens to generate.
 ;; `TEMPERATURE' is the temperature of the distribution.
@@ -9682,28 +10196,28 @@ Aspects:
 ;; `PRESENCE-PENALTY' is the presence penalty.
 ;; `SERVICE' symbol or string - is the AI cloud service such as 'openai or 'azure-openai'.
 ;; `STREAM' string - as bool, indicates whether to stream the response."
-;;   (oai--debug "oai-api-request-prepare")
+;;   (cui--debug "cui-api-request-prepare")
 ;;   (let* (
 ;;          (messages (unless (eql req-type 'completion)
 ;;                      ;; - split content to messages
-;;                      (oai-openai--collect-chat-messages content
+;;                      (cui-openai--collect-chat-messages content
 ;;                                                            sys-prompt
 ;;                                                            sys-prompt-for-all-messages
-;;                                                            (if oai-default-max-tokens-add-recomendation
-;;                                                                (oai-openai--get-lenght-recomendation max-tokens)
-;;                                                              )))) ; oai-block.el
-;;          (end-marker (oai-block--get-content-end-marker element))
-;;          ;; TODO: replace with result of `oai-agent-callback' call
-;;          (callback (cond ; set to oai--current-url-request-callback
+;;                                                            (if cui-default-max-tokens-add-recomendation
+;;                                                                (cui-openai--get-lenght-recomendation max-tokens)
+;;                                                              )))) ; cui-block.el
+;;          (end-marker (cui-block--get-content-end-marker element))
+;;          ;; TODO: replace with result of `cui-agent-callback' call
+;;          (callback (cond ; set to cui--current-url-request-callback
 ;;                     (messages
-;;                      (lambda (result) (oai--insert-stream-response end-marker result t)))
+;;                      (lambda (result) (cui--insert-stream-response end-marker result t)))
 ;;                     ;; - completion
-;;                     (t (lambda (result) (oai--insert-single-response end-marker
-;;                                                                         (oai--get-single-response-text result)
+;;                     (t (lambda (result) (cui--insert-single-response end-marker
+;;                                                                         (cui--get-single-response-text result)
 ;;                                                                         nil))))))
-;;     ;; - Call and save to dict. Removed inside oai-api-request.
-;;     (oai-timers--progress-reporter-run
-;;      (oai-api-request service model callback
+;;     ;; - Call and save to dict. Removed inside cui-api-request.
+;;     (cui-timers--progress-reporter-run
+;;      (cui-api-request service model callback
 ;;                          :prompt content ; if completion
 ;;                          :messages messages
 ;;                          :max-tokens max-tokens
@@ -9712,12 +10226,12 @@ Aspects:
 ;;                          :frequency-penalty frequency-penalty
 ;;                          :presence-penalty presence-penalty
 ;;                          :stream stream)
-;;      (oai-block-get-header-marker element)
-;;      #'oai-openai--interrupt-url-request)))
+;;      (cui-block-get-header-marker element)
+;;      #'cui-openai--interrupt-url-request)))
 
-;; (setq oai-agent-call #'my/oai-api-request-prepare-sync)
+;; (setq cui-agent-call #'my/cui-api-request-prepare-sync)
 
-;; ;; (defun my/oai-agent (req-type content end-marker sys-prompt sys-prompt-for-all-messages model max-tokens top-p temperature frequency-penalty presence-penalty service stream)
+;; ;; (defun my/cui-agent (req-type content end-marker sys-prompt sys-prompt-for-all-messages model max-tokens top-p temperature frequency-penalty presence-penalty service stream)
 
 ;;   )
 
@@ -9729,7 +10243,7 @@ Aspects:
 
 ;; (advice-add 'org-babel-insert-result :around #'my/org-babel-insert-result)
 
-  ;; (setq oai-agent-call #'oai-api-request-prepare
+  ;; (setq cui-agent-call #'cui-api-request-prepare
 
 
 
@@ -9815,7 +10329,7 @@ Aspects:
 ;;               (add-face-text-property start end face-property)
 ;;               (add-text-properties start end properties))))))))
 
-;; (let* ((el (oai-block-p))
+;; (let* ((el (cui-block-p))
 ;;        (beg (org-element-property :begin el))
 ;;        (end (org-element-property :end el)))
 ;;   (print (list beg end))
@@ -10149,10 +10663,15 @@ Aspects:
 ;; (add-hook 'org-font-lock-hook 'my/org-fontify-links-in-ai-blocks)
 ;;           (lambda (limit)
 ;;             (my/org-activate-links-in-ai-blocks limit)))
+;; -- -- org-history
+(add-to-list 'load-path "/home/user/sources/emacs-org-history")
+(when (require 'org-history nil 'noerror)
+  (setopt org-history-debug-buffer "*org-history-debug*")
+  (setopt org-history-outline-date-column 100))
 ;; -- -- show-point-mode in mode-line <<position-in-modeline>>
 ;; Define the minor mode to toggle point display
 (defvar show-point-mode-map-entry
-  '(:eval (format " (%d)" (point)))
+  '(:eval (format " (%d,%d)" (line-number-at-pos) (point)))
   "The specific list structure we add to the mode-line.")
 
 (defvar my/force-mode-line-update-timer nil)
@@ -10182,6 +10701,15 @@ Aspects:
     (remove-hook 'post-command-hook #'my/force-mode-line-update)))
 
 (show-point-mode 1)
+
+;; (setq org-history-outline-date-render-fn
+;;       (lambda (date-str color-hex days-old)
+;;         (propertize (format " 🗓 %s " date-str)
+;;                     'face `(:background "#333333" :foreground ,color-hex)
+;;                     'help-echo (format "%d days old" days-old))))
+
+(setq org-history-outline-date-render-fn #'org-history-outline-default-render-daysold)
+
 ;; -- -- dockerfile-mode
 ;; (with-eval-after-load 'dockerfile-mode
 ;;   (add-hook 'dockerfile-mode-hook #'flycheck-mode))
@@ -10690,3 +11218,4 @@ Aspects:
 ;; outline-regexp: "^;; -- "
 ;; coding: utf-8
 ;; end:
+(put 'list-timers 'disabled nil)

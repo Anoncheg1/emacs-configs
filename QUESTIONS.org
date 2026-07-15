@@ -2044,6 +2044,48 @@ Solution is to forcely set ~buffer-file-name~ variable locally in buffer.
   (add-hook 'image-dired-thumbnail-mode-hook #'my-image-dired-set-dired-dir))
 #+end_src
 
+* Dired-image: random slideshow
+To run ith 1 sec delay:
+: M-1 M-x image-dired-slideshow-random-start RET
+
+#+begin_src elisp :lexical t :results none :exports code :eval no
+(require 'image-dired)
+(require 'cl-lib)
+
+(defun image-dired-slideshow-random-start (&optional arg)
+  "Start a random image-dired slideshow using built-in, optimized functions."
+  (interactive "P")
+  (let* ((buf (get-buffer image-dired-thumbnail-buffer))
+         (cached-points
+          (and buf
+               (with-current-buffer buf
+                 (save-excursion
+                   (cl-loop for pos = (point-min) then (next-single-property-change pos 'display nil (point-max))
+                            while (< pos (point-max))
+                            do (goto-char pos)
+                            when (image-dired-image-at-point-p)
+                            collect pos))))))
+    (when cached-points
+      (cl-labels
+          ((random-step (&rest _)
+             (when (buffer-live-p buf)
+               (with-current-buffer buf
+                 (goto-char (seq-random-elt cached-points))
+                 (image-dired-display-this))))
+           (filter-stop (orig-fun &rest args)
+             (let ((this-command (if (eq this-command 'image-dired-slideshow-random-start)
+                                     'image-dired-slideshow-start
+                                   this-command)))
+               (apply orig-fun args)
+               (unless image-dired--slideshow-timer
+                 (advice-remove 'image-dired-display-next #'random-step)
+                 (advice-remove 'image-dired--slideshow-stop #'filter-stop)))))
+
+        (advice-add 'image-dired-display-next :override #'random-step)
+        (advice-add 'image-dired--slideshow-stop :around #'filter-stop)
+        (random-step)
+        (image-dired-slideshow-start arg)))))
+#+end_src
 * How emacs behavior differ when run under root?
 C-<tab> (C-TAB) and <tab> (TAB) is the same.  . <return> is Enter, RET is C-m.)
 - TAB is ascii C-i. ,
